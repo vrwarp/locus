@@ -1,45 +1,114 @@
-# User Journeys
+# User Journeys: Tales of the Data Guardians
 
-## Persona: Sarah, the Church Database Admin
-- **Role:** Administrator at a mid-sized church (500-1000 members).
-- **Goals:** Wants to ensure all children are checked into the correct classes for security and age-appropriate learning.
-- **Frustrations:** Finds manual spreadsheet audits tedious; often discovers kids in the wrong grade only when a parent complains or a check-in label prints incorrectly.
-- **Tech Savvy:** Comfortable with web apps, but not a developer.
+## 1. The Cast of Characters (Personas)
 
----
+### Sarah, The "Architect" (Primary Persona)
+*   **Role:** Database Administrator / Executive Assistant.
+*   **Archetype:** The Perfectionist.
+*   **Motivation:** Order, efficiency, and being the "source of truth" for the staff.
+*   **Pain Point:** "I spend 4 hours every Friday cross-referencing spreadsheets with the check-in system, and I *still* find mistakes on Sunday morning."
+*   **Superpower:** Can spot a typo from 50 yards away.
 
-## Journey 1: The Initial Audit (The "Lightbulb Moment")
-**Goal:** Assess the overall health of the church's age/grade data for the first time.
+### Pastor Mike, The "Shepherd" (Secondary Persona)
+*   **Role:** Family Ministry Pastor.
+*   **Archetype:** The Visionary.
+*   **Motivation:** Making sure every kid is known and loved.
+*   **Pain Point:** "I don't care about the database fields; I just want to know why Timmy is in the wrong small group."
+*   **Superpower:** Knows every kid's name but forgets their birthdays.
 
-1.  **Discovery:** Sarah hears about Locus as a tool to visualize PCO data.
-2.  **Authentication:** She opens Locus and enters her Planning Center Application ID and Secret (she knows where to find these from her PCO Developer settings).
-3.  **Loading:** She waits a moment while the app fetches her "People" database.
-4.  **Visualization:** The "Grade Scatter" plot appears.
-    - *Reaction:* She immediately sees a strong diagonal line (the "Diagonal of Truth") where most students sit.
-    - *Realization:* However, she also sees scattered dots far away from the line—a 16-year-old in 1st Grade, and a 4-year-old in 5th Grade.
-5.  **Outcome:** Sarah instantly understands that her database has significant errors that need addressing. She feels validated that her "hunch" about bad data was correct.
-
----
-
-## Journey 2: Investigating Outliers (The "Detective Work")
-**Goal:** Identify specific students with incorrect data to prepare for cleanup.
-
-1.  **Selection:** Sarah focuses on the most extreme outliers on the chart (the dots furthest from the diagonal).
-2.  **Inspection:** She hovers over a dot representing a "15-year-old in 2nd Grade."
-3.  **Identification:** The tooltip reveals the name: "John Doe."
-4.  **Verification:** She opens a new tab, goes to Planning Center People, and searches for "John Doe."
-    - She sees his birthdate was entered incorrectly (typo in the year).
-5.  **Action:** She corrects the birthdate in PCO.
-6.  **Refresh:** (In a future version) She refreshes Locus, and John's dot snaps to the correct position on the diagonal.
-7.  **Outcome:** Sarah has successfully cleaned up a record. She repeats this for the top 10 worst offenders.
+### Karen, The "Gatekeeper" (Tertiary Persona)
+*   **Role:** Check-in Volunteer Coordinator.
+*   **Archetype:** The Protector.
+*   **Motivation:** Security and speed on Sunday mornings.
+*   **Pain Point:** "When a label prints wrong, the line stops, parents get mad, and I panic."
+*   **Superpower:** Managing chaos with a smile.
 
 ---
 
-## Journey 3: The Maintenance Check (The "Peace of Mind")
-**Goal:** Ensure no new bad data has crept in during the busy fall kickoff season.
+## 2. Core Journeys (The "Happy Paths")
 
-1.  **Routine:** It's the first Monday of the month. Sarah logs into Locus.
-2.  **Scan:** She glances at the scatter plot.
-3.  **Observation:** The dots are tightly clustered around the expected diagonal. There are no major outliers.
-4.  **Confidence:** She sees one minor outlier (a child held back a year), but recognizes the name and knows it's intentional.
-5.  **Outcome:** She closes the tab in under 2 minutes, confident that her data is clean and ready for Sunday service.
+### Journey A: The "First Light" (The Initial Audit)
+*The emotional journey from anxiety to clarity.*
+
+1.  **The Trigger:** Sarah receives an angry email from a parent: "My son is 14 but he's stuck in the 5th-grade list for the retreat!" She realizes her data is a mess.
+2.  **The Setup:** She logs into Locus. The interface is dark, sleek, and calming. She enters her API keys.
+3.  **The Reveal:** The screen fades in. Thousands of dots animate into the "Grade Scatter" view.
+    *   *Micro-interaction:* As the dots settle, a soft "thud" sound plays (optional), grounding the data.
+4.  **The Shock:** She sees the "Diagonal of Truth"—a tight cluster of correct data. But she also sees the "Wilderness"—dots scattered everywhere.
+    *   *Internal Monologue:* "Oh my gosh. It's worse than I thought. But... at least I can see it now."
+5.  **The Exploration:** She toggles a filter: "Show only High School." The chart zooms in smoothly.
+6.  **The Validation:** She clicks a "Share" button and generates a read-only link. She slacks it to Pastor Mike with the caption: "Found the problem with the retreat list. Give me 10 minutes."
+7.  **Resolution:** She feels empowered. The monster in the closet is no longer invisible.
+
+### Journey B: The "Morning Coffee Clean-up" (Routine Maintenance)
+*The ritual of keeping the garden weeded.*
+
+1.  **Context:** It's Tuesday morning. Sarah has her coffee. She has 15 minutes before a staff meeting.
+2.  **The Dashboard:** She opens Locus. A "Health Score" widget spins up to **94/100**.
+    *   *Notification:* "6 new anomalies detected since last week."
+3.  **The Hunt:** She clicks "Review Anomalies." The view shifts to a focused list mode, side-by-side with the scatter plot.
+4.  **The Action:**
+    *   *Item 1:* "Jessica, Age 7, Grade: None." -> Sarah clicks "Auto-Assign Grade 2" based on birthdate. *Whoosh*—the item disappears.
+    *   *Item 2:* "Mark, Age 45, Grade: 10." -> Sarah laughs. "Mark is a leader, not a student." She clicks "Mark as Adult/Graduated."
+5.  **The Dopamine:** The counter ticks down: 5... 4... 3... 0.
+6.  **The Payoff:** The Health Score bumps to **98/100**. Confetti rains briefly on the screen (subtle, classy confetti).
+7.  **Exit:** She closes the tab, satisfied. Her work is done.
+
+---
+
+## 3. The "Edge Case" Journeys (Where Reality gets Messy)
+
+### Journey C: The "Special Needs" Exception
+*Handling data that is technically "wrong" but relationally "right".*
+
+1.  **The Scenario:** Billy is 12 (should be 7th grade) but has special needs and stays in the 4th-grade classroom where he is comfortable.
+2.  **The Conflict:** Locus flags Billy as a "Critical Error" (Age/Grade mismatch).
+3.  **The Resolution:**
+    *   Sarah sees the red flag on Billy.
+    *   She hovers and clicks the "Ignore/Annotate" button (an icon of a crossed-out eye or a sticky note).
+    *   She types a note: "Permitted Exception - Special Needs Ministry Plan."
+    *   She sets an expiry: "Review in 1 Year."
+4.  **The Outcome:** Billy's dot turns from "Error Red" to "Exception Blue." He stays on the chart but no longer affects the Health Score. The system respects the human nuance.
+
+### Journey D: The "Import Disaster" Recovery
+*Recovering from a bad CSV upload.*
+
+1.  **The Scenario:** A volunteer uploaded a CSV of VBS kids and accidentally swapped the "Birth Month" and "Birth Day" columns for 50 kids.
+2.  **The Detection:** Sarah logs in and sees a bizarre pattern—a vertical line of kids who all seemingly have birthdays on the 1st of the month.
+3.  **The Analysis:** She uses the "Lasso Tool" to circle this odd group of dots.
+4.  **The Insight:** The side panel shows a summary: "50 selected. Common trait: Birth Day is < 13."
+5.  **The Fix:** She selects "Batch Edit." She chooses a transformation script (Future Feature): "Swap Day/Month."
+6.  **The Relief:** The dots scramble and re-settle into a natural distribution. Crisis averted before anyone even noticed.
+
+---
+
+## 4. The Future State: "The Invisible Hand"
+
+### Journey E: The AI Assistant ("Locus Prime")
+*The future where the tool works without you.*
+
+1.  **The Notification:** Sarah gets a push notification on her phone: "Locus detected 3 anomalies from Sunday's check-ins."
+2.  **The Interaction:** She taps the notification. It opens a "Tinder-style" card interface.
+    *   *Card 1:* "Timmy (Age 6) checked into 'Nursery' (Ages 0-2). Do you want to update his grade or flag this?"
+    *   *Action:* She swipes Left ("Flag for Pastor Mike").
+    *   *Card 2:* "New family 'The Smiths'. 3 members have no birthdates."
+    *   *Action:* She swipes Right ("Send 'Missing Info' email template").
+3.  **The Completion:** "All caught up!"
+4.  **The Value:** The system is proactively monitoring the data stream, acting as a virtual assistant that never sleeps.
+
+---
+
+## 5. Emotional Maps
+
+| Phase | User Emotion | System Response |
+| :--- | :--- | :--- |
+| **Login** | Anticipation / Anxiety (What will I find?) | Fast load, calming colors, "Welcome back, Sarah." |
+| **Visualization** | Overwhelm (So many dots!) | Clear hierarchy, "Diagonal of Truth" anchors the eye. |
+| **Discovery** | Curiosity (What is that outlier?) | Instant tooltips, fluid hover states. |
+| **Correction** | Empowerment (I can fix this!) | snappy UI, immediate visual feedback (dot moves). |
+| **Completion** | Relief / Pride (I did good work.) | Health Score goes up, celebration animation. |
+
+---
+
+## 6. Conclusion
+These journeys highlight that Locus is not just about *viewing* data; it is about the **cycle of trust**. Discovery -> Verification -> Correction -> Confidence. We build features that grease the wheels of this cycle, making the hard thing (data integrity) the easy thing.
