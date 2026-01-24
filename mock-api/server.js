@@ -36,7 +36,7 @@ const paginate = (req, collection) => {
   const hasNext = nextOffset < collection.length;
 
   // Construct absolute URLs using the request host
-  const baseUrl = `${req.protocol}://${req.get('host')}${req.path}`;
+  const baseUrl = `${req.protocol}://${req.get('host')}${req.originalUrl.split('?')[0]}`;
 
   const links = {
     self: `${baseUrl}?offset=${offset}&per_page=${per_page}`

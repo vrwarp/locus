@@ -6,10 +6,23 @@ import App from './App.tsx'
 
 const queryClient = new QueryClient()
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
-  </StrictMode>,
-)
+async function enableMocking() {
+  if (import.meta.env.VITE_DEMO_MODE !== 'true') {
+    return
+  }
+
+  const { worker } = await import('./mocks/browser')
+  return worker.start({
+    onUnhandledRequest: 'bypass',
+  })
+}
+
+enableMocking().then(() => {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </StrictMode>,
+  )
+})
