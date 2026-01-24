@@ -65,6 +65,15 @@ vi.mock('./components/GhostModal', () => ({
   ) : null
 }));
 
+vi.mock('./components/RobertReport', () => ({
+  RobertReport: ({ isOpen, stats, onClose }: any) => isOpen ? (
+    <div data-testid="robert-report">
+        <p>Health Score: {stats.score}</p>
+        <button onClick={onClose}>Close Report</button>
+    </div>
+  ) : null
+}));
+
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
@@ -447,5 +456,39 @@ describe('App Integration', () => {
 
         // Wait for alert to confirm completion
         await waitFor(() => expect(window.alert).toHaveBeenCalledWith(expect.stringMatching(/Successfully archived 1 ghosts/)));
+    });
+
+    it('opens and closes the Robert Report', async () => {
+        // Set date to ensure consistent age calculation
+        vi.setSystemTime(new Date('2024-11-01')); // Nov 2024
+
+        (axios.get as any).mockResolvedValue({
+            data: {
+                data: [{
+                    id: '1',
+                    type: 'Person',
+                    attributes: {
+                        birthdate: '2014-01-01', // Age 10. Expected Grade 5.
+                        grade: 5, // Match -> Score 100
+                        name: 'Healthy Kid'
+                    }
+                }]
+            }
+        });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument());
+
+        fireEvent.click(screen.getByText('📊 Report'));
+        expect(screen.getByTestId('robert-report')).toBeInTheDocument();
+
+        expect(screen.getByText('Health Score: 100')).toBeInTheDocument();
+
+        fireEvent.click(screen.getByText('Close Report'));
+        expect(screen.queryByTestId('robert-report')).not.toBeInTheDocument();
     });
 });
