@@ -101,3 +101,13 @@
     - Updated `src/utils/storage.test.ts` to mock crypto and verify async flow.
     - Updated `src/App.test.tsx` to handle async config loading and mock storage layer.
 - **Status:** Security hardening complete. Configuration and History are now encrypted at rest. Next steps: Deployment Setup, Cache Management (IndexedDB).
+
+## Session 10
+- **Implemented:** Cache Management (IndexedDB).
+    - Added `idb` dependency.
+    - Created `src/utils/cache.ts` to handle Encrypted IndexedDB storage (5-minute TTL).
+    - Updated `App.tsx` to cache `PcoPerson[]` (raw API response) to prevent redundant network calls on reload.
+- **Tests:**
+    - Created `src/utils/cache.test.ts` to verify encryption/expiration logic.
+    - Updated `src/App.test.tsx` to verify cache hit/miss flows.
+- **Status:** Cache Management functional. Next steps: Deployment Setup, Sandbox Mode.

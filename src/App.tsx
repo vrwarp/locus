@@ -9,9 +9,10 @@ import { RobertReport } from './components/RobertReport'
 import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount } from './utils/pco'
 import { isGhost } from './utils/ghost'
 import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot } from './utils/storage'
+import { saveToCache, loadFromCache } from './utils/cache'
 import { calculateHealthStats } from './utils/analytics'
 import type { AppConfig, HealthHistoryEntry } from './utils/storage'
-import type { Student } from './utils/pco'
+import type { Student, PcoPerson } from './utils/pco'
 import './App.css'
 
 function App() {
@@ -82,8 +83,15 @@ function App() {
     queryFn: async () => {
       if (!appId || !secret) return []
 
+      const cacheKey = `people_raw_${appId}`;
       const auth = btoa(`${appId}:${secret}`)
-      const people = await fetchAllPeople(auth)
+
+      let people = await loadFromCache<PcoPerson[]>(cacheKey, appId, 5 * 60 * 1000); // 5 mins TTL
+
+      if (!people) {
+        people = await fetchAllPeople(auth)
+        await saveToCache(cacheKey, people, appId);
+      }
 
       return people
         .map(p => transformPerson(p, config.graderOptions))

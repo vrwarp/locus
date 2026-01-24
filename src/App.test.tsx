@@ -6,6 +6,7 @@ import axios from 'axios';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Student } from './utils/pco';
 import * as storage from './utils/storage';
+import { saveToCache, loadFromCache } from './utils/cache';
 
 // Mock dependencies
 vi.mock('axios');
@@ -16,6 +17,12 @@ vi.mock('./utils/storage', () => ({
   saveConfig: vi.fn().mockResolvedValue(undefined),
   loadHealthHistory: vi.fn().mockResolvedValue([]),
   saveHealthSnapshot: vi.fn().mockResolvedValue(undefined),
+}));
+
+// Mock cache
+vi.mock('./utils/cache', () => ({
+  saveToCache: vi.fn(),
+  loadFromCache: vi.fn().mockResolvedValue(null),
 }));
 
 // Mock GradeScatter to avoid Recharts complexity and easily test interaction
@@ -475,5 +482,61 @@ describe('App Integration', () => {
 
         fireEvent.click(screen.getByText('Close Report'));
         expect(screen.queryByTestId('robert-report')).not.toBeInTheDocument();
+    });
+
+    it('uses cache and does not fetch API if valid data exists', async () => {
+        const cachedPeople = [{
+            id: 'cached-1',
+            type: 'Person',
+            attributes: {
+                birthdate: '2014-01-01',
+                grade: 5,
+                name: 'Cached Kid'
+            }
+        }];
+
+        (loadFromCache as any).mockResolvedValue(cachedPeople);
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-cached-1')).toBeInTheDocument());
+
+        expect(loadFromCache).toHaveBeenCalledWith('people_raw_test-id', 'test-id', expect.any(Number));
+        expect(axios.get).not.toHaveBeenCalled();
+        expect(saveToCache).not.toHaveBeenCalled();
+    });
+
+    it('fetches from API and saves to cache if cache miss', async () => {
+        (loadFromCache as any).mockResolvedValue(null);
+
+        const apiData = [{
+            id: 'api-1',
+            type: 'Person',
+            attributes: {
+                birthdate: '2014-01-01',
+                grade: 5,
+                name: 'API Kid'
+            }
+        }];
+
+        (axios.get as any).mockResolvedValue({
+            data: {
+                data: apiData
+            }
+        });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-api-1')).toBeInTheDocument());
+
+        expect(loadFromCache).toHaveBeenCalled();
+        expect(axios.get).toHaveBeenCalled();
+        expect(saveToCache).toHaveBeenCalledWith('people_raw_test-id', apiData, 'test-id');
     });
 });
