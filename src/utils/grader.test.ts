@@ -13,4 +13,15 @@ describe('Grader Logic', () => {
     const schoolYear = new Date('2024-10-01');
     expect(calculateExpectedGrade(lateBorn, schoolYear)).toBe(0); // Kindergarten
   });
+
+  it('respects custom cutoff dates', () => {
+    const dob = new Date('2018-09-02'); // Born Sept 2nd
+    const schoolYear = new Date('2024-10-01');
+
+    // Default cutoff is Sept 1, so this kid misses it (Grade 0)
+    expect(calculateExpectedGrade(dob, schoolYear)).toBe(0);
+
+    // With cutoff Oct 1, they should make it (Grade 1)
+    expect(calculateExpectedGrade(dob, schoolYear, { cutoffMonth: 9, cutoffDay: 1 })).toBe(1);
+  });
 });
