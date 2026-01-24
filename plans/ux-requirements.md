@@ -53,7 +53,7 @@
 ### 3.4 The "Robert Report" View
 *   **Layout:** Dashboard style. Big Numbers.
 *   **Visuals:** Trend lines (Green = Good).
-*   **Tone:** Serious, trustworthy, financial.
+*   **Tone:** Serious, trustworthy, strategic.
 
 ### 3.5 The "Genealogy" Graph (Moonshot)
 *   **Visual:** Force-directed graph (D3.js or similar).
