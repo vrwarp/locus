@@ -38,13 +38,17 @@ vi.mock('./components/SmartFixModal', () => ({
 }));
 
 vi.mock('./components/ConfigModal', () => ({
-  ConfigModal: ({ isOpen, onSave, onClose }: any) => isOpen ? (
+  ConfigModal: ({ isOpen, onSave, onClose, currentConfig }: any) => isOpen ? (
     <div data-testid="config-modal">
         <button onClick={() => {
             // Set cutoff to October 1st (Month Index 9)
-            onSave({ graderOptions: { cutoffMonth: 9, cutoffDay: 1 } });
+            onSave({ ...currentConfig, graderOptions: { cutoffMonth: 9, cutoffDay: 1 } });
             onClose();
         }}>Save Config</button>
+         <button onClick={() => {
+            onSave({ ...currentConfig, highContrastMode: true });
+            onClose();
+        }}>Save High Contrast</button>
         <button onClick={onClose}>Close Config</button>
     </div>
   ) : null
@@ -341,4 +345,15 @@ describe('App Integration', () => {
         // New calculation: Age 6 -> Grade 1
         expect(screen.getByText('Calculated: 1')).toBeInTheDocument();
    }, 15000);
+
+   it('applies high-contrast class when configured', async () => {
+       render(<Wrapper><App /></Wrapper>);
+
+       expect(document.body).not.toHaveClass('high-contrast');
+
+       fireEvent.click(screen.getByText('⚙️ Settings'));
+       fireEvent.click(screen.getByText('Save High Contrast'));
+
+       expect(document.body).toHaveClass('high-contrast');
+    });
 });

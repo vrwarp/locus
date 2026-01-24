@@ -36,6 +36,15 @@ function App() {
     setConfig(loaded);
   }, []);
 
+  // Apply High Contrast Mode to body
+  useEffect(() => {
+    if (config.highContrastMode) {
+      document.body.classList.add('high-contrast');
+    } else {
+      document.body.classList.remove('high-contrast');
+    }
+  }, [config.highContrastMode]);
+
   // Cleanup timer on unmount
   useEffect(() => {
       return () => {
@@ -170,7 +179,10 @@ function App() {
           {error && <p style={{color: 'red'}}>Error fetching data: {error.message}</p>}
           {!isLoading && !error && students.length === 0 && appId && secret && <p>No data found or check credentials.</p>}
 
-          <GradeScatter data={students} onPointClick={setSelectedStudent} />
+          <GradeScatter
+            data={students}
+            onPointClick={setSelectedStudent}
+          />
       </div>
 
       <SmartFixModal

@@ -3,9 +3,17 @@
   line-height: 1.5;
   font-weight: 400;
 
+  /* Theme Variables - Default (Dark) */
+  --bg-color: #242424;
+  --text-color: rgba(255, 255, 255, 0.87);
+  --safe-color: #82ca9d; /* Pastel Green */
+  --anomaly-color: #ff4d4d; /* Neon Red */
+  --chart-grid-color: #444;
+  --chart-text-color: #ccc;
+
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: var(--text-color);
+  background-color: var(--bg-color);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -28,6 +36,8 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 }
 
 h1 {
@@ -45,6 +55,7 @@ button {
   background-color: #1a1a1a;
   cursor: pointer;
   transition: border-color 0.25s;
+  color: var(--text-color);
 }
 button:hover {
   border-color: #646cff;
@@ -56,8 +67,10 @@ button:focus-visible {
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
-    background-color: #ffffff;
+    --bg-color: #ffffff;
+    --text-color: #213547;
+    --chart-grid-color: #ccc;
+    --chart-text-color: #333;
   }
   a:hover {
     color: #747bff;
@@ -66,3 +79,18 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* High Contrast Mode Override */
+.high-contrast {
+    --bg-color: #000000;
+    --text-color: #ffffff;
+    --safe-color: #00ffff; /* Cyan */
+    --anomaly-color: #ff00ff; /* Magenta */
+    --chart-grid-color: #ffffff;
+    --chart-text-color: #ffffff;
+}
+
+/* Apply variables to .high-contrast container if it wraps body content,
+   but usually we put this class on body or a top level div.
+   If on body, the vars above cascade down.
+*/
