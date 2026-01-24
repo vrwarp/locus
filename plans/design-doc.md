@@ -22,17 +22,13 @@ Since we do not store PCO data, we map API responses to a lightweight internal m
 interface Student {
   id: string; // PCO Person ID
   name: string;
-  avatarUrl: string;
   birthdate: string; // ISO Date
-  grade: number | null; // Converted from PCO grade string
-  calculatedAge: number; // Derived
-  delta: number; // calculatedAge - (grade + 5)
-  status: 'active' | 'archived';
-  metrics: {
-     lastCheckIn: string | null;
-     totalGivingLastYear: number;
-     groupCount: number;
-  }
+  pcoGrade: number; // Converted from PCO grade string
+  calculatedGrade: number; // Derived
+  delta: number; // calculatedGrade - (pcoGrade + 5)
+  lastCheckInAt: string | null;
+  totalGiving: number; // Placeholder until API integration
+  groupCount: number; // Placeholder until API integration
 }
 ```
 

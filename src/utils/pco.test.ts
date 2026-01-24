@@ -44,7 +44,10 @@ describe('transformPerson', () => {
       name: 'John Doe',
       birthdate: birthdate10,
       calculatedGrade: expectedGrade,
-      delta: expectedGrade - 4
+      delta: expectedGrade - 4,
+      lastCheckInAt: null,
+      totalGiving: 0,
+      groupCount: 0
     });
   });
 

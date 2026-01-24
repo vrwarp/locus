@@ -64,3 +64,16 @@
     - Updated `src/components/GradeScatter.test.tsx` to verify color logic via CSS variables.
     - Updated `src/App.test.tsx` to verify theme class application.
 - **Status:** High Contrast Mode functional. Next steps: Ghost Protocol, Encryption for Config.
+
+## Session 7
+- **Implemented:** Ghost Protocol.
+    - Created `src/utils/ghost.ts` for logic identifying inactive members (Ghosts).
+    - Updated `Student` model in `src/utils/pco.ts` to include `lastCheckInAt`, `totalGiving`, and `groupCount`.
+    - Added `archivePerson` to `src/utils/pco.ts` to support archiving.
+    - Created `GhostModal` component for reviewing and archiving ghosts.
+    - Integrated "Ghost Protocol" button in `App.tsx`.
+- **Tests:**
+    - Created `src/utils/ghost.test.ts` to verify identification logic.
+    - Updated `src/App.test.tsx` to test the ghost identification and archival flow.
+    - Updated `src/utils/pco.test.ts` to reflect model changes.
+- **Status:** Ghost Protocol functional. Next steps: Encryption for Config, Deployment Setup.

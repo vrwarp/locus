@@ -54,6 +54,16 @@ vi.mock('./components/ConfigModal', () => ({
   ) : null
 }));
 
+vi.mock('./components/GhostModal', () => ({
+  GhostModal: ({ isOpen, onArchive, onClose, students }: any) => isOpen ? (
+    <div data-testid="ghost-modal">
+        <p>Found {students.length} ghosts</p>
+        <button onClick={() => onArchive(students)}>Archive All</button>
+        <button onClick={onClose}>Close</button>
+    </div>
+  ) : null
+}));
+
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
@@ -71,6 +81,8 @@ describe('App Integration', () => {
         vi.clearAllMocks();
         queryClient.clear();
         vi.useRealTimers();
+        // Mock alert
+        window.alert = vi.fn();
     });
 
     afterEach(() => {
@@ -355,5 +367,64 @@ describe('App Integration', () => {
        fireEvent.click(screen.getByText('Save High Contrast'));
 
        expect(document.body).toHaveClass('high-contrast');
+    });
+
+    it('identifies and archives ghosts', async () => {
+        const ghostStudent = {
+            id: 'g1',
+            type: 'Person',
+            attributes: {
+                birthdate: '2000-01-01',
+                grade: 10,
+                name: 'Casper',
+                last_checked_in_at: null // Never checked in -> Ghost
+            }
+        };
+        const activeStudent = {
+            id: 'a1',
+            type: 'Person',
+            attributes: {
+                birthdate: '2000-01-01',
+                grade: 10,
+                name: 'Alive',
+                last_checked_in_at: '2024-01-01' // Recent -> Not Ghost (Assuming mock date is later)
+            }
+        };
+
+        // Set system time so 'Alive' is considered recent
+        vi.setSystemTime(new Date('2024-02-01'));
+
+        (axios.get as any).mockResolvedValue({
+            data: {
+                data: [ghostStudent, activeStudent]
+            }
+        });
+        (axios.patch as any).mockResolvedValue({ data: { data: {} } });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-g1')).toBeInTheDocument());
+
+        fireEvent.click(screen.getByText('👻 Ghost Protocol'));
+        expect(screen.getByTestId('ghost-modal')).toBeInTheDocument();
+        expect(screen.getByText('Found 1 ghosts')).toBeInTheDocument();
+
+        fireEvent.click(screen.getByText('Archive All'));
+
+        await waitFor(() => expect(axios.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/g1',
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    attributes: { status: 'inactive' }
+                })
+            }),
+            expect.any(Object)
+        ));
+
+        // Wait for alert to confirm completion
+        await waitFor(() => expect(window.alert).toHaveBeenCalledWith(expect.stringMatching(/Successfully archived 1 ghosts/)));
     });
 });

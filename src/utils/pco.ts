@@ -43,11 +43,14 @@ export interface Student {
   birthdate: string;
   calculatedGrade: number;
   delta: number;
+  lastCheckInAt: string | null;
+  totalGiving: number;
+  groupCount: number;
 }
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
   const { id, attributes } = person;
-  const { birthdate, grade, name, first_name, last_name } = attributes;
+  const { birthdate, grade, name, first_name, last_name, last_checked_in_at } = attributes;
 
   if (!birthdate || grade === undefined || grade === null) {
     return null;
@@ -74,6 +77,9 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     birthdate,
     calculatedGrade,
     delta,
+    lastCheckInAt: (last_checked_in_at as string) || null,
+    totalGiving: 0, // Placeholder until API support
+    groupCount: 0, // Placeholder until API support
   };
 };
 
@@ -96,6 +102,10 @@ export const updatePerson = async (id: string, attributes: PcoAttributes, auth: 
     );
     return response.data.data;
   };
+
+export const archivePerson = async (id: string, auth: string): Promise<PcoPerson> => {
+    return updatePerson(id, { status: 'inactive' }, auth);
+};
 
 export const fetchAllPeople = async (auth: string, url: string = '/api/people/v2/people?per_page=100'): Promise<PcoPerson[]> => {
   let allPeople: PcoPerson[] = [];

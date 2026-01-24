@@ -4,8 +4,10 @@ import axios from 'axios'
 import { GradeScatter } from './components/GradeScatter'
 import { SmartFixModal } from './components/SmartFixModal'
 import { ConfigModal } from './components/ConfigModal'
+import { GhostModal } from './components/GhostModal'
 import { UndoToast } from './components/UndoToast'
-import { transformPerson, updatePerson, fetchAllPeople } from './utils/pco'
+import { transformPerson, updatePerson, fetchAllPeople, archivePerson } from './utils/pco'
+import { isGhost } from './utils/ghost'
 import { loadConfig, saveConfig } from './utils/storage'
 import type { AppConfig } from './utils/storage'
 import type { Student } from './utils/pco'
@@ -16,6 +18,8 @@ function App() {
   const [secret, setSecret] = useState('')
   const [config, setConfig] = useState<AppConfig>({ graderOptions: {} });
   const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [isGhostModalOpen, setIsGhostModalOpen] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
 
   // Pending update state for UI (Toast)
@@ -71,6 +75,33 @@ function App() {
     enabled: !!appId && !!secret,
     retry: false
   })
+
+  const ghosts = students.filter(s => isGhost(s));
+
+  const handleArchiveGhosts = async (ghostsToArchive: Student[]) => {
+      setIsArchiving(true);
+      const auth = btoa(`${appId}:${secret}`);
+
+      let successCount = 0;
+      for (const ghost of ghostsToArchive) {
+          try {
+              await archivePerson(ghost.id, auth);
+              successCount++;
+          } catch (e) {
+              console.error(`Failed to archive ${ghost.name}`, e);
+          }
+      }
+
+      // Invalidate to refetch
+      queryClient.invalidateQueries({ queryKey: ['people', appId, secret, config] });
+      setIsArchiving(false);
+      setIsGhostModalOpen(false);
+      if (successCount > 0) {
+          alert(`Successfully archived ${successCount} ghosts.`);
+      } else {
+          alert('Failed to archive ghosts. Check console/network.');
+      }
+  }
 
   // Function to actually execute the API call
   const executeCommit = async (update: { original: Student, updated: Student }) => {
@@ -154,9 +185,14 @@ function App() {
     <div className="app-container">
       <div className="header">
         <h1>Locus</h1>
-        <button onClick={() => setIsConfigOpen(true)} className="settings-btn">
-             ⚙️ Settings
-        </button>
+        <div style={{display: 'flex', gap: '1rem'}}>
+            <button onClick={() => setIsGhostModalOpen(true)} className="settings-btn">
+                 👻 Ghost Protocol
+            </button>
+            <button onClick={() => setIsConfigOpen(true)} className="settings-btn">
+                 ⚙️ Settings
+            </button>
+        </div>
       </div>
 
       <div className="auth-section">
@@ -197,6 +233,14 @@ function App() {
         onClose={() => setIsConfigOpen(false)}
         currentConfig={config}
         onSave={handleSaveConfig}
+      />
+
+      <GhostModal
+        isOpen={isGhostModalOpen}
+        onClose={() => setIsGhostModalOpen(false)}
+        students={ghosts}
+        onArchive={handleArchiveGhosts}
+        isArchiving={isArchiving}
       />
 
       {pendingUpdateUI && (
