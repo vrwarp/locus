@@ -64,3 +64,16 @@
     - Updated `src/components/GradeScatter.test.tsx` to verify color logic via CSS variables.
     - Updated `src/App.test.tsx` to verify theme class application.
 - **Status:** High Contrast Mode functional. Next steps: Ghost Protocol, Encryption for Config.
+
+## Session 7
+- **Implemented:** Ghost Protocol (Check-in Focused).
+    - Created `src/utils/ghost.ts` for logic identifying inactive members (Ghosts) based on `lastCheckInAt`.
+    - Updated `Student` model in `src/utils/pco.ts` to include `lastCheckInAt` and `checkInCount` (removing placeholder giving metrics).
+    - Added `archivePerson` and `fetchCheckInCount` to `src/utils/pco.ts` to support archiving and detailed analysis.
+    - Created `GhostModal` component for reviewing ghosts, with an "Analyze Check-ins" feature to fetch count data from the Check-Ins API.
+    - Integrated "Ghost Protocol" button in `App.tsx` with logic to fetch and cache check-in counts.
+- **Tests:**
+    - Created `src/utils/ghost.test.ts` to verify identification logic.
+    - Updated `src/App.test.tsx` to test the ghost identification, analysis, and archival flow.
+    - Updated `src/utils/pco.test.ts` to reflect model changes and test API utilities.
+- **Status:** Ghost Protocol functional with deep check-in analysis. Next steps: Encryption for Config, Deployment Setup.

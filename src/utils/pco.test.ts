@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import { transformPerson, updatePerson, fetchAllPeople, PcoPerson } from './pco';
+import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, PcoPerson } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
 
@@ -44,7 +44,9 @@ describe('transformPerson', () => {
       name: 'John Doe',
       birthdate: birthdate10,
       calculatedGrade: expectedGrade,
-      delta: expectedGrade - 4
+      delta: expectedGrade - 4,
+      lastCheckInAt: null,
+      checkInCount: null
     });
   });
 
@@ -147,6 +149,27 @@ describe('updatePerson', () => {
             }
         );
         expect(result).toEqual(mockPerson);
+    });
+});
+
+describe('fetchCheckInCount', () => {
+    it('fetches check in count successfully', async () => {
+        (axios.get as any).mockResolvedValue({
+            data: { data: { attributes: { check_in_count: 42 } } }
+        });
+
+        const count = await fetchCheckInCount('123', 'token');
+        expect(count).toBe(42);
+        expect(axios.get).toHaveBeenCalledWith(
+            '/api/check-ins/v2/people/123',
+            expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Basic token' }) })
+        );
+    });
+
+    it('returns null on failure', async () => {
+        (axios.get as any).mockRejectedValue(new Error('Failed'));
+        const count = await fetchCheckInCount('123', 'token');
+        expect(count).toBeNull();
     });
 });
 
