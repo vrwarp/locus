@@ -1,10 +1,14 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import { transformPerson, updatePerson, PcoPerson } from './pco';
+import { transformPerson, updatePerson, fetchAllPeople, PcoPerson } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
 
 vi.mock('axios');
+
+beforeEach(() => {
+    vi.clearAllMocks();
+});
 
 describe('transformPerson', () => {
   const today = new Date();
@@ -143,5 +147,64 @@ describe('updatePerson', () => {
             }
         );
         expect(result).toEqual(mockPerson);
+    });
+});
+
+describe('fetchAllPeople', () => {
+    it('fetches all pages recursively', async () => {
+        const page1 = {
+            links: { next: 'http://api.pco/next' },
+            data: [{ id: '1', type: 'Person', attributes: { name: 'A' } }]
+        };
+        const page2 = {
+            links: {},
+            data: [{ id: '2', type: 'Person', attributes: { name: 'B' } }]
+        };
+
+        (axios.get as any)
+            .mockResolvedValueOnce({ data: page1 })
+            .mockResolvedValueOnce({ data: page2 });
+
+        const result = await fetchAllPeople('auth-token');
+
+        expect(result).toHaveLength(2);
+        expect(result[0].id).toBe('1');
+        expect(result[1].id).toBe('2');
+        expect(axios.get).toHaveBeenCalledTimes(2);
+        expect(axios.get).toHaveBeenNthCalledWith(1, '/api/people/v2/people?per_page=100', expect.any(Object));
+        expect(axios.get).toHaveBeenNthCalledWith(2, 'http://api.pco/next', expect.any(Object));
+    });
+
+    it('uses proxy for absolute URLs in next links', async () => {
+        const page1 = {
+            links: { next: 'https://api.planningcenteronline.com/next' },
+            data: [{ id: '1', type: 'Person', attributes: { name: 'A' } }]
+        };
+        const page2 = {
+            links: {},
+            data: [{ id: '2', type: 'Person', attributes: { name: 'B' } }]
+        };
+
+        (axios.get as any)
+            .mockResolvedValueOnce({ data: page1 })
+            .mockResolvedValueOnce({ data: page2 });
+
+        await fetchAllPeople('auth-token');
+
+        expect(axios.get).toHaveBeenNthCalledWith(2, '/api/next', expect.any(Object));
+    });
+
+    it('fetches single page correctly', async () => {
+        const page1 = {
+            links: {},
+            data: [{ id: '1', type: 'Person', attributes: { name: 'A' } }]
+        };
+
+        (axios.get as any).mockResolvedValueOnce({ data: page1 });
+
+        const result = await fetchAllPeople('auth-token');
+
+        expect(result).toHaveLength(1);
+        expect(axios.get).toHaveBeenCalledTimes(1);
     });
 });

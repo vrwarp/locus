@@ -19,6 +19,10 @@ export interface PcoPerson {
 }
 
 export interface PcoApiResponse {
+  links?: {
+    next?: string;
+    self?: string;
+  };
   data: PcoPerson[];
   meta: {
     total_count: number;
@@ -92,3 +96,24 @@ export const updatePerson = async (id: string, attributes: PcoAttributes, auth: 
     );
     return response.data.data;
   };
+
+export const fetchAllPeople = async (auth: string, url: string = '/api/people/v2/people?per_page=100'): Promise<PcoPerson[]> => {
+  let allPeople: PcoPerson[] = [];
+  let nextUrl: string | undefined = url;
+
+  while (nextUrl) {
+    // Ensure we use the proxy for absolute URLs returned by PCO
+    const proxyUrl = nextUrl.replace('https://api.planningcenteronline.com', '/api');
+
+    const response = await axios.get<PcoApiResponse>(proxyUrl, {
+      headers: {
+        Authorization: `Basic ${auth}`
+      }
+    });
+
+    allPeople = [...allPeople, ...response.data.data];
+    nextUrl = response.data.links?.next;
+  }
+
+  return allPeople;
+};

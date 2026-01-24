@@ -5,10 +5,10 @@ import { GradeScatter } from './components/GradeScatter'
 import { SmartFixModal } from './components/SmartFixModal'
 import { ConfigModal } from './components/ConfigModal'
 import { UndoToast } from './components/UndoToast'
-import { transformPerson, updatePerson } from './utils/pco'
+import { transformPerson, updatePerson, fetchAllPeople } from './utils/pco'
 import { loadConfig, saveConfig } from './utils/storage'
 import type { AppConfig } from './utils/storage'
-import type { Student, PcoApiResponse } from './utils/pco'
+import type { Student } from './utils/pco'
 import './App.css'
 
 function App() {
@@ -53,16 +53,9 @@ function App() {
       if (!appId || !secret) return []
 
       const auth = btoa(`${appId}:${secret}`)
-      const response = await axios.get<PcoApiResponse>(
-        '/api/people/v2/people?per_page=100',
-        {
-          headers: {
-            Authorization: `Basic ${auth}`
-          }
-        }
-      )
+      const people = await fetchAllPeople(auth)
 
-      return response.data.data
+      return people
         .map(p => transformPerson(p, config.graderOptions))
         .filter((s): s is Student => s !== null)
     },
