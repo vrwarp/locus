@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { GradeScatter } from './components/GradeScatter'
@@ -6,9 +6,11 @@ import { SmartFixModal } from './components/SmartFixModal'
 import { ConfigModal } from './components/ConfigModal'
 import { GhostModal } from './components/GhostModal'
 import { UndoToast } from './components/UndoToast'
+import { RobertReport } from './components/RobertReport'
 import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount } from './utils/pco'
 import { isGhost } from './utils/ghost'
-import { loadConfig, saveConfig } from './utils/storage'
+import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot } from './utils/storage'
+import { calculateHealthStats } from './utils/analytics'
 import type { AppConfig } from './utils/storage'
 import type { Student } from './utils/pco'
 import './App.css'
@@ -19,8 +21,12 @@ function App() {
   const [config, setConfig] = useState<AppConfig>({ graderOptions: {} });
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isGhostModalOpen, setIsGhostModalOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
+
+  // State for report history
+  const [healthHistory, setHealthHistory] = useState(loadHealthHistory());
 
   // Pending update state for UI (Toast)
   const [pendingUpdateUI, setPendingUpdateUI] = useState<{ original: Student, updated: Student } | null>(null)
@@ -75,6 +81,25 @@ function App() {
     enabled: !!appId && !!secret,
     retry: false
   })
+
+  // Calculate stats
+  const stats = useMemo(() => calculateHealthStats(students), [students]);
+
+  // Update history snapshot logic
+  useEffect(() => {
+      if (students.length > 0) {
+          const currentHistory = loadHealthHistory();
+          const today = new Date().setHours(0, 0, 0, 0);
+          const hasSnapshotToday = currentHistory.some(h => new Date(h.timestamp).setHours(0, 0, 0, 0) === today);
+
+          if (!hasSnapshotToday) {
+              saveHealthSnapshot(stats);
+              setHealthHistory(loadHealthHistory());
+          } else {
+              setHealthHistory(currentHistory);
+          }
+      }
+  }, [students, stats]);
 
   const ghosts = students.filter(s => isGhost(s));
 
@@ -208,6 +233,9 @@ function App() {
       <div className="header">
         <h1>Locus</h1>
         <div style={{display: 'flex', gap: '1rem'}}>
+            <button onClick={() => setIsReportOpen(true)} className="settings-btn">
+                 📊 Report
+            </button>
             <button onClick={() => setIsGhostModalOpen(true)} className="settings-btn">
                  👻 Ghost Protocol
             </button>
@@ -264,6 +292,13 @@ function App() {
         onArchive={handleArchiveGhosts}
         onAnalyze={handleAnalyzeGhosts}
         isArchiving={isArchiving}
+      />
+
+      <RobertReport
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        stats={stats}
+        history={healthHistory}
       />
 
       {pendingUpdateUI && (
