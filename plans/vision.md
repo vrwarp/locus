@@ -23,7 +23,7 @@ However, this nervous system is failing.
 
 Based on our research, the average church database has an "Entropy Rate" of 15% per year. People move, children graduate, families split, and volunteers burn out. When this data decays, the ministry suffers:
 -   **The Lost Sheep (The Ghost):** A high schooler is never invited to small group because they are listed as a 5th grader. They drift away, feeling unseen.
--   **The False Positive:** A family is marked "Active" because they donate online, yet they haven't stepped foot in the building in two years.
+-   **The False Positive:** A family is marked "Active" because they open emails, yet they haven't stepped foot in the building in two years.
 -   **The Security Gap:** A volunteer serves in the nursery without a renewed background check because their birthdate was entered as 2023, not 1993.
 
 ### 1.2 The Locus Belief
@@ -51,13 +51,13 @@ We are not just selling software; we are selling **Peace of Mind**.
 | :--- | :--- | :--- | :--- | :--- |
 | **The Monoliths** | Planning Center, Rock RMS, CCB | Massive feature sets, single source of truth. | Clunky UIs, "Report" based (text), slow innovation cycles. | **The "Sidecar" Approach:** We don't replace them; we make them better. We are the visual plugin they wish they had. |
 | **The Generalists** | Excel, Google Sheets, Airtable | Infinite flexibility, familiar interface. | Disconnected from source, data stale immediately, security risks. | **Real-Time Sync:** Excel is dead data. Locus is living data. We offer the flexibility of Excel with the connectivity of an API. |
-| **The Niche Tools** | Check-in apps, giving platforms | Do one thing well. | Creates data silos. | **The Unifier:** We visualize data *across* silos (e.g., Giving vs. Attendance correlation). |
+| **The Niche Tools** | Check-in apps, event platforms | Do one thing well. | Creates data silos. | **The Unifier:** We visualize data *across* silos (e.g., Groups vs. Attendance correlation). |
 
 ### 2.2 Stakeholder Analysis (The "Buying Committee")
 
 *   **The Architect (Sarah, Admin):** The primary user. Needs speed, safety (Undo buttons), and validation. She is the champion.
 *   **The Skeptic (Dr. Robert, Exec Pastor/CFO):** The blocker. Does not care about features; cares about ROI. Needs to see "Money Saved" or "Risk Averted."
-    *   *Strategy:* Build "ROI Reports" specifically for him (e.g., "Locus identified 15 'Ghost Donors' at risk of leaving").
+    *   *Strategy:* Build "ROI Reports" specifically for him (e.g., "Locus identified 15 'Disengaged Families' at risk of leaving").
 *   **The Enthusiast (Emily, Volunteer):** The danger. Needs guardrails.
     *   *Strategy:* "Volunteer Mode" - a restricted UI that allows flagging errors but not committing changes without approval.
 
@@ -102,7 +102,7 @@ We don't just flag errors; we offer **One-Click Resolutions**.
 -   **The "Time Travel" Fix:** "This child is listed as 2 years old but in 5th Grade. Based on the grade, they are likely 10. Do you want to update the Birth Year to 2014?"
 -   **The "Promotion" Fix:** "This child is listed in 5th Grade but is 14. Do you want to promote them to 9th Grade?"
 -   **The "Ghost" Protocol:**
-    *   *Definition:* Users who exist in the database but have zero digital footprint (No check-in, no giving, no groups) for > 2 years.
+    *   *Definition:* Users who exist in the database but have zero digital footprint (No check-in, no groups) for > 2 years.
     *   *Action:* Auto-tag as "Archivable".
     *   *Impact:* Cleans up the "denominator" for attendance stats, making ministry metrics more accurate.
 
@@ -116,7 +116,7 @@ Data doesn't exist in a vacuum. People exist in families.
 Beyond static data, we visualize *movement*.
 -   **The Retention Funnel:** Visualize the flow of people from "First Visit" -> "Second Visit" -> "Group Join" -> "Volunteer". Where is the leak?
 -   **The Volunteer Ratio:** Heatmap of [Kids Checked In] vs [Volunteers Present] for every Sunday in the last year. Highlight "Danger Zones" where ratios were unsafe.
--   **The "Robert Report" (Executive View):** A high-level, monetary-focused dashboard. "Giving at Risk," "Retention vs. Last Year," "Database Health ROI."
+-   **The "Robert Report" (Executive View):** A high-level, strategy-focused dashboard. "Retention vs. Last Year," "Database Health ROI."
 
 ---
 
@@ -194,7 +194,7 @@ Launch "Locus Automate"—a Zapier-like tool for data integrity rules. (e.g., "I
 ### 6.3 Phase 3: The Intelligence (Years 5-8)
 Train an LLM (Large Language Model) on anonymized church data structure.
 -   **Predictive Ministry:** "Based on 10,000 other churches, families who attend the 9 AM service are 30% more likely to volunteer. We recommend targeting them for recruitment."
--   **Natural Language Query:** "Hey Locus, show me all the families with teenagers who haven't given in 6 months but attended Christmas Eve."
+-   **Natural Language Query:** "Hey Locus, show me all the families with teenagers who haven't attended in 6 months but attended Christmas Eve."
 
 ### 6.4 Phase 4: The Standard (Year 10)
 Locus becomes the "FICO Score" for churches. Banks and denominations look at a church's "Locus Score" to determine loan viability or health assessments. We are the trusted third-party verifier of organizational reality.

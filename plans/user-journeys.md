@@ -51,11 +51,11 @@
 2.  **The Defense:** Sarah doesn't argue. She connects her laptop to the projector.
 3.  **The Demo:** She opens Locus.
     *   She clicks "Projector Mode" (High contrast, large text).
-    *   She navigates to the "Giving vs. Attendance" Scatter Plot (Enterprise Feature).
+    *   She navigates to the "Groups vs. Attendance" Scatter Plot (Enterprise Feature).
 4.  **The Reveal:** "Robert, look at this cluster here." She circles a group of red dots in the top right quadrant.
-    *   *Data Point:* High Giving, Zero Attendance (Last 6 months).
-5.  **The Insight:** "These are 15 families who are effectively 'donating ghosts'. They are still giving, but they haven't checked in since Easter. We are about to lose them, and their tithe."
-6.  **The Realization:** Robert adjusts his glasses. "That's... $40,000 of annual giving at risk."
+    *   *Data Point:* Active Online, Zero Physical Attendance (Last 6 months).
+5.  **The Insight:** "These are 15 families who are effectively 'digital ghosts'. They open emails, but they haven't checked in since Easter. We are about to lose them."
+6.  **The Realization:** Robert adjusts his glasses. "That's... 15 families at risk of disconnecting."
 7.  **The Resolution:** Robert looks at Sarah. "Can we export that list? I want to call them personally."
 8.  **The Aftermath:** Robert approves the budget. He now has Locus bookmarked on his iPad.
 
@@ -166,18 +166,18 @@
 
 **Context:** A "Right to be Forgotten" request comes in from a former member who left on bad terms. They want *all* their data deleted.
 
-**The Risk:** In PCO, deleting a person is easy. But what about their giving records? Their child's check-in history? The attendance stats? Deleting them might break historical reports.
+**The Risk:** In PCO, deleting a person is easy. But what about their child's check-in history? The attendance stats? Deleting them might break historical reports.
 
 **The Locus Shield:**
 1.  **The Request:** Sarah selects the person in Locus and clicks "Compliance Purge".
 2.  **The Analysis:** Locus scans the entire graph.
-    *   *Alert:* "User has giving records. Cannot delete. Must Anonymize."
+    *   *Alert:* "User has attendance history. Cannot delete. Must Anonymize."
 3.  **The Action:** Sarah confirms "Anonymize".
 4.  **The Magic:**
     *   Name becomes "Anonymized User 14205".
     *   Address is scrubbed.
     *   Photo is deleted.
-    *   *However:* The $5,000 they gave in 2022 remains in the Finance Report, attached to the anonymous ID.
+    *   *However:* The historical attendance data remains in the Archive, attached to the anonymous ID.
 5.  **The Receipt:** Locus generates a PDF "Certificate of Erasure" for Sarah to send to the former member.
 6.  **The Relief:** Legal compliance achieved. Data integrity preserved.
 
