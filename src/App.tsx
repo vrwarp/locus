@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
 import { GradeScatter } from './components/GradeScatter'
 import { SmartFixModal } from './components/SmartFixModal'
 import { ConfigModal } from './components/ConfigModal'
@@ -11,7 +10,7 @@ import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchChec
 import { isGhost } from './utils/ghost'
 import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot } from './utils/storage'
 import { calculateHealthStats } from './utils/analytics'
-import type { AppConfig } from './utils/storage'
+import type { AppConfig, HealthHistoryEntry } from './utils/storage'
 import type { Student } from './utils/pco'
 import './App.css'
 
@@ -26,7 +25,7 @@ function App() {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
 
   // State for report history
-  const [healthHistory, setHealthHistory] = useState(loadHealthHistory());
+  const [healthHistory, setHealthHistory] = useState<HealthHistoryEntry[]>([]);
 
   // Pending update state for UI (Toast)
   const [pendingUpdateUI, setPendingUpdateUI] = useState<{ original: Student, updated: Student } | null>(null)
@@ -40,11 +39,25 @@ function App() {
 
   const queryClient = useQueryClient()
 
-  // Load config on mount
+  // Load config when appId changes
   useEffect(() => {
-    const loaded = loadConfig();
-    setConfig(loaded);
-  }, []);
+    if (!appId) return;
+
+    const load = async () => {
+      try {
+        const loadedConfig = await loadConfig(appId);
+        setConfig(loadedConfig);
+        const loadedHistory = await loadHealthHistory(appId);
+        setHealthHistory(loadedHistory);
+      } catch (e) {
+        console.error("Error loading config/history", e);
+      }
+    };
+
+    // Debounce slightly to allow typing
+    const timer = setTimeout(load, 500);
+    return () => clearTimeout(timer);
+  }, [appId]);
 
   // Apply High Contrast Mode to body
   useEffect(() => {
@@ -60,8 +73,6 @@ function App() {
       return () => {
           if (pendingUpdateRef.current) {
               clearTimeout(pendingUpdateRef.current.timer);
-              // We could force commit here if we wanted, but for now we just cancel
-              // the auto-commit to avoid updating state on unmounted component.
           }
       }
   }, []);
@@ -87,19 +98,22 @@ function App() {
 
   // Update history snapshot logic
   useEffect(() => {
-      if (students.length > 0) {
-          const currentHistory = loadHealthHistory();
-          const today = new Date().setHours(0, 0, 0, 0);
-          const hasSnapshotToday = currentHistory.some(h => new Date(h.timestamp).setHours(0, 0, 0, 0) === today);
+      if (students.length > 0 && appId) {
+          const checkSnapshot = async () => {
+            const currentHistory = await loadHealthHistory(appId);
+            const today = new Date().setHours(0, 0, 0, 0);
+            const hasSnapshotToday = currentHistory.some(h => new Date(h.timestamp).setHours(0, 0, 0, 0) === today);
 
-          if (!hasSnapshotToday) {
-              saveHealthSnapshot(stats);
-              setHealthHistory(loadHealthHistory());
-          } else {
-              setHealthHistory(currentHistory);
-          }
+            if (!hasSnapshotToday) {
+                await saveHealthSnapshot(stats, appId);
+                setHealthHistory(await loadHealthHistory(appId));
+            } else {
+                setHealthHistory(currentHistory);
+            }
+          };
+          checkSnapshot();
       }
-  }, [students, stats]);
+  }, [students, stats, appId]);
 
   const ghosts = students.filter(s => isGhost(s));
 
@@ -223,9 +237,9 @@ function App() {
       setPendingUpdateUI(null);
   }
 
-  const handleSaveConfig = (newConfig: AppConfig) => {
+  const handleSaveConfig = async (newConfig: AppConfig) => {
     setConfig(newConfig);
-    saveConfig(newConfig, appId);
+    await saveConfig(newConfig, appId);
   };
 
   return (
