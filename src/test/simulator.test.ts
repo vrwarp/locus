@@ -33,7 +33,7 @@ describe('Local API Simulator', () => {
     const response = await axios.get(`${baseUrl}/people/v2/people?per_page=2`);
     expect(response.status).toBe(200);
     expect(response.data.data).toHaveLength(2);
-    expect(response.data.meta.total_count).toBeGreaterThan(2);
+    expect(response.data.meta.total_count).toBeGreaterThanOrEqual(100);
 
     const nextLink = response.data.links.next;
     expect(nextLink).toBeDefined();
@@ -72,14 +72,14 @@ describe('Local API Simulator', () => {
     // and correctly accumulate results.
 
     // Use a small per_page to force multiple requests
-    const people = await fetchAllPeople('fake-auth', `${baseUrl}/people/v2/people?per_page=10`);
+    // Total is 100, per_page 25 -> 4 requests
+    const people = await fetchAllPeople('fake-auth', `${baseUrl}/people/v2/people?per_page=25`);
 
-    // Total in data.js is 30 (4 manual + 26 generated).
-    expect(people.length).toBe(30);
+    expect(people.length).toBe(100);
 
     const ids = people.map(p => p.id);
     expect(ids).toContain('1');
-    expect(ids).toContain('30');
+    expect(ids).toContain('100');
 
     // Verify data integrity
     const p1 = people.find(p => p.id === '1');
@@ -90,6 +90,7 @@ describe('Local API Simulator', () => {
     const response = await axios.get(`${baseUrl}/check-ins/v2/check_ins`);
     expect(response.status).toBe(200);
     expect(response.data.data.length).toBeGreaterThan(0);
+    expect(response.data.meta.total_count).toBeGreaterThanOrEqual(100);
     expect(response.data.data[0].type).toBe('CheckIn');
   });
 
@@ -97,6 +98,7 @@ describe('Local API Simulator', () => {
     const response = await axios.get(`${baseUrl}/check-ins/v2/events`);
     expect(response.status).toBe(200);
     expect(response.data.data.length).toBeGreaterThan(0);
+    expect(response.data.meta.total_count).toBeGreaterThanOrEqual(100);
     expect(response.data.data[0].type).toBe('Event');
   });
 
