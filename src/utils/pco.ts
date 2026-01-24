@@ -44,8 +44,7 @@ export interface Student {
   calculatedGrade: number;
   delta: number;
   lastCheckInAt: string | null;
-  totalGiving: number;
-  groupCount: number;
+  checkInCount: number | null;
 }
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
@@ -78,8 +77,7 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     calculatedGrade,
     delta,
     lastCheckInAt: (last_checked_in_at as string) || null,
-    totalGiving: 0, // Placeholder until API support
-    groupCount: 0, // Placeholder until API support
+    checkInCount: null, // Fetched lazily
   };
 };
 
@@ -105,6 +103,23 @@ export const updatePerson = async (id: string, attributes: PcoAttributes, auth: 
 
 export const archivePerson = async (id: string, auth: string): Promise<PcoPerson> => {
     return updatePerson(id, { status: 'inactive' }, auth);
+};
+
+export const fetchCheckInCount = async (id: string, auth: string): Promise<number | null> => {
+    try {
+        const response = await axios.get<{ data: { attributes: { check_in_count: number } } }>(
+            `/api/check-ins/v2/people/${id}`,
+            {
+                headers: {
+                    Authorization: `Basic ${auth}`
+                }
+            }
+        );
+        return response.data.data.attributes.check_in_count;
+    } catch (error) {
+        console.error('Failed to fetch check-in count for person', id, error);
+        return null;
+    }
 };
 
 export const fetchAllPeople = async (auth: string, url: string = '/api/people/v2/people?per_page=100'): Promise<PcoPerson[]> => {

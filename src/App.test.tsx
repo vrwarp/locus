@@ -55,9 +55,10 @@ vi.mock('./components/ConfigModal', () => ({
 }));
 
 vi.mock('./components/GhostModal', () => ({
-  GhostModal: ({ isOpen, onArchive, onClose, students }: any) => isOpen ? (
+  GhostModal: ({ isOpen, onArchive, onAnalyze, onClose, students }: any) => isOpen ? (
     <div data-testid="ghost-modal">
         <p>Found {students.length} ghosts</p>
+        <button onClick={() => onAnalyze && onAnalyze(students)}>Analyze Check-ins</button>
         <button onClick={() => onArchive(students)}>Archive All</button>
         <button onClick={onClose}>Close</button>
     </div>
@@ -411,6 +412,26 @@ describe('App Integration', () => {
         fireEvent.click(screen.getByText('👻 Ghost Protocol'));
         expect(screen.getByTestId('ghost-modal')).toBeInTheDocument();
         expect(screen.getByText('Found 1 ghosts')).toBeInTheDocument();
+
+        // Test analyze flow
+        // Mock check-ins API
+        (axios.get as any).mockImplementation((url: string) => {
+            if (url.includes('/api/check-ins/v2/people/g1')) {
+                return Promise.resolve({ data: { data: { attributes: { check_in_count: 3 } } } });
+            }
+            return Promise.reject(new Error('Not Found'));
+        });
+
+        const analyzeBtn = screen.getByText('Analyze Check-ins');
+        fireEvent.click(analyzeBtn);
+
+        // Should update UI with count (we mocked GhostModal to be simple, but App handles logic)
+        // Since we mocked GhostModal, we can't see the tags inside it unless we update the mock.
+        // But we can verify axios.get was called.
+        await waitFor(() => expect(axios.get).toHaveBeenCalledWith(
+            expect.stringContaining('/api/check-ins/v2/people/g1'),
+            expect.any(Object)
+        ));
 
         fireEvent.click(screen.getByText('Archive All'));
 

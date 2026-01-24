@@ -6,7 +6,7 @@ import { SmartFixModal } from './components/SmartFixModal'
 import { ConfigModal } from './components/ConfigModal'
 import { GhostModal } from './components/GhostModal'
 import { UndoToast } from './components/UndoToast'
-import { transformPerson, updatePerson, fetchAllPeople, archivePerson } from './utils/pco'
+import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount } from './utils/pco'
 import { isGhost } from './utils/ghost'
 import { loadConfig, saveConfig } from './utils/storage'
 import type { AppConfig } from './utils/storage'
@@ -77,6 +77,28 @@ function App() {
   })
 
   const ghosts = students.filter(s => isGhost(s));
+
+  const handleAnalyzeGhosts = async (ghostsToAnalyze: Student[]) => {
+      const auth = btoa(`${appId}:${secret}`);
+
+      // We need to update the query cache with the new checkInCount
+      // This is a bit of a hack, but efficient enough for a few items
+      const updates = await Promise.all(ghostsToAnalyze.map(async (ghost) => {
+          const count = await fetchCheckInCount(ghost.id, auth);
+          return { id: ghost.id, count };
+      }));
+
+      queryClient.setQueryData(['people', appId, secret, config], (oldData: Student[] | undefined) => {
+          if (!oldData) return [];
+          return oldData.map(s => {
+              const update = updates.find(u => u.id === s.id);
+              if (update) {
+                  return { ...s, checkInCount: update.count ?? 0 };
+              }
+              return s;
+          });
+      });
+  };
 
   const handleArchiveGhosts = async (ghostsToArchive: Student[]) => {
       setIsArchiving(true);
@@ -240,6 +262,7 @@ function App() {
         onClose={() => setIsGhostModalOpen(false)}
         students={ghosts}
         onArchive={handleArchiveGhosts}
+        onAnalyze={handleAnalyzeGhosts}
         isArchiving={isArchiving}
       />
 

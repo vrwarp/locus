@@ -12,8 +12,7 @@ const mockStudent: Student = {
     calculatedGrade: 4,
     delta: 0,
     lastCheckInAt: null,
-    totalGiving: 0,
-    groupCount: 0
+    checkInCount: null,
 };
 
 describe('isGhost', () => {
@@ -29,16 +28,6 @@ describe('isGhost', () => {
     it('does not identify student with recent check-in as ghost', () => {
         const recentDate = format(subMonths(new Date(), 12), 'yyyy-MM-dd');
         expect(isGhost({ ...mockStudent, lastCheckInAt: recentDate })).toBe(false);
-    });
-
-    it('does not identify student with high giving as ghost', () => {
-        // Even if no check-in
-        expect(isGhost({ ...mockStudent, totalGiving: 200 })).toBe(false);
-    });
-
-    it('does not identify student with groups as ghost', () => {
-        // Even if no check-in
-        expect(isGhost({ ...mockStudent, groupCount: 1 })).toBe(false);
     });
 
     it('respects custom config', () => {
