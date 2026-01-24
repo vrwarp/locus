@@ -20,7 +20,7 @@ Locus is a "Data Health OS" for church administrators using Planning Center Onli
 
 ### 2.1 Must Have (MVP)
 *   **Correlation Engine:** Scatter plot of Age vs. Grade with "Diagonal of Truth" logic. [DONE]
-*   **Smart Fix Modal:** One-click corrections for Grade/Birthdate.
+*   **Smart Fix Modal:** One-click corrections for Grade/Birthdate. [DONE - UI/Logic]
     *   *Correction:* Must support full date selection, defaulting to Jan 1st of the estimated year if unknown.
 *   **PCO Integration:** Basic Auth, Read/Write capabilities.
     *   *Constraint:* Must handle pagination (recursive fetch) for datasets < 5,000.
