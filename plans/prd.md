@@ -1,5 +1,5 @@
 # Product Requirement Document (PRD)
-*Status: Final Draft | Version: 3.0*
+*Status: Final | Version: 4.0 - Battle Tested*
 
 ## 1. Introduction
 Locus is a "Data Health OS" for church administrators using Planning Center Online (PCO). It visualizes data anomalies (specifically Age/Grade mismatches) to ensure data integrity, which directly correlates to effective pastoral care.
@@ -21,22 +21,27 @@ Locus is a "Data Health OS" for church administrators using Planning Center Onli
 ### 2.1 Must Have (MVP)
 *   **Correlation Engine:** Scatter plot of Age vs. Grade with "Diagonal of Truth" logic.
 *   **Smart Fix Modal:** One-click corrections for Grade/Birthdate.
+    *   *Correction:* Must support full date selection, defaulting to Jan 1st of the estimated year if unknown.
 *   **PCO Integration:** Basic Auth, Read/Write capabilities.
+    *   *Constraint:* Must handle pagination (recursive fetch) for datasets < 5,000.
 *   **Undo System:** 10-second toast to revert actions.
+*   **Persistence (Config):** Save "Cutoff Date" and user preferences locally (Encrypted).
 
 ### 2.2 Should Have (V1.1)
 *   **Ghost Protocol:** Identification of inactive records with "Archive" bulk action.
-    *   *Constraint:* Must distinguish "Ghost Donors" (High giving, low attendance) and flag them separately.
+    *   *Constraint:* Configurable thresholds for "Ghost Donor" (e.g., Default > $100/yr).
 *   **Sandbox Mode:** Simulation environment for bulk edits.
-*   **The Robert Report:** PDF exportable dashboard with financial/health metrics.
+*   **The Robert Report:** Web-based read-only dashboard.
+*   **Cache Management:** Intelligent caching of API responses (e.g., 5-minute validity).
+*   **Pagination Handling (Large DB):** "Load More" or "Virtual Scroll" for databases > 5,000 records to prevent browser crash.
 
 ### 2.3 Could Have (V2.0)
-*   **Gamification:** Progress bars, streaks, "Combo" sounds.
+*   **Gamification:** Progress bars, streaks, "Combo" sounds (with Mute toggle).
 *   **Family Logic:** Validator for Spouse/Child age gaps.
 *   **Genealogy Project:** Network graph of relationships.
-*   **VR War Room:** AR/VR interface for lobby management.
 
-### 2.4 Won't Have (For Now)
+### 2.4 Won't Have (Next 12 Months)
+*   **VR War Room:** This is a conceptual "Moonshot" only. No engineering resources allocated.
 *   **Native Mobile App:** Web responsive only.
 *   **Integration with Rock RMS:** PCO only for launch.
 
@@ -45,9 +50,9 @@ Locus is a "Data Health OS" for church administrators using Planning Center Onli
 ## 3. Specific Feature Specs
 
 ### 3.1 The "Ghost" Protocol (Detailed)
-*   **Logic:** `LastCheckIn > 24m` AND `Giving < $10` AND `Groups == 0`.
+*   **Logic:** `LastCheckIn > 24m` AND `Giving < $Threshold` AND `Groups == 0`.
 *   **Action:** Apply PCO `Membership Status: Archived`.
-*   **Exception:** If `Giving > $100` in last 12m, apply Tag `Review: High Value Donor` and do NOT archive.
+*   **Exception:** If `Giving > $Threshold` in last 12m, apply Tag `Review: High Value Donor` and do NOT archive.
 
 ### 3.2 The "Robert Report" (Detailed)
 *   **Header:** Church Name + "Data Health Audit".
@@ -59,6 +64,7 @@ Locus is a "Data Health OS" for church administrators using Planning Center Onli
 
 ## 4. Non-Functional Requirements
 *   **Performance:** Chart must render 5,000 points in < 1 second.
-*   **Security:** No PII storage on Locus servers (RAM only).
-*   **Accessibility:** WCAG 2.1 AA compliant colors.
+*   **Security:** PII storage on Locus servers is prohibited.
+*   **Accessibility:** WCAG 2.1 AA compliant colors. High Contrast Mode toggle required.
 *   **Reliability:** Must handle API Rate Limits (429) gracefully with exponential backoff.
+*   **Resilience:** Startup check for PCO API version compatibility.
