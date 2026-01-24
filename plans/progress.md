@@ -29,3 +29,15 @@
     - Added integration tests in `src/App.test.tsx` covering undo flow and rapid flush scenarios.
     - Added E2E test `e2e/undo.spec.ts` for full browser verification.
 - **Status:** Undo System functional and concurrency-safe. Next steps: Config UI (Persistence), Ghost Protocol.
+
+## Session 4
+- **Implemented:** Configuration Persistence & UI.
+    - Created `ConfigModal` for editing grade cutoff dates.
+    - Implemented `storage.ts` for saving/loading preferences to `localStorage`.
+    - Integrated config into `App.tsx` state and `useQuery` keys to trigger recalculations.
+    - Added "Settings" button to the UI.
+- **Tests:**
+    - Created `src/utils/storage.test.ts`.
+    - Updated `src/App.test.tsx` to verify grade recalculation upon config change.
+    - Verified `SmartFixModal` logic respects new cutoff dates (indirectly via calculated grades).
+- **Status:** Config Persistence functional. Next steps: Ghost Protocol, Encryption for Config (Refine), Deployment Setup.

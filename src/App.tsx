@@ -3,14 +3,19 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { GradeScatter } from './components/GradeScatter'
 import { SmartFixModal } from './components/SmartFixModal'
+import { ConfigModal } from './components/ConfigModal'
 import { UndoToast } from './components/UndoToast'
 import { transformPerson, updatePerson } from './utils/pco'
+import { loadConfig, saveConfig } from './utils/storage'
+import type { AppConfig } from './utils/storage'
 import type { Student, PcoApiResponse } from './utils/pco'
 import './App.css'
 
 function App() {
   const [appId, setAppId] = useState('')
   const [secret, setSecret] = useState('')
+  const [config, setConfig] = useState<AppConfig>({ graderOptions: {} });
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
 
   // Pending update state for UI (Toast)
@@ -25,6 +30,12 @@ function App() {
 
   const queryClient = useQueryClient()
 
+  // Load config on mount
+  useEffect(() => {
+    const loaded = loadConfig();
+    setConfig(loaded);
+  }, []);
+
   // Cleanup timer on unmount
   useEffect(() => {
       return () => {
@@ -37,7 +48,7 @@ function App() {
   }, []);
 
   const { data: students = [], isLoading, error } = useQuery({
-    queryKey: ['people', appId, secret],
+    queryKey: ['people', appId, secret, config],
     queryFn: async () => {
       if (!appId || !secret) return []
 
@@ -52,7 +63,7 @@ function App() {
       )
 
       return response.data.data
-        .map(transformPerson)
+        .map(p => transformPerson(p, config.graderOptions))
         .filter((s): s is Student => s !== null)
     },
     enabled: !!appId && !!secret,
@@ -69,7 +80,7 @@ function App() {
       } catch (error) {
           console.error('Failed to save to PCO', error);
           // Revert on error
-           queryClient.setQueryData(['people', appId, secret], (oldData: Student[] | undefined) => {
+           queryClient.setQueryData(['people', appId, secret, config], (oldData: Student[] | undefined) => {
               if (!oldData) return [];
               return oldData.map(s => s.id === update.original.id ? update.original : s);
           });
@@ -96,7 +107,7 @@ function App() {
     if (!originalStudent) return;
 
     // Optimistically update the cache
-    queryClient.setQueryData(['people', appId, secret], (oldData: Student[] | undefined) => {
+    queryClient.setQueryData(['people', appId, secret, config], (oldData: Student[] | undefined) => {
         if (!oldData) return []
         return oldData.map(s => s.id === updatedStudent.id ? updatedStudent : s)
     })
@@ -123,7 +134,7 @@ function App() {
 
       console.log('Undoing change...');
       // Revert cache
-      queryClient.setQueryData(['people', appId, secret], (oldData: Student[] | undefined) => {
+      queryClient.setQueryData(['people', appId, secret, config], (oldData: Student[] | undefined) => {
         if (!oldData) return [];
         return oldData.map(s => s.id === current.original.id ? current.original : s);
       });
@@ -132,9 +143,20 @@ function App() {
       setPendingUpdateUI(null);
   }
 
+  const handleSaveConfig = (newConfig: AppConfig) => {
+    setConfig(newConfig);
+    saveConfig(newConfig, appId);
+  };
+
   return (
     <div className="app-container">
-      <h1>Locus</h1>
+      <div className="header">
+        <h1>Locus</h1>
+        <button onClick={() => setIsConfigOpen(true)} className="settings-btn">
+             ⚙️ Settings
+        </button>
+      </div>
+
       <div className="auth-section">
         <input
             type="text"
@@ -163,6 +185,13 @@ function App() {
         student={selectedStudent}
         onClose={() => setSelectedStudent(null)}
         onSave={handleSaveStudent}
+      />
+
+      <ConfigModal
+        isOpen={isConfigOpen}
+        onClose={() => setIsConfigOpen(false)}
+        currentConfig={config}
+        onSave={handleSaveConfig}
       />
 
       {pendingUpdateUI && (

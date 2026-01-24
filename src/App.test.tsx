@@ -27,11 +27,25 @@ vi.mock('./components/SmartFixModal', () => ({
   SmartFixModal: ({ isOpen, student, onSave, onClose }: any) => isOpen ? (
     <div data-testid="smart-fix-modal">
         <p>{student.name}</p>
+        <p>Calculated: {student.calculatedGrade}</p>
         <button onClick={() => {
             onSave({...student, pcoGrade: 5}); // Simulate fixing to grade 5
             onClose();
         }}>Fix</button>
         <button onClick={onClose}>Close</button>
+    </div>
+  ) : null
+}));
+
+vi.mock('./components/ConfigModal', () => ({
+  ConfigModal: ({ isOpen, onSave, onClose }: any) => isOpen ? (
+    <div data-testid="config-modal">
+        <button onClick={() => {
+            // Set cutoff to October 1st (Month Index 9)
+            onSave({ graderOptions: { cutoffMonth: 9, cutoffDay: 1 } });
+            onClose();
+        }}>Save Config</button>
+        <button onClick={onClose}>Close Config</button>
     </div>
   ) : null
 }));
@@ -251,5 +265,80 @@ describe('App Integration', () => {
            expect.objectContaining({ data: expect.objectContaining({ id: '2' }) }),
            expect.any(Object)
        );
+   }, 15000);
+
+   it('updates student calculated grade when config changes', async () => {
+        // Set System Time to Nov 1, 2024 to ensure deterministic calculation
+        vi.setSystemTime(new Date('2024-11-01'));
+
+        // Born Sept 15, 2018.
+        // Default Cutoff (Sept 1):
+        //   - School Year Start: Sept 1, 2024 (Nov > Sept)
+        //   - Age at Sept 1, 2024: 5 (Birthday Sept 15 hasn't happened relative to cutoff)
+        //   - Grade: 5 - 5 = 0 (Kindergarten)
+
+        // New Cutoff (Oct 1):
+        //   - School Year Start: Oct 1, 2024 (Nov > Oct)
+        //   - Age at Oct 1, 2024: 6 (Birthday Sept 15 HAS happened)
+        //   - Grade: 6 - 5 = 1 (1st Grade)
+
+        (axios.get as any).mockResolvedValue({
+            data: {
+                data: [{
+                    id: '3',
+                    type: 'Person',
+                    attributes: {
+                        birthdate: '2018-09-15',
+                        grade: 0,
+                        name: 'Sept Kid'
+                    }
+                }]
+            }
+        });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-3')).toBeInTheDocument());
+
+        // Initial state: Grade 0 (displayed via mock which shows pcoGrade,
+        // but we want to verify calculation logic which affects delta/color).
+        // Since GradeScatter mock doesn't show calculated grade, we might need to inspect
+        // the props passed to it or rely on side effects.
+        // However, we can use the SmartFixModal to see the "Suggested Grade".
+
+        fireEvent.click(screen.getByTestId('student-3'));
+        expect(screen.getByTestId('smart-fix-modal')).toBeInTheDocument();
+        // Since we mocked SmartFixModal too simply, we can't see the text inside.
+        // Let's update the SmartFixModal mock to show calculatedGrade?
+        // Or better, update the Config test to use a spy on the ConfigModal save.
+
+        // Actually, let's update the GradeScatter mock to show calculated grade?
+        // No, let's just open Settings and Save.
+
+        fireEvent.click(screen.getByText('Close')); // Close fix modal
+
+        // Open Settings
+        fireEvent.click(screen.getByText('⚙️ Settings'));
+        expect(screen.getByTestId('config-modal')).toBeInTheDocument();
+
+        // Save Config (Change to Oct 1)
+        fireEvent.click(screen.getByText('Save Config'));
+
+        // Now we expect a re-render.
+        // We need to verify that transformPerson was called with new options.
+        // Or verify that the student data in GradeScatter has changed.
+
+        // Verify the update via SmartFixModal which displays calculatedGrade
+
+        // Wait for re-render and click student again
+        await waitFor(() => expect(screen.getByTestId('student-3')).toBeInTheDocument());
+        fireEvent.click(screen.getByTestId('student-3'));
+
+        expect(screen.getByTestId('smart-fix-modal')).toBeInTheDocument();
+        // New calculation: Age 6 -> Grade 1
+        expect(screen.getByText('Calculated: 1')).toBeInTheDocument();
    }, 15000);
 });

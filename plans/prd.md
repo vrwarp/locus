@@ -24,8 +24,8 @@ Locus is a "Data Health OS" for church administrators using Planning Center Onli
     *   *Correction:* Must support full date selection, defaulting to Jan 1st of the estimated year if unknown.
 *   **PCO Integration:** Basic Auth, Read/Write capabilities.
     *   *Constraint:* Must handle pagination (recursive fetch) for datasets < 5,000.
-*   **Undo System:** 10-second toast to revert actions.
-*   **Persistence (Config):** Save "Cutoff Date" and user preferences locally (Encrypted). [PARTIAL - Logic supported]
+*   **Undo System:** 10-second toast to revert actions. [DONE]
+*   **Persistence (Config):** Save "Cutoff Date" and user preferences locally (Encrypted). [DONE - Basic Auth/Storage]
 
 ### 2.2 Should Have (V1.1)
 *   **Ghost Protocol:** Identification of inactive records with "Archive" bulk action.
