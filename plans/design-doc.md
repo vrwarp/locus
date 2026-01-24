@@ -42,8 +42,9 @@ interface Student {
     *   **Visualization:** Use Canvas-based rendering (e.g., `react-chartjs-2` or customized `recharts` with optimization) if DOM nodes > 2000 to prevent layout thrashing.
     *   **Worker:** Use Web Worker only for heavy CSV parsing or large-scale "Genealogy" graph calculations, not simple age math.
 *   **Caching Strategy:**
-    *   Store fetched `Student[]` in `indexedDB` (Encrypted) or persistent Query Cache with 5-minute TTL.
-    *   **Loading State:** On reload, check IndexedDB. If data < 5m old, hydrate immediately. Show "Data is cached" banner. If > 5m, trigger background refresh.
+    *   Store fetched `PcoPerson[]` (Raw API Data) in `indexedDB` (Encrypted) with 5-minute TTL.
+        *   *Refinement:* storing raw data allows `Student` objects to be re-calculated if `GraderOptions` change without re-fetching from API.
+    *   **Loading State:** On reload, check IndexedDB. If data < 5m old, hydrate immediately.
 
 ## 4. Security & Privacy
 *   **RAM-Preferred Policy:** Data is fetched into browser memory.
