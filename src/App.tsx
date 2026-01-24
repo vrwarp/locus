@@ -1,14 +1,18 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
 import { GradeScatter } from './components/GradeScatter'
 import { SmartFixModal } from './components/SmartFixModal'
 import { ConfigModal } from './components/ConfigModal'
+import { GhostModal } from './components/GhostModal'
 import { UndoToast } from './components/UndoToast'
-import { transformPerson, updatePerson, fetchAllPeople } from './utils/pco'
-import { loadConfig, saveConfig } from './utils/storage'
-import type { AppConfig } from './utils/storage'
-import type { Student } from './utils/pco'
+import { RobertReport } from './components/RobertReport'
+import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount } from './utils/pco'
+import { isGhost } from './utils/ghost'
+import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot } from './utils/storage'
+import { saveToCache, loadFromCache } from './utils/cache'
+import { calculateHealthStats } from './utils/analytics'
+import type { AppConfig, HealthHistoryEntry } from './utils/storage'
+import type { Student, PcoPerson } from './utils/pco'
 import './App.css'
 
 function App() {
@@ -16,7 +20,13 @@ function App() {
   const [secret, setSecret] = useState('')
   const [config, setConfig] = useState<AppConfig>({ graderOptions: {} });
   const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [isGhostModalOpen, setIsGhostModalOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
+
+  // State for report history
+  const [healthHistory, setHealthHistory] = useState<HealthHistoryEntry[]>([]);
 
   // Pending update state for UI (Toast)
   const [pendingUpdateUI, setPendingUpdateUI] = useState<{ original: Student, updated: Student } | null>(null)
@@ -30,19 +40,40 @@ function App() {
 
   const queryClient = useQueryClient()
 
-  // Load config on mount
+  // Load config when appId changes
   useEffect(() => {
-    const loaded = loadConfig();
-    setConfig(loaded);
-  }, []);
+    if (!appId) return;
+
+    const load = async () => {
+      try {
+        const loadedConfig = await loadConfig(appId);
+        setConfig(loadedConfig);
+        const loadedHistory = await loadHealthHistory(appId);
+        setHealthHistory(loadedHistory);
+      } catch (e) {
+        console.error("Error loading config/history", e);
+      }
+    };
+
+    // Debounce slightly to allow typing
+    const timer = setTimeout(load, 500);
+    return () => clearTimeout(timer);
+  }, [appId]);
+
+  // Apply High Contrast Mode to body
+  useEffect(() => {
+    if (config.highContrastMode) {
+      document.body.classList.add('high-contrast');
+    } else {
+      document.body.classList.remove('high-contrast');
+    }
+  }, [config.highContrastMode]);
 
   // Cleanup timer on unmount
   useEffect(() => {
       return () => {
           if (pendingUpdateRef.current) {
               clearTimeout(pendingUpdateRef.current.timer);
-              // We could force commit here if we wanted, but for now we just cancel
-              // the auto-commit to avoid updating state on unmounted component.
           }
       }
   }, []);
@@ -52,8 +83,15 @@ function App() {
     queryFn: async () => {
       if (!appId || !secret) return []
 
+      const cacheKey = `people_raw_${appId}`;
       const auth = btoa(`${appId}:${secret}`)
-      const people = await fetchAllPeople(auth)
+
+      let people = await loadFromCache<PcoPerson[]>(cacheKey, appId, 5 * 60 * 1000); // 5 mins TTL
+
+      if (!people) {
+        people = await fetchAllPeople(auth)
+        await saveToCache(cacheKey, people, appId);
+      }
 
       return people
         .map(p => transformPerson(p, config.graderOptions))
@@ -62,6 +100,77 @@ function App() {
     enabled: !!appId && !!secret,
     retry: false
   })
+
+  // Calculate stats
+  const stats = useMemo(() => calculateHealthStats(students), [students]);
+
+  // Update history snapshot logic
+  useEffect(() => {
+      if (students.length > 0 && appId) {
+          const checkSnapshot = async () => {
+            const currentHistory = await loadHealthHistory(appId);
+            const today = new Date().setHours(0, 0, 0, 0);
+            const hasSnapshotToday = currentHistory.some(h => new Date(h.timestamp).setHours(0, 0, 0, 0) === today);
+
+            if (!hasSnapshotToday) {
+                await saveHealthSnapshot(stats, appId);
+                setHealthHistory(await loadHealthHistory(appId));
+            } else {
+                setHealthHistory(currentHistory);
+            }
+          };
+          checkSnapshot();
+      }
+  }, [students, stats, appId]);
+
+  const ghosts = students.filter(s => isGhost(s));
+
+  const handleAnalyzeGhosts = async (ghostsToAnalyze: Student[]) => {
+      const auth = btoa(`${appId}:${secret}`);
+
+      // We need to update the query cache with the new checkInCount
+      // This is a bit of a hack, but efficient enough for a few items
+      const updates = await Promise.all(ghostsToAnalyze.map(async (ghost) => {
+          const count = await fetchCheckInCount(ghost.id, auth);
+          return { id: ghost.id, count };
+      }));
+
+      queryClient.setQueryData(['people', appId, secret, config], (oldData: Student[] | undefined) => {
+          if (!oldData) return [];
+          return oldData.map(s => {
+              const update = updates.find(u => u.id === s.id);
+              if (update) {
+                  return { ...s, checkInCount: update.count ?? 0 };
+              }
+              return s;
+          });
+      });
+  };
+
+  const handleArchiveGhosts = async (ghostsToArchive: Student[]) => {
+      setIsArchiving(true);
+      const auth = btoa(`${appId}:${secret}`);
+
+      let successCount = 0;
+      for (const ghost of ghostsToArchive) {
+          try {
+              await archivePerson(ghost.id, auth);
+              successCount++;
+          } catch (e) {
+              console.error(`Failed to archive ${ghost.name}`, e);
+          }
+      }
+
+      // Invalidate to refetch
+      queryClient.invalidateQueries({ queryKey: ['people', appId, secret, config] });
+      setIsArchiving(false);
+      setIsGhostModalOpen(false);
+      if (successCount > 0) {
+          alert(`Successfully archived ${successCount} ghosts.`);
+      } else {
+          alert('Failed to archive ghosts. Check console/network.');
+      }
+  }
 
   // Function to actually execute the API call
   const executeCommit = async (update: { original: Student, updated: Student }) => {
@@ -136,18 +245,26 @@ function App() {
       setPendingUpdateUI(null);
   }
 
-  const handleSaveConfig = (newConfig: AppConfig) => {
+  const handleSaveConfig = async (newConfig: AppConfig) => {
     setConfig(newConfig);
-    saveConfig(newConfig, appId);
+    await saveConfig(newConfig, appId);
   };
 
   return (
     <div className="app-container">
       <div className="header">
         <h1>Locus</h1>
-        <button onClick={() => setIsConfigOpen(true)} className="settings-btn">
-             ⚙️ Settings
-        </button>
+        <div style={{display: 'flex', gap: '1rem'}}>
+            <button onClick={() => setIsReportOpen(true)} className="settings-btn">
+                 📊 Report
+            </button>
+            <button onClick={() => setIsGhostModalOpen(true)} className="settings-btn">
+                 👻 Ghost Protocol
+            </button>
+            <button onClick={() => setIsConfigOpen(true)} className="settings-btn">
+                 ⚙️ Settings
+            </button>
+        </div>
       </div>
 
       <div className="auth-section">
@@ -170,7 +287,10 @@ function App() {
           {error && <p style={{color: 'red'}}>Error fetching data: {error.message}</p>}
           {!isLoading && !error && students.length === 0 && appId && secret && <p>No data found or check credentials.</p>}
 
-          <GradeScatter data={students} onPointClick={setSelectedStudent} />
+          <GradeScatter
+            data={students}
+            onPointClick={setSelectedStudent}
+          />
       </div>
 
       <SmartFixModal
@@ -185,6 +305,22 @@ function App() {
         onClose={() => setIsConfigOpen(false)}
         currentConfig={config}
         onSave={handleSaveConfig}
+      />
+
+      <GhostModal
+        isOpen={isGhostModalOpen}
+        onClose={() => setIsGhostModalOpen(false)}
+        students={ghosts}
+        onArchive={handleArchiveGhosts}
+        onAnalyze={handleAnalyzeGhosts}
+        isArchiving={isArchiving}
+      />
+
+      <RobertReport
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        stats={stats}
+        history={healthHistory}
       />
 
       {pendingUpdateUI && (

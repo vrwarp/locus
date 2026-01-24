@@ -5,9 +5,25 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import axios from 'axios';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Student } from './utils/pco';
+import * as storage from './utils/storage';
+import { saveToCache, loadFromCache } from './utils/cache';
 
 // Mock dependencies
 vi.mock('axios');
+
+// Mock storage
+vi.mock('./utils/storage', () => ({
+  loadConfig: vi.fn().mockResolvedValue({ graderOptions: {} }),
+  saveConfig: vi.fn().mockResolvedValue(undefined),
+  loadHealthHistory: vi.fn().mockResolvedValue([]),
+  saveHealthSnapshot: vi.fn().mockResolvedValue(undefined),
+}));
+
+// Mock cache
+vi.mock('./utils/cache', () => ({
+  saveToCache: vi.fn(),
+  loadFromCache: vi.fn().mockResolvedValue(null),
+}));
 
 // Mock GradeScatter to avoid Recharts complexity and easily test interaction
 vi.mock('./components/GradeScatter', () => ({
@@ -38,14 +54,38 @@ vi.mock('./components/SmartFixModal', () => ({
 }));
 
 vi.mock('./components/ConfigModal', () => ({
-  ConfigModal: ({ isOpen, onSave, onClose }: any) => isOpen ? (
+  ConfigModal: ({ isOpen, onSave, onClose, currentConfig }: any) => isOpen ? (
     <div data-testid="config-modal">
         <button onClick={() => {
             // Set cutoff to October 1st (Month Index 9)
-            onSave({ graderOptions: { cutoffMonth: 9, cutoffDay: 1 } });
+            onSave({ ...currentConfig, graderOptions: { cutoffMonth: 9, cutoffDay: 1 } });
             onClose();
         }}>Save Config</button>
+         <button onClick={() => {
+            onSave({ ...currentConfig, highContrastMode: true });
+            onClose();
+        }}>Save High Contrast</button>
         <button onClick={onClose}>Close Config</button>
+    </div>
+  ) : null
+}));
+
+vi.mock('./components/GhostModal', () => ({
+  GhostModal: ({ isOpen, onArchive, onAnalyze, onClose, students }: any) => isOpen ? (
+    <div data-testid="ghost-modal">
+        <p>Found {students.length} ghosts</p>
+        <button onClick={() => onAnalyze && onAnalyze(students)}>Analyze Check-ins</button>
+        <button onClick={() => onArchive(students)}>Archive All</button>
+        <button onClick={onClose}>Close</button>
+    </div>
+  ) : null
+}));
+
+vi.mock('./components/RobertReport', () => ({
+  RobertReport: ({ isOpen, stats, onClose }: any) => isOpen ? (
+    <div data-testid="robert-report">
+        <p>Health Score: {stats.score}</p>
+        <button onClick={onClose}>Close Report</button>
     </div>
   ) : null
 }));
@@ -67,6 +107,8 @@ describe('App Integration', () => {
         vi.clearAllMocks();
         queryClient.clear();
         vi.useRealTimers();
+        // Mock alert
+        window.alert = vi.fn();
     });
 
     afterEach(() => {
@@ -271,17 +313,6 @@ describe('App Integration', () => {
         // Set System Time to Nov 1, 2024 to ensure deterministic calculation
         vi.setSystemTime(new Date('2024-11-01'));
 
-        // Born Sept 15, 2018.
-        // Default Cutoff (Sept 1):
-        //   - School Year Start: Sept 1, 2024 (Nov > Sept)
-        //   - Age at Sept 1, 2024: 5 (Birthday Sept 15 hasn't happened relative to cutoff)
-        //   - Grade: 5 - 5 = 0 (Kindergarten)
-
-        // New Cutoff (Oct 1):
-        //   - School Year Start: Oct 1, 2024 (Nov > Oct)
-        //   - Age at Oct 1, 2024: 6 (Birthday Sept 15 HAS happened)
-        //   - Grade: 6 - 5 = 1 (1st Grade)
-
         (axios.get as any).mockResolvedValue({
             data: {
                 data: [{
@@ -303,20 +334,8 @@ describe('App Integration', () => {
 
         await waitFor(() => expect(screen.getByTestId('student-3')).toBeInTheDocument());
 
-        // Initial state: Grade 0 (displayed via mock which shows pcoGrade,
-        // but we want to verify calculation logic which affects delta/color).
-        // Since GradeScatter mock doesn't show calculated grade, we might need to inspect
-        // the props passed to it or rely on side effects.
-        // However, we can use the SmartFixModal to see the "Suggested Grade".
-
         fireEvent.click(screen.getByTestId('student-3'));
         expect(screen.getByTestId('smart-fix-modal')).toBeInTheDocument();
-        // Since we mocked SmartFixModal too simply, we can't see the text inside.
-        // Let's update the SmartFixModal mock to show calculatedGrade?
-        // Or better, update the Config test to use a spy on the ConfigModal save.
-
-        // Actually, let's update the GradeScatter mock to show calculated grade?
-        // No, let's just open Settings and Save.
 
         fireEvent.click(screen.getByText('Close')); // Close fix modal
 
@@ -327,11 +346,8 @@ describe('App Integration', () => {
         // Save Config (Change to Oct 1)
         fireEvent.click(screen.getByText('Save Config'));
 
-        // Now we expect a re-render.
-        // We need to verify that transformPerson was called with new options.
-        // Or verify that the student data in GradeScatter has changed.
-
-        // Verify the update via SmartFixModal which displays calculatedGrade
+        // Assert saveConfig was called
+        expect(storage.saveConfig).toHaveBeenCalledWith(expect.anything(), 'test-id');
 
         // Wait for re-render and click student again
         await waitFor(() => expect(screen.getByTestId('student-3')).toBeInTheDocument());
@@ -341,4 +357,186 @@ describe('App Integration', () => {
         // New calculation: Age 6 -> Grade 1
         expect(screen.getByText('Calculated: 1')).toBeInTheDocument();
    }, 15000);
+
+   it('applies high-contrast class when configured', async () => {
+       render(<Wrapper><App /></Wrapper>);
+
+       expect(document.body).not.toHaveClass('high-contrast');
+
+       // Trigger login to enable config loading
+       fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+
+       // Note: loadConfig defaults to empty. So no class yet.
+
+       fireEvent.click(screen.getByText('⚙️ Settings'));
+       fireEvent.click(screen.getByText('Save High Contrast'));
+
+       expect(document.body).toHaveClass('high-contrast');
+    });
+
+    it('identifies and archives ghosts', async () => {
+        const ghostStudent = {
+            id: 'g1',
+            type: 'Person',
+            attributes: {
+                birthdate: '2000-01-01',
+                grade: 10,
+                name: 'Casper',
+                last_checked_in_at: null // Never checked in -> Ghost
+            }
+        };
+        const activeStudent = {
+            id: 'a1',
+            type: 'Person',
+            attributes: {
+                birthdate: '2000-01-01',
+                grade: 10,
+                name: 'Alive',
+                last_checked_in_at: '2024-01-01' // Recent -> Not Ghost (Assuming mock date is later)
+            }
+        };
+
+        // Set system time so 'Alive' is considered recent
+        vi.setSystemTime(new Date('2024-02-01'));
+
+        (axios.get as any).mockResolvedValue({
+            data: {
+                data: [ghostStudent, activeStudent]
+            }
+        });
+        (axios.patch as any).mockResolvedValue({ data: { data: {} } });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-g1')).toBeInTheDocument());
+
+        fireEvent.click(screen.getByText('👻 Ghost Protocol'));
+        expect(screen.getByTestId('ghost-modal')).toBeInTheDocument();
+        expect(screen.getByText('Found 1 ghosts')).toBeInTheDocument();
+
+        // Test analyze flow
+        // Mock check-ins API
+        (axios.get as any).mockImplementation((url: string) => {
+            if (url.includes('/api/check-ins/v2/people/g1')) {
+                return Promise.resolve({ data: { data: { attributes: { check_in_count: 3 } } } });
+            }
+            return Promise.resolve({ data: { data: [] } }); // Default for people
+        });
+
+        const analyzeBtn = screen.getByText('Analyze Check-ins');
+        fireEvent.click(analyzeBtn);
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalledWith(
+            expect.stringContaining('/api/check-ins/v2/people/g1'),
+            expect.any(Object)
+        ));
+
+        fireEvent.click(screen.getByText('Archive All'));
+
+        await waitFor(() => expect(axios.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/g1',
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    attributes: { status: 'inactive' }
+                })
+            }),
+            expect.any(Object)
+        ));
+
+        // Wait for alert to confirm completion
+        await waitFor(() => expect(window.alert).toHaveBeenCalledWith(expect.stringMatching(/Successfully archived 1 ghosts/)));
+    });
+
+    it('opens and closes the Robert Report', async () => {
+        // Set date to ensure consistent age calculation
+        vi.setSystemTime(new Date('2024-11-01')); // Nov 2024
+
+        (axios.get as any).mockResolvedValue({
+            data: {
+                data: [{
+                    id: '1',
+                    type: 'Person',
+                    attributes: {
+                        birthdate: '2014-01-01', // Age 10. Expected Grade 5.
+                        grade: 5, // Match -> Score 100
+                        name: 'Healthy Kid'
+                    }
+                }]
+            }
+        });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument());
+
+        fireEvent.click(screen.getByText('📊 Report'));
+        expect(screen.getByTestId('robert-report')).toBeInTheDocument();
+
+        expect(screen.getByText('Health Score: 100')).toBeInTheDocument();
+
+        fireEvent.click(screen.getByText('Close Report'));
+        expect(screen.queryByTestId('robert-report')).not.toBeInTheDocument();
+    });
+
+    it('uses cache and does not fetch API if valid data exists', async () => {
+        const cachedPeople = [{
+            id: 'cached-1',
+            type: 'Person',
+            attributes: {
+                birthdate: '2014-01-01',
+                grade: 5,
+                name: 'Cached Kid'
+            }
+        }];
+
+        (loadFromCache as any).mockResolvedValue(cachedPeople);
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-cached-1')).toBeInTheDocument());
+
+        expect(loadFromCache).toHaveBeenCalledWith('people_raw_test-id', 'test-id', expect.any(Number));
+        expect(axios.get).not.toHaveBeenCalled();
+        expect(saveToCache).not.toHaveBeenCalled();
+    });
+
+    it('fetches from API and saves to cache if cache miss', async () => {
+        (loadFromCache as any).mockResolvedValue(null);
+
+        const apiData = [{
+            id: 'api-1',
+            type: 'Person',
+            attributes: {
+                birthdate: '2014-01-01',
+                grade: 5,
+                name: 'API Kid'
+            }
+        }];
+
+        (axios.get as any).mockResolvedValue({
+            data: {
+                data: apiData
+            }
+        });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-api-1')).toBeInTheDocument());
+
+        expect(loadFromCache).toHaveBeenCalled();
+        expect(axios.get).toHaveBeenCalled();
+        expect(saveToCache).toHaveBeenCalledWith('people_raw_test-id', apiData, 'test-id');
+    });
 });

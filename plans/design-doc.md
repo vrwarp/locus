@@ -22,17 +22,12 @@ Since we do not store PCO data, we map API responses to a lightweight internal m
 interface Student {
   id: string; // PCO Person ID
   name: string;
-  avatarUrl: string;
   birthdate: string; // ISO Date
-  grade: number | null; // Converted from PCO grade string
-  calculatedAge: number; // Derived
-  delta: number; // calculatedAge - (grade + 5)
-  status: 'active' | 'archived';
-  metrics: {
-     lastCheckIn: string | null;
-     totalGivingLastYear: number;
-     groupCount: number;
-  }
+  pcoGrade: number; // Converted from PCO grade string
+  calculatedGrade: number; // Derived
+  delta: number; // calculatedGrade - (pcoGrade + 5)
+  lastCheckInAt: string | null;
+  checkInCount: number | null; // Fetched lazily from Check-Ins API
 }
 ```
 
@@ -47,12 +42,14 @@ interface Student {
     *   **Visualization:** Use Canvas-based rendering (e.g., `react-chartjs-2` or customized `recharts` with optimization) if DOM nodes > 2000 to prevent layout thrashing.
     *   **Worker:** Use Web Worker only for heavy CSV parsing or large-scale "Genealogy" graph calculations, not simple age math.
 *   **Caching Strategy:**
-    *   Store fetched `Student[]` in `indexedDB` (Encrypted) or persistent Query Cache with 5-minute TTL.
-    *   **Loading State:** On reload, check IndexedDB. If data < 5m old, hydrate immediately. Show "Data is cached" banner. If > 5m, trigger background refresh.
+    *   Store fetched `PcoPerson[]` (Raw API Data) in `indexedDB` (Encrypted) with 5-minute TTL.
+        *   *Refinement:* storing raw data allows `Student` objects to be re-calculated if `GraderOptions` change without re-fetching from API.
+    *   **Loading State:** On reload, check IndexedDB. If data < 5m old, hydrate immediately.
 
 ## 4. Security & Privacy
 *   **RAM-Preferred Policy:** Data is fetched into browser memory.
-*   **Encrypted Local Storage:** Non-PII configuration (Cutoff dates, ghost thresholds) is stored in `localStorage` encrypted with AES (key derived from App ID).
+*   **Encrypted Local Storage:** Configuration (Cutoff dates, High Contrast Mode) and Health History are stored in `localStorage` encrypted with AES-GCM (256-bit).
+    *   **Key Derivation:** The encryption key is derived from the user-provided `App ID` using PBKDF2 with SHA-256 and a random salt (for future enhancement) or context-specific binding.
 *   **Auth:** Basic Auth (App ID : Secret).
     *   *Critique Mitigation:* Credentials in `sessionStorage` are vulnerable to XSS.
     *   *Solution:* We will accept the risk for MVP (Client-side app) but advise users to use Incognito. Future: Proxy-managed HttpOnly cookies.
