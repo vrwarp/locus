@@ -60,3 +60,61 @@ for (let i = 5; i <= 30; i++) {
     }
   });
 }
+
+export const events = [
+  {
+    id: '1',
+    type: 'Event',
+    attributes: {
+      name: 'Sunday Service',
+      frequency: 'weekly'
+    }
+  },
+  {
+    id: '2',
+    type: 'Event',
+    attributes: {
+      name: 'Youth Group',
+      frequency: 'weekly'
+    }
+  }
+];
+
+export const checkIns = [
+  {
+    id: '1',
+    type: 'CheckIn',
+    attributes: {
+      created_at: '2023-10-01T09:00:00Z',
+      kind: 'Regular'
+    },
+    relationships: {
+      person: { data: { type: 'Person', id: '1' } },
+      event: { data: { type: 'Event', id: '1' } }
+    }
+  },
+  {
+    id: '2',
+    type: 'CheckIn',
+    attributes: {
+      created_at: '2023-10-08T09:00:00Z',
+      kind: 'Regular'
+    },
+    relationships: {
+      person: { data: { type: 'Person', id: '1' } },
+      event: { data: { type: 'Event', id: '1' } }
+    }
+  },
+  {
+    id: '3',
+    type: 'CheckIn',
+    attributes: {
+      created_at: '2023-10-04T18:00:00Z',
+      kind: 'Guest'
+    },
+    relationships: {
+      person: { data: { type: 'Person', id: '2' } },
+      event: { data: { type: 'Event', id: '2' } }
+    }
+  }
+];

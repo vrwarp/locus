@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { people } from './data.js';
+import { people, events, checkIns } from './data.js';
 import { fileURLToPath } from 'url';
 
 export const app = express();
@@ -11,20 +11,29 @@ app.use(express.json({ type: ['application/json', 'application/vnd.api+json'] })
 
 // In-memory store (copy of seed data)
 // We export this or provide a reset function for testing if needed
-let db = JSON.parse(JSON.stringify(people));
-
-export const resetDb = () => {
-  db = JSON.parse(JSON.stringify(people));
+let db = {
+  people: JSON.parse(JSON.stringify(people)),
+  events: JSON.parse(JSON.stringify(events)),
+  checkIns: JSON.parse(JSON.stringify(checkIns))
 };
 
-app.get('/people/v2/people', (req, res) => {
+export const resetDb = () => {
+  db = {
+    people: JSON.parse(JSON.stringify(people)),
+    events: JSON.parse(JSON.stringify(events)),
+    checkIns: JSON.parse(JSON.stringify(checkIns))
+  };
+};
+
+// Generic Pagination Helper
+const paginate = (req, collection) => {
   const per_page = parseInt(req.query.per_page) || 25;
   const offset = parseInt(req.query.offset) || 0;
 
-  const paginated = db.slice(offset, offset + per_page);
+  const paginated = collection.slice(offset, offset + per_page);
 
   const nextOffset = offset + per_page;
-  const hasNext = nextOffset < db.length;
+  const hasNext = nextOffset < collection.length;
 
   // Construct absolute URLs using the request host
   const baseUrl = `${req.protocol}://${req.get('host')}${req.path}`;
@@ -37,11 +46,18 @@ app.get('/people/v2/people', (req, res) => {
     links.next = `${baseUrl}?offset=${nextOffset}&per_page=${per_page}`;
   }
 
+  return { paginated, links };
+};
+
+// People API
+app.get('/people/v2/people', (req, res) => {
+  const { paginated, links } = paginate(req, db.people);
+
   res.json({
     links,
     data: paginated,
     meta: {
-      total_count: db.length,
+      total_count: db.people.length,
       count: paginated.length,
       can_include: [],
       parent: {}
@@ -50,13 +66,13 @@ app.get('/people/v2/people', (req, res) => {
 });
 
 app.get('/people/v2/people/:id', (req, res) => {
-  const person = db.find(p => p.id === req.params.id);
+  const person = db.people.find(p => p.id === req.params.id);
   if (!person) return res.status(404).json({ errors: [{ status: '404', title: 'Not found' }] });
   res.json({ data: person });
 });
 
 app.patch('/people/v2/people/:id', (req, res) => {
-  const personIndex = db.findIndex(p => p.id === req.params.id);
+  const personIndex = db.people.findIndex(p => p.id === req.params.id);
   if (personIndex === -1) return res.status(404).json({ errors: [{ status: '404', title: 'Not found' }] });
 
   // PCO Structure: body.data.attributes
@@ -67,7 +83,7 @@ app.patch('/people/v2/people/:id', (req, res) => {
      return res.status(400).json({ errors: [{ status: '400', title: 'Bad Request' }] });
   }
 
-  const current = db[personIndex];
+  const current = db.people[personIndex];
 
   // Deep merge attributes
   const updated = {
@@ -78,10 +94,63 @@ app.patch('/people/v2/people/:id', (req, res) => {
     }
   };
 
-  db[personIndex] = updated;
+  db.people[personIndex] = updated;
 
   res.json({ data: updated });
 });
+
+// Check-Ins API
+app.get('/check-ins/v2/check_ins', (req, res) => {
+  const { paginated, links } = paginate(req, db.checkIns);
+
+  res.json({
+    links,
+    data: paginated,
+    meta: {
+      total_count: db.checkIns.length,
+      count: paginated.length,
+      can_include: [],
+      parent: {}
+    }
+  });
+});
+
+app.get('/check-ins/v2/events', (req, res) => {
+  const { paginated, links } = paginate(req, db.events);
+
+  res.json({
+    links,
+    data: paginated,
+    meta: {
+      total_count: db.events.length,
+      count: paginated.length,
+      can_include: [],
+      parent: {}
+    }
+  });
+});
+
+// API V2 (Admin/Platform)
+app.get('/api/v2', (req, res) => {
+  // Return basic root info or empty list for unsupported endpoints
+  res.json({
+    data: {
+      type: 'Organization',
+      id: '1',
+      attributes: {
+        name: 'Mock Church'
+      }
+    }
+  });
+});
+
+app.get('/api/v2/connected_applications', (req, res) => {
+    res.json({
+        data: [],
+        meta: { total_count: 0, count: 0 }
+    });
+});
+
 
 // Helper to start the server from tests or script
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

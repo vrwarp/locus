@@ -85,4 +85,24 @@ describe('Local API Simulator', () => {
     const p1 = people.find(p => p.id === '1');
     expect(p1?.attributes.name).toBe('Valid Kindergartner');
   });
+
+  it('GET /check-ins/v2/check_ins returns data', async () => {
+    const response = await axios.get(`${baseUrl}/check-ins/v2/check_ins`);
+    expect(response.status).toBe(200);
+    expect(response.data.data.length).toBeGreaterThan(0);
+    expect(response.data.data[0].type).toBe('CheckIn');
+  });
+
+  it('GET /check-ins/v2/events returns data', async () => {
+    const response = await axios.get(`${baseUrl}/check-ins/v2/events`);
+    expect(response.status).toBe(200);
+    expect(response.data.data.length).toBeGreaterThan(0);
+    expect(response.data.data[0].type).toBe('Event');
+  });
+
+  it('GET /api/v2 returns organization info', async () => {
+    const response = await axios.get(`${baseUrl}/api/v2`);
+    expect(response.status).toBe(200);
+    expect(response.data.data.type).toBe('Organization');
+  });
 });
