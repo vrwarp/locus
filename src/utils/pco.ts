@@ -1,4 +1,5 @@
 import { differenceInYears } from 'date-fns';
+import { calculateExpectedGrade } from './grader';
 
 export interface PcoAttributes {
   birthdate?: string | null;
@@ -29,6 +30,9 @@ export interface Student {
   age: number;
   pcoGrade: number;
   name: string;
+  birthdate: string;
+  calculatedGrade: number;
+  delta: number;
 }
 
 export const transformPerson = (person: PcoPerson): Student | null => {
@@ -46,6 +50,8 @@ export const transformPerson = (person: PcoPerson): Student | null => {
   }
 
   const age = differenceInYears(new Date(), dob);
+  const calculatedGrade = calculateExpectedGrade(dob);
+  const delta = calculatedGrade - grade;
 
   // Use 'name' if available, otherwise construct from first/last, otherwise 'Unknown'
   const displayName = name || `${first_name || ''} ${last_name || ''}`.trim() || 'Unknown';
@@ -55,5 +61,8 @@ export const transformPerson = (person: PcoPerson): Student | null => {
     age,
     pcoGrade: grade,
     name: displayName,
+    birthdate,
+    calculatedGrade,
+    delta,
   };
 };

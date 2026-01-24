@@ -1,13 +1,12 @@
 import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ReferenceLine } from 'recharts';
+import type { Student } from '../utils/pco';
 
-interface Student {
-  id: string;
-  age: number;      // X-Axis
-  pcoGrade: number; // Y-Axis
-  name: string;
+interface GradeScatterProps {
+  data: Student[];
+  onPointClick?: (student: Student) => void;
 }
 
-export const GradeScatter = ({ data }: { data: Student[] }) => (
+export const GradeScatter = ({ data, onPointClick }: GradeScatterProps) => (
   <ScatterChart
     width={800}
     height={600}
@@ -16,7 +15,18 @@ export const GradeScatter = ({ data }: { data: Student[] }) => (
     <XAxis type="number" dataKey="age" name="Age" unit="yrs" domain={[0, 'auto']} />
     <YAxis type="number" dataKey="pcoGrade" name="Recorded Grade" domain={['auto', 'auto']} />
     <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-    <Scatter name="Students" data={data} fill="#8884d8" />
+    <Scatter
+      name="Students"
+      data={data}
+      fill="#8884d8"
+      cursor="pointer"
+      onClick={(dataPoint: any) => {
+        // Recharts onClick passes an object that contains the payload (original data)
+        if (onPointClick && dataPoint && dataPoint.payload) {
+          onPointClick(dataPoint.payload as Student);
+        }
+      }}
+    />
     {/* The Diagonal of Truth: A reference line where x - 5 = y */}
     <ReferenceLine
       segment={[{ x: 0, y: -5 }, { x: 30, y: 25 }]}

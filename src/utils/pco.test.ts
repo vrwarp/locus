@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { transformPerson, PcoPerson } from './pco';
+import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
 
 describe('transformPerson', () => {
@@ -23,11 +24,20 @@ describe('transformPerson', () => {
     const result = transformPerson(person);
 
     expect(result).not.toBeNull();
+
+    // We expect specific fields.
+    // Note: calculatedGrade depends on the exact date logic in grader.ts.
+    // We use the same function here to verify consistency.
+    const expectedGrade = calculateExpectedGrade(new Date(birthdate10));
+
     expect(result).toEqual({
       id: '1',
       age: 10,
       pcoGrade: 4,
       name: 'John Doe',
+      birthdate: birthdate10,
+      calculatedGrade: expectedGrade,
+      delta: expectedGrade - 4
     });
   });
 
