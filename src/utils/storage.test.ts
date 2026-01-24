@@ -42,4 +42,17 @@ describe('Storage Utils', () => {
     const loaded = loadConfig();
     expect(loaded).toEqual({ graderOptions: {} });
   });
+
+  it('saves and loads highContrastMode', () => {
+    const config: AppConfig = {
+        graderOptions: {},
+        highContrastMode: true
+    };
+    saveConfig(config);
+    expect(mockSetItem).toHaveBeenCalledWith('locus_config', JSON.stringify(config));
+
+    mockGetItem.mockReturnValue(JSON.stringify(config));
+    const loaded = loadConfig();
+    expect(loaded.highContrastMode).toBe(true);
+  });
 });

@@ -2,6 +2,7 @@ import type { GraderOptions } from './grader';
 
 export interface AppConfig {
   graderOptions: GraderOptions;
+  highContrastMode?: boolean;
 }
 
 const STORAGE_KEY = 'locus_config';
