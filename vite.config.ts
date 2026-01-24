@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://api.planningcenteronline.com',
+        target: process.env.VITE_API_TARGET || 'https://api.planningcenteronline.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
@@ -18,6 +18,6 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     globals: true,
-    exclude: ['e2e/**', 'node_modules/**'],
+    exclude: ['e2e/**', 'e2e-integration/**', 'node_modules/**'],
   },
 })
