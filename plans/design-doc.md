@@ -47,7 +47,8 @@ interface Student {
 
 ## 4. Security & Privacy
 *   **RAM-Preferred Policy:** Data is fetched into browser memory.
-*   **Encrypted Local Storage:** Non-PII configuration (Cutoff dates, ghost thresholds) is stored in `localStorage` encrypted with AES (key derived from App ID).
+*   **Encrypted Local Storage:** Configuration (Cutoff dates, High Contrast Mode) and Health History are stored in `localStorage` encrypted with AES-GCM (256-bit).
+    *   **Key Derivation:** The encryption key is derived from the user-provided `App ID` using PBKDF2 with SHA-256 and a random salt (for future enhancement) or context-specific binding.
 *   **Auth:** Basic Auth (App ID : Secret).
     *   *Critique Mitigation:* Credentials in `sessionStorage` are vulnerable to XSS.
     *   *Solution:* We will accept the risk for MVP (Client-side app) but advise users to use Incognito. Future: Proxy-managed HttpOnly cookies.

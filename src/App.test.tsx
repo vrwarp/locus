@@ -5,9 +5,18 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import axios from 'axios';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Student } from './utils/pco';
+import * as storage from './utils/storage';
 
 // Mock dependencies
 vi.mock('axios');
+
+// Mock storage
+vi.mock('./utils/storage', () => ({
+  loadConfig: vi.fn().mockResolvedValue({ graderOptions: {} }),
+  saveConfig: vi.fn().mockResolvedValue(undefined),
+  loadHealthHistory: vi.fn().mockResolvedValue([]),
+  saveHealthSnapshot: vi.fn().mockResolvedValue(undefined),
+}));
 
 // Mock GradeScatter to avoid Recharts complexity and easily test interaction
 vi.mock('./components/GradeScatter', () => ({
@@ -297,17 +306,6 @@ describe('App Integration', () => {
         // Set System Time to Nov 1, 2024 to ensure deterministic calculation
         vi.setSystemTime(new Date('2024-11-01'));
 
-        // Born Sept 15, 2018.
-        // Default Cutoff (Sept 1):
-        //   - School Year Start: Sept 1, 2024 (Nov > Sept)
-        //   - Age at Sept 1, 2024: 5 (Birthday Sept 15 hasn't happened relative to cutoff)
-        //   - Grade: 5 - 5 = 0 (Kindergarten)
-
-        // New Cutoff (Oct 1):
-        //   - School Year Start: Oct 1, 2024 (Nov > Oct)
-        //   - Age at Oct 1, 2024: 6 (Birthday Sept 15 HAS happened)
-        //   - Grade: 6 - 5 = 1 (1st Grade)
-
         (axios.get as any).mockResolvedValue({
             data: {
                 data: [{
@@ -329,20 +327,8 @@ describe('App Integration', () => {
 
         await waitFor(() => expect(screen.getByTestId('student-3')).toBeInTheDocument());
 
-        // Initial state: Grade 0 (displayed via mock which shows pcoGrade,
-        // but we want to verify calculation logic which affects delta/color).
-        // Since GradeScatter mock doesn't show calculated grade, we might need to inspect
-        // the props passed to it or rely on side effects.
-        // However, we can use the SmartFixModal to see the "Suggested Grade".
-
         fireEvent.click(screen.getByTestId('student-3'));
         expect(screen.getByTestId('smart-fix-modal')).toBeInTheDocument();
-        // Since we mocked SmartFixModal too simply, we can't see the text inside.
-        // Let's update the SmartFixModal mock to show calculatedGrade?
-        // Or better, update the Config test to use a spy on the ConfigModal save.
-
-        // Actually, let's update the GradeScatter mock to show calculated grade?
-        // No, let's just open Settings and Save.
 
         fireEvent.click(screen.getByText('Close')); // Close fix modal
 
@@ -353,11 +339,8 @@ describe('App Integration', () => {
         // Save Config (Change to Oct 1)
         fireEvent.click(screen.getByText('Save Config'));
 
-        // Now we expect a re-render.
-        // We need to verify that transformPerson was called with new options.
-        // Or verify that the student data in GradeScatter has changed.
-
-        // Verify the update via SmartFixModal which displays calculatedGrade
+        // Assert saveConfig was called
+        expect(storage.saveConfig).toHaveBeenCalledWith(expect.anything(), 'test-id');
 
         // Wait for re-render and click student again
         await waitFor(() => expect(screen.getByTestId('student-3')).toBeInTheDocument());
@@ -372,6 +355,11 @@ describe('App Integration', () => {
        render(<Wrapper><App /></Wrapper>);
 
        expect(document.body).not.toHaveClass('high-contrast');
+
+       // Trigger login to enable config loading
+       fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+
+       // Note: loadConfig defaults to empty. So no class yet.
 
        fireEvent.click(screen.getByText('⚙️ Settings'));
        fireEvent.click(screen.getByText('Save High Contrast'));
@@ -428,15 +416,12 @@ describe('App Integration', () => {
             if (url.includes('/api/check-ins/v2/people/g1')) {
                 return Promise.resolve({ data: { data: { attributes: { check_in_count: 3 } } } });
             }
-            return Promise.reject(new Error('Not Found'));
+            return Promise.resolve({ data: { data: [] } }); // Default for people
         });
 
         const analyzeBtn = screen.getByText('Analyze Check-ins');
         fireEvent.click(analyzeBtn);
 
-        // Should update UI with count (we mocked GhostModal to be simple, but App handles logic)
-        // Since we mocked GhostModal, we can't see the tags inside it unless we update the mock.
-        // But we can verify axios.get was called.
         await waitFor(() => expect(axios.get).toHaveBeenCalledWith(
             expect.stringContaining('/api/check-ins/v2/people/g1'),
             expect.any(Object)
