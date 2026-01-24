@@ -1,7 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { transformPerson, PcoPerson } from './pco';
+import { describe, it, expect, vi } from 'vitest';
+import axios from 'axios';
+import { transformPerson, updatePerson, PcoPerson } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
+
+vi.mock('axios');
 
 describe('transformPerson', () => {
   const today = new Date();
@@ -107,4 +110,38 @@ describe('transformPerson', () => {
     const result = transformPerson(person);
     expect(result?.name).toBe('Unknown');
   });
+});
+
+describe('updatePerson', () => {
+    it('calls axios patch with correct arguments and returns data', async () => {
+        const mockPerson: PcoPerson = {
+            id: '123',
+            type: 'Person',
+            attributes: { grade: 5 }
+        };
+        const mockResponse = { data: { data: mockPerson } };
+
+        // Mock axios.patch
+        (axios.patch as any).mockResolvedValue(mockResponse);
+
+        const result = await updatePerson('123', { grade: 5 }, 'auth-token');
+
+        expect(axios.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/123',
+            {
+                data: {
+                    type: 'Person',
+                    id: '123',
+                    attributes: { grade: 5 }
+                }
+            },
+            {
+                headers: {
+                    Authorization: 'Basic auth-token',
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        expect(result).toEqual(mockPerson);
+    });
 });

@@ -1,4 +1,5 @@
 import { differenceInYears } from 'date-fns';
+import axios from 'axios';
 import { calculateExpectedGrade } from './grader';
 
 export interface PcoAttributes {
@@ -23,6 +24,10 @@ export interface PcoApiResponse {
     count: number;
     [key: string]: unknown;
   };
+}
+
+export interface PcoSingleResponse {
+    data: PcoPerson;
 }
 
 export interface Student {
@@ -66,3 +71,23 @@ export const transformPerson = (person: PcoPerson): Student | null => {
     delta,
   };
 };
+
+export const updatePerson = async (id: string, attributes: PcoAttributes, auth: string): Promise<PcoPerson> => {
+    const response = await axios.patch<PcoSingleResponse>(
+      `/api/people/v2/people/${id}`,
+      {
+        data: {
+          type: 'Person',
+          id,
+          attributes
+        }
+      },
+      {
+        headers: {
+          Authorization: `Basic ${auth}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data.data;
+  };
