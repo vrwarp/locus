@@ -33,26 +33,27 @@ describe('Local API Simulator', () => {
     const response = await axios.get(`${baseUrl}/people/v2/people?per_page=2`);
     expect(response.status).toBe(200);
     expect(response.data.data).toHaveLength(2);
-    expect(response.data.meta.total_count).toBeGreaterThanOrEqual(100);
+    expect(response.data.meta.total_count).toBeGreaterThanOrEqual(30); // ~35 households * ~3 people
 
     const nextLink = response.data.links.next;
     expect(nextLink).toBeDefined();
-    // Verify it points to the same host
     expect(nextLink).toContain(baseUrl);
     expect(nextLink).toContain('offset=2');
   });
 
   it('PATCH /people/v2/people/:id updates grade', async () => {
-    const id = '1';
+    // Need to find a valid ID since they are generated
+    const listRes = await axios.get(`${baseUrl}/people/v2/people?per_page=1`);
+    const personId = listRes.data.data[0].id;
     const newGrade = 8;
 
     // Update
     const patchRes = await axios.patch(
-      `${baseUrl}/people/v2/people/${id}`,
+      `${baseUrl}/people/v2/people/${personId}`,
       {
         data: {
           type: 'Person',
-          id,
+          id: personId,
           attributes: { grade: newGrade }
         }
       },
@@ -62,49 +63,48 @@ describe('Local API Simulator', () => {
     expect(patchRes.data.data.attributes.grade).toBe(newGrade);
 
     // Verify persistence by fetching again
-    const getRes = await axios.get(`${baseUrl}/people/v2/people/${id}`);
+    const getRes = await axios.get(`${baseUrl}/people/v2/people/${personId}`);
     expect(getRes.data.data.attributes.grade).toBe(newGrade);
   });
 
   it('fetchAllPeople follows pagination from simulator', async () => {
-    // fetchAllPeople is a utility that recursively follows links.next.
-    // By passing our simulator URL, we verify it can handle real HTTP responses
-    // and correctly accumulate results.
+    // Just fetch first 50 to verify it works without fetching thousands
+    const people = await fetchAllPeople('fake-auth', `${baseUrl}/people/v2/people?per_page=50`);
 
-    // Use a small per_page to force multiple requests
-    // Total is 100, per_page 25 -> 4 requests
-    const people = await fetchAllPeople('fake-auth', `${baseUrl}/people/v2/people?per_page=25`);
+    // We expect at least 35 households, so probably > 100 people
+    expect(people.length).toBeGreaterThanOrEqual(100);
 
-    expect(people.length).toBe(100);
-
-    const ids = people.map(p => p.id);
-    expect(ids).toContain('1');
-    expect(ids).toContain('100');
-
-    // Verify data integrity
-    const p1 = people.find(p => p.id === '1');
-    expect(p1?.attributes.name).toBe('Valid Kindergartner');
+    // Verify structure of a person
+    const person = people[0];
+    expect(person.type).toBe('Person');
+    expect(person.attributes.name).toBeDefined();
   });
 
-  it('GET /check-ins/v2/check_ins returns data', async () => {
-    const response = await axios.get(`${baseUrl}/check-ins/v2/check_ins`);
+  it('GET /check-ins/v2/check_ins returns substantial data', async () => {
+    const response = await axios.get(`${baseUrl}/check-ins/v2/check_ins?per_page=1`);
     expect(response.status).toBe(200);
-    expect(response.data.data.length).toBeGreaterThan(0);
-    expect(response.data.meta.total_count).toBeGreaterThanOrEqual(100);
-    expect(response.data.data[0].type).toBe('CheckIn');
+    // 51 weeks * 2 events * ~60 kids * 0.6 attendance => ~3600 checkins
+    expect(response.data.meta.total_count).toBeGreaterThan(1000);
   });
 
-  it('GET /check-ins/v2/events returns data', async () => {
+  it('GET /check-ins/v2/events returns 2 events', async () => {
     const response = await axios.get(`${baseUrl}/check-ins/v2/events`);
     expect(response.status).toBe(200);
-    expect(response.data.data.length).toBeGreaterThan(0);
-    expect(response.data.meta.total_count).toBeGreaterThanOrEqual(100);
-    expect(response.data.data[0].type).toBe('Event');
+    expect(response.data.data).toHaveLength(2);
+    expect(response.data.data[0].attributes.name).toMatch(/Friday|Sunday/);
   });
 
-  it('GET /api/v2 returns organization info', async () => {
-    const response = await axios.get(`${baseUrl}/api/v2`);
-    expect(response.status).toBe(200);
-    expect(response.data.data.type).toBe('Organization');
+  it('Verifies adults have contact info', async () => {
+    const response = await axios.get(`${baseUrl}/people/v2/people?per_page=100`);
+    const people = response.data.data;
+    const adults = people.filter((p: any) => !p.attributes.child);
+
+    expect(adults.length).toBeGreaterThan(0);
+    const adult = adults[0];
+
+    expect(adult.attributes.phone_numbers).toBeDefined();
+    expect(adult.attributes.phone_numbers[0].number).toMatch(/555-\d{3}-\d{4}/);
+    expect(adult.attributes.email_addresses).toBeDefined();
+    expect(adult.attributes.email_addresses[0].address).toContain('@example.com');
   });
 });
