@@ -1,6 +1,7 @@
 import { differenceInYears } from 'date-fns';
 import axios from 'axios';
 import { calculateExpectedGrade } from './grader';
+import type { GraderOptions } from './grader';
 
 export interface PcoAttributes {
   birthdate?: string | null;
@@ -40,7 +41,7 @@ export interface Student {
   delta: number;
 }
 
-export const transformPerson = (person: PcoPerson): Student | null => {
+export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
   const { id, attributes } = person;
   const { birthdate, grade, name, first_name, last_name } = attributes;
 
@@ -55,7 +56,7 @@ export const transformPerson = (person: PcoPerson): Student | null => {
   }
 
   const age = differenceInYears(new Date(), dob);
-  const calculatedGrade = calculateExpectedGrade(dob);
+  const calculatedGrade = calculateExpectedGrade(dob, undefined, options);
   const delta = calculatedGrade - grade;
 
   // Use 'name' if available, otherwise construct from first/last, otherwise 'Unknown'
