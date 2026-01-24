@@ -69,4 +69,27 @@ describe('ConfigModal', () => {
     const checkbox = screen.getByLabelText('High Contrast Mode');
     expect(checkbox).toBeChecked();
   });
+
+  it('toggles Sandbox Mode and saves', () => {
+    render(
+      <ConfigModal
+        isOpen={true}
+        currentConfig={mockConfig}
+        onSave={mockOnSave}
+        onClose={mockOnClose}
+      />
+    );
+
+    const checkbox = screen.getByLabelText('Sandbox Mode');
+    expect(checkbox).not.toBeChecked();
+
+    fireEvent.click(checkbox);
+    expect(checkbox).toBeChecked();
+
+    fireEvent.click(screen.getByText('Save Settings'));
+
+    expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
+        sandboxMode: true
+    }));
+  });
 });

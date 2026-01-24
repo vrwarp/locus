@@ -65,6 +65,10 @@ vi.mock('./components/ConfigModal', () => ({
             onSave({ ...currentConfig, highContrastMode: true });
             onClose();
         }}>Save High Contrast</button>
+        <button onClick={() => {
+            onSave({ ...currentConfig, sandboxMode: true });
+            onClose();
+        }}>Save Sandbox</button>
         <button onClick={onClose}>Close Config</button>
     </div>
   ) : null
@@ -538,5 +542,56 @@ describe('App Integration', () => {
         expect(loadFromCache).toHaveBeenCalled();
         expect(axios.get).toHaveBeenCalled();
         expect(saveToCache).toHaveBeenCalledWith('people_raw_test-id', apiData, 'test-id');
+    });
+
+    it('prevents API writes when sandbox mode is active', async () => {
+       (axios.get as any).mockResolvedValue({
+           data: {
+               data: [
+                   {
+                       id: '1',
+                       type: 'Person',
+                       attributes: { birthdate: '2014-01-01', grade: 4, name: 'Student 1' }
+                   }
+               ]
+           }
+       });
+
+       render(<Wrapper><App /></Wrapper>);
+
+       fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+       fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+       await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument());
+
+       // Enable sandbox
+       fireEvent.click(screen.getByText('⚙️ Settings'));
+       fireEvent.click(screen.getByText('Save Sandbox'));
+
+       expect(screen.getByText('SANDBOX MODE ACTIVE')).toBeInTheDocument();
+
+       await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument());
+
+       vi.useFakeTimers();
+
+       // Fix Student 1
+       fireEvent.click(screen.getByTestId('student-1'));
+       fireEvent.click(screen.getByText('Fix'));
+
+       // Advance time to commit
+       act(() => {
+           vi.advanceTimersByTime(5000);
+       });
+
+       // Assert API was called with sandbox header
+       expect(axios.patch).toHaveBeenCalledWith(
+           expect.any(String),
+           expect.any(Object),
+           expect.objectContaining({
+               headers: expect.objectContaining({
+                   'X-Locus-Sandbox': 'true'
+               })
+           })
+       );
     });
 });

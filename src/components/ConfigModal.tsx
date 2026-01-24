@@ -18,6 +18,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
   const [cutoffMonth, setCutoffMonth] = useState(8); // Default Sept (Index 8)
   const [cutoffDay, setCutoffDay] = useState(1);
   const [highContrastMode, setHighContrastMode] = useState(false);
+  const [sandboxMode, setSandboxMode] = useState(false);
 
   // Load current config when modal opens
   useEffect(() => {
@@ -25,6 +26,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         setCutoffMonth(currentConfig.graderOptions.cutoffMonth ?? 8);
         setCutoffDay(currentConfig.graderOptions.cutoffDay ?? 1);
         setHighContrastMode(currentConfig.highContrastMode ?? false);
+        setSandboxMode(currentConfig.sandboxMode ?? false);
     }
   }, [isOpen, currentConfig]);
 
@@ -34,6 +36,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
     onSave({
         ...currentConfig,
         highContrastMode,
+        sandboxMode,
         graderOptions: {
             ...currentConfig.graderOptions,
             cutoffMonth,
@@ -85,6 +88,20 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
             </label>
             <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
                 Use high contrast colors (Black/Cyan/Magenta) for better visibility.
+            </p>
+        </div>
+
+        <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input
+                    type="checkbox"
+                    checked={sandboxMode}
+                    onChange={(e) => setSandboxMode(e.target.checked)}
+                />
+                Sandbox Mode
+            </label>
+            <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
+                Simulate actions without updating PCO data (Safe Mode).
             </p>
         </div>
 

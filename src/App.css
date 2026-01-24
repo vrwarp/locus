@@ -60,3 +60,18 @@
 .settings-btn:hover {
   background-color: #f0f0f0;
 }
+
+.sandbox-banner {
+  background-color: #ff9800;
+  color: white;
+  padding: 5px 15px;
+  border-radius: 4px;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}

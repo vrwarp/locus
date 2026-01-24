@@ -150,6 +150,23 @@ describe('updatePerson', () => {
         );
         expect(result).toEqual(mockPerson);
     });
+
+    it('adds sandbox header when sandboxMode is true', async () => {
+        const mockResponse = { data: { data: { id: '123', type: 'Person', attributes: { grade: 5 } } } };
+        (axios.patch as any).mockResolvedValue(mockResponse);
+
+        await updatePerson('123', { grade: 5 }, 'auth-token', true);
+
+        expect(axios.patch).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.any(Object),
+            expect.objectContaining({
+                headers: expect.objectContaining({
+                    'X-Locus-Sandbox': 'true'
+                })
+            })
+        );
+    });
 });
 
 describe('fetchCheckInCount', () => {

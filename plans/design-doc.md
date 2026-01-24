@@ -63,8 +63,12 @@ interface Student {
     *   Send API request in background.
     *   If API fails, revert dot to Red and show Toast Error.
 *   **Sandbox Implementation:**
-    *   Wrap API calls in a `ServiceAdapter`.
-    *   If `SandboxMode == true`, `ServiceAdapter` returns `Success` immediately and updates a local `MockStore` instead of hitting the network.
+    *   **Architecture:** Service Worker (`public/sandbox-sw.js`).
+    *   **Mechanism:**
+        *   When `SandboxMode` is enabled, the API Client (`pco.ts`) adds `X-Locus-Sandbox: true` header to requests.
+        *   The Service Worker intercepts `fetch` events with this header.
+        *   If Method is `PATCH` or `DELETE`, the SW prevents the network call and returns a synthetic `200 OK` response (Echo Body).
+    *   **Safety:** `self.skipWaiting()` and `clients.claim()` ensure immediate control to prevent race conditions on first load.
 *   **Pagination:**
     *   For DB < 5,000: Recursive fetch of `links.next` on startup.
     *   For DB > 5,000: Limit initial fetch to "Most Recent 5,000" or "Grade Level != Null". Show "Load More" button to fetch older records.
