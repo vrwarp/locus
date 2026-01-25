@@ -61,6 +61,6 @@
 *   **Physics:** Nodes repel each other slightly. "Super Nodes" (Connectors) pulse slowly.
 
 ## 4. Accessibility
-*   **Colorblind Mode:** Use shapes (Triangles/Squares) in addition to colors for Green/Red states.
+*   **Colorblind Mode:** Use shapes (Triangles/Squares) in addition to colors for Green/Red states. [DONE]
 *   **Keyboard Nav:** Arrow keys must navigate the scatter plot points. Focus ring must be clearly visible.
 *   **Screen Readers:** Scatter plot points must offer "Audio Charts" (Pitch varies by Y-axis value). *Note: Investigating Recharts accessibility features or custom canvas implementation.*

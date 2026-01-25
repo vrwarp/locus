@@ -6,6 +6,7 @@ export interface AppConfig {
   graderOptions: GraderOptions;
   highContrastMode?: boolean;
   sandboxMode?: boolean;
+  colorblindMode?: boolean;
 }
 
 export interface HealthHistoryEntry {

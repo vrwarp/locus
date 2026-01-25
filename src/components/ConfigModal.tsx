@@ -19,6 +19,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
   const [cutoffDay, setCutoffDay] = useState(1);
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [sandboxMode, setSandboxMode] = useState(false);
+  const [colorblindMode, setColorblindMode] = useState(false);
 
   // Load current config when modal opens
   useEffect(() => {
@@ -27,6 +28,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         setCutoffDay(currentConfig.graderOptions.cutoffDay ?? 1);
         setHighContrastMode(currentConfig.highContrastMode ?? false);
         setSandboxMode(currentConfig.sandboxMode ?? false);
+        setColorblindMode(currentConfig.colorblindMode ?? false);
     }
   }, [isOpen, currentConfig]);
 
@@ -37,6 +39,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         ...currentConfig,
         highContrastMode,
         sandboxMode,
+        colorblindMode,
         graderOptions: {
             ...currentConfig.graderOptions,
             cutoffMonth,
@@ -74,6 +77,20 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
             <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
                 Students born after this date will be placed in the lower grade.
                 (Standard US: September 1st)
+            </p>
+        </div>
+
+        <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input
+                    type="checkbox"
+                    checked={colorblindMode}
+                    onChange={(e) => setColorblindMode(e.target.checked)}
+                />
+                Colorblind Mode
+            </label>
+            <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
+                Use distinct shapes (Triangle vs Circle) for data anomalies.
             </p>
         </div>
 

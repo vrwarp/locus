@@ -4,9 +4,30 @@ import type { Student } from '../utils/pco';
 interface GradeScatterProps {
   data: Student[];
   onPointClick?: (student: Student) => void;
+  colorblindMode?: boolean;
 }
 
-export const GradeScatter = ({ data, onPointClick }: GradeScatterProps) => (
+const CustomShape = (props: any) => {
+    const { cx, cy, fill, payload, colorblindMode } = props;
+    const isAnomaly = Math.abs(payload.delta) > 0;
+
+    if (colorblindMode && isAnomaly) {
+        // Render a Triangle for anomalies in colorblind mode
+        // Manually drawing a triangle path to ensure visibility
+        // Pointing up: top (cx, cy-6), bottom-right (cx+6, cy+6), bottom-left (cx-6, cy+6)
+        return (
+            <path
+                d={`M${cx},${cy - 6} L${cx + 6},${cy + 6} L${cx - 6},${cy + 6} Z`}
+                fill={fill}
+            />
+        );
+    }
+
+    // Default Circle
+    return <circle cx={cx} cy={cy} r={5} fill={fill} />;
+};
+
+export const GradeScatter = ({ data, onPointClick, colorblindMode }: GradeScatterProps) => (
   <ScatterChart
     width={800}
     height={600}
@@ -41,6 +62,7 @@ export const GradeScatter = ({ data, onPointClick }: GradeScatterProps) => (
       name="Students"
       data={data}
       cursor="pointer"
+      shape={<CustomShape colorblindMode={colorblindMode} />}
       onClick={(dataPoint: any) => {
         // Recharts onClick passes an object that contains the payload (original data)
         if (onPointClick && dataPoint && dataPoint.payload) {

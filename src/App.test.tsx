@@ -27,8 +27,8 @@ vi.mock('./utils/cache', () => ({
 
 // Mock GradeScatter to avoid Recharts complexity and easily test interaction
 vi.mock('./components/GradeScatter', () => ({
-  GradeScatter: ({ data, onPointClick }: { data: Student[], onPointClick: (s: Student) => void }) => (
-    <div data-testid="grade-scatter">
+  GradeScatter: ({ data, onPointClick, colorblindMode }: { data: Student[], onPointClick: (s: Student) => void, colorblindMode?: boolean }) => (
+    <div data-testid="grade-scatter" data-colorblind-mode={colorblindMode ? 'true' : 'false'}>
       {data.map(s => (
         <button key={s.id} data-testid={`student-${s.id}`} onClick={() => onPointClick(s)}>
           {s.name} - Grade {s.pcoGrade}
@@ -65,6 +65,10 @@ vi.mock('./components/ConfigModal', () => ({
             onSave({ ...currentConfig, highContrastMode: true });
             onClose();
         }}>Save High Contrast</button>
+        <button onClick={() => {
+            onSave({ ...currentConfig, colorblindMode: true });
+            onClose();
+        }}>Save Colorblind</button>
         <button onClick={onClose}>Close Config</button>
     </div>
   ) : null
@@ -507,6 +511,23 @@ describe('App Integration', () => {
         expect(loadFromCache).toHaveBeenCalledWith('people_raw_test-id', 'test-id', expect.any(Number));
         expect(axios.get).not.toHaveBeenCalled();
         expect(saveToCache).not.toHaveBeenCalled();
+    });
+
+    it('passes colorblind mode to GradeScatter when configured', async () => {
+       render(<Wrapper><App /></Wrapper>);
+
+       // Trigger login
+       fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+
+       // Default is false
+       expect(screen.getByTestId('grade-scatter')).toHaveAttribute('data-colorblind-mode', 'false');
+
+       fireEvent.click(screen.getByText('⚙️ Settings'));
+       fireEvent.click(screen.getByText('Save Colorblind'));
+
+       await waitFor(() => {
+           expect(screen.getByTestId('grade-scatter')).toHaveAttribute('data-colorblind-mode', 'true');
+       });
     });
 
     it('fetches from API and saves to cache if cache miss', async () => {

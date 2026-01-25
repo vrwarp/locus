@@ -65,6 +65,6 @@ Locus is a "Data Health OS" for church administrators using Planning Center Onli
 ## 4. Non-Functional Requirements
 *   **Performance:** Chart must render 5,000 points in < 1 second.
 *   **Security:** PII storage on Locus servers is prohibited.
-*   **Accessibility:** WCAG 2.1 AA compliant colors. High Contrast Mode toggle required.
+*   **Accessibility:** WCAG 2.1 AA compliant colors. High Contrast Mode toggle required. Colorblind Mode supported.
 *   **Reliability:** Must handle API Rate Limits (429) gracefully with exponential backoff.
 *   **Resilience:** Startup check for PCO API version compatibility.

@@ -122,3 +122,15 @@
 - **Tests:**
     - Updated `src/utils/pco.test.ts` to verify header injection.
 - **Status:** Sandbox Mode functional. Next steps: Deployment Setup.
+
+## Session 12
+- **Implemented:** Colorblind Mode (Accessibility).
+    - Updated `AppConfig` and `ConfigModal` to persist and toggle "Colorblind Mode".
+    - Updated `GradeScatter.tsx` to conditionally render distinct shapes for anomalies (Triangles) and safe points (Circles).
+    - Implemented a custom shape rendering logic using SVG paths.
+- **Tests:**
+    - Updated `src/utils/storage.test.ts` to verify persistence of the new flag.
+    - Updated `src/components/ConfigModal.test.tsx` to verify the toggle UI.
+    - Updated `src/components/GradeScatter.test.tsx` to verify that different shapes (Circle vs Path) are rendered based on the mode.
+    - Updated `src/App.test.tsx` to verify the configuration is passed down correctly.
+- **Status:** Colorblind Mode functional. Next steps: Deployment Setup.
