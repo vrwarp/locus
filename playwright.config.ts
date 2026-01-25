@@ -17,9 +17,16 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: [
+    {
+      command: 'node mock-api/server.js',
+      port: 3000,
+      reuseExistingServer: !process.env.CI,
+    },
+    {
+      command: 'VITE_API_TARGET=http://localhost:3000 npm run dev',
+      url: 'http://localhost:5173',
+      reuseExistingServer: !process.env.CI,
+    }
+  ],
 });

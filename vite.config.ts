@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://api.planningcenteronline.com',
+        target: process.env.VITE_API_TARGET || 'https://api.planningcenteronline.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
