@@ -69,4 +69,40 @@ describe('ConfigModal', () => {
     const checkbox = screen.getByLabelText('High Contrast Mode');
     expect(checkbox).toBeChecked();
   });
+
+  it('toggles Colorblind Mode and saves', () => {
+    render(
+      <ConfigModal
+        isOpen={true}
+        currentConfig={mockConfig}
+        onSave={mockOnSave}
+        onClose={mockOnClose}
+      />
+    );
+
+    const checkbox = screen.getByLabelText('Colorblind Mode');
+    expect(checkbox).not.toBeChecked();
+
+    fireEvent.click(checkbox);
+    expect(checkbox).toBeChecked();
+
+    fireEvent.click(screen.getByText('Save Settings'));
+
+    expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
+        colorblindMode: true
+    }));
+  });
+
+  it('loads existing Colorblind Mode setting', () => {
+    render(
+     <ConfigModal
+       isOpen={true}
+       currentConfig={{ ...mockConfig, colorblindMode: true }}
+       onSave={mockOnSave}
+       onClose={mockOnClose}
+     />
+   );
+   const checkbox = screen.getByLabelText('Colorblind Mode');
+   expect(checkbox).toBeChecked();
+ });
 });

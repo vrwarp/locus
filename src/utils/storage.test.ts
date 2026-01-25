@@ -89,6 +89,23 @@ describe('Storage Utils', () => {
     expect(loaded.highContrastMode).toBe(true);
   });
 
+  it('saves and loads colorblindMode', async () => {
+    const config: AppConfig = {
+        graderOptions: {},
+        colorblindMode: true
+    };
+    const encryptedData = 'enc-cb-theme';
+    vi.mocked(cryptoUtils.encryptData).mockResolvedValue(encryptedData);
+    vi.mocked(cryptoUtils.decryptData).mockResolvedValue(config);
+
+    await saveConfig(config, appId);
+    expect(mockSetItem).toHaveBeenCalledWith('locus_config', encryptedData);
+
+    mockGetItem.mockReturnValue(encryptedData);
+    const loaded = await loadConfig(appId);
+    expect(loaded.colorblindMode).toBe(true);
+  });
+
   describe('Health History', () => {
     it('returns empty array if no history', async () => {
         mockGetItem.mockReturnValue(null);

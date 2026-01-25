@@ -73,8 +73,9 @@ describe('GradeScatter Component', () => {
     // Note: Recharts rendering in JSDOM can be tricky. We look for paths with specific fills.
     // Depending on animation/rendering, they might not be immediately available or might be structured differently.
     // But since we use <Cell fill="...">, it should be on the path.
-    const safePoints = container.querySelectorAll('path[fill="var(--safe-color)"]');
-    const anomalyPoints = container.querySelectorAll('path[fill="var(--anomaly-color)"]');
+    // Our CustomShape uses <circle> for default shapes.
+    const safePoints = container.querySelectorAll('circle[fill="var(--safe-color)"]');
+    const anomalyPoints = container.querySelectorAll('circle[fill="var(--anomaly-color)"]');
 
     // If symbols are rendered (as per previous test), we expect matches.
     // However, limiting strictness to avoid flaky tests if Recharts hasn't "animated" in JSDOM.
@@ -85,5 +86,38 @@ describe('GradeScatter Component', () => {
         expect(safePoints.length).toBeGreaterThan(0);
         expect(anomalyPoints.length).toBeGreaterThan(0);
     }
+  });
+
+  it('renders different shapes when colorblindMode is enabled', () => {
+    const anomalyData: Student[] = [
+      { ...mockStudent, id: 'anomaly', delta: 1 }
+    ];
+
+    const { container } = render(<GradeScatter data={anomalyData} colorblindMode={true} />);
+
+    // In colorblind mode, anomalies should render as Triangles
+    // Recharts symbols with type="triangle" usually render a path.
+    // We can try to find the path in the symbol.
+    // This is tricky in JSDOM, but let's check if we can verify the shape type passed to Symbols if we mock it?
+    // Or check if the output path d attribute looks like a triangle?
+    // Or just check that it's DIFFERENT from the default circle.
+
+    // Let's render normal mode first
+    const { container: normalContainer } = render(<GradeScatter data={anomalyData} colorblindMode={false} />);
+    const normalPath = normalContainer.querySelector('.recharts-scatter-symbol path');
+
+    // In our implementation:
+    // Normal: <circle>
+    // Colorblind Anomaly: <Symbols type="triangle"> which renders a <path>
+
+    // Note: Our CustomShape returns <circle> for default.
+    const circle = normalContainer.querySelector('circle');
+    expect(circle).toBeInTheDocument();
+
+    // Colorblind Anomaly
+    const path = container.querySelector('.recharts-scatter-symbol path');
+    // Symbols renders a path
+    expect(path).toBeInTheDocument();
+    expect(container.querySelector('circle')).not.toBeInTheDocument();
   });
 });

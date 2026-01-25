@@ -306,6 +306,7 @@ function App() {
           <GradeScatter
             data={students}
             onPointClick={setSelectedStudent}
+            colorblindMode={config.colorblindMode}
           />
       </div>
 
