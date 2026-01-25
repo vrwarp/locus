@@ -51,7 +51,8 @@ test('undo flow works as expected', async ({ page }) => {
 
   // Modal should open
   await expect(page.locator('text=Smart Fix')).toBeVisible();
-  await expect(page.locator('text=Undo Alice')).toBeVisible();
+  // Use a specific locator to avoid ambiguity with the chart tooltip
+  await expect(page.locator('.modal-content').getByText('Undo Alice')).toBeVisible();
 
   // Click Fix
   await page.click('button:has-text("Fix Grade")');
