@@ -422,10 +422,16 @@ describe('App Integration', () => {
         expect(screen.getByText('Found 1 ghosts')).toBeInTheDocument();
 
         // Test analyze flow
-        // Mock check-ins API
+        // Mock check-ins API and other analysis endpoints
         (axios.get as any).mockImplementation((url: string) => {
             if (url.includes('/api/check-ins/v2/people/g1')) {
                 return Promise.resolve({ data: { data: { attributes: { check_in_count: 3 } } } });
+            }
+            if (url.includes('/api/giving/v2/donations')) {
+                 return Promise.resolve({ data: { data: [] } }); // No donations
+            }
+            if (url.includes('/api/groups/v2/group_memberships')) {
+                 return Promise.resolve({ data: { meta: { total_count: 0 } } }); // No groups
             }
             return Promise.resolve({ data: { data: [] } }); // Default for people
         });
@@ -435,6 +441,10 @@ describe('App Integration', () => {
 
         await waitFor(() => expect(axios.get).toHaveBeenCalledWith(
             expect.stringContaining('/api/check-ins/v2/people/g1'),
+            expect.any(Object)
+        ));
+        await waitFor(() => expect(axios.get).toHaveBeenCalledWith(
+            expect.stringContaining('/api/giving/v2/donations'),
             expect.any(Object)
         ));
 
