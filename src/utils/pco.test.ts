@@ -150,6 +150,50 @@ describe('updatePerson', () => {
         );
         expect(result).toEqual(mockPerson);
     });
+
+    it('injects sandbox header when sandboxMode is true', async () => {
+        const mockPerson: PcoPerson = {
+            id: '123',
+            type: 'Person',
+            attributes: { grade: 5 }
+        };
+        const mockResponse = { data: { data: mockPerson } };
+        (axios.patch as any).mockResolvedValue(mockResponse);
+
+        await updatePerson('123', { grade: 5 }, 'auth-token', true);
+
+        expect(axios.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/123',
+            expect.any(Object),
+            expect.objectContaining({
+                headers: expect.objectContaining({
+                    'X-Locus-Sandbox': 'true'
+                })
+            })
+        );
+    });
+
+    it('does not inject sandbox header when sandboxMode is false/undefined', async () => {
+        const mockPerson: PcoPerson = {
+            id: '123',
+            type: 'Person',
+            attributes: { grade: 5 }
+        };
+        const mockResponse = { data: { data: mockPerson } };
+        (axios.patch as any).mockResolvedValue(mockResponse);
+
+        await updatePerson('123', { grade: 5 }, 'auth-token');
+
+        expect(axios.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/123',
+            expect.any(Object),
+            expect.objectContaining({
+                headers: expect.not.objectContaining({
+                    'X-Locus-Sandbox': 'true'
+                })
+            })
+        );
+    });
 });
 
 describe('fetchCheckInCount', () => {
