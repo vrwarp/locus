@@ -45,11 +45,12 @@ export interface Student {
   delta: number;
   lastCheckInAt: string | null;
   checkInCount: number | null;
+  avatarUrl?: string;
 }
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
   const { id, attributes } = person;
-  const { birthdate, grade, name, first_name, last_name, last_checked_in_at } = attributes;
+  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar } = attributes;
 
   if (!birthdate || grade === undefined || grade === null) {
     return null;
@@ -78,6 +79,7 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     delta,
     lastCheckInAt: (last_checked_in_at as string) || null,
     checkInCount: null, // Fetched lazily
+    avatarUrl: (avatar as string) || undefined,
   };
 };
 

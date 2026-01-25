@@ -134,3 +134,14 @@
     - Updated `src/components/GradeScatter.test.tsx` to verify that different shapes (Circle vs Path) are rendered based on the mode.
     - Updated `src/App.test.tsx` to verify the configuration is passed down correctly.
 - **Status:** Colorblind Mode functional. Next steps: Deployment Setup.
+
+## Session 13
+- **Implemented:** Hover of Truth (Enhanced Tooltip).
+    - Updated `mock-api/data.js` to include `avatar` attributes for generated people using Pravatar.
+    - Updated `src/utils/pco.ts` to include `avatarUrl` in `Student` interface and map it from API response.
+    - Implemented `CustomTooltip` in `GradeScatter.tsx` to display Profile Photo (or initials), Name, ID, Age, Grade, Expected Grade, and Delta.
+    - Styled tooltip using CSS variables for theme consistency.
+- **Tests:**
+    - Updated `src/utils/pco.test.ts` to verify `avatarUrl` mapping.
+    - Updated `src/components/GradeScatter.test.tsx` to verify `CustomTooltip` rendering logic (with and without avatar).
+- **Status:** Hover of Truth functional. Next steps: Deployment Setup.

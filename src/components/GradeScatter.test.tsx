@@ -1,5 +1,5 @@
-import { render, fireEvent } from '@testing-library/react';
-import { GradeScatter } from './GradeScatter';
+import { render, fireEvent, screen } from '@testing-library/react';
+import { GradeScatter, CustomTooltip } from './GradeScatter';
 import { describe, it, expect, vi } from 'vitest';
 import { Student } from '../utils/pco';
 
@@ -119,5 +119,32 @@ describe('GradeScatter Component', () => {
     // Symbols renders a path
     expect(path).toBeInTheDocument();
     expect(container.querySelector('circle')).not.toBeInTheDocument();
+  });
+
+  it('CustomTooltip renders student details correctly', () => {
+    const studentWithAvatar: Student = {
+        ...mockStudent,
+        avatarUrl: 'http://example.com/avatar.jpg'
+    };
+
+    // Render the tooltip as if it's active
+    render(<CustomTooltip active={true} payload={[{ payload: studentWithAvatar }]} />);
+
+    expect(screen.getByText('Test Kid')).toBeInTheDocument();
+    expect(screen.getByText('ID: 1')).toBeInTheDocument();
+    expect(screen.getByText('7 yrs')).toBeInTheDocument(); // Age
+    expect(screen.getByRole('img')).toHaveAttribute('src', 'http://example.com/avatar.jpg');
+  });
+
+  it('CustomTooltip renders initials if no avatar', () => {
+      const studentNoAvatar: Student = {
+          ...mockStudent,
+          avatarUrl: undefined
+      };
+
+      render(<CustomTooltip active={true} payload={[{ payload: studentNoAvatar }]} />);
+
+      expect(screen.getByText('T')).toBeInTheDocument(); // Initials for Test Kid
+      expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
 });

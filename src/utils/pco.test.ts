@@ -46,8 +46,28 @@ describe('transformPerson', () => {
       calculatedGrade: expectedGrade,
       delta: expectedGrade - 4,
       lastCheckInAt: null,
-      checkInCount: null
+      checkInCount: null,
+      avatarUrl: undefined
     });
+  });
+
+  it('transforms a person with avatar correctly', () => {
+    const person: PcoPerson = {
+      id: '1',
+      type: 'Person',
+      attributes: {
+        birthdate: birthdate10,
+        grade: 4,
+        name: 'John Doe',
+        avatar: 'http://avatar.url/1.jpg'
+      },
+    };
+
+    const result = transformPerson(person);
+
+    expect(result).toEqual(expect.objectContaining({
+        avatarUrl: 'http://avatar.url/1.jpg'
+    }));
   });
 
   it('returns null if birthdate is missing', () => {
