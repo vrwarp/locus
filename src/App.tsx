@@ -154,7 +154,7 @@ function App() {
       let successCount = 0;
       for (const ghost of ghostsToArchive) {
           try {
-              await archivePerson(ghost.id, auth);
+              await archivePerson(ghost.id, auth, config.sandboxMode);
               successCount++;
           } catch (e) {
               console.error(`Failed to archive ${ghost.name}`, e);
@@ -177,7 +177,7 @@ function App() {
       try {
            const auth = btoa(`${appId}:${secret}`);
            console.log(`Committing change for ${update.updated.name} to PCO...`);
-           await updatePerson(update.updated.id, { grade: update.updated.pcoGrade }, auth);
+           await updatePerson(update.updated.id, { grade: update.updated.pcoGrade }, auth, config.sandboxMode);
            console.log('Successfully saved to PCO');
       } catch (error) {
           console.error('Failed to save to PCO', error);
@@ -252,7 +252,23 @@ function App() {
 
   return (
     <div className="app-container">
-      <div className="header">
+       {config.sandboxMode && (
+          <div style={{
+              backgroundColor: '#ff9800',
+              color: 'black',
+              padding: '10px',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 9999
+          }}>
+              ⚠️ SANDBOX MODE ACTIVE - Changes are simulated
+          </div>
+      )}
+      <div className="header" style={config.sandboxMode ? {marginTop: '40px'} : {}}>
         <h1>Locus</h1>
         <div style={{display: 'flex', gap: '1rem'}}>
             <button onClick={() => setIsReportOpen(true)} className="settings-btn">

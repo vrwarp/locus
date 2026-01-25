@@ -81,7 +81,16 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
   };
 };
 
-export const updatePerson = async (id: string, attributes: PcoAttributes, auth: string): Promise<PcoPerson> => {
+export const updatePerson = async (id: string, attributes: PcoAttributes, auth: string, sandboxMode?: boolean): Promise<PcoPerson> => {
+    const headers: Record<string, string> = {
+        Authorization: `Basic ${auth}`,
+        'Content-Type': 'application/json'
+    };
+
+    if (sandboxMode) {
+        headers['X-Locus-Sandbox'] = 'true';
+    }
+
     const response = await axios.patch<PcoSingleResponse>(
       `/api/people/v2/people/${id}`,
       {
@@ -92,17 +101,14 @@ export const updatePerson = async (id: string, attributes: PcoAttributes, auth: 
         }
       },
       {
-        headers: {
-          Authorization: `Basic ${auth}`,
-          'Content-Type': 'application/json'
-        }
+        headers
       }
     );
     return response.data.data;
   };
 
-export const archivePerson = async (id: string, auth: string): Promise<PcoPerson> => {
-    return updatePerson(id, { status: 'inactive' }, auth);
+export const archivePerson = async (id: string, auth: string, sandboxMode?: boolean): Promise<PcoPerson> => {
+    return updatePerson(id, { status: 'inactive' }, auth, sandboxMode);
 };
 
 export const fetchCheckInCount = async (id: string, auth: string): Promise<number | null> => {

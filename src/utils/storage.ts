@@ -5,6 +5,7 @@ import { encryptData, decryptData } from './crypto';
 export interface AppConfig {
   graderOptions: GraderOptions;
   highContrastMode?: boolean;
+  sandboxMode?: boolean;
 }
 
 export interface HealthHistoryEntry {

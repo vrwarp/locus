@@ -111,3 +111,14 @@
     - Created `src/utils/cache.test.ts` to verify encryption/expiration logic.
     - Updated `src/App.test.tsx` to verify cache hit/miss flows.
 - **Status:** Cache Management functional. Next steps: Deployment Setup, Sandbox Mode.
+
+## Session 11
+- **Implemented:** Sandbox Mode (Simulation).
+    - Created `public/sandbox-sw.js` to intercept and mock `PATCH`/`DELETE` requests.
+    - Updated `AppConfig` and `ConfigModal` to support Sandbox Mode toggle.
+    - Updated `src/utils/pco.ts` to inject `X-Locus-Sandbox` header.
+    - Updated `App.tsx` to pass the flag and display a "SANDBOX MODE ACTIVE" banner.
+    - Registered Service Worker in `src/main.tsx`.
+- **Tests:**
+    - Updated `src/utils/pco.test.ts` to verify header injection.
+- **Status:** Sandbox Mode functional. Next steps: Deployment Setup.
