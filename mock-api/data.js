@@ -3,6 +3,8 @@ import { addDays, eachWeekOfInterval, getDay, isSameWeek, setHours, setMinutes, 
 export const people = [];
 export const events = [];
 export const checkIns = [];
+export const donations = [];
+export const groupMemberships = [];
 
 // --- Helpers ---
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -14,6 +16,8 @@ const maleNames = ['Liam', 'Noah', 'Oliver', 'Elijah', 'William', 'James', 'Benj
 
 let personIdCounter = 1;
 let checkInIdCounter = 1;
+let donationIdCounter = 1;
+let membershipIdCounter = 1;
 
 // --- Generators ---
 
@@ -116,7 +120,9 @@ const generateCheckIns = () => {
   const weeks = eachWeekOfInterval({ start: yearStart, end: yearEnd });
 
   // Get all children for check-ins
+  // Leave 20% of children as "Ghosts" (never check in)
   const children = people.filter(p => p.attributes.child);
+  const activeChildren = children.filter(() => Math.random() > 0.2);
 
   weeks.forEach(weekStart => {
     // Skip if ANY day in this week falls in retreat?
@@ -135,7 +141,7 @@ const generateCheckIns = () => {
       const eventTime = setMinutes(setHours(fridayDate, 19), 0); // 19:00
 
       // Randomly select kids (e.g. 60%)
-      children.forEach(child => {
+      activeChildren.forEach(child => {
         if (Math.random() < 0.6) {
           checkIns.push({
             id: String(checkInIdCounter++),
@@ -158,7 +164,7 @@ const generateCheckIns = () => {
       const eventTime = setMinutes(setHours(sundayDate, 10), 0); // 10:00
 
       // Higher attendance on Sundays (e.g. 80%)
-      children.forEach(child => {
+      activeChildren.forEach(child => {
         if (Math.random() < 0.8) {
           checkIns.push({
             id: String(checkInIdCounter++),
@@ -178,7 +184,58 @@ const generateCheckIns = () => {
   });
 };
 
+// 4. Generate Donations
+const generateDonations = () => {
+    // Adults and older kids (Grade 10+) might give
+    const potentialDonors = people.filter(p => !p.attributes.child || (p.attributes.grade !== null && p.attributes.grade >= 10));
+
+    potentialDonors.forEach(donor => {
+        // 30% are donors
+        if (Math.random() < 0.3) {
+             const donationCount = randomInt(1, 12); // Once a month
+             for(let i=0; i<donationCount; i++) {
+                 donations.push({
+                     id: String(donationIdCounter++),
+                     type: 'Donation',
+                     attributes: {
+                         amount_cents: randomInt(1000, 50000), // $10 - $500
+                         created_at: formatISO(new Date(2024, randomInt(0, 11), randomInt(1, 28)))
+                     },
+                     relationships: {
+                         person: { data: { type: 'Person', id: donor.id } }
+                     }
+                 });
+             }
+        }
+    });
+};
+
+// 5. Generate Group Memberships
+const generateGroupMemberships = () => {
+    // Adults and older kids in groups
+    const potentialMembers = people.filter(p => !p.attributes.child || (p.attributes.grade !== null && p.attributes.grade >= 6));
+
+    potentialMembers.forEach(member => {
+        // 40% are in a group
+        if (Math.random() < 0.4) {
+             groupMemberships.push({
+                 id: String(membershipIdCounter++),
+                 type: 'GroupMembership',
+                 attributes: {
+                     role: 'member'
+                 },
+                 relationships: {
+                     person: { data: { type: 'Person', id: member.id } },
+                     group: { data: { type: 'Group', id: '1' } } // Dummy Group ID
+                 }
+             });
+        }
+    });
+};
+
 // Execute
 generateHouseholds();
 generateEvents();
 generateCheckIns();
+generateDonations();
+generateGroupMemberships();

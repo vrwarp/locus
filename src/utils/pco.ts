@@ -45,6 +45,8 @@ export interface Student {
   delta: number;
   lastCheckInAt: string | null;
   checkInCount: number | null;
+  donationTotal: number | null;
+  groupCount: number | null;
 }
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
@@ -78,6 +80,8 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     delta,
     lastCheckInAt: (last_checked_in_at as string) || null,
     checkInCount: null, // Fetched lazily
+    donationTotal: null,
+    groupCount: null
   };
 };
 
@@ -124,6 +128,51 @@ export const fetchCheckInCount = async (id: string, auth: string): Promise<numbe
         return response.data.data.attributes.check_in_count;
     } catch (error) {
         console.error('Failed to fetch check-in count for person', id, error);
+        return null;
+    }
+};
+
+export const fetchDonationTotal = async (id: string, auth: string): Promise<number | null> => {
+    try {
+        // Fetch all donations for the person
+        let allDonations: { attributes: { amount_cents: number } }[] = [];
+        let nextUrl: string | undefined = `/api/giving/v2/donations?where[person_id]=${id}&per_page=100`;
+
+        while (nextUrl) {
+            const proxyUrl = nextUrl.replace('https://api.planningcenteronline.com', '/api');
+            const response = await axios.get<{ links?: { next?: string }, data: { attributes: { amount_cents: number } }[] }>(
+                proxyUrl,
+                {
+                    headers: {
+                        Authorization: `Basic ${auth}`
+                    }
+                }
+            );
+            allDonations = [...allDonations, ...response.data.data];
+            nextUrl = response.data.links?.next;
+        }
+
+        const totalCents = allDonations.reduce((sum, d) => sum + d.attributes.amount_cents, 0);
+        return totalCents;
+    } catch (error) {
+        console.error('Failed to fetch donations for person', id, error);
+        return null;
+    }
+};
+
+export const fetchGroupCount = async (id: string, auth: string): Promise<number | null> => {
+    try {
+         const response = await axios.get<{ meta: { total_count: number } }>(
+            `/api/groups/v2/group_memberships?where[person_id]=${id}&per_page=1`, // We only need meta.total_count
+            {
+                headers: {
+                    Authorization: `Basic ${auth}`
+                }
+            }
+        );
+        return response.data.meta.total_count;
+    } catch (error) {
+        console.error('Failed to fetch group count for person', id, error);
         return null;
     }
 };

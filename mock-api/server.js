@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { people, events, checkIns } from './data.js';
+import { people, events, checkIns, donations, groupMemberships } from './data.js';
 import { fileURLToPath } from 'url';
 
 export const app = express();
@@ -14,14 +14,18 @@ app.use(express.json({ type: ['application/json', 'application/vnd.api+json'] })
 let db = {
   people: JSON.parse(JSON.stringify(people)),
   events: JSON.parse(JSON.stringify(events)),
-  checkIns: JSON.parse(JSON.stringify(checkIns))
+  checkIns: JSON.parse(JSON.stringify(checkIns)),
+  donations: JSON.parse(JSON.stringify(donations)),
+  groupMemberships: JSON.parse(JSON.stringify(groupMemberships))
 };
 
 export const resetDb = () => {
   db = {
     people: JSON.parse(JSON.stringify(people)),
     events: JSON.parse(JSON.stringify(events)),
-    checkIns: JSON.parse(JSON.stringify(checkIns))
+    checkIns: JSON.parse(JSON.stringify(checkIns)),
+    donations: JSON.parse(JSON.stringify(donations)),
+    groupMemberships: JSON.parse(JSON.stringify(groupMemberships))
   };
 };
 
@@ -101,6 +105,8 @@ app.patch('/people/v2/people/:id', (req, res) => {
 
 // Check-Ins API
 app.get('/check-ins/v2/check_ins', (req, res) => {
+  // Support simple filtering? PCO uses ?where[attribute]=value
+  // For now, let's just paginate all unless we need specific logic
   const { paginated, links } = paginate(req, db.checkIns);
 
   res.json({
@@ -114,6 +120,32 @@ app.get('/check-ins/v2/check_ins', (req, res) => {
     }
   });
 });
+
+// Also support filtering check-ins by person for completeness if needed (though app uses different endpoint usually)
+app.get('/check-ins/v2/people/:id/check_ins', (req, res) => {
+    const personCheckIns = db.checkIns.filter(c => c.relationships.person.data.id === req.params.id);
+    const { paginated, links } = paginate(req, personCheckIns);
+    res.json({
+        links,
+        data: paginated,
+        meta: { total_count: personCheckIns.length, count: paginated.length }
+    });
+});
+// Also support the summary count endpoint
+app.get('/check-ins/v2/people/:id', (req, res) => {
+    const personCheckIns = db.checkIns.filter(c => c.relationships.person.data.id === req.params.id);
+    // Mock the summary response structure
+    res.json({
+        data: {
+            id: req.params.id,
+            type: 'Person',
+            attributes: {
+                check_in_count: personCheckIns.length
+            }
+        }
+    });
+});
+
 
 app.get('/check-ins/v2/events', (req, res) => {
   const { paginated, links } = paginate(req, db.events);
@@ -148,6 +180,55 @@ app.get('/api/v2/connected_applications', (req, res) => {
     res.json({
         data: [],
         meta: { total_count: 0, count: 0 }
+    });
+});
+
+// Giving API
+app.get('/giving/v2/donations', (req, res) => {
+    let filtered = db.donations;
+
+    // Handle filtering: ?where[person_id]=123
+    // Express 'qs' parser handles brackets as objects
+    const personId = req.query.where?.person_id || req.query['where[person_id]'];
+    if (personId) {
+        filtered = filtered.filter(d => d.relationships.person.data.id === personId);
+    }
+
+    const { paginated, links } = paginate(req, filtered);
+
+    res.json({
+        links,
+        data: paginated,
+        meta: {
+            total_count: filtered.length,
+            count: paginated.length,
+            can_include: [],
+            parent: {}
+        }
+    });
+});
+
+// Groups API
+app.get('/groups/v2/group_memberships', (req, res) => {
+    let filtered = db.groupMemberships;
+
+    // Handle filtering: ?where[person_id]=123
+    const personId = req.query.where?.person_id || req.query['where[person_id]'];
+    if (personId) {
+        filtered = filtered.filter(m => m.relationships.person.data.id === personId);
+    }
+
+    const { paginated, links } = paginate(req, filtered);
+
+    res.json({
+        links,
+        data: paginated,
+        meta: {
+            total_count: filtered.length,
+            count: paginated.length,
+            can_include: [],
+            parent: {}
+        }
     });
 });
 

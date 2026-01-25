@@ -134,3 +134,16 @@
     - Updated `src/components/GradeScatter.test.tsx` to verify that different shapes (Circle vs Path) are rendered based on the mode.
     - Updated `src/App.test.tsx` to verify the configuration is passed down correctly.
 - **Status:** Colorblind Mode functional. Next steps: Deployment Setup.
+
+## Session 13
+- **Implemented:** Ghost Protocol Exemptions (Donors & Groups).
+    - Updated `mock-api/data.js` to generate `donations` and `groupMemberships`, and refined logic to simulate "Ghost" children (never checked in) and Student Donors.
+    - Updated `mock-api/server.js` to expose `/giving/v2/donations` and `/groups/v2/group_memberships` endpoints.
+    - Updated `src/utils/pco.ts` to fetch donation totals and group counts.
+    - Updated `GhostModal.tsx` to identify and exempt "High Value Donors" (>$100) and Group Members from archiving.
+    - Updated `App.tsx` to fetch new metrics during analysis.
+- **Tests:**
+    - Created `e2e/ghost.integration.spec.ts` to verify full stack integration with backend simulator.
+    - Created `src/components/GhostModal.test.tsx` to unit test exemption logic and UI rendering.
+    - Updated `src/App.test.tsx` to mock new API calls.
+- **Status:** Ghost Protocol Exemptions functional and verified.
