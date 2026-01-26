@@ -30,8 +30,9 @@ const generateHouseholds = () => {
     for (let a = 0; a < adultCount; a++) {
       const isFemale = Math.random() > 0.5;
       const firstName = randomItem(isFemale ? femaleNames : maleNames);
+      const id = String(personIdCounter++);
       const adult = {
-        id: String(personIdCounter++),
+        id,
         type: 'Person',
         attributes: {
           first_name: firstName,
@@ -41,7 +42,8 @@ const generateHouseholds = () => {
           grade: null,
           birthdate: `${randomInt(1975, 1995)}-01-01`, // Rough adult age
           phone_numbers: [{ location: 'Mobile', number: `555-${randomInt(100, 999)}-${randomInt(1000, 9999)}` }],
-          email_addresses: [{ location: 'Home', address: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${randomInt(1,99)}@example.com` }]
+          email_addresses: [{ location: 'Home', address: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${randomInt(1,99)}@example.com` }],
+          avatar: `https://i.pravatar.cc/150?u=${id}`
         }
       };
       people.push(adult);
@@ -66,8 +68,9 @@ const generateHouseholds = () => {
       const age = currentYear - birthYear;
       const grade = Math.max(0, age - 5);
 
+      const id = String(personIdCounter++);
       const child = {
-        id: String(personIdCounter++),
+        id,
         type: 'Person',
         attributes: {
           first_name: firstName,
@@ -76,7 +79,8 @@ const generateHouseholds = () => {
           child: true,
           grade: grade,
           birthdate: `${birthYear}-${String(randomInt(1, 12)).padStart(2, '0')}-${String(randomInt(1, 28)).padStart(2, '0')}`,
-          household_id: adults[0].id // Loose linking for mock
+          household_id: adults[0].id, // Loose linking for mock
+          avatar: `https://i.pravatar.cc/150?u=${id}`
         }
       };
       people.push(child);

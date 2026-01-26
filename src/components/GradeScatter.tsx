@@ -7,6 +7,73 @@ interface GradeScatterProps {
   colorblindMode?: boolean;
 }
 
+export const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const student = payload[0].payload as Student;
+    return (
+      <div style={{
+        backgroundColor: 'var(--bg-color)',
+        border: '1px solid var(--chart-grid-color)',
+        padding: '12px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+        color: 'var(--text-color)',
+        minWidth: '220px',
+        zIndex: 1000
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+            {student.avatarUrl ? (
+                <img
+                    src={student.avatarUrl}
+                    alt={student.name}
+                    style={{ width: '40px', height: '40px', borderRadius: '50%', marginRight: '12px', objectFit: 'cover', border: '2px solid var(--chart-grid-color)' }}
+                />
+            ) : (
+                <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    marginRight: '12px',
+                    backgroundColor: 'var(--chart-grid-color)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '2px solid var(--text-color)'
+                }}>
+                    <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{student.name.charAt(0)}</span>
+                </div>
+            )}
+            <div>
+                <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{student.name}</div>
+                <div style={{ fontSize: '12px', opacity: 0.7 }}>ID: {student.id}</div>
+            </div>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '14px' }}>
+            <div>
+                <span style={{ opacity: 0.7, display: 'block', fontSize: '11px', textTransform: 'uppercase' }}>Age</span>
+                <strong>{student.age} yrs</strong>
+            </div>
+             <div>
+                <span style={{ opacity: 0.7, display: 'block', fontSize: '11px', textTransform: 'uppercase' }}>Grade</span>
+                <strong>{student.pcoGrade}</strong>
+            </div>
+             <div>
+                <span style={{ opacity: 0.7, display: 'block', fontSize: '11px', textTransform: 'uppercase' }}>Expected</span>
+                <strong>{student.calculatedGrade}</strong>
+            </div>
+            <div>
+                <span style={{ opacity: 0.7, display: 'block', fontSize: '11px', textTransform: 'uppercase' }}>Delta</span>
+                <strong style={{ color: student.delta !== 0 ? 'var(--anomaly-color)' : 'var(--safe-color)' }}>
+                    {student.delta > 0 ? `+${student.delta}` : student.delta} yrs
+                </strong>
+            </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 const CustomShape = (props: any) => {
     const { cx, cy, fill, payload, colorblindMode } = props;
     const isAnomaly = Math.abs(payload.delta) > 0;
@@ -52,11 +119,7 @@ export const GradeScatter = ({ data, onPointClick, colorblindMode }: GradeScatte
     />
     <Tooltip
       cursor={{ strokeDasharray: '3 3' }}
-      contentStyle={{
-        backgroundColor: 'var(--bg-color)',
-        color: 'var(--text-color)',
-        borderColor: 'var(--chart-grid-color)'
-      }}
+      content={<CustomTooltip />}
     />
     <Scatter
       name="Students"
