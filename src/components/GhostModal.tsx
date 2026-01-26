@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Student } from '../utils/pco';
+import { isSafe } from '../utils/ghost';
 import './GhostModal.css';
 
 interface GhostModalProps {
@@ -46,6 +47,11 @@ export const GhostModal: React.FC<GhostModalProps> = ({ isOpen, onClose, student
                                         {s.checkInCount} check-ins
                                     </span>
                                 )}
+                                {s.groupCount !== undefined && s.groupCount > 0 && (
+                                    <span className="tag tag-group">
+                                        {s.groupCount} Groups
+                                    </span>
+                                )}
                                 <span className="details">Last Seen: {s.lastCheckInAt ? new Date(s.lastCheckInAt).toLocaleDateString() : 'Never'}</span>
                             </div>
                         </div>
@@ -66,11 +72,11 @@ export const GhostModal: React.FC<GhostModalProps> = ({ isOpen, onClose, student
               </button>
           )}
           <button
-            onClick={() => onArchive(students)}
-            disabled={students.length === 0 || isArchiving || analyzing}
+            onClick={() => onArchive(students.filter(s => !isSafe(s)))}
+            disabled={students.filter(s => !isSafe(s)).length === 0 || isArchiving || analyzing}
             className="btn-danger"
           >
-            {isArchiving ? 'Archiving...' : 'Archive All'}
+            {isArchiving ? 'Archiving...' : `Archive ${students.filter(s => !isSafe(s)).length} Candidates`}
           </button>
           <button onClick={onClose} disabled={isArchiving} className="btn-secondary">
             Cancel

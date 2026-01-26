@@ -3,6 +3,7 @@ import { addDays, eachWeekOfInterval, getDay, isSameWeek, setHours, setMinutes, 
 export const people = [];
 export const events = [];
 export const checkIns = [];
+export const groupMemberships = [];
 
 // --- Helpers ---
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -14,6 +15,7 @@ const maleNames = ['Liam', 'Noah', 'Oliver', 'Elijah', 'William', 'James', 'Benj
 
 let personIdCounter = 1;
 let checkInIdCounter = 1;
+let membershipIdCounter = 1;
 
 // --- Generators ---
 
@@ -104,7 +106,28 @@ const generateEvents = () => {
   );
 };
 
-// 3. Generate Check-Ins
+// 3. Generate Group Memberships
+const generateGroupMemberships = () => {
+  const adults = people.filter(p => !p.attributes.child);
+
+  adults.forEach(adult => {
+    // 50% are in a group
+    if (Math.random() < 0.5) {
+      groupMemberships.push({
+        id: String(membershipIdCounter++),
+        type: 'GroupMembership',
+        attributes: {
+           role: 'member'
+        },
+        relationships: {
+          person: { data: { type: 'Person', id: adult.id } }
+        }
+      });
+    }
+  });
+};
+
+// 5. Generate Check-Ins
 const generateCheckIns = () => {
   const yearStart = new Date(2024, 0, 1); // Jan 1 2024
   const yearEnd = new Date(2024, 11, 31);
@@ -185,4 +208,5 @@ const generateCheckIns = () => {
 // Execute
 generateHouseholds();
 generateEvents();
+generateGroupMemberships();
 generateCheckIns();

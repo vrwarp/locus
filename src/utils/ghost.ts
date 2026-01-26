@@ -10,14 +10,19 @@ export const DEFAULT_GHOST_CONFIG: GhostConfig = {
 };
 
 export const isGhost = (student: Student, config: GhostConfig = DEFAULT_GHOST_CONFIG): boolean => {
-  // Check Last Check-in
-  if (!student.lastCheckInAt) {
-    // Never checked in is considered a ghost
-    return true;
+  // 1. Check Last Check-in (The Primary Filter)
+  if (student.lastCheckInAt) {
+      const monthsSinceCheckIn = differenceInMonths(new Date(), new Date(student.lastCheckInAt));
+      if (monthsSinceCheckIn <= config.checkInThresholdMonths) return false;
   }
-
-  const monthsSinceCheckIn = differenceInMonths(new Date(), new Date(student.lastCheckInAt));
-  if (monthsSinceCheckIn <= config.checkInThresholdMonths) return false;
+  // If no lastCheckInAt, they are a potential ghost (never checked in).
 
   return true;
+};
+
+export const isSafe = (student: Student): boolean => {
+  if (student.groupCount !== undefined && student.groupCount > 0) {
+      return true;
+  }
+  return false;
 };
