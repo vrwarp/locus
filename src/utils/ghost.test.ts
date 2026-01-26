@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isGhost, DEFAULT_GHOST_CONFIG } from './ghost';
+import { isGhost, isSafe, DEFAULT_GHOST_CONFIG } from './ghost';
 import type { Student } from './pco';
 import { subMonths, format } from 'date-fns';
 
@@ -36,7 +36,7 @@ describe('isGhost', () => {
         expect(isGhost({ ...mockStudent, lastCheckInAt: borderlineDate }, customConfig)).toBe(true);
     });
 
-    it('exonerates active group members', () => {
+    it('identifies active group members as potential ghosts (inactive)', () => {
         // Ghost by check-in, but in a group
         const oldDate = format(subMonths(new Date(), 25), 'yyyy-MM-dd');
         const member: Student = {
@@ -44,7 +44,26 @@ describe('isGhost', () => {
             lastCheckInAt: oldDate,
             groupCount: 1
         };
-        expect(isGhost(member)).toBe(false);
+        // Still a ghost by inactivity definition, but isSafe will protect them
+        expect(isGhost(member)).toBe(true);
+    });
+});
+
+describe('isSafe', () => {
+    it('identifies active group members as safe', () => {
+        const member: Student = {
+            ...mockStudent,
+            groupCount: 1
+        };
+        expect(isSafe(member)).toBe(true);
+    });
+
+    it('identifies inactive group members as unsafe', () => {
+        const member: Student = {
+            ...mockStudent,
+            groupCount: 0
+        };
+        expect(isSafe(member)).toBe(false);
     });
 
 });
