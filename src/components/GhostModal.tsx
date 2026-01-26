@@ -46,6 +46,16 @@ export const GhostModal: React.FC<GhostModalProps> = ({ isOpen, onClose, student
                                         {s.checkInCount} check-ins
                                     </span>
                                 )}
+                                {s.donationTotal !== undefined && s.donationTotal > 0 && (
+                                    <span className="tag tag-donor">
+                                        ${s.donationTotal.toLocaleString()}
+                                    </span>
+                                )}
+                                {s.groupCount !== undefined && s.groupCount > 0 && (
+                                    <span className="tag tag-group">
+                                        {s.groupCount} Groups
+                                    </span>
+                                )}
                                 <span className="details">Last Seen: {s.lastCheckInAt ? new Date(s.lastCheckInAt).toLocaleDateString() : 'Never'}</span>
                             </div>
                         </div>

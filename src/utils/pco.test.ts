@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, PcoPerson } from './pco';
+import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, fetchDonationTotal, fetchGroupCount, PcoPerson } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
 
@@ -233,6 +233,53 @@ describe('fetchCheckInCount', () => {
     it('returns null on failure', async () => {
         (axios.get as any).mockRejectedValue(new Error('Failed'));
         const count = await fetchCheckInCount('123', 'token');
+        expect(count).toBeNull();
+    });
+});
+
+describe('fetchDonationTotal', () => {
+    it('fetches and sums donations successfully', async () => {
+        (axios.get as any).mockResolvedValue({
+            data: {
+                data: [
+                    { attributes: { amount_cents: 1000 } },
+                    { attributes: { amount_cents: 2000 } }
+                ]
+            }
+        });
+
+        const total = await fetchDonationTotal('123', 'token');
+        expect(total).toBe(30); // 3000 cents = 30 dollars
+        expect(axios.get).toHaveBeenCalledWith(
+            '/api/giving/v2/people/123/donations',
+            expect.any(Object)
+        );
+    });
+
+    it('returns null on failure', async () => {
+        (axios.get as any).mockRejectedValue(new Error('Failed'));
+        const total = await fetchDonationTotal('123', 'token');
+        expect(total).toBeNull();
+    });
+});
+
+describe('fetchGroupCount', () => {
+    it('fetches group count successfully', async () => {
+        (axios.get as any).mockResolvedValue({
+            data: { meta: { total_count: 5 } }
+        });
+
+        const count = await fetchGroupCount('123', 'token');
+        expect(count).toBe(5);
+        expect(axios.get).toHaveBeenCalledWith(
+            '/api/groups/v2/people/123/memberships',
+            expect.any(Object)
+        );
+    });
+
+    it('returns null on failure', async () => {
+        (axios.get as any).mockRejectedValue(new Error('Failed'));
+        const count = await fetchGroupCount('123', 'token');
         expect(count).toBeNull();
     });
 });

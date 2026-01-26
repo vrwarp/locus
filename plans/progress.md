@@ -145,3 +145,15 @@
     - Updated `src/utils/pco.test.ts` to verify `avatarUrl` mapping.
     - Updated `src/components/GradeScatter.test.tsx` to verify `CustomTooltip` rendering logic (with and without avatar).
 - **Status:** Hover of Truth functional. Next steps: Deployment Setup.
+
+## Session 14
+- **Implemented:** Ghost Protocol Enhancements (Donations & Groups).
+    - Updated `mock-api` (`server.js`, `data.js`) to support Giving (Donations) and Groups (Memberships) data generation and endpoints.
+    - Updated `src/utils/pco.ts` to fetch `donationTotal` and `groupCount` via new utility functions.
+    - Updated `src/utils/ghost.ts` to implement the "Safe Exception" logic: Exonerate potential ghosts if they are High Value Donors (> $100) or Active Group Members.
+    - Updated `GhostModal.tsx` to display "Donor" and "Group" badges for transparency.
+- **Tests:**
+    - Updated `src/utils/ghost.test.ts` to verify exoneration logic.
+    - Updated `src/utils/pco.test.ts` to test new fetch functions.
+    - Updated `src/App.test.tsx` integration tests to mock new API endpoints.
+- **Status:** Ghost Protocol logic complete (Safe Exoneration). Next steps: Deployment Setup.

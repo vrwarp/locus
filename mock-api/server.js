@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { people, events, checkIns } from './data.js';
+import { people, events, checkIns, donations, groupMemberships } from './data.js';
 import { fileURLToPath } from 'url';
 
 export const app = express();
@@ -14,14 +14,18 @@ app.use(express.json({ type: ['application/json', 'application/vnd.api+json'] })
 let db = {
   people: JSON.parse(JSON.stringify(people)),
   events: JSON.parse(JSON.stringify(events)),
-  checkIns: JSON.parse(JSON.stringify(checkIns))
+  checkIns: JSON.parse(JSON.stringify(checkIns)),
+  donations: JSON.parse(JSON.stringify(donations)),
+  groupMemberships: JSON.parse(JSON.stringify(groupMemberships))
 };
 
 export const resetDb = () => {
   db = {
     people: JSON.parse(JSON.stringify(people)),
     events: JSON.parse(JSON.stringify(events)),
-    checkIns: JSON.parse(JSON.stringify(checkIns))
+    checkIns: JSON.parse(JSON.stringify(checkIns)),
+    donations: JSON.parse(JSON.stringify(donations)),
+    groupMemberships: JSON.parse(JSON.stringify(groupMemberships))
   };
 };
 
@@ -123,6 +127,40 @@ app.get('/check-ins/v2/events', (req, res) => {
     data: paginated,
     meta: {
       total_count: db.events.length,
+      count: paginated.length,
+      can_include: [],
+      parent: {}
+    }
+  });
+});
+
+// Giving API
+app.get('/giving/v2/people/:id/donations', (req, res) => {
+  const personDonations = db.donations.filter(d => d.relationships.person.data.id === req.params.id);
+  const { paginated, links } = paginate(req, personDonations);
+
+  res.json({
+    links,
+    data: paginated,
+    meta: {
+      total_count: personDonations.length,
+      count: paginated.length,
+      can_include: [],
+      parent: {}
+    }
+  });
+});
+
+// Groups API
+app.get('/groups/v2/people/:id/memberships', (req, res) => {
+  const memberships = db.groupMemberships.filter(m => m.relationships.person.data.id === req.params.id);
+  const { paginated, links } = paginate(req, memberships);
+
+  res.json({
+    links,
+    data: paginated,
+    meta: {
+      total_count: memberships.length,
       count: paginated.length,
       can_include: [],
       parent: {}
