@@ -36,17 +36,6 @@ describe('isGhost', () => {
         expect(isGhost({ ...mockStudent, lastCheckInAt: borderlineDate }, customConfig)).toBe(true);
     });
 
-    it('exonerates high value donors', () => {
-        // Ghost by check-in, but has donations
-        const oldDate = format(subMonths(new Date(), 25), 'yyyy-MM-dd');
-        const donor: Student = {
-            ...mockStudent,
-            lastCheckInAt: oldDate,
-            donationTotal: 1000 // > default 100
-        };
-        expect(isGhost(donor)).toBe(false);
-    });
-
     it('exonerates active group members', () => {
         // Ghost by check-in, but in a group
         const oldDate = format(subMonths(new Date(), 25), 'yyyy-MM-dd');
@@ -58,13 +47,4 @@ describe('isGhost', () => {
         expect(isGhost(member)).toBe(false);
     });
 
-    it('does not exonerate low value donors', () => {
-        const oldDate = format(subMonths(new Date(), 25), 'yyyy-MM-dd');
-        const poorDonor: Student = {
-            ...mockStudent,
-            lastCheckInAt: oldDate,
-            donationTotal: 50 // < default 100
-        };
-        expect(isGhost(poorDonor)).toBe(true);
-    });
 });

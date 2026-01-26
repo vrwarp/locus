@@ -6,7 +6,7 @@ import { ConfigModal } from './components/ConfigModal'
 import { GhostModal } from './components/GhostModal'
 import { UndoToast } from './components/UndoToast'
 import { RobertReport } from './components/RobertReport'
-import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount, fetchDonationTotal, fetchGroupCount } from './utils/pco'
+import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount, fetchGroupCount } from './utils/pco'
 import { isGhost } from './utils/ghost'
 import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot } from './utils/storage'
 import { saveToCache, loadFromCache } from './utils/cache'
@@ -128,15 +128,14 @@ function App() {
   const handleAnalyzeGhosts = async (ghostsToAnalyze: Student[]) => {
       const auth = btoa(`${appId}:${secret}`);
 
-      // We need to update the query cache with the new checkInCount, donations, and groups
+      // We need to update the query cache with the new checkInCount and groups
       // This is a bit of a hack, but efficient enough for a few items
       const updates = await Promise.all(ghostsToAnalyze.map(async (ghost) => {
-          const [checkInCount, donationTotal, groupCount] = await Promise.all([
+          const [checkInCount, groupCount] = await Promise.all([
             fetchCheckInCount(ghost.id, auth),
-            fetchDonationTotal(ghost.id, auth),
             fetchGroupCount(ghost.id, auth)
           ]);
-          return { id: ghost.id, checkInCount, donationTotal, groupCount };
+          return { id: ghost.id, checkInCount, groupCount };
       }));
 
       queryClient.setQueryData(['people', appId, secret, config], (oldData: Student[] | undefined) => {
@@ -147,7 +146,6 @@ function App() {
                   return {
                       ...s,
                       checkInCount: update.checkInCount ?? 0,
-                      donationTotal: update.donationTotal ?? 0,
                       groupCount: update.groupCount ?? 0
                   };
               }

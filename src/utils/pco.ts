@@ -45,7 +45,6 @@ export interface Student {
   delta: number;
   lastCheckInAt: string | null;
   checkInCount: number | null;
-  donationTotal?: number;
   groupCount?: number;
   avatarUrl?: string;
 }
@@ -81,7 +80,6 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     delta,
     lastCheckInAt: (last_checked_in_at as string) || null,
     checkInCount: null, // Fetched lazily
-    donationTotal: undefined, // Fetched lazily
     groupCount: undefined, // Fetched lazily
     avatarUrl: (avatar as string) || undefined,
   };
@@ -130,28 +128,6 @@ export const fetchCheckInCount = async (id: string, auth: string): Promise<numbe
         return response.data.data.attributes.check_in_count;
     } catch (error) {
         console.error('Failed to fetch check-in count for person', id, error);
-        return null;
-    }
-};
-
-export const fetchDonationTotal = async (id: string, auth: string): Promise<number | null> => {
-    try {
-        // Fetch all donations for the person
-        // In a real app we might need pagination if they have many donations,
-        // but for this scope/mock, a single fetch is likely sufficient or we assume the mock handles it.
-        // Also real PCO might have a summary endpoint, but we built a donations endpoint.
-        const response = await axios.get<{ data: Array<{ attributes: { amount_cents: number } }> }>(
-            `/api/giving/v2/people/${id}/donations`,
-            {
-                headers: {
-                    Authorization: `Basic ${auth}`
-                }
-            }
-        );
-        const totalCents = response.data.data.reduce((sum, donation) => sum + donation.attributes.amount_cents, 0);
-        return totalCents / 100; // Return in dollars
-    } catch (error) {
-        console.error('Failed to fetch donations for person', id, error);
         return null;
     }
 };

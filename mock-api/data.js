@@ -3,7 +3,6 @@ import { addDays, eachWeekOfInterval, getDay, isSameWeek, setHours, setMinutes, 
 export const people = [];
 export const events = [];
 export const checkIns = [];
-export const donations = [];
 export const groupMemberships = [];
 
 // --- Helpers ---
@@ -16,7 +15,6 @@ const maleNames = ['Liam', 'Noah', 'Oliver', 'Elijah', 'William', 'James', 'Benj
 
 let personIdCounter = 1;
 let checkInIdCounter = 1;
-let donationIdCounter = 1;
 let membershipIdCounter = 1;
 
 // --- Generators ---
@@ -108,35 +106,7 @@ const generateEvents = () => {
   );
 };
 
-// 3. Generate Donations
-const generateDonations = () => {
-  const adults = people.filter(p => !p.attributes.child);
-
-  adults.forEach(adult => {
-    // 30% are donors
-    if (Math.random() < 0.3) {
-      const isHighValue = Math.random() < 0.1; // 10% of donors are high value
-      const donationCount = randomInt(1, 12);
-
-      for (let i = 0; i < donationCount; i++) {
-        const amount = isHighValue ? randomInt(100000, 500000) : randomInt(1000, 10000); // cents
-        donations.push({
-          id: String(donationIdCounter++),
-          type: 'Donation',
-          attributes: {
-            amount_cents: amount,
-            created_at: new Date().toISOString()
-          },
-          relationships: {
-            person: { data: { type: 'Person', id: adult.id } }
-          }
-        });
-      }
-    }
-  });
-};
-
-// 4. Generate Group Memberships
+// 3. Generate Group Memberships
 const generateGroupMemberships = () => {
   const adults = people.filter(p => !p.attributes.child);
 
@@ -238,6 +208,5 @@ const generateCheckIns = () => {
 // Execute
 generateHouseholds();
 generateEvents();
-generateDonations();
 generateGroupMemberships();
 generateCheckIns();
