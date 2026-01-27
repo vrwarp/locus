@@ -69,7 +69,7 @@ describe('Local API Simulator', () => {
 
   it('fetchAllPeople follows pagination from simulator', async () => {
     // Just fetch first 50 to verify it works without fetching thousands
-    const people = await fetchAllPeople('fake-auth', `${baseUrl}/people/v2/people?per_page=50`);
+    const { people } = await fetchAllPeople('fake-auth', `${baseUrl}/people/v2/people?per_page=50`);
 
     // We expect at least 35 households, so probably > 100 people
     expect(people.length).toBeGreaterThanOrEqual(100);

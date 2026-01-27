@@ -560,4 +560,60 @@ describe('App Integration', () => {
         expect(axios.get).toHaveBeenCalled();
         expect(saveToCache).toHaveBeenCalledWith('people_raw_test-id', apiData, 'test-id');
     });
+
+    it('loads more data when Load More is clicked', async () => {
+        // Mock cache to return initial partial data and a nextUrl
+        const cachedPeople = [{
+             id: '1',
+             type: 'Person',
+             attributes: { name: 'Student 1', birthdate: '2010-01-01', grade: 5 }
+        }];
+        const nextUrl = 'http://api.pco/next';
+
+        // We mock loadFromCache to return specific values based on the key
+        (loadFromCache as any).mockImplementation((key: string) => {
+            if (key.includes('people_raw')) return Promise.resolve(cachedPeople);
+            if (key.includes('people_meta')) return Promise.resolve(nextUrl);
+            return Promise.resolve(null);
+        });
+
+        // Mock fetch for the "Load More" action
+        const page2 = {
+            links: {},
+            data: [{ id: '2', type: 'Person', attributes: { name: 'Student 2', birthdate: '2010-01-01', grade: 5 } }]
+        };
+
+        (axios.get as any).mockResolvedValue({ data: page2 });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        // Wait for first student (from cache)
+        await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument());
+
+        // Check for Load More button
+        const loadMoreBtn = screen.getByText('Load More Results');
+        expect(loadMoreBtn).toBeInTheDocument();
+        expect(screen.getByText('Showing 1 records.')).toBeInTheDocument();
+
+        // Click it
+        fireEvent.click(loadMoreBtn);
+
+        // Wait for second student
+        await waitFor(() => expect(screen.getByTestId('student-2')).toBeInTheDocument());
+
+        // Check updated count
+        expect(screen.getByText('Showing 2 records.')).toBeInTheDocument();
+
+        // Expect calls
+        // Initial fetch should NOT have happened because of cache hit
+        // Next fetch
+        expect(axios.get).toHaveBeenCalledTimes(1);
+        expect(axios.get).toHaveBeenCalledWith(
+            'http://api.pco/next',
+            expect.any(Object)
+        );
+    });
 });
