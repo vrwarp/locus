@@ -31,8 +31,8 @@ Locus is a "Data Health OS" for church administrators using Planning Center Onli
 *   **Ghost Protocol:** Identification of inactive records with "Archive" bulk action.
 *   **Sandbox Mode:** Simulation environment for bulk edits. [DONE]
 *   **The Robert Report:** Web-based read-only dashboard. [DONE]
-*   **Cache Management:** Intelligent caching of API responses (e.g., 5-minute validity).
-*   **Pagination Handling (Large DB):** "Load More" or "Virtual Scroll" for databases > 5,000 records to prevent browser crash.
+*   **Cache Management:** Intelligent caching of API responses (e.g., 5-minute validity). [DONE]
+*   **Pagination Handling (Large DB):** "Load More" or "Virtual Scroll" for databases > 5,000 records to prevent browser crash. [DONE]
 
 ### 2.3 Could Have (V2.0)
 *   **Gamification:** Progress bars, streaks, "Combo" sounds (with Mute toggle).

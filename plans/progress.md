@@ -145,3 +145,15 @@
     - Updated `src/utils/pco.test.ts` to verify `avatarUrl` mapping.
     - Updated `src/components/GradeScatter.test.tsx` to verify `CustomTooltip` rendering logic (with and without avatar).
 - **Status:** Hover of Truth functional. Next steps: Deployment Setup.
+
+## Session 14
+- **Implemented:** Pagination Handling (Load More) for Large Databases.
+    - Refactored `fetchAllPeople` in `src/utils/pco.ts` to support limit (`maxPages`) and return `nextUrl`.
+    - Updated `App.tsx` to handle partial loading and "Load More" user flow.
+    - Added "Showing X records" indicator.
+    - Updated cache logic to persist partial results and `nextUrl`.
+- **Tests:**
+    - Updated `src/utils/pco.test.ts` to verify `maxPages` and object return.
+    - Updated `src/App.test.tsx` to verify "Load More" button appearance and interaction.
+    - Updated `src/test/simulator.test.ts` to match new API return signature.
+- **Status:** Large DB Pagination functional. Next steps: Deployment Setup.
