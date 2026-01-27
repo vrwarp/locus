@@ -12,7 +12,7 @@
     *   Safe Data: Pastel Blue / Green.
     *   Anomalies: Neon Orange / Red (High Contrast).
     *   Sandbox Mode: Calming Slate Blue.
-    *   Robert Report: Professional Navy / Gold (High Value).
+    *   Robert Report: Professional Navy / Gold (Strategic).
 *   **High Contrast Mode:**
     *   Background: Black.
     *   Safe Data: Cyan.

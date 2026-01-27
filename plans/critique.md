@@ -2,7 +2,6 @@
 *Status: Closed*
 
 ## 1. Critique of Product Requirement Document (PRD)
-*   **Gap:** "Ghost Donor" exception logic is vague. What if they give $99? Is that archived? Need configurable thresholds. -> **Addressed in v3.3**
 *   **Gap:** "Smart Fix Modal" mentions "Fix Birth Year". Does it allow specific date selection or just year? PCO requires full dates. -> **Addressed in v3.3**
 *   **Over-Engineering:** "The Robert Report" as a PDF export in MVP/Should Have seems like a heavy lift for V1. Can it be a simple read-only dashboard URL first? -> **Addressed in v3.3**
 *   **Inconsistency:** PRD says "Won't Have: Native Mobile App" but User Journeys mention "iPad AR view". -> **Addressed in v3.3**
