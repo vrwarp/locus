@@ -45,6 +45,7 @@ export interface Student {
   delta: number;
   lastCheckInAt: string | null;
   checkInCount: number | null;
+  donationTotal?: number | null;
   avatarUrl?: string;
 }
 
@@ -126,6 +127,40 @@ export const fetchCheckInCount = async (id: string, auth: string): Promise<numbe
         return response.data.data.attributes.check_in_count;
     } catch (error) {
         console.error('Failed to fetch check-in count for person', id, error);
+        return null;
+    }
+};
+
+export const fetchDonationTotal = async (id: string, auth: string): Promise<number | null> => {
+    try {
+        let totalCents = 0;
+        let url: string | undefined = `/api/giving/v2/people/${id}/donations?per_page=100`;
+
+        const oneYearAgo = new Date();
+        oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+        while (url) {
+            // Ensure proxy usage
+            const proxyUrl = url.replace('https://api.planningcenteronline.com', '/api');
+
+            const response = await axios.get(proxyUrl, {
+                headers: { Authorization: `Basic ${auth}` }
+            });
+
+            // Iterate and sum
+            for (const donation of response.data.data) {
+                const receivedAt = new Date(donation.attributes.received_at);
+                if (receivedAt >= oneYearAgo) {
+                    totalCents += donation.attributes.amount_cents;
+                }
+            }
+
+            url = response.data.links?.next;
+        }
+
+        return totalCents / 100;
+    } catch (error) {
+        console.error('Failed to fetch donation total for person', id, error);
         return null;
     }
 };

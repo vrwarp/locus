@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, PcoPerson } from './pco';
+import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, fetchDonationTotal, PcoPerson } from './pco';
 import { calculateExpectedGrade } from './grader';
-import { subYears, format } from 'date-fns';
+import { subYears, subMonths, format } from 'date-fns';
 
 vi.mock('axios');
 
@@ -234,6 +234,49 @@ describe('fetchCheckInCount', () => {
         (axios.get as any).mockRejectedValue(new Error('Failed'));
         const count = await fetchCheckInCount('123', 'token');
         expect(count).toBeNull();
+    });
+});
+
+describe('fetchDonationTotal', () => {
+    it('fetches and sums donations correctly', async () => {
+        const today = new Date();
+        const recentDate = format(subMonths(today, 1), 'yyyy-MM-dd');
+        const oldDate = format(subMonths(today, 13), 'yyyy-MM-dd');
+
+        const page1 = {
+            links: {},
+            data: [
+                { attributes: { amount_cents: 10000, received_at: recentDate } }, // $100
+                { attributes: { amount_cents: 5000, received_at: recentDate } }, // $50
+                { attributes: { amount_cents: 20000, received_at: oldDate } } // $200 (Old)
+            ]
+        };
+
+        (axios.get as any).mockResolvedValue({ data: page1 });
+
+        const total = await fetchDonationTotal('123', 'token');
+        expect(total).toBe(150); // 100 + 50
+    });
+
+    it('handles pagination', async () => {
+         const today = new Date();
+         const recentDate = format(subMonths(today, 1), 'yyyy-MM-dd');
+
+         const page1 = {
+             links: { next: 'http://next' },
+             data: [{ attributes: { amount_cents: 1000, received_at: recentDate } }]
+         };
+         const page2 = {
+             links: {},
+             data: [{ attributes: { amount_cents: 2000, received_at: recentDate } }]
+         };
+
+         (axios.get as any)
+             .mockResolvedValueOnce({ data: page1 })
+             .mockResolvedValueOnce({ data: page2 });
+
+         const total = await fetchDonationTotal('123', 'token');
+         expect(total).toBe(30);
     });
 });
 

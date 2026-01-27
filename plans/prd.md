@@ -28,7 +28,7 @@ Locus is a "Data Health OS" for church administrators using Planning Center Onli
 *   **Persistence (Config):** Save "Cutoff Date" and user preferences locally (Encrypted). [DONE - Basic Auth/Storage]
 
 ### 2.2 Should Have (V1.1)
-*   **Ghost Protocol:** Identification of inactive records with "Archive" bulk action.
+*   **Ghost Protocol:** Identification of inactive records with "Archive" bulk action. [DONE]
     *   *Constraint:* Configurable thresholds for "Ghost Donor" (e.g., Default > $100/yr).
 *   **Sandbox Mode:** Simulation environment for bulk edits. [DONE]
 *   **The Robert Report:** Web-based read-only dashboard. [DONE]

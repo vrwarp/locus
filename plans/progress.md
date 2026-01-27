@@ -145,3 +145,16 @@
     - Updated `src/utils/pco.test.ts` to verify `avatarUrl` mapping.
     - Updated `src/components/GradeScatter.test.tsx` to verify `CustomTooltip` rendering logic (with and without avatar).
 - **Status:** Hover of Truth functional. Next steps: Deployment Setup.
+
+## Session 14
+- **Implemented:** Ghost Protocol Giving Integration.
+    - Updated `mock-api/data.js` to generate donation data and `mock-api/server.js` to expose a donations endpoint.
+    - Updated `src/utils/pco.ts` to include `fetchDonationTotal` and update `Student` model.
+    - Updated `src/utils/ghost.ts` to exclude High Value Donors (> $100) from being marked as Ghosts.
+    - Updated `GhostModal.tsx` to display donation amounts and renamed "Analyze Check-ins" to "Deep Analysis".
+    - Updated `App.tsx` to fetch donation totals during analysis.
+- **Tests:**
+    - Updated `src/utils/ghost.test.ts` to verify donor exception logic.
+    - Updated `src/utils/pco.test.ts` to verify donation fetching and summing.
+    - Verified frontend changes with Playwright script.
+- **Status:** Ghost Protocol now fully implements the "High Value Donor" exception. Next steps: Deployment Setup.

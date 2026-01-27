@@ -35,4 +35,12 @@ describe('isGhost', () => {
         const borderlineDate = format(subMonths(new Date(), 11), 'yyyy-MM-dd'); // 11 > 10, so ghost
         expect(isGhost({ ...mockStudent, lastCheckInAt: borderlineDate }, customConfig)).toBe(true);
     });
+
+    it('does not identify a high value donor as ghost even if inactive', () => {
+        expect(isGhost({ ...mockStudent, donationTotal: 500 }, DEFAULT_GHOST_CONFIG)).toBe(false);
+    });
+
+    it('identifies a low value donor as ghost if inactive', () => {
+        expect(isGhost({ ...mockStudent, donationTotal: 50 }, DEFAULT_GHOST_CONFIG)).toBe(true);
+    });
 });

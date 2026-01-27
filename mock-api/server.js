@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { people, events, checkIns } from './data.js';
+import { people, events, checkIns, donations } from './data.js';
 import { fileURLToPath } from 'url';
 
 export const app = express();
@@ -14,14 +14,16 @@ app.use(express.json({ type: ['application/json', 'application/vnd.api+json'] })
 let db = {
   people: JSON.parse(JSON.stringify(people)),
   events: JSON.parse(JSON.stringify(events)),
-  checkIns: JSON.parse(JSON.stringify(checkIns))
+  checkIns: JSON.parse(JSON.stringify(checkIns)),
+  donations: JSON.parse(JSON.stringify(donations))
 };
 
 export const resetDb = () => {
   db = {
     people: JSON.parse(JSON.stringify(people)),
     events: JSON.parse(JSON.stringify(events)),
-    checkIns: JSON.parse(JSON.stringify(checkIns))
+    checkIns: JSON.parse(JSON.stringify(checkIns)),
+    donations: JSON.parse(JSON.stringify(donations))
   };
 };
 
@@ -97,6 +99,33 @@ app.patch('/people/v2/people/:id', (req, res) => {
   db.people[personIndex] = updated;
 
   res.json({ data: updated });
+});
+
+// Giving API
+app.get('/giving/v2/people/:id/donations', (req, res) => {
+    // Filter donations by person ID
+    const personDonations = db.donations.filter(d =>
+        d.relationships?.person?.data?.id === req.params.id
+    );
+
+    // Sort by date desc (mocking real API behavior usually)
+    personDonations.sort((a, b) => new Date(b.attributes.received_at) - new Date(a.attributes.received_at));
+
+    const { paginated, links } = paginate(req, personDonations);
+
+    res.json({
+        links,
+        data: paginated,
+        meta: {
+            total_count: personDonations.length,
+            count: paginated.length,
+            can_include: [],
+            parent: {
+                id: req.params.id,
+                type: 'Person'
+            }
+        }
+    });
 });
 
 // Check-Ins API

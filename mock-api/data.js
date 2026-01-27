@@ -3,6 +3,7 @@ import { addDays, eachWeekOfInterval, getDay, isSameWeek, setHours, setMinutes, 
 export const people = [];
 export const events = [];
 export const checkIns = [];
+export const donations = [];
 
 // --- Helpers ---
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -14,6 +15,7 @@ const maleNames = ['Liam', 'Noah', 'Oliver', 'Elijah', 'William', 'James', 'Benj
 
 let personIdCounter = 1;
 let checkInIdCounter = 1;
+let donationIdCounter = 1;
 
 // --- Generators ---
 
@@ -182,7 +184,59 @@ const generateCheckIns = () => {
   });
 };
 
+// 4. Generate Donations
+const generateDonations = () => {
+  // Give donations to some adults (Parents usually give)
+  const adults = people.filter(p => !p.attributes.child);
+
+  // High Value Donor: > $10,000 / yr
+  // Regular Donor: $1000 - $5000 / yr
+  // Occasional Donor: < $500
+  // Non-Donor: 0
+
+  adults.forEach(adult => {
+      const donorType = Math.random();
+      let annualAmount = 0;
+      let count = 0;
+
+      if (donorType > 0.95) { // 5% High Value
+          annualAmount = randomInt(10000, 50000);
+          count = 12; // Monthly
+      } else if (donorType > 0.6) { // 35% Regular
+          annualAmount = randomInt(1000, 5000);
+          count = 12;
+      } else if (donorType > 0.3) { // 30% Occasional
+          annualAmount = randomInt(50, 500);
+          count = randomInt(1, 3);
+      } else {
+          // Non-donor
+          return;
+      }
+
+      const amountPerDonation = Math.floor(annualAmount / count);
+
+      for (let i = 0; i < count; i++) {
+          // Spread across 2024
+          const month = Math.floor((i / count) * 12);
+          const date = new Date(2024, month, randomInt(1, 28));
+
+          donations.push({
+              id: String(donationIdCounter++),
+              type: 'Donation',
+              attributes: {
+                  amount_cents: amountPerDonation * 100, // API usually uses cents
+                  received_at: formatISO(date)
+              },
+              relationships: {
+                  person: { data: { type: 'Person', id: adult.id } }
+              }
+          });
+      }
+  });
+};
+
 // Execute
 generateHouseholds();
 generateEvents();
 generateCheckIns();
+generateDonations();
