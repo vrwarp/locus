@@ -27,6 +27,7 @@ function App() {
 
   // State for report history
   const [healthHistory, setHealthHistory] = useState<HealthHistoryEntry[]>([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // Pending update state for UI (Toast)
   const [pendingUpdateUI, setPendingUpdateUI] = useState<{ original: Student, updated: Student } | null>(null)
@@ -78,28 +79,45 @@ function App() {
       }
   }, []);
 
-  const { data: students = [], isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['people', appId, secret, config],
     queryFn: async () => {
-      if (!appId || !secret) return []
+      if (!appId || !secret) return { students: [], nextUrl: undefined, raw: [] };
 
-      const cacheKey = `people_raw_${appId}`;
+      const cacheKey = `people_v2_${appId}`;
       const auth = btoa(`${appId}:${secret}`)
 
-      let people = await loadFromCache<PcoPerson[]>(cacheKey, appId, 5 * 60 * 1000); // 5 mins TTL
+      let cached = await loadFromCache<{ people: PcoPerson[], nextUrl: string | undefined } | PcoPerson[]>(cacheKey, appId, 5 * 60 * 1000); // 5 mins TTL
 
-      if (!people) {
-        people = await fetchAllPeople(auth)
-        await saveToCache(cacheKey, people, appId);
+      let people: PcoPerson[] = [];
+      let nextUrl: string | undefined = undefined;
+
+      if (cached) {
+          if (Array.isArray(cached)) {
+              people = cached;
+          } else {
+              people = cached.people;
+              nextUrl = cached.nextUrl;
+          }
+      } else {
+        const res = await fetchAllPeople(auth, undefined, 5);
+        people = res.people;
+        nextUrl = res.nextUrl;
+        await saveToCache(cacheKey, { people, nextUrl }, appId);
       }
 
-      return people
+      const students = people
         .map(p => transformPerson(p, config.graderOptions))
         .filter((s): s is Student => s !== null)
+
+      return { students, nextUrl, raw: people };
     },
     enabled: !!appId && !!secret,
     retry: false
   })
+
+  const students = data?.students || [];
+  const nextUrl = data?.nextUrl;
 
   // Calculate stats
   const stats = useMemo(() => calculateHealthStats(students), [students]);
@@ -135,15 +153,16 @@ function App() {
           return { id: ghost.id, count };
       }));
 
-      queryClient.setQueryData(['people', appId, secret, config], (oldData: Student[] | undefined) => {
-          if (!oldData) return [];
-          return oldData.map(s => {
+      queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+          if (!oldData) return oldData;
+          const newStudents = oldData.students.map((s: Student) => {
               const update = updates.find(u => u.id === s.id);
               if (update) {
                   return { ...s, checkInCount: update.count ?? 0 };
               }
               return s;
           });
+          return { ...oldData, students: newStudents };
       });
   };
 
@@ -182,13 +201,53 @@ function App() {
       } catch (error) {
           console.error('Failed to save to PCO', error);
           // Revert on error
-           queryClient.setQueryData(['people', appId, secret, config], (oldData: Student[] | undefined) => {
-              if (!oldData) return [];
-              return oldData.map(s => s.id === update.original.id ? update.original : s);
+           queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+              if (!oldData) return oldData;
+              const newStudents = oldData.students.map((s: Student) => s.id === update.original.id ? update.original : s);
+              return { ...oldData, students: newStudents };
           });
           alert(`Failed to save changes for ${update.updated.name}. The change has been reverted.`);
       }
   };
+
+  const handleLoadMore = async () => {
+      if (!nextUrl || !appId || !secret) return;
+
+      setIsLoadingMore(true);
+      const auth = btoa(`${appId}:${secret}`);
+      const cacheKey = `people_v2_${appId}`;
+
+      try {
+          const res = await fetchAllPeople(auth, nextUrl, 5);
+
+          // Update Cache (React Query + IDB)
+          queryClient.setQueryData(['people', appId, secret, config], (old: any) => {
+             if (!old) return old;
+             // Merge
+             const newRaw = [...old.raw, ...res.people];
+             const newStudents = res.people
+                .map((p: PcoPerson) => transformPerson(p, config.graderOptions))
+                .filter((s: Student | null): s is Student => s !== null);
+
+             const combinedStudents = [...old.students, ...newStudents];
+
+             // Save to IDB
+             saveToCache(cacheKey, { people: newRaw, nextUrl: res.nextUrl }, appId);
+
+             return {
+                 students: combinedStudents,
+                 nextUrl: res.nextUrl,
+                 raw: newRaw
+             };
+          });
+
+      } catch (e) {
+          console.error("Failed to load more", e);
+          alert("Failed to load more records.");
+      } finally {
+          setIsLoadingMore(false);
+      }
+  }
 
   const handleSaveStudent = (updatedStudent: Student) => {
     // 1. If there is an existing pending update, flush it immediately
@@ -209,9 +268,10 @@ function App() {
     if (!originalStudent) return;
 
     // Optimistically update the cache
-    queryClient.setQueryData(['people', appId, secret, config], (oldData: Student[] | undefined) => {
-        if (!oldData) return []
-        return oldData.map(s => s.id === updatedStudent.id ? updatedStudent : s)
+    queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+        if (!oldData) return oldData
+        const newStudents = oldData.students.map((s: Student) => s.id === updatedStudent.id ? updatedStudent : s)
+        return { ...oldData, students: newStudents };
     })
 
     // 2. Set up new pending update
@@ -236,9 +296,10 @@ function App() {
 
       console.log('Undoing change...');
       // Revert cache
-      queryClient.setQueryData(['people', appId, secret, config], (oldData: Student[] | undefined) => {
-        if (!oldData) return [];
-        return oldData.map(s => s.id === current.original.id ? current.original : s);
+      queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+        if (!oldData) return oldData;
+        const newStudents = oldData.students.map((s: Student) => s.id === current.original.id ? current.original : s);
+        return { ...oldData, students: newStudents };
       });
 
       pendingUpdateRef.current = null;
@@ -308,6 +369,14 @@ function App() {
             onPointClick={setSelectedStudent}
             colorblindMode={config.colorblindMode}
           />
+
+          {nextUrl && !isLoading && (
+              <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                  <button onClick={handleLoadMore} disabled={isLoadingMore} className="settings-btn">
+                      {isLoadingMore ? 'Loading...' : 'Load More Records'}
+                  </button>
+              </div>
+          )}
       </div>
 
       <SmartFixModal

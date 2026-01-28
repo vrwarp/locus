@@ -66,8 +66,11 @@ interface Student {
     *   Wrap API calls in a `ServiceAdapter`.
     *   If `SandboxMode == true`, `ServiceAdapter` returns `Success` immediately and updates a local `MockStore` instead of hitting the network.
 *   **Pagination:**
-    *   For DB < 5,000: Recursive fetch of `links.next` on startup.
-    *   For DB > 5,000: Limit initial fetch to "Most Recent 5,000" or "Grade Level != Null". Show "Load More" button to fetch older records.
+    *   Initial Load: Fetches first 5 pages (approx 500 records).
+    *   "Load More" Strategy:
+        *   If `links.next` exists, a "Load More Records" button is displayed.
+        *   Clicking the button fetches the next 5 pages and appends them to the dataset.
+        *   State is persisted in IndexedDB and React Query cache, including the `nextUrl` for resuming pagination.
 
 ## 6. Undo Architecture (Command Pattern)
 *   Every user action (Fix Grade, Archive) creates a `Command` object:

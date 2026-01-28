@@ -254,9 +254,10 @@ describe('fetchAllPeople', () => {
 
         const result = await fetchAllPeople('auth-token');
 
-        expect(result).toHaveLength(2);
-        expect(result[0].id).toBe('1');
-        expect(result[1].id).toBe('2');
+        expect(result.people).toHaveLength(2);
+        expect(result.people[0].id).toBe('1');
+        expect(result.people[1].id).toBe('2');
+        expect(result.nextUrl).toBeUndefined();
         expect(axios.get).toHaveBeenCalledTimes(2);
         expect(axios.get).toHaveBeenNthCalledWith(1, '/api/people/v2/people?per_page=100', expect.any(Object));
         expect(axios.get).toHaveBeenNthCalledWith(2, 'http://api.pco/next', expect.any(Object));
@@ -291,7 +292,22 @@ describe('fetchAllPeople', () => {
 
         const result = await fetchAllPeople('auth-token');
 
-        expect(result).toHaveLength(1);
+        expect(result.people).toHaveLength(1);
+        expect(axios.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops fetching after maxPages and returns nextUrl', async () => {
+        const page1 = {
+            links: { next: 'http://api.pco/next' },
+            data: [{ id: '1', type: 'Person', attributes: { name: 'A' } }]
+        };
+
+        (axios.get as any).mockResolvedValueOnce({ data: page1 });
+
+        const result = await fetchAllPeople('auth-token', undefined, 1);
+
+        expect(result.people).toHaveLength(1);
+        expect(result.nextUrl).toBe('http://api.pco/next');
         expect(axios.get).toHaveBeenCalledTimes(1);
     });
 });
