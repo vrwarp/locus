@@ -499,6 +499,7 @@ describe('App Integration', () => {
             }
         }];
 
+        // Return legacy array format to test compatibility
         (loadFromCache as any).mockResolvedValue(cachedPeople);
 
         render(<Wrapper><App /></Wrapper>);
@@ -508,7 +509,7 @@ describe('App Integration', () => {
 
         await waitFor(() => expect(screen.getByTestId('student-cached-1')).toBeInTheDocument());
 
-        expect(loadFromCache).toHaveBeenCalledWith('people_raw_test-id', 'test-id', expect.any(Number));
+        expect(loadFromCache).toHaveBeenCalledWith('people_v2_test-id', 'test-id', expect.any(Number));
         expect(axios.get).not.toHaveBeenCalled();
         expect(saveToCache).not.toHaveBeenCalled();
     });
@@ -558,6 +559,56 @@ describe('App Integration', () => {
 
         expect(loadFromCache).toHaveBeenCalled();
         expect(axios.get).toHaveBeenCalled();
-        expect(saveToCache).toHaveBeenCalledWith('people_raw_test-id', apiData, 'test-id');
+        expect(saveToCache).toHaveBeenCalledWith('people_v2_test-id', { people: apiData, nextUrl: undefined }, 'test-id');
+    });
+
+    it('loads initial batch and allows loading more', async () => {
+        // Mock 6 pages. App fetches 5 initially.
+        (axios.get as any).mockImplementation((url: string) => {
+            let pageNum = 1;
+            const match = url.match(/page_(\d+)/);
+            if (match) {
+                pageNum = parseInt(match[1]);
+            } else if (url.includes('/api/people/v2/people')) {
+                pageNum = 1;
+            } else {
+                return Promise.resolve({ data: { data: [] } });
+            }
+
+            const nextLink = pageNum < 6 ? `http://api.pco/page_${pageNum + 1}` : undefined;
+
+            return Promise.resolve({
+                data: {
+                    links: nextLink ? { next: nextLink } : {},
+                    data: [{
+                        id: `p${pageNum}`,
+                        type: 'Person',
+                        attributes: { name: `Person ${pageNum}`, birthdate: '2000-01-01', grade: 10 }
+                    }]
+                }
+            });
+        });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        // Expect p1 through p5 to be present
+        await waitFor(() => expect(screen.getByTestId('student-p5')).toBeInTheDocument());
+        expect(screen.getByTestId('student-p1')).toBeInTheDocument();
+
+        // Expect p6 to NOT be present yet
+        expect(screen.queryByTestId('student-p6')).not.toBeInTheDocument();
+
+        const loadMoreBtn = screen.getByText('Load More Records');
+        expect(loadMoreBtn).toBeInTheDocument();
+
+        fireEvent.click(loadMoreBtn);
+
+        await waitFor(() => expect(screen.getByTestId('student-p6')).toBeInTheDocument());
+
+        // Button should disappear as no next link in page 6
+        await waitFor(() => expect(screen.queryByText('Load More Records')).not.toBeInTheDocument());
     });
 });

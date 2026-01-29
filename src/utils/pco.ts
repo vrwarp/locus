@@ -130,11 +130,12 @@ export const fetchCheckInCount = async (id: string, auth: string): Promise<numbe
     }
 };
 
-export const fetchAllPeople = async (auth: string, url: string = '/api/people/v2/people?per_page=100'): Promise<PcoPerson[]> => {
+export const fetchAllPeople = async (auth: string, url: string = '/api/people/v2/people?per_page=100', maxPages: number = Infinity): Promise<{ people: PcoPerson[], nextUrl: string | undefined }> => {
   let allPeople: PcoPerson[] = [];
   let nextUrl: string | undefined = url;
+  let pageCount = 0;
 
-  while (nextUrl) {
+  while (nextUrl && pageCount < maxPages) {
     // Ensure we use the proxy for absolute URLs returned by PCO
     const proxyUrl = nextUrl.replace('https://api.planningcenteronline.com', '/api');
 
@@ -146,7 +147,8 @@ export const fetchAllPeople = async (auth: string, url: string = '/api/people/v2
 
     allPeople = [...allPeople, ...response.data.data];
     nextUrl = response.data.links?.next;
+    pageCount++;
   }
 
-  return allPeople;
+  return { people: allPeople, nextUrl };
 };
