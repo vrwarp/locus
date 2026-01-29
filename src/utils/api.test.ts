@@ -104,6 +104,9 @@ describe('API Client Rate Limiting', () => {
 
     const promise = api.get('/test');
 
+    // Attach a no-op catch to prevent unhandled rejection during timer advancement
+    promise.catch(() => {});
+
     // Advance time enough for 3 retries (1s, 1s, 1s)
     await vi.advanceTimersByTimeAsync(1000);
     await vi.advanceTimersByTimeAsync(1000);
