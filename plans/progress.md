@@ -157,3 +157,14 @@
     - Updated `src/App.test.tsx` with integration tests for "Load More" flow and verifying cache updates.
     - Updated `src/test/simulator.test.ts` to accommodate API changes.
 - **Status:** Pagination functional. Ready for large datasets. Next steps: Deployment.
+
+## Session 15
+- **Implemented:** Rate Limiting Handling (Reliability).
+    - Created `src/utils/api.ts` with an Axios instance and response interceptor.
+    - Implemented handling for HTTP 429 (Too Many Requests).
+    - Implemented retry logic respecting `Retry-After` header or using exponential backoff.
+    - Refactored `src/utils/pco.ts` to use the new centralized API client.
+- **Tests:**
+    - Created `src/utils/api.test.ts` to verify 429 handling, retry logic, and backoff.
+    - Updated `src/utils/pco.test.ts` to mock the new `api` module instead of `axios` directly.
+- **Status:** Rate Limiting functional. Next steps: Deployment Setup, Startup Version Check.
