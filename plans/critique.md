@@ -21,7 +21,7 @@
 *   **Security:** `sessionStorage` for Basic Auth credentials is risky (XSS). Should consider `HttpOnly` cookies via the proxy if possible, or at least acknowledge the risk. -> **Addressed in v3.3**
 *   **Performance:** "Web Worker for > 10k records". Why 10k? JS Main thread can handle 10k simple math ops easily. Rendering is the bottleneck. Focus on *Virtualization* of the chart logic. -> **Addressed in v3.3**
 *   **Missing:** No caching strategy mentioned for "Undo". If I undo 5 times, do I hit the API 5 times? -> **Addressed in v3.3**
-*   **Missing:** Handling of "Rate Limiting" is mentioned but not architected. `LeakyBucket` needs more detail (persistence? per session?). -> **Addressed in v3.3**
+*   **Missing:** Handling of "Rate Limiting" is mentioned but not architected. `LeakyBucket` needs more detail (persistence? per session?). -> **Addressed in v3.3 (Implemented in Session 15)**
 *   **Hardening (Iter 2):** `localStorage` with encryption (AES) for *non-sensitive* config (like "Cutoff Date" or "Ghost Thresholds") should be allowed. We can't require users to re-configure the app every visit. -> **Addressed in v3.3**
 *   **Stress Test (Iter 3):** Pagination Logic. PCO API is paginated (per_page=100). We need a "Fetch All" recursive loop or a "Load More" button. "Fetch All" for 50k records will time out. -> **Addressed in v3.3**
 *   **Stress Test (Iter 3):** IndexedDB is async. The app needs a loading state while re-hydrating from cache. -> **Addressed in v3.3**

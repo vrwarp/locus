@@ -1,5 +1,5 @@
 import { differenceInYears } from 'date-fns';
-import axios from 'axios';
+import api from './api';
 import { calculateExpectedGrade } from './grader';
 import type { GraderOptions } from './grader';
 
@@ -93,7 +93,7 @@ export const updatePerson = async (id: string, attributes: PcoAttributes, auth: 
         headers['X-Locus-Sandbox'] = 'true';
     }
 
-    const response = await axios.patch<PcoSingleResponse>(
+    const response = await api.patch<PcoSingleResponse>(
       `/api/people/v2/people/${id}`,
       {
         data: {
@@ -115,7 +115,7 @@ export const archivePerson = async (id: string, auth: string, sandboxMode?: bool
 
 export const fetchCheckInCount = async (id: string, auth: string): Promise<number | null> => {
     try {
-        const response = await axios.get<{ data: { attributes: { check_in_count: number } } }>(
+        const response = await api.get<{ data: { attributes: { check_in_count: number } } }>(
             `/api/check-ins/v2/people/${id}`,
             {
                 headers: {
@@ -139,7 +139,7 @@ export const fetchAllPeople = async (auth: string, url: string = '/api/people/v2
     // Ensure we use the proxy for absolute URLs returned by PCO
     const proxyUrl = nextUrl.replace('https://api.planningcenteronline.com', '/api');
 
-    const response = await axios.get<PcoApiResponse>(proxyUrl, {
+    const response = await api.get<PcoApiResponse>(proxyUrl, {
       headers: {
         Authorization: `Basic ${auth}`
       }

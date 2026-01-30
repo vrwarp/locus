@@ -1,10 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import axios from 'axios';
+import api from './api';
 import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, PcoPerson } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
 
-vi.mock('axios');
+vi.mock('./api', () => {
+    return {
+        default: {
+            get: vi.fn(),
+            patch: vi.fn(),
+        }
+    };
+});
 
 beforeEach(() => {
     vi.clearAllMocks();
@@ -32,9 +39,6 @@ describe('transformPerson', () => {
 
     expect(result).not.toBeNull();
 
-    // We expect specific fields.
-    // Note: calculatedGrade depends on the exact date logic in grader.ts.
-    // We use the same function here to verify consistency.
     const expectedGrade = calculateExpectedGrade(new Date(birthdate10));
 
     expect(result).toEqual({
@@ -139,7 +143,7 @@ describe('transformPerson', () => {
 });
 
 describe('updatePerson', () => {
-    it('calls axios patch with correct arguments and returns data', async () => {
+    it('calls api patch with correct arguments and returns data', async () => {
         const mockPerson: PcoPerson = {
             id: '123',
             type: 'Person',
@@ -147,12 +151,12 @@ describe('updatePerson', () => {
         };
         const mockResponse = { data: { data: mockPerson } };
 
-        // Mock axios.patch
-        (axios.patch as any).mockResolvedValue(mockResponse);
+        // Mock api.patch
+        (api.patch as any).mockResolvedValue(mockResponse);
 
         const result = await updatePerson('123', { grade: 5 }, 'auth-token');
 
-        expect(axios.patch).toHaveBeenCalledWith(
+        expect(api.patch).toHaveBeenCalledWith(
             '/api/people/v2/people/123',
             {
                 data: {
@@ -178,11 +182,11 @@ describe('updatePerson', () => {
             attributes: { grade: 5 }
         };
         const mockResponse = { data: { data: mockPerson } };
-        (axios.patch as any).mockResolvedValue(mockResponse);
+        (api.patch as any).mockResolvedValue(mockResponse);
 
         await updatePerson('123', { grade: 5 }, 'auth-token', true);
 
-        expect(axios.patch).toHaveBeenCalledWith(
+        expect(api.patch).toHaveBeenCalledWith(
             '/api/people/v2/people/123',
             expect.any(Object),
             expect.objectContaining({
@@ -200,11 +204,11 @@ describe('updatePerson', () => {
             attributes: { grade: 5 }
         };
         const mockResponse = { data: { data: mockPerson } };
-        (axios.patch as any).mockResolvedValue(mockResponse);
+        (api.patch as any).mockResolvedValue(mockResponse);
 
         await updatePerson('123', { grade: 5 }, 'auth-token');
 
-        expect(axios.patch).toHaveBeenCalledWith(
+        expect(api.patch).toHaveBeenCalledWith(
             '/api/people/v2/people/123',
             expect.any(Object),
             expect.objectContaining({
@@ -218,20 +222,20 @@ describe('updatePerson', () => {
 
 describe('fetchCheckInCount', () => {
     it('fetches check in count successfully', async () => {
-        (axios.get as any).mockResolvedValue({
+        (api.get as any).mockResolvedValue({
             data: { data: { attributes: { check_in_count: 42 } } }
         });
 
         const count = await fetchCheckInCount('123', 'token');
         expect(count).toBe(42);
-        expect(axios.get).toHaveBeenCalledWith(
+        expect(api.get).toHaveBeenCalledWith(
             '/api/check-ins/v2/people/123',
             expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Basic token' }) })
         );
     });
 
     it('returns null on failure', async () => {
-        (axios.get as any).mockRejectedValue(new Error('Failed'));
+        (api.get as any).mockRejectedValue(new Error('Failed'));
         const count = await fetchCheckInCount('123', 'token');
         expect(count).toBeNull();
     });
@@ -248,7 +252,7 @@ describe('fetchAllPeople', () => {
             data: [{ id: '2', type: 'Person', attributes: { name: 'B' } }]
         };
 
-        (axios.get as any)
+        (api.get as any)
             .mockResolvedValueOnce({ data: page1 })
             .mockResolvedValueOnce({ data: page2 });
 
@@ -258,9 +262,9 @@ describe('fetchAllPeople', () => {
         expect(result.people[0].id).toBe('1');
         expect(result.people[1].id).toBe('2');
         expect(result.nextUrl).toBeUndefined();
-        expect(axios.get).toHaveBeenCalledTimes(2);
-        expect(axios.get).toHaveBeenNthCalledWith(1, '/api/people/v2/people?per_page=100', expect.any(Object));
-        expect(axios.get).toHaveBeenNthCalledWith(2, 'http://api.pco/next', expect.any(Object));
+        expect(api.get).toHaveBeenCalledTimes(2);
+        expect(api.get).toHaveBeenNthCalledWith(1, '/api/people/v2/people?per_page=100', expect.any(Object));
+        expect(api.get).toHaveBeenNthCalledWith(2, 'http://api.pco/next', expect.any(Object));
     });
 
     it('uses proxy for absolute URLs in next links', async () => {
@@ -273,13 +277,13 @@ describe('fetchAllPeople', () => {
             data: [{ id: '2', type: 'Person', attributes: { name: 'B' } }]
         };
 
-        (axios.get as any)
+        (api.get as any)
             .mockResolvedValueOnce({ data: page1 })
             .mockResolvedValueOnce({ data: page2 });
 
         await fetchAllPeople('auth-token');
 
-        expect(axios.get).toHaveBeenNthCalledWith(2, '/api/next', expect.any(Object));
+        expect(api.get).toHaveBeenNthCalledWith(2, '/api/next', expect.any(Object));
     });
 
     it('fetches single page correctly', async () => {
@@ -288,12 +292,12 @@ describe('fetchAllPeople', () => {
             data: [{ id: '1', type: 'Person', attributes: { name: 'A' } }]
         };
 
-        (axios.get as any).mockResolvedValueOnce({ data: page1 });
+        (api.get as any).mockResolvedValueOnce({ data: page1 });
 
         const result = await fetchAllPeople('auth-token');
 
         expect(result.people).toHaveLength(1);
-        expect(axios.get).toHaveBeenCalledTimes(1);
+        expect(api.get).toHaveBeenCalledTimes(1);
     });
 
     it('stops fetching after maxPages and returns nextUrl', async () => {
@@ -302,12 +306,12 @@ describe('fetchAllPeople', () => {
             data: [{ id: '1', type: 'Person', attributes: { name: 'A' } }]
         };
 
-        (axios.get as any).mockResolvedValueOnce({ data: page1 });
+        (api.get as any).mockResolvedValueOnce({ data: page1 });
 
         const result = await fetchAllPeople('auth-token', undefined, 1);
 
         expect(result.people).toHaveLength(1);
         expect(result.nextUrl).toBe('http://api.pco/next');
-        expect(axios.get).toHaveBeenCalledTimes(1);
+        expect(api.get).toHaveBeenCalledTimes(1);
     });
 });

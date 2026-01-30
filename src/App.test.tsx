@@ -2,14 +2,23 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import App from './App';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import axios from 'axios';
+import api from './utils/api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Student } from './utils/pco';
 import * as storage from './utils/storage';
 import { saveToCache, loadFromCache } from './utils/cache';
 
 // Mock dependencies
-vi.mock('axios');
+// Replace axios mock with api mock
+vi.mock('./utils/api', () => ({
+  default: {
+    get: vi.fn(),
+    patch: vi.fn(),
+    interceptors: {
+      response: { use: vi.fn() }
+    }
+  }
+}));
 
 // Mock storage
 vi.mock('./utils/storage', () => ({
@@ -120,8 +129,8 @@ describe('App Integration', () => {
     });
 
     it('renders and allows fixing a student grade', async () => {
-        // Mock Axios Response
-        (axios.get as any).mockResolvedValue({
+        // Mock API Response
+        (api.get as any).mockResolvedValue({
             data: {
                 data: [{
                     id: '1',
@@ -151,7 +160,7 @@ describe('App Integration', () => {
     });
 
     it('shows undo toast and reverts on undo click', async () => {
-        (axios.get as any).mockResolvedValue({
+        (api.get as any).mockResolvedValue({
             data: {
                 data: [{
                     id: '1',
@@ -165,7 +174,7 @@ describe('App Integration', () => {
             }
         });
 
-        (axios.patch as any).mockResolvedValue({ data: { data: {} } });
+        (api.patch as any).mockResolvedValue({ data: { data: {} } });
 
         render(<Wrapper><App /></Wrapper>);
 
@@ -184,13 +193,13 @@ describe('App Integration', () => {
 
         await waitFor(() => expect(screen.queryByText(/Updated grade for Undo Kid/)).not.toBeInTheDocument());
         expect(screen.getByText('Undo Kid - Grade 4')).toBeInTheDocument();
-        expect(axios.patch).not.toHaveBeenCalled();
+        expect(api.patch).not.toHaveBeenCalled();
     });
 
     it('commits change to API after timeout', async () => {
         // Do not call vi.useFakeTimers() here, wait until data loads
 
-        (axios.get as any).mockResolvedValue({
+        (api.get as any).mockResolvedValue({
             data: {
                 data: [{
                     id: '2',
@@ -203,7 +212,7 @@ describe('App Integration', () => {
                 }]
             }
         });
-        (axios.patch as any).mockResolvedValue({ data: { data: {} } });
+        (api.patch as any).mockResolvedValue({ data: { data: {} } });
 
         render(<Wrapper><App /></Wrapper>);
 
@@ -230,7 +239,7 @@ describe('App Integration', () => {
         });
 
         // Verify API called
-        expect(axios.patch).toHaveBeenCalledWith(
+        expect(api.patch).toHaveBeenCalledWith(
             '/api/people/v2/people/2',
             expect.objectContaining({
                 data: expect.objectContaining({
@@ -242,7 +251,7 @@ describe('App Integration', () => {
     }, 15000);
 
     it('flushes previous pending update when a new one is made', async () => {
-       (axios.get as any).mockResolvedValue({
+       (api.get as any).mockResolvedValue({
            data: {
                data: [
                    {
@@ -258,7 +267,7 @@ describe('App Integration', () => {
                ]
            }
        });
-       (axios.patch as any).mockResolvedValue({ data: { data: {} } });
+       (api.patch as any).mockResolvedValue({ data: { data: {} } });
 
        render(<Wrapper><App /></Wrapper>);
 
@@ -281,7 +290,7 @@ describe('App Integration', () => {
            vi.advanceTimersByTime(2000);
        });
 
-       expect(axios.patch).not.toHaveBeenCalled();
+       expect(api.patch).not.toHaveBeenCalled();
 
        // 2. Fix Student 2 immediately
        fireEvent.click(screen.getByTestId('student-2'));
@@ -291,14 +300,14 @@ describe('App Integration', () => {
        expect(screen.getByText(/Updated grade for Student 2/)).toBeInTheDocument();
 
        // Assert API was called for Student 1 (flushed)
-       expect(axios.patch).toHaveBeenCalledWith(
+       expect(api.patch).toHaveBeenCalledWith(
            '/api/people/v2/people/1',
            expect.objectContaining({ data: expect.objectContaining({ id: '1' }) }),
            expect.any(Object)
        );
 
        // Clear mock
-       (axios.patch as any).mockClear();
+       (api.patch as any).mockClear();
 
        // Advance time to finish Student 2 commit
        act(() => {
@@ -306,7 +315,7 @@ describe('App Integration', () => {
        });
 
        // Assert API called for Student 2
-       expect(axios.patch).toHaveBeenCalledWith(
+       expect(api.patch).toHaveBeenCalledWith(
            '/api/people/v2/people/2',
            expect.objectContaining({ data: expect.objectContaining({ id: '2' }) }),
            expect.any(Object)
@@ -317,7 +326,7 @@ describe('App Integration', () => {
         // Set System Time to Nov 1, 2024 to ensure deterministic calculation
         vi.setSystemTime(new Date('2024-11-01'));
 
-        (axios.get as any).mockResolvedValue({
+        (api.get as any).mockResolvedValue({
             data: {
                 data: [{
                     id: '3',
@@ -403,12 +412,12 @@ describe('App Integration', () => {
         // Set system time so 'Alive' is considered recent
         vi.setSystemTime(new Date('2024-02-01'));
 
-        (axios.get as any).mockResolvedValue({
+        (api.get as any).mockResolvedValue({
             data: {
                 data: [ghostStudent, activeStudent]
             }
         });
-        (axios.patch as any).mockResolvedValue({ data: { data: {} } });
+        (api.patch as any).mockResolvedValue({ data: { data: {} } });
 
         render(<Wrapper><App /></Wrapper>);
 
@@ -423,7 +432,7 @@ describe('App Integration', () => {
 
         // Test analyze flow
         // Mock check-ins API
-        (axios.get as any).mockImplementation((url: string) => {
+        (api.get as any).mockImplementation((url: string) => {
             if (url.includes('/api/check-ins/v2/people/g1')) {
                 return Promise.resolve({ data: { data: { attributes: { check_in_count: 3 } } } });
             }
@@ -433,14 +442,14 @@ describe('App Integration', () => {
         const analyzeBtn = screen.getByText('Analyze Check-ins');
         fireEvent.click(analyzeBtn);
 
-        await waitFor(() => expect(axios.get).toHaveBeenCalledWith(
+        await waitFor(() => expect(api.get).toHaveBeenCalledWith(
             expect.stringContaining('/api/check-ins/v2/people/g1'),
             expect.any(Object)
         ));
 
         fireEvent.click(screen.getByText('Archive All'));
 
-        await waitFor(() => expect(axios.patch).toHaveBeenCalledWith(
+        await waitFor(() => expect(api.patch).toHaveBeenCalledWith(
             '/api/people/v2/people/g1',
             expect.objectContaining({
                 data: expect.objectContaining({
@@ -458,7 +467,7 @@ describe('App Integration', () => {
         // Set date to ensure consistent age calculation
         vi.setSystemTime(new Date('2024-11-01')); // Nov 2024
 
-        (axios.get as any).mockResolvedValue({
+        (api.get as any).mockResolvedValue({
             data: {
                 data: [{
                     id: '1',
@@ -510,7 +519,7 @@ describe('App Integration', () => {
         await waitFor(() => expect(screen.getByTestId('student-cached-1')).toBeInTheDocument());
 
         expect(loadFromCache).toHaveBeenCalledWith('people_v2_test-id', 'test-id', expect.any(Number));
-        expect(axios.get).not.toHaveBeenCalled();
+        expect(api.get).not.toHaveBeenCalled();
         expect(saveToCache).not.toHaveBeenCalled();
     });
 
@@ -544,7 +553,7 @@ describe('App Integration', () => {
             }
         }];
 
-        (axios.get as any).mockResolvedValue({
+        (api.get as any).mockResolvedValue({
             data: {
                 data: apiData
             }
@@ -558,13 +567,13 @@ describe('App Integration', () => {
         await waitFor(() => expect(screen.getByTestId('student-api-1')).toBeInTheDocument());
 
         expect(loadFromCache).toHaveBeenCalled();
-        expect(axios.get).toHaveBeenCalled();
+        expect(api.get).toHaveBeenCalled();
         expect(saveToCache).toHaveBeenCalledWith('people_v2_test-id', { people: apiData, nextUrl: undefined }, 'test-id');
     });
 
     it('loads initial batch and allows loading more', async () => {
         // Mock 6 pages. App fetches 5 initially.
-        (axios.get as any).mockImplementation((url: string) => {
+        (api.get as any).mockImplementation((url: string) => {
             let pageNum = 1;
             const match = url.match(/page_(\d+)/);
             if (match) {
