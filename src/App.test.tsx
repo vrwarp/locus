@@ -78,7 +78,7 @@ vi.mock('./components/GhostModal', () => ({
   GhostModal: ({ isOpen, onArchive, onAnalyze, onClose, students }: any) => isOpen ? (
     <div data-testid="ghost-modal">
         <p>Found {students.length} ghosts</p>
-        <button onClick={() => onAnalyze && onAnalyze(students)}>Analyze Check-ins</button>
+        <button onClick={() => onAnalyze && onAnalyze(students)}>Analyze Deeply</button>
         <button onClick={() => onArchive(students)}>Archive All</button>
         <button onClick={onClose}>Close</button>
     </div>
@@ -422,19 +422,30 @@ describe('App Integration', () => {
         expect(screen.getByText('Found 1 ghosts')).toBeInTheDocument();
 
         // Test analyze flow
-        // Mock check-ins API
+        // Mock check-ins API and groups API
         (axios.get as any).mockImplementation((url: string) => {
             if (url.includes('/api/check-ins/v2/people/g1')) {
                 return Promise.resolve({ data: { data: { attributes: { check_in_count: 3 } } } });
             }
-            return Promise.resolve({ data: { data: [] } }); // Default for people
+            if (url.includes('/api/groups/v2/group_memberships?where[person_id]=g1')) {
+                return Promise.resolve({ data: { meta: { total_count: 0 } } });
+            }
+            if (url.includes('/api/people/v2/people')) {
+                 return Promise.resolve({ data: { data: [ghostStudent, activeStudent] } });
+            }
+            return Promise.resolve({ data: { data: [] } }); // Default
         });
 
-        const analyzeBtn = screen.getByText('Analyze Check-ins');
+        const analyzeBtn = screen.getByText('Analyze Deeply');
         fireEvent.click(analyzeBtn);
 
         await waitFor(() => expect(axios.get).toHaveBeenCalledWith(
             expect.stringContaining('/api/check-ins/v2/people/g1'),
+            expect.any(Object)
+        ));
+
+        await waitFor(() => expect(axios.get).toHaveBeenCalledWith(
+            expect.stringContaining('/api/groups/v2/group_memberships?where[person_id]=g1'),
             expect.any(Object)
         ));
 

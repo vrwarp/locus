@@ -10,9 +10,14 @@ export const DEFAULT_GHOST_CONFIG: GhostConfig = {
 };
 
 export const isGhost = (student: Student, config: GhostConfig = DEFAULT_GHOST_CONFIG): boolean => {
-  // Check Last Check-in
+  // 1. Check Groups (if known). If they are in a group, they are NOT a ghost.
+  if (student.groupCount !== null && student.groupCount > 0) {
+      return false;
+  }
+
+  // 2. Check Last Check-in
   if (!student.lastCheckInAt) {
-    // Never checked in is considered a ghost
+    // Never checked in is considered a ghost (unless groups check passed above)
     return true;
   }
 

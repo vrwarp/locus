@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { people, events, checkIns } from './data.js';
+import { people, events, checkIns, groupMemberships } from './data.js';
 import { fileURLToPath } from 'url';
 
 export const app = express();
@@ -14,14 +14,16 @@ app.use(express.json({ type: ['application/json', 'application/vnd.api+json'] })
 let db = {
   people: JSON.parse(JSON.stringify(people)),
   events: JSON.parse(JSON.stringify(events)),
-  checkIns: JSON.parse(JSON.stringify(checkIns))
+  checkIns: JSON.parse(JSON.stringify(checkIns)),
+  groupMemberships: JSON.parse(JSON.stringify(groupMemberships))
 };
 
 export const resetDb = () => {
   db = {
     people: JSON.parse(JSON.stringify(people)),
     events: JSON.parse(JSON.stringify(events)),
-    checkIns: JSON.parse(JSON.stringify(checkIns))
+    checkIns: JSON.parse(JSON.stringify(checkIns)),
+    groupMemberships: JSON.parse(JSON.stringify(groupMemberships))
   };
 };
 
@@ -97,6 +99,41 @@ app.patch('/people/v2/people/:id', (req, res) => {
   db.people[personIndex] = updated;
 
   res.json({ data: updated });
+});
+
+// Groups API
+app.get('/groups/v2/group_memberships', (req, res) => {
+  let collection = db.groupMemberships;
+
+  console.log('Query:', req.query);
+  console.log('Where:', req.query.where);
+
+  // Filter by person_id if provided (nested object access for qs/express)
+  // Express query parser: ?where[person_id]=123 -> req.query.where.person_id
+  let personId = req.query.where?.person_id;
+
+  // Fallback for simple query parser
+  if (!personId) {
+      personId = req.query['where[person_id]'];
+  }
+
+  if (personId) {
+    console.log('Filtering by personId:', personId);
+    collection = collection.filter(m => m.relationships.person.data.id === personId);
+  }
+
+  const { paginated, links } = paginate(req, collection);
+
+  res.json({
+    links,
+    data: paginated,
+    meta: {
+      total_count: collection.length,
+      count: paginated.length,
+      can_include: [],
+      parent: {}
+    }
+  });
 });
 
 // Check-Ins API

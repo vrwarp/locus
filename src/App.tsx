@@ -6,7 +6,7 @@ import { ConfigModal } from './components/ConfigModal'
 import { GhostModal } from './components/GhostModal'
 import { UndoToast } from './components/UndoToast'
 import { RobertReport } from './components/RobertReport'
-import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount } from './utils/pco'
+import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount, fetchGroupCount } from './utils/pco'
 import { isGhost } from './utils/ghost'
 import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot } from './utils/storage'
 import { saveToCache, loadFromCache } from './utils/cache'
@@ -146,11 +146,13 @@ function App() {
   const handleAnalyzeGhosts = async (ghostsToAnalyze: Student[]) => {
       const auth = btoa(`${appId}:${secret}`);
 
-      // We need to update the query cache with the new checkInCount
-      // This is a bit of a hack, but efficient enough for a few items
+      // We need to update the query cache with the new checkInCount and groupCount
       const updates = await Promise.all(ghostsToAnalyze.map(async (ghost) => {
-          const count = await fetchCheckInCount(ghost.id, auth);
-          return { id: ghost.id, count };
+          const [checkInCount, groupCount] = await Promise.all([
+             fetchCheckInCount(ghost.id, auth),
+             fetchGroupCount(ghost.id, auth)
+          ]);
+          return { id: ghost.id, checkInCount, groupCount };
       }));
 
       queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
@@ -158,7 +160,11 @@ function App() {
           const newStudents = oldData.students.map((s: Student) => {
               const update = updates.find(u => u.id === s.id);
               if (update) {
-                  return { ...s, checkInCount: update.count ?? 0 };
+                  return {
+                      ...s,
+                      checkInCount: update.checkInCount ?? 0,
+                      groupCount: update.groupCount ?? 0
+                  };
               }
               return s;
           });

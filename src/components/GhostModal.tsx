@@ -46,6 +46,11 @@ export const GhostModal: React.FC<GhostModalProps> = ({ isOpen, onClose, student
                                         {s.checkInCount} check-ins
                                     </span>
                                 )}
+                                {s.groupCount !== null && (
+                                    <span className="tag tag-regular" style={{backgroundColor: '#e0f7fa', color: '#006064'}}>
+                                        {s.groupCount} groups
+                                    </span>
+                                )}
                                 <span className="details">Last Seen: {s.lastCheckInAt ? new Date(s.lastCheckInAt).toLocaleDateString() : 'Never'}</span>
                             </div>
                         </div>
@@ -62,7 +67,7 @@ export const GhostModal: React.FC<GhostModalProps> = ({ isOpen, onClose, student
                 disabled={students.length === 0 || analyzing || isArchiving}
                 className="btn-secondary"
               >
-                {analyzing ? 'Analyzing...' : 'Analyze Check-ins'}
+                {analyzing ? 'Analyzing...' : 'Analyze Deeply'}
               </button>
           )}
           <button

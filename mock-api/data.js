@@ -3,6 +3,7 @@ import { addDays, eachWeekOfInterval, getDay, isSameWeek, setHours, setMinutes, 
 export const people = [];
 export const events = [];
 export const checkIns = [];
+export const groupMemberships = [];
 
 // --- Helpers ---
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -14,6 +15,7 @@ const maleNames = ['Liam', 'Noah', 'Oliver', 'Elijah', 'William', 'James', 'Benj
 
 let personIdCounter = 1;
 let checkInIdCounter = 1;
+let membershipIdCounter = 1;
 
 // --- Generators ---
 
@@ -182,7 +184,36 @@ const generateCheckIns = () => {
   });
 };
 
+// 4. Generate Group Memberships
+const generateGroupMemberships = () => {
+    // Groups are not explicitly modeled, but memberships are.
+    // Let's assume there are a few groups (e.g. Small Groups, Volunteer Teams)
+
+    // Assign random memberships to people
+    people.forEach(person => {
+        // 30% chance to be in a group
+        if (Math.random() < 0.3) {
+            // Can be in 1-3 groups
+            const count = randomInt(1, 3);
+            for(let i=0; i<count; i++) {
+                 groupMemberships.push({
+                    id: String(membershipIdCounter++),
+                    type: 'GroupMembership',
+                    attributes: {
+                        role: 'member'
+                    },
+                    relationships: {
+                        person: { data: { type: 'Person', id: person.id } },
+                        group: { data: { type: 'Group', id: String(randomInt(1, 5)) } } // Mock 5 groups
+                    }
+                });
+            }
+        }
+    });
+};
+
 // Execute
 generateHouseholds();
 generateEvents();
 generateCheckIns();
+generateGroupMemberships();
