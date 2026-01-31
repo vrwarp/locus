@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import api from './api';
-import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, PcoPerson } from './pco';
+import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, PcoPerson } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
+import { AxiosError } from 'axios';
 
 vi.mock('./api', () => {
     return {
@@ -314,4 +315,44 @@ describe('fetchAllPeople', () => {
         expect(result.nextUrl).toBe('http://api.pco/next');
         expect(api.get).toHaveBeenCalledTimes(1);
     });
+});
+
+describe('checkApiVersion', () => {
+  it('returns true on success', async () => {
+    (api.get as any).mockResolvedValue({ status: 200 });
+
+    const result = await checkApiVersion('token');
+
+    expect(result).toBe(true);
+    expect(api.get).toHaveBeenCalledWith(
+        '/api/people/v2/people',
+        {
+            params: { per_page: 1 },
+            headers: { Authorization: 'Basic token' }
+        }
+    );
+  });
+
+  it('throws Unauthorized error on 401', async () => {
+    const error = new AxiosError('Unauthorized');
+    error.response = { status: 401 } as any;
+    (api.get as any).mockRejectedValue(error);
+
+    await expect(checkApiVersion('token')).rejects.toThrow('Unauthorized: Invalid credentials.');
+  });
+
+  it('throws API Error on 404', async () => {
+    const error = new AxiosError('Not Found');
+    error.response = { status: 404 } as any;
+    (api.get as any).mockRejectedValue(error);
+
+    await expect(checkApiVersion('token')).rejects.toThrow('API Error: Version mismatch or endpoint not found.');
+  });
+
+  it('rethrows other errors', async () => {
+    const error = new Error('Network Error');
+    (api.get as any).mockRejectedValue(error);
+
+    await expect(checkApiVersion('token')).rejects.toThrow('Network Error');
+  });
 });

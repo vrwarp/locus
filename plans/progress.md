@@ -168,3 +168,13 @@
     - Created `src/utils/api.test.ts` to verify 429 handling, retry logic, and backoff.
     - Updated `src/utils/pco.test.ts` to mock the new `api` module instead of `axios` directly.
 - **Status:** Rate Limiting functional. Next steps: Deployment Setup, Startup Version Check.
+
+## Session 16
+- **Implemented:** Startup Version Check (Resilience).
+    - Added `checkApiVersion` to `src/utils/pco.ts` to verify API connectivity and version compatibility (checking `/api/people/v2/people`).
+    - Integrated startup check into `App.tsx` to validate credentials and connectivity before loading data.
+    - Added UI feedback ("Checking..." and Error states).
+- **Tests:**
+    - Updated `src/utils/pco.test.ts` to test `checkApiVersion` success and failure scenarios (401/404).
+    - Updated `src/App.test.tsx` to mock the startup check in integration tests and verify error handling.
+- **Status:** Startup Version Check functional. Next steps: Deployment Setup.

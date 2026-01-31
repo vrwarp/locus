@@ -1,4 +1,5 @@
 import { differenceInYears } from 'date-fns';
+import { AxiosError } from 'axios';
 import api from './api';
 import { calculateExpectedGrade } from './grader';
 import type { GraderOptions } from './grader';
@@ -151,4 +152,26 @@ export const fetchAllPeople = async (auth: string, url: string = '/api/people/v2
   }
 
   return { people: allPeople, nextUrl };
+};
+
+export const checkApiVersion = async (auth: string): Promise<boolean> => {
+  try {
+    await api.get('/api/people/v2/people', {
+      params: { per_page: 1 },
+      headers: {
+        Authorization: `Basic ${auth}`
+      }
+    });
+    return true;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      if (error.response?.status === 401) {
+        throw new Error('Unauthorized: Invalid credentials.');
+      }
+      if (error.response?.status === 404) {
+        throw new Error('API Error: Version mismatch or endpoint not found.');
+      }
+    }
+    throw error;
+  }
 };
