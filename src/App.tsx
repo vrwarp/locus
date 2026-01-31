@@ -6,7 +6,7 @@ import { ConfigModal } from './components/ConfigModal'
 import { GhostModal } from './components/GhostModal'
 import { UndoToast } from './components/UndoToast'
 import { RobertReport } from './components/RobertReport'
-import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount } from './utils/pco'
+import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount, checkApiVersion } from './utils/pco'
 import { isGhost } from './utils/ghost'
 import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot } from './utils/storage'
 import { saveToCache, loadFromCache } from './utils/cache'
@@ -24,6 +24,10 @@ function App() {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
+
+  // API Status state
+  const [apiStatus, setApiStatus] = useState<'idle' | 'checking' | 'ok' | 'error'>('idle');
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // State for report history
   const [healthHistory, setHealthHistory] = useState<HealthHistoryEntry[]>([]);
@@ -79,6 +83,30 @@ function App() {
       }
   }, []);
 
+  // Check API version/credentials
+  useEffect(() => {
+    if (appId && secret) {
+      const check = async () => {
+        setApiStatus('checking');
+        setApiError(null);
+        try {
+          const auth = btoa(`${appId}:${secret}`);
+          await checkApiVersion(auth);
+          setApiStatus('ok');
+        } catch (e: any) {
+          setApiStatus('error');
+          setApiError(e.message || 'Unknown API Error');
+        }
+      };
+      // Debounce slightly to avoid rapid checks while typing
+      const timer = setTimeout(check, 1000);
+      return () => clearTimeout(timer);
+    } else {
+        setApiStatus('idle');
+        setApiError(null);
+    }
+  }, [appId, secret]);
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['people', appId, secret, config],
     queryFn: async () => {
@@ -112,7 +140,7 @@ function App() {
 
       return { students, nextUrl, raw: people };
     },
-    enabled: !!appId && !!secret,
+    enabled: !!appId && !!secret && apiStatus === 'ok',
     retry: false
   })
 
@@ -360,9 +388,16 @@ function App() {
       </div>
 
       <div className="chart-section">
-          {isLoading && <p>Loading...</p>}
+          {apiStatus === 'checking' && <p>Checking PCO API connection...</p>}
+          {apiStatus === 'error' && (
+              <div style={{color: 'red', border: '1px solid red', padding: '10px', marginBottom: '10px'}}>
+                  {apiError}
+              </div>
+          )}
+
+          {isLoading && apiStatus === 'ok' && <p>Loading...</p>}
           {error && <p style={{color: 'red'}}>Error fetching data: {error.message}</p>}
-          {!isLoading && !error && students.length === 0 && appId && secret && <p>No data found or check credentials.</p>}
+          {!isLoading && !error && students.length === 0 && appId && secret && apiStatus === 'ok' && <p>No data found or check credentials.</p>}
 
           <GradeScatter
             data={students}

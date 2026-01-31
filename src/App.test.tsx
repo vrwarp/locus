@@ -7,6 +7,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Student } from './utils/pco';
 import * as storage from './utils/storage';
 import { saveToCache, loadFromCache } from './utils/cache';
+import * as pco from './utils/pco';
+
+// Mock pco (partial mock to override checkApiVersion)
+vi.mock('./utils/pco', async (importOriginal) => {
+    const actual = await importOriginal<typeof import('./utils/pco')>();
+    return {
+        ...actual,
+        checkApiVersion: vi.fn().mockResolvedValue(true),
+    };
+});
 
 // Mock dependencies
 // Replace axios mock with api mock
@@ -149,7 +159,7 @@ describe('App Integration', () => {
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 
-        await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument(), { timeout: 2500 });
         expect(screen.getByText('Problem Kid - Grade 4')).toBeInTheDocument();
 
         fireEvent.click(screen.getByTestId('student-1'));
@@ -181,7 +191,7 @@ describe('App Integration', () => {
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 
-        await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument(), { timeout: 2500 });
 
         fireEvent.click(screen.getByTestId('student-1'));
         fireEvent.click(screen.getByText('Fix'));
@@ -219,7 +229,7 @@ describe('App Integration', () => {
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 
-        await waitFor(() => expect(screen.getByTestId('student-2')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByTestId('student-2')).toBeInTheDocument(), { timeout: 2500 });
 
         // Switch to fake timers
         vi.useFakeTimers();
@@ -274,7 +284,7 @@ describe('App Integration', () => {
        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 
-       await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument());
+       await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument(), { timeout: 2500 });
 
        vi.useFakeTimers();
 
@@ -345,7 +355,7 @@ describe('App Integration', () => {
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 
-        await waitFor(() => expect(screen.getByTestId('student-3')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByTestId('student-3')).toBeInTheDocument(), { timeout: 2500 });
 
         fireEvent.click(screen.getByTestId('student-3'));
         expect(screen.getByTestId('smart-fix-modal')).toBeInTheDocument();
@@ -424,7 +434,7 @@ describe('App Integration', () => {
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 
-        await waitFor(() => expect(screen.getByTestId('student-g1')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByTestId('student-g1')).toBeInTheDocument(), { timeout: 2500 });
 
         fireEvent.click(screen.getByText('👻 Ghost Protocol'));
         expect(screen.getByTestId('ghost-modal')).toBeInTheDocument();
@@ -486,7 +496,7 @@ describe('App Integration', () => {
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 
-        await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument(), { timeout: 2500 });
 
         fireEvent.click(screen.getByText('📊 Report'));
         expect(screen.getByTestId('robert-report')).toBeInTheDocument();
@@ -516,7 +526,7 @@ describe('App Integration', () => {
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 
-        await waitFor(() => expect(screen.getByTestId('student-cached-1')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByTestId('student-cached-1')).toBeInTheDocument(), { timeout: 2500 });
 
         expect(loadFromCache).toHaveBeenCalledWith('people_v2_test-id', 'test-id', expect.any(Number));
         expect(api.get).not.toHaveBeenCalled();
@@ -564,7 +574,7 @@ describe('App Integration', () => {
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 
-        await waitFor(() => expect(screen.getByTestId('student-api-1')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByTestId('student-api-1')).toBeInTheDocument(), { timeout: 2500 });
 
         expect(loadFromCache).toHaveBeenCalled();
         expect(api.get).toHaveBeenCalled();
@@ -604,7 +614,7 @@ describe('App Integration', () => {
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 
         // Expect p1 through p5 to be present
-        await waitFor(() => expect(screen.getByTestId('student-p5')).toBeInTheDocument());
+        await waitFor(() => expect(screen.getByTestId('student-p5')).toBeInTheDocument(), { timeout: 2500 });
         expect(screen.getByTestId('student-p1')).toBeInTheDocument();
 
         // Expect p6 to NOT be present yet
@@ -619,5 +629,20 @@ describe('App Integration', () => {
 
         // Button should disappear as no next link in page 6
         await waitFor(() => expect(screen.queryByText('Load More Records')).not.toBeInTheDocument());
+    });
+
+    it('shows error when startup check fails', async () => {
+        // Mock checkApiVersion to fail
+        (pco.checkApiVersion as any).mockRejectedValue(new Error('API Version Mismatch'));
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByText('API Version Mismatch')).toBeInTheDocument(), { timeout: 2500 });
+
+        // Ensure data fetching was NOT attempted
+        expect(api.get).not.toHaveBeenCalled();
     });
 });
