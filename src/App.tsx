@@ -6,12 +6,13 @@ import { ConfigModal } from './components/ConfigModal'
 import { GhostModal } from './components/GhostModal'
 import { UndoToast } from './components/UndoToast'
 import { RobertReport } from './components/RobertReport'
+import { GamificationWidget } from './components/GamificationWidget'
 import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount, checkApiVersion } from './utils/pco'
 import { isGhost } from './utils/ghost'
-import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot } from './utils/storage'
+import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot, loadGamificationState, saveGamificationState, updateGamificationState } from './utils/storage'
 import { saveToCache, loadFromCache } from './utils/cache'
 import { calculateHealthStats } from './utils/analytics'
-import type { AppConfig, HealthHistoryEntry } from './utils/storage'
+import type { AppConfig, HealthHistoryEntry, GamificationState } from './utils/storage'
 import type { Student, PcoPerson } from './utils/pco'
 import './App.css'
 
@@ -33,6 +34,14 @@ function App() {
   const [healthHistory, setHealthHistory] = useState<HealthHistoryEntry[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
+  // State for gamification
+  const [gamificationState, setGamificationState] = useState<GamificationState>({
+      lastActiveDate: '',
+      currentStreak: 0,
+      dailyFixes: 0,
+      totalFixes: 0
+  });
+
   // Pending update state for UI (Toast)
   const [pendingUpdateUI, setPendingUpdateUI] = useState<{ original: Student, updated: Student } | null>(null)
 
@@ -40,6 +49,7 @@ function App() {
   const pendingUpdateRef = useRef<{
     original: Student,
     updated: Student,
+    prevGamificationState: GamificationState,
     timer: ReturnType<typeof setTimeout>
   } | null>(null);
 
@@ -55,6 +65,8 @@ function App() {
         setConfig(loadedConfig);
         const loadedHistory = await loadHealthHistory(appId);
         setHealthHistory(loadedHistory);
+        const loadedGamification = await loadGamificationState(appId);
+        setGamificationState(loadedGamification);
       } catch (e) {
         console.error("Error loading config/history", e);
       }
@@ -295,6 +307,13 @@ function App() {
     const originalStudent = students.find(s => s.id === updatedStudent.id);
     if (!originalStudent) return;
 
+    // Update gamification state optimistically
+    const prevGamificationState = gamificationState;
+    const newGamificationState = updateGamificationState(gamificationState);
+    setGamificationState(newGamificationState);
+    // Persist gamification state (fire and forget - but if undo happens we will revert via UI state, persistence might need revert too but it's minor)
+    saveGamificationState(newGamificationState, appId);
+
     // Optimistically update the cache
     queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
         if (!oldData) return oldData
@@ -303,7 +322,7 @@ function App() {
     })
 
     // 2. Set up new pending update
-    const newPending = { original: originalStudent, updated: updatedStudent };
+    const newPending = { original: originalStudent, updated: updatedStudent, prevGamificationState };
 
     const timer = setTimeout(() => {
         // Prevent undo while committing
@@ -329,6 +348,10 @@ function App() {
         const newStudents = oldData.students.map((s: Student) => s.id === current.original.id ? current.original : s);
         return { ...oldData, students: newStudents };
       });
+
+      // Revert gamification
+      setGamificationState(current.prevGamificationState);
+      saveGamificationState(current.prevGamificationState, appId);
 
       pendingUpdateRef.current = null;
       setPendingUpdateUI(null);
@@ -358,7 +381,15 @@ function App() {
           </div>
       )}
       <div className="header" style={config.sandboxMode ? {marginTop: '40px'} : {}}>
-        <h1>Locus</h1>
+        <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
+            <h1>Locus</h1>
+            {appId && (
+                <GamificationWidget
+                    streak={gamificationState.currentStreak}
+                    dailyFixes={gamificationState.dailyFixes}
+                />
+            )}
+        </div>
         <div style={{display: 'flex', gap: '1rem'}}>
             <button onClick={() => setIsReportOpen(true)} className="settings-btn">
                  📊 Report

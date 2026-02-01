@@ -36,6 +36,9 @@ vi.mock('./utils/storage', () => ({
   saveConfig: vi.fn().mockResolvedValue(undefined),
   loadHealthHistory: vi.fn().mockResolvedValue([]),
   saveHealthSnapshot: vi.fn().mockResolvedValue(undefined),
+  loadGamificationState: vi.fn().mockResolvedValue({ currentStreak: 0, dailyFixes: 0, totalFixes: 0, lastActiveDate: '' }),
+  saveGamificationState: vi.fn().mockResolvedValue(undefined),
+  updateGamificationState: vi.fn((state) => ({ ...state, currentStreak: state.currentStreak + 1, dailyFixes: state.dailyFixes + 1 })),
 }));
 
 // Mock cache
@@ -113,6 +116,13 @@ vi.mock('./components/RobertReport', () => ({
   ) : null
 }));
 
+// Mock GamificationWidget to avoid CSS import issues in test environment if any
+vi.mock('./components/GamificationWidget', () => ({
+  GamificationWidget: ({ streak, dailyFixes }: any) => (
+    <div data-testid="gamification-widget">Streak: {streak}, Daily: {dailyFixes}</div>
+  )
+}));
+
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
@@ -132,6 +142,8 @@ describe('App Integration', () => {
         vi.useRealTimers();
         // Mock alert
         window.alert = vi.fn();
+        // Reset checkApiVersion to success by default
+        (pco.checkApiVersion as any).mockResolvedValue(true);
     });
 
     afterEach(() => {
@@ -644,5 +656,36 @@ describe('App Integration', () => {
 
         // Ensure data fetching was NOT attempted
         expect(api.get).not.toHaveBeenCalled();
+    });
+
+    it('updates gamification state when a student is fixed', async () => {
+        (api.get as any).mockResolvedValue({
+            data: {
+                data: [{
+                    id: 'g1',
+                    type: 'Person',
+                    attributes: { birthdate: '2014-01-01', grade: 4, name: 'Gamer Kid' }
+                }]
+            }
+        });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-g1')).toBeInTheDocument(), { timeout: 2500 });
+
+        // Initial state loaded (mocked as 0)
+        expect(storage.loadGamificationState).toHaveBeenCalled();
+
+        fireEvent.click(screen.getByTestId('student-g1'));
+        fireEvent.click(screen.getByText('Fix'));
+
+        await waitFor(() => expect(storage.updateGamificationState).toHaveBeenCalled());
+        expect(storage.saveGamificationState).toHaveBeenCalledWith(
+            expect.objectContaining({ currentStreak: 1 }), // Mock increments by 1
+            'test-id'
+        );
     });
 });

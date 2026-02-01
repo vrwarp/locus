@@ -1,0 +1,71 @@
+.gamification-widget {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.streak-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: bold;
+}
+
+.streak-icon {
+  font-size: 1.2em;
+}
+
+.daily-goal-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 100px;
+}
+
+.daily-goal-label {
+  font-size: 0.7em;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #4CAF50; /* Green */
+  border-radius: 3px;
+  transition: width 0.3s ease-in-out;
+}
+
+.progress-bar-fill.complete {
+  background-color: #FFD700; /* Gold */
+  box-shadow: 0 0 10px #FFD700;
+}
+
+/* High Contrast Mode Override */
+body.high-contrast .gamification-widget {
+    background-color: #000;
+    border: 2px solid #0ff;
+    color: #0ff;
+}
+
+body.high-contrast .progress-bar-fill {
+    background-color: #0ff;
+}
+
+body.high-contrast .progress-bar-fill.complete {
+    background-color: #f0f;
+}
