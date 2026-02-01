@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { loadConfig, saveConfig, AppConfig, loadHealthHistory, saveHealthSnapshot, HealthHistoryEntry } from './storage';
+import { loadConfig, saveConfig, AppConfig, loadHealthHistory, saveHealthSnapshot, HealthHistoryEntry, GamificationState, updateGamificationState } from './storage';
 import type { HealthStats } from './analytics';
 import * as cryptoUtils from './crypto';
 
@@ -144,6 +144,50 @@ describe('Storage Utils', () => {
 
         const history = await loadHealthHistory(appId);
         expect(history).toEqual([]);
+    });
+  });
+
+  describe('Gamification State', () => {
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const longAgoStr = '2020-01-01';
+
+    it('updateGamificationState starts new streak if empty', () => {
+        const state: GamificationState = { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0 };
+        const newState = updateGamificationState(state);
+        expect(newState.currentStreak).toBe(1);
+        expect(newState.dailyFixes).toBe(1);
+        expect(newState.totalFixes).toBe(1);
+        expect(newState.lastActiveDate).toBe(today);
+    });
+
+    it('updateGamificationState increments streak if last active yesterday', () => {
+        const state: GamificationState = { lastActiveDate: yesterdayStr, currentStreak: 5, dailyFixes: 10, totalFixes: 100 };
+        const newState = updateGamificationState(state);
+        expect(newState.currentStreak).toBe(6);
+        expect(newState.dailyFixes).toBe(1); // Resets daily
+        expect(newState.totalFixes).toBe(101);
+        expect(newState.lastActiveDate).toBe(today);
+    });
+
+    it('updateGamificationState increments daily fixes if last active today', () => {
+        const state: GamificationState = { lastActiveDate: today, currentStreak: 5, dailyFixes: 10, totalFixes: 100 };
+        const newState = updateGamificationState(state);
+        expect(newState.currentStreak).toBe(5); // Streak stays same for same day
+        expect(newState.dailyFixes).toBe(11);
+        expect(newState.totalFixes).toBe(101);
+        expect(newState.lastActiveDate).toBe(today);
+    });
+
+    it('updateGamificationState resets streak if broken', () => {
+        const state: GamificationState = { lastActiveDate: longAgoStr, currentStreak: 5, dailyFixes: 10, totalFixes: 100 };
+        const newState = updateGamificationState(state);
+        expect(newState.currentStreak).toBe(1);
+        expect(newState.dailyFixes).toBe(1);
+        expect(newState.totalFixes).toBe(101);
+        expect(newState.lastActiveDate).toBe(today);
     });
   });
 });
