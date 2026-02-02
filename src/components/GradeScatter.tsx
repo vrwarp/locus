@@ -112,8 +112,10 @@ export const GradeScatter = ({ data, onPointClick, colorblindMode }: GradeScatte
     <YAxis
       type="number"
       dataKey="pcoGrade"
-      name="Recorded Grade"
-      domain={['auto', 'auto']}
+      name="Grade"
+      domain={[-1, 12]}
+      allowDataOverflow={true}
+      label={{ value: 'Grade', angle: -90, position: 'insideLeft', fill: 'var(--chart-text-color)' }}
       tick={{ fill: 'var(--chart-text-color)' }}
       stroke="var(--chart-grid-color)"
     />
