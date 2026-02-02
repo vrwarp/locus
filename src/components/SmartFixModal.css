@@ -15,7 +15,7 @@
   background: white;
   padding: 20px;
   border-radius: 8px;
-  min-width: 300px;
+  min-width: 350px; /* Slightly wider for slider */
   max-width: 500px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   text-align: left;
@@ -47,8 +47,176 @@
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .btn-fix:hover {
   background: #218838;
+}
+
+/* New Styles for Magnetic Slider */
+
+.grade-comparison {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.grade-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border-radius: 6px;
+  min-width: 80px;
+}
+
+.grade-box.current {
+  border: 1px solid #ccc;
+  background: white;
+}
+
+.grade-box.target {
+  border: 2px solid #007bff;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.grade-box.target.match {
+  border-color: #28a745;
+  background-color: #e8f5e9;
+  transform: scale(1.05);
+}
+
+.grade-box .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.grade-box .value {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.arrow {
+  font-size: 24px;
+  color: #999;
+}
+
+.slider-container {
+  margin: 24px 0;
+  text-align: center;
+  padding: 0 10px;
+}
+
+.magnetic-slider {
+  width: 100%;
+  margin: 15px 0;
+  -webkit-appearance: none;
+  height: 8px;
+  background: #d3d3d3;
+  outline: none;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.magnetic-slider.matched {
+  background: #28a745;
+}
+
+.magnetic-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.magnetic-slider.matched::-webkit-slider-thumb {
+  background: #28a745;
+  transform: scale(1.2);
+  box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.2);
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+}
+
+.match-indicator {
+  opacity: 0;
+  color: #28a745;
+  font-weight: bold;
+  transition: opacity 0.3s;
+}
+
+.match-indicator.visible {
+  opacity: 1;
+}
+
+.discrepancy-info {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.success-text {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.warning-text {
+  color: #ff9800; /* Or anomaly color variable */
+  font-weight: bold;
+}
+
+/* High Contrast Override Support */
+body.high-contrast .grade-comparison {
+    background-color: #333;
+    border-color: #555;
+}
+body.high-contrast .grade-box.current {
+    background-color: black;
+    color: white;
+}
+body.high-contrast .grade-box.target {
+    background-color: black;
+    color: white;
+    border-color: cyan;
+}
+body.high-contrast .grade-box.target.match {
+    border-color: lime;
+    background-color: #002200;
+}
+body.high-contrast .modal-content {
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+}
+body.high-contrast .magnetic-slider {
+    background: #555;
+}
+body.high-contrast .magnetic-slider.matched {
+    background: lime;
+}
+body.high-contrast .magnetic-slider::-webkit-slider-thumb {
+    background: cyan;
+}
+body.high-contrast .magnetic-slider.matched::-webkit-slider-thumb {
+    background: lime;
 }
