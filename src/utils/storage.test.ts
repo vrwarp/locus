@@ -106,6 +106,23 @@ describe('Storage Utils', () => {
     expect(loaded.colorblindMode).toBe(true);
   });
 
+  it('saves and loads muteSounds', async () => {
+    const config: AppConfig = {
+        graderOptions: {},
+        muteSounds: true
+    };
+    const encryptedData = 'enc-mute-sounds';
+    vi.mocked(cryptoUtils.encryptData).mockResolvedValue(encryptedData);
+    vi.mocked(cryptoUtils.decryptData).mockResolvedValue(config);
+
+    await saveConfig(config, appId);
+    expect(mockSetItem).toHaveBeenCalledWith('locus_config', encryptedData);
+
+    mockGetItem.mockReturnValue(encryptedData);
+    const loaded = await loadConfig(appId);
+    expect(loaded.muteSounds).toBe(true);
+  });
+
   describe('Health History', () => {
     it('returns empty array if no history', async () => {
         mockGetItem.mockReturnValue(null);

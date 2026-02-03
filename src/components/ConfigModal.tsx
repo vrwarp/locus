@@ -20,6 +20,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [sandboxMode, setSandboxMode] = useState(false);
   const [colorblindMode, setColorblindMode] = useState(false);
+  const [muteSounds, setMuteSounds] = useState(false);
 
   // Load current config when modal opens
   useEffect(() => {
@@ -29,6 +30,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         setHighContrastMode(currentConfig.highContrastMode ?? false);
         setSandboxMode(currentConfig.sandboxMode ?? false);
         setColorblindMode(currentConfig.colorblindMode ?? false);
+        setMuteSounds(currentConfig.muteSounds ?? false);
     }
   }, [isOpen, currentConfig]);
 
@@ -40,6 +42,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         highContrastMode,
         sandboxMode,
         colorblindMode,
+        muteSounds,
         graderOptions: {
             ...currentConfig.graderOptions,
             cutoffMonth,
@@ -119,6 +122,20 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
             </label>
             <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
                 Enable simulation mode. Changes will not be saved to PCO.
+            </p>
+        </div>
+
+        <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input
+                    type="checkbox"
+                    checked={muteSounds}
+                    onChange={(e) => setMuteSounds(e.target.checked)}
+                />
+                Mute Sounds
+            </label>
+            <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
+                Disable audio effects and accessibility tones.
             </p>
         </div>
 

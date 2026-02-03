@@ -105,4 +105,40 @@ describe('ConfigModal', () => {
    const checkbox = screen.getByLabelText('Colorblind Mode');
    expect(checkbox).toBeChecked();
  });
+
+  it('toggles Mute Sounds and saves', () => {
+    render(
+      <ConfigModal
+        isOpen={true}
+        currentConfig={mockConfig}
+        onSave={mockOnSave}
+        onClose={mockOnClose}
+      />
+    );
+
+    const checkbox = screen.getByLabelText('Mute Sounds');
+    expect(checkbox).not.toBeChecked();
+
+    fireEvent.click(checkbox);
+    expect(checkbox).toBeChecked();
+
+    fireEvent.click(screen.getByText('Save Settings'));
+
+    expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
+        muteSounds: true
+    }));
+  });
+
+  it('loads existing Mute Sounds setting', () => {
+    render(
+     <ConfigModal
+       isOpen={true}
+       currentConfig={{ ...mockConfig, muteSounds: true }}
+       onSave={mockOnSave}
+       onClose={mockOnClose}
+     />
+   );
+   const checkbox = screen.getByLabelText('Mute Sounds');
+   expect(checkbox).toBeChecked();
+ });
 });

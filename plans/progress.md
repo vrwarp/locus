@@ -200,3 +200,16 @@
     - Updated `src/components/SmartFixModal.test.tsx` to verify slider interactions, default values, and `onSave` logic.
     - Verified full integration test suite passes (104 tests) ensuring no regressions in the main app flow.
 - **Status:** Magnetic Correction functional. Next steps: Deployment Setup.
+
+## Session 19
+- **Implemented:** Audio Charts (Accessibility).
+    - Created `src/utils/audio.ts` to map grades to musical frequencies and play tones using the Web Audio API.
+    - Updated `GradeScatter` to play a tone when hovering over data points (mapped to grade pitch).
+    - Added "Mute Sounds" toggle to `ConfigModal` and persisted it in `AppConfig` via `localStorage`.
+    - Integrated mute setting into `App.tsx` and `GradeScatter`.
+- **Tests:**
+    - Created `src/utils/audio.test.ts` to verify frequency mapping and AudioContext interactions.
+    - Updated `src/components/ConfigModal.test.tsx` to verify "Mute Sounds" toggle.
+    - Updated `src/components/GradeScatter.test.tsx` to verify audio playback on hover (and silence when muted).
+    - Updated `src/utils/storage.test.ts` to verify persistence of the new flag.
+- **Status:** Audio Charts functional. Next steps: Deployment Setup.

@@ -434,6 +434,7 @@ function App() {
             data={students}
             onPointClick={setSelectedStudent}
             colorblindMode={config.colorblindMode}
+            muteSounds={config.muteSounds}
           />
 
           {nextUrl && !isLoading && (
