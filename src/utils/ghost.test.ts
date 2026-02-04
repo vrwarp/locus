@@ -13,6 +13,7 @@ const mockStudent: Student = {
     delta: 0,
     lastCheckInAt: null,
     checkInCount: null,
+    groupCount: null,
 };
 
 describe('isGhost', () => {
@@ -34,5 +35,20 @@ describe('isGhost', () => {
         const customConfig = { ...DEFAULT_GHOST_CONFIG, checkInThresholdMonths: 10 };
         const borderlineDate = format(subMonths(new Date(), 11), 'yyyy-MM-dd'); // 11 > 10, so ghost
         expect(isGhost({ ...mockStudent, lastCheckInAt: borderlineDate }, customConfig)).toBe(true);
+    });
+
+    it('does not identify student with groups as ghost (even if old check-in)', () => {
+        const oldDate = format(subMonths(new Date(), 25), 'yyyy-MM-dd');
+        expect(isGhost({ ...mockStudent, lastCheckInAt: oldDate, groupCount: 1 })).toBe(false);
+    });
+
+    it('identifies student with no groups and old check-in as ghost', () => {
+        const oldDate = format(subMonths(new Date(), 25), 'yyyy-MM-dd');
+        expect(isGhost({ ...mockStudent, lastCheckInAt: oldDate, groupCount: 0 })).toBe(true);
+    });
+
+    it('identifies student with null groups and old check-in as ghost (potential)', () => {
+        const oldDate = format(subMonths(new Date(), 25), 'yyyy-MM-dd');
+        expect(isGhost({ ...mockStudent, lastCheckInAt: oldDate, groupCount: null })).toBe(true);
     });
 });

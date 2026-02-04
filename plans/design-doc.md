@@ -28,6 +28,7 @@ interface Student {
   delta: number; // calculatedGrade - (pcoGrade + 5)
   lastCheckInAt: string | null;
   checkInCount: number | null; // Fetched lazily from Check-Ins API
+  groupCount: number | null; // Fetched lazily from Groups API
 }
 ```
 

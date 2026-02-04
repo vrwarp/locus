@@ -3,6 +3,8 @@ import { addDays, eachWeekOfInterval, getDay, isSameWeek, setHours, setMinutes, 
 export const people = [];
 export const events = [];
 export const checkIns = [];
+export const groups = [];
+export const groupMemberships = [];
 
 // --- Helpers ---
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -182,7 +184,49 @@ const generateCheckIns = () => {
   });
 };
 
+// 4. Generate Groups
+const generateGroups = () => {
+  groups.push(
+    { id: '1', type: 'Group', attributes: { name: 'Kids Choir' } },
+    { id: '2', type: 'Group', attributes: { name: 'Youth Band' } },
+    { id: '3', type: 'Group', attributes: { name: 'Small Group Leaders' } }
+  );
+
+  let membershipIdCounter = 1;
+
+  // Assign some kids to Kids Choir
+  const kids = people.filter(p => p.attributes.child);
+  kids.forEach(kid => {
+    if (Math.random() < 0.3) {
+      groupMemberships.push({
+        id: String(membershipIdCounter++),
+        type: 'GroupMembership',
+        relationships: {
+          person: { data: { type: 'Person', id: kid.id } },
+          group: { data: { type: 'Group', id: '1' } }
+        }
+      });
+    }
+  });
+
+  // Assign some adults to Small Group Leaders
+  const adults = people.filter(p => !p.attributes.child);
+  adults.forEach(adult => {
+    if (Math.random() < 0.2) {
+      groupMemberships.push({
+        id: String(membershipIdCounter++),
+        type: 'GroupMembership',
+        relationships: {
+          person: { data: { type: 'Person', id: adult.id } },
+          group: { data: { type: 'Group', id: '3' } }
+        }
+      });
+    }
+  });
+};
+
 // Execute
 generateHouseholds();
 generateEvents();
 generateCheckIns();
+generateGroups();

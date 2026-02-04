@@ -46,6 +46,7 @@ export interface Student {
   delta: number;
   lastCheckInAt: string | null;
   checkInCount: number | null;
+  groupCount: number | null;
   avatarUrl?: string;
 }
 
@@ -80,6 +81,7 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     delta,
     lastCheckInAt: (last_checked_in_at as string) || null,
     checkInCount: null, // Fetched lazily
+    groupCount: null, // Fetched lazily
     avatarUrl: (avatar as string) || undefined,
   };
 };
@@ -127,6 +129,25 @@ export const fetchCheckInCount = async (id: string, auth: string): Promise<numbe
         return response.data.data.attributes.check_in_count;
     } catch (error) {
         console.error('Failed to fetch check-in count for person', id, error);
+        return null;
+    }
+};
+
+export const fetchGroupCount = async (id: string, auth: string): Promise<number | null> => {
+    try {
+        // PCO Groups API structure for memberships
+        // We use the simulator endpoint or real proxy
+        const response = await api.get<{ meta: { total_count: number } }>(
+            `/groups/v2/people/${id}/memberships`,
+            {
+                headers: {
+                    Authorization: `Basic ${auth}`
+                }
+            }
+        );
+        return response.data.meta.total_count;
+    } catch (error) {
+        console.error('Failed to fetch group count for person', id, error);
         return null;
     }
 };

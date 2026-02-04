@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import api from './api';
-import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, PcoPerson } from './pco';
+import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, fetchGroupCount, checkApiVersion, PcoPerson } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
 import { AxiosError } from 'axios';
@@ -52,6 +52,7 @@ describe('transformPerson', () => {
       delta: expectedGrade - 4,
       lastCheckInAt: null,
       checkInCount: null,
+      groupCount: null,
       avatarUrl: undefined
     });
   });
@@ -238,6 +239,27 @@ describe('fetchCheckInCount', () => {
     it('returns null on failure', async () => {
         (api.get as any).mockRejectedValue(new Error('Failed'));
         const count = await fetchCheckInCount('123', 'token');
+        expect(count).toBeNull();
+    });
+});
+
+describe('fetchGroupCount', () => {
+    it('fetches group count successfully', async () => {
+        (api.get as any).mockResolvedValue({
+            data: { meta: { total_count: 5 } }
+        });
+
+        const count = await fetchGroupCount('123', 'token');
+        expect(count).toBe(5);
+        expect(api.get).toHaveBeenCalledWith(
+            '/groups/v2/people/123/memberships',
+            expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Basic token' }) })
+        );
+    });
+
+    it('returns null on failure', async () => {
+        (api.get as any).mockRejectedValue(new Error('Failed'));
+        const count = await fetchGroupCount('123', 'token');
         expect(count).toBeNull();
     });
 });
