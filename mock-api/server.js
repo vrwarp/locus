@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { people, events, checkIns } from './data.js';
+import { people, events, checkIns, groups, groupMemberships } from './data.js';
 import { fileURLToPath } from 'url';
 
 export const app = express();
@@ -14,14 +14,18 @@ app.use(express.json({ type: ['application/json', 'application/vnd.api+json'] })
 let db = {
   people: JSON.parse(JSON.stringify(people)),
   events: JSON.parse(JSON.stringify(events)),
-  checkIns: JSON.parse(JSON.stringify(checkIns))
+  checkIns: JSON.parse(JSON.stringify(checkIns)),
+  groups: JSON.parse(JSON.stringify(groups)),
+  groupMemberships: JSON.parse(JSON.stringify(groupMemberships))
 };
 
 export const resetDb = () => {
   db = {
     people: JSON.parse(JSON.stringify(people)),
     events: JSON.parse(JSON.stringify(events)),
-    checkIns: JSON.parse(JSON.stringify(checkIns))
+    checkIns: JSON.parse(JSON.stringify(checkIns)),
+    groups: JSON.parse(JSON.stringify(groups)),
+    groupMemberships: JSON.parse(JSON.stringify(groupMemberships))
   };
 };
 
@@ -123,6 +127,28 @@ app.get('/check-ins/v2/events', (req, res) => {
     data: paginated,
     meta: {
       total_count: db.events.length,
+      count: paginated.length,
+      can_include: [],
+      parent: {}
+    }
+  });
+});
+
+// Groups API
+app.get('/groups/v2/people/:person_id/memberships', (req, res) => {
+  const personId = req.params.person_id;
+  // Filter memberships
+  const memberships = db.groupMemberships.filter(m =>
+    m.relationships?.person?.data?.id === personId
+  );
+
+  const { paginated, links } = paginate(req, memberships);
+
+  res.json({
+    links,
+    data: paginated,
+    meta: {
+      total_count: memberships.length,
       count: paginated.length,
       can_include: [],
       parent: {}

@@ -213,3 +213,17 @@
     - Updated `src/components/GradeScatter.test.tsx` to verify audio playback on hover (and silence when muted).
     - Updated `src/utils/storage.test.ts` to verify persistence of the new flag.
 - **Status:** Audio Charts functional. Next steps: Deployment Setup.
+
+## Session 20
+- **Implemented:** Full Ghost Protocol Logic (Check-ins + Groups).
+    - Enhanced `mock-api/data.js` to generate Groups and Memberships.
+    - Updated `mock-api/server.js` to expose `/groups/v2/people/:id/memberships` endpoint.
+    - Updated `Student` model and `src/utils/pco.ts` to include `groupCount` and `fetchGroupCount`.
+    - Refined `isGhost` in `src/utils/ghost.ts` to exclude students with active group memberships (Logic: `LastCheckIn > 24m` AND `Groups == 0`).
+    - Updated `App.tsx` and `GhostModal.tsx` to "Analyze Deeply" by fetching both check-ins and groups, and displaying group counts.
+- **Tests:**
+    - Updated `src/utils/pco.test.ts` to test `fetchGroupCount`.
+    - Updated `src/utils/ghost.test.ts` to verify the new logic with group counts.
+    - Updated `src/App.test.tsx` to verify the "Analyze Deeply" flow including group checks.
+    - Verified all tests pass (119 unit/integration, 4 E2E).
+- **Status:** Ghost Protocol fully functional per PRD. Next steps: Deployment Setup.

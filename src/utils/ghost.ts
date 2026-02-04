@@ -19,5 +19,10 @@ export const isGhost = (student: Student, config: GhostConfig = DEFAULT_GHOST_CO
   const monthsSinceCheckIn = differenceInMonths(new Date(), new Date(student.lastCheckInAt));
   if (monthsSinceCheckIn <= config.checkInThresholdMonths) return false;
 
+  // If they are in a group, they are not a ghost (Active Community Member)
+  if (student.groupCount !== null && student.groupCount > 0) {
+    return false;
+  }
+
   return true;
 };

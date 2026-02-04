@@ -100,7 +100,7 @@ vi.mock('./components/GhostModal', () => ({
   GhostModal: ({ isOpen, onArchive, onAnalyze, onClose, students }: any) => isOpen ? (
     <div data-testid="ghost-modal">
         <p>Found {students.length} ghosts</p>
-        <button onClick={() => onAnalyze && onAnalyze(students)}>Analyze Check-ins</button>
+        <button onClick={() => onAnalyze && onAnalyze(students)}>Analyze Deeply</button>
         <button onClick={() => onArchive(students)}>Archive All</button>
         <button onClick={onClose}>Close</button>
     </div>
@@ -458,14 +458,22 @@ describe('App Integration', () => {
             if (url.includes('/api/check-ins/v2/people/g1')) {
                 return Promise.resolve({ data: { data: { attributes: { check_in_count: 3 } } } });
             }
+            if (url.includes('/groups/v2/people/g1/memberships')) {
+                 return Promise.resolve({ data: { meta: { total_count: 0 } } });
+            }
             return Promise.resolve({ data: { data: [] } }); // Default for people
         });
 
-        const analyzeBtn = screen.getByText('Analyze Check-ins');
+        const analyzeBtn = screen.getByText('Analyze Deeply');
         fireEvent.click(analyzeBtn);
 
         await waitFor(() => expect(api.get).toHaveBeenCalledWith(
             expect.stringContaining('/api/check-ins/v2/people/g1'),
+            expect.any(Object)
+        ));
+
+        await waitFor(() => expect(api.get).toHaveBeenCalledWith(
+            expect.stringContaining('/groups/v2/people/g1/memberships'),
             expect.any(Object)
         ));
 

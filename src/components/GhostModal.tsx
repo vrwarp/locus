@@ -29,7 +29,7 @@ export const GhostModal: React.FC<GhostModalProps> = ({ isOpen, onClose, student
         <h2>Ghost Protocol</h2>
         <p>{students.length} potential ghosts detected.</p>
         <p className="description">
-            These records meet the criteria for archival (Inactive &gt; 24m).
+            These records meet the criteria for archival (Inactive &gt; 24m AND No Groups).
         </p>
 
         <div className="ghost-list">
@@ -44,6 +44,11 @@ export const GhostModal: React.FC<GhostModalProps> = ({ isOpen, onClose, student
                                 {s.checkInCount !== null && (
                                     <span className={`tag ${s.checkInCount > 5 ? 'tag-regular' : 'tag-visitor'}`}>
                                         {s.checkInCount} check-ins
+                                    </span>
+                                )}
+                                {s.groupCount !== null && (
+                                    <span className="tag tag-visitor">
+                                        {s.groupCount} groups
                                     </span>
                                 )}
                                 <span className="details">Last Seen: {s.lastCheckInAt ? new Date(s.lastCheckInAt).toLocaleDateString() : 'Never'}</span>
@@ -62,7 +67,7 @@ export const GhostModal: React.FC<GhostModalProps> = ({ isOpen, onClose, student
                 disabled={students.length === 0 || analyzing || isArchiving}
                 className="btn-secondary"
               >
-                {analyzing ? 'Analyzing...' : 'Analyze Check-ins'}
+                {analyzing ? 'Analyzing...' : 'Analyze Deeply'}
               </button>
           )}
           <button
