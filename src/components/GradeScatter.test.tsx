@@ -2,6 +2,13 @@ import { render, fireEvent, screen } from '@testing-library/react';
 import { GradeScatter, CustomTooltip } from './GradeScatter';
 import { describe, it, expect, vi } from 'vitest';
 import { Student } from '../utils/pco';
+import * as audioUtils from '../utils/audio';
+
+// Mock Audio Utils
+vi.mock('../utils/audio', () => ({
+    getFrequencyForGrade: vi.fn((grade) => grade * 100),
+    playTone: vi.fn(),
+}));
 
 // Mock ResizeObserver for Recharts
 global.ResizeObserver = class ResizeObserver {
@@ -146,5 +153,27 @@ describe('GradeScatter Component', () => {
 
       expect(screen.getByText('T')).toBeInTheDocument(); // Initials for Test Kid
       expect(screen.queryByRole('img')).not.toBeInTheDocument();
+  });
+
+  it('plays a tone on hover when sound is enabled', () => {
+    const { container } = render(<GradeScatter data={mockData} muteSounds={false} />);
+    const symbol = container.querySelector('.recharts-scatter-symbol');
+
+    if (symbol) {
+        fireEvent.mouseEnter(symbol);
+        expect(audioUtils.getFrequencyForGrade).toHaveBeenCalledWith(2); // Grade 2
+        expect(audioUtils.playTone).toHaveBeenCalled();
+    }
+  });
+
+  it('does NOT play a tone on hover when sound is muted', () => {
+    vi.clearAllMocks();
+    const { container } = render(<GradeScatter data={mockData} muteSounds={true} />);
+    const symbol = container.querySelector('.recharts-scatter-symbol');
+
+    if (symbol) {
+        fireEvent.mouseEnter(symbol);
+        expect(audioUtils.playTone).not.toHaveBeenCalled();
+    }
   });
 });

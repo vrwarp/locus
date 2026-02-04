@@ -1,10 +1,12 @@
 import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ReferenceLine, Cell } from 'recharts';
 import type { Student } from '../utils/pco';
+import { getFrequencyForGrade, playTone } from '../utils/audio';
 
 interface GradeScatterProps {
   data: Student[];
   onPointClick?: (student: Student) => void;
   colorblindMode?: boolean;
+  muteSounds?: boolean;
 }
 
 export const CustomTooltip = ({ active, payload }: any) => {
@@ -94,7 +96,7 @@ const CustomShape = (props: any) => {
     return <circle cx={cx} cy={cy} r={5} fill={fill} />;
 };
 
-export const GradeScatter = ({ data, onPointClick, colorblindMode }: GradeScatterProps) => (
+export const GradeScatter = ({ data, onPointClick, colorblindMode, muteSounds }: GradeScatterProps) => (
   <ScatterChart
     width={800}
     height={600}
@@ -133,6 +135,13 @@ export const GradeScatter = ({ data, onPointClick, colorblindMode }: GradeScatte
         if (onPointClick && dataPoint && dataPoint.payload) {
           onPointClick(dataPoint.payload as Student);
         }
+      }}
+      onMouseEnter={(dataPoint: any) => {
+          const grade = dataPoint.pcoGrade ?? dataPoint.payload?.pcoGrade;
+          if (!muteSounds && grade !== undefined) {
+              const frequency = getFrequencyForGrade(grade);
+              playTone(frequency);
+          }
       }}
     >
       {data.map((entry, index) => (

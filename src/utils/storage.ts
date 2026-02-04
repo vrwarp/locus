@@ -7,6 +7,7 @@ export interface AppConfig {
   highContrastMode?: boolean;
   sandboxMode?: boolean;
   colorblindMode?: boolean;
+  muteSounds?: boolean;
 }
 
 export interface HealthHistoryEntry {
