@@ -107,6 +107,15 @@ vi.mock('./components/GhostModal', () => ({
   ) : null
 }));
 
+vi.mock('./components/FamilyModal', () => ({
+  FamilyModal: ({ isOpen, onClose, issues }: any) => isOpen ? (
+    <div data-testid="family-modal">
+        <p>Found {issues.length} anomalies</p>
+        <button onClick={onClose}>Close</button>
+    </div>
+  ) : null
+}));
+
 vi.mock('./components/RobertReport', () => ({
   RobertReport: ({ isOpen, stats, onClose }: any) => isOpen ? (
     <div data-testid="robert-report">
@@ -491,6 +500,38 @@ describe('App Integration', () => {
 
         // Wait for alert to confirm completion
         await waitFor(() => expect(window.alert).toHaveBeenCalledWith(expect.stringMatching(/Successfully archived 1 ghosts/)));
+    });
+
+    it('opens and closes the Family Audit modal', async () => {
+        // Mock data with a family anomaly
+        const parent = {
+            id: 'p1',
+            type: 'Person',
+            attributes: { birthdate: '2000-01-01', grade: 99, name: 'Parent', household_id: 'h1', child: false }
+        };
+        const child = {
+            id: 'c1',
+            type: 'Person',
+            attributes: { birthdate: '1990-01-01', grade: 10, name: 'Older Child', household_id: 'h1', child: true }
+        };
+
+        (api.get as any).mockResolvedValue({
+            data: { data: [parent, child] }
+        });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-p1')).toBeInTheDocument(), { timeout: 2500 });
+
+        fireEvent.click(screen.getByText('👨‍👩‍👧‍👦 Family Audit'));
+        expect(screen.getByTestId('family-modal')).toBeInTheDocument();
+        expect(screen.getByText('Found 1 anomalies')).toBeInTheDocument(); // Child older than parent
+
+        fireEvent.click(screen.getByText('Close'));
+        expect(screen.queryByTestId('family-modal')).not.toBeInTheDocument();
     });
 
     it('opens and closes the Robert Report', async () => {

@@ -4,11 +4,13 @@ import { GradeScatter } from './components/GradeScatter'
 import { SmartFixModal } from './components/SmartFixModal'
 import { ConfigModal } from './components/ConfigModal'
 import { GhostModal } from './components/GhostModal'
+import { FamilyModal } from './components/FamilyModal'
 import { UndoToast } from './components/UndoToast'
 import { RobertReport } from './components/RobertReport'
 import { GamificationWidget } from './components/GamificationWidget'
 import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount, fetchGroupCount, checkApiVersion } from './utils/pco'
 import { isGhost } from './utils/ghost'
+import { analyzeFamilies } from './utils/family'
 import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot, loadGamificationState, saveGamificationState, updateGamificationState } from './utils/storage'
 import { saveToCache, loadFromCache } from './utils/cache'
 import { calculateHealthStats } from './utils/analytics'
@@ -22,6 +24,7 @@ function App() {
   const [config, setConfig] = useState<AppConfig>({ graderOptions: {} });
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isGhostModalOpen, setIsGhostModalOpen] = useState(false);
+  const [isFamilyModalOpen, setIsFamilyModalOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
@@ -182,6 +185,8 @@ function App() {
   }, [students, stats, appId]);
 
   const ghosts = students.filter(s => isGhost(s));
+
+  const familyIssues = useMemo(() => analyzeFamilies(students), [students]);
 
   const handleAnalyzeGhosts = async (ghostsToAnalyze: Student[]) => {
       const auth = btoa(`${appId}:${secret}`);
@@ -403,6 +408,9 @@ function App() {
             <button onClick={() => setIsGhostModalOpen(true)} className="settings-btn">
                  👻 Ghost Protocol
             </button>
+            <button onClick={() => setIsFamilyModalOpen(true)} className="settings-btn">
+                 👨‍👩‍👧‍👦 Family Audit
+            </button>
             <button onClick={() => setIsConfigOpen(true)} className="settings-btn">
                  ⚙️ Settings
             </button>
@@ -473,6 +481,12 @@ function App() {
         onArchive={handleArchiveGhosts}
         onAnalyze={handleAnalyzeGhosts}
         isArchiving={isArchiving}
+      />
+
+      <FamilyModal
+        isOpen={isFamilyModalOpen}
+        onClose={() => setIsFamilyModalOpen(false)}
+        issues={familyIssues}
       />
 
       <RobertReport

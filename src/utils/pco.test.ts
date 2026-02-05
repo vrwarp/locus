@@ -33,6 +33,8 @@ describe('transformPerson', () => {
         name: 'John Doe',
         first_name: 'John',
         last_name: 'Doe',
+        child: true,
+        household_id: 'hh1'
       },
     };
 
@@ -53,7 +55,9 @@ describe('transformPerson', () => {
       lastCheckInAt: null,
       checkInCount: null,
       groupCount: null,
-      avatarUrl: undefined
+      avatarUrl: undefined,
+      isChild: true,
+      householdId: 'hh1'
     });
   });
 
@@ -65,14 +69,17 @@ describe('transformPerson', () => {
         birthdate: birthdate10,
         grade: 4,
         name: 'John Doe',
-        avatar: 'http://avatar.url/1.jpg'
+        avatar: 'http://avatar.url/1.jpg',
+        child: false
       },
     };
 
     const result = transformPerson(person);
 
     expect(result).toEqual(expect.objectContaining({
-        avatarUrl: 'http://avatar.url/1.jpg'
+        avatarUrl: 'http://avatar.url/1.jpg',
+        isChild: false,
+        householdId: null
     }));
   });
 
