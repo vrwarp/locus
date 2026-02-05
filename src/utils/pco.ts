@@ -10,6 +10,8 @@ export interface PcoAttributes {
   name?: string;
   first_name?: string;
   last_name?: string;
+  child?: boolean;
+  household_id?: string;
   [key: string]: unknown;
 }
 
@@ -48,11 +50,13 @@ export interface Student {
   checkInCount: number | null;
   groupCount: number | null;
   avatarUrl?: string;
+  isChild: boolean;
+  householdId: string | null;
 }
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
   const { id, attributes } = person;
-  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar } = attributes;
+  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id } = attributes;
 
   if (!birthdate || grade === undefined || grade === null) {
     return null;
@@ -83,6 +87,8 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     checkInCount: null, // Fetched lazily
     groupCount: null, // Fetched lazily
     avatarUrl: (avatar as string) || undefined,
+    isChild: !!child,
+    householdId: household_id || null,
   };
 };
 
