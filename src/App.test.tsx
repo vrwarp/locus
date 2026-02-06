@@ -70,6 +70,10 @@ vi.mock('./components/SmartFixModal', () => ({
             onSave({...student, pcoGrade: 5}); // Simulate fixing to grade 5
             onClose();
         }}>Fix</button>
+        <button onClick={() => {
+            onSave({...student, birthdate: '2015-01-01'}); // Simulate fixing birthdate
+            onClose();
+        }}>Fix Birthdate</button>
         <button onClick={onClose}>Close</button>
     </div>
   ) : null
@@ -280,6 +284,51 @@ describe('App Integration', () => {
             expect.any(Object)
         );
     }, 15000);
+
+    it('commits birthdate change to API correctly', async () => {
+        (api.get as any).mockResolvedValue({
+            data: {
+                data: [{
+                    id: 'bd1',
+                    type: 'Person',
+                    attributes: { birthdate: '2014-01-01', grade: 4, name: 'Date Kid' }
+                }]
+            }
+        });
+        (api.patch as any).mockResolvedValue({ data: { data: {} } });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-bd1')).toBeInTheDocument(), { timeout: 2500 });
+
+        vi.useFakeTimers();
+
+        fireEvent.click(screen.getByTestId('student-bd1'));
+        fireEvent.click(screen.getByText('Fix Birthdate'));
+
+        // Advance time
+        act(() => {
+            vi.advanceTimersByTime(5000);
+        });
+
+        // Verify API called with birthdate ONLY
+        expect(api.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/bd1',
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    attributes: { birthdate: '2015-01-01' }
+                })
+            }),
+            expect.any(Object)
+        );
+        // Ensure grade was NOT sent (as it didn't change)
+        const callArgs = (api.patch as any).mock.calls[0];
+        const payload = callArgs[1].data.attributes;
+        expect(payload.grade).toBeUndefined();
+    });
 
     it('flushes previous pending update when a new one is made', async () => {
        (api.get as any).mockResolvedValue({

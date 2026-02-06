@@ -55,7 +55,7 @@ test('undo flow works as expected', async ({ page }) => {
   await expect(page.locator('.modal-content').getByText('Undo Alice')).toBeVisible();
 
   // Click Fix
-  await page.click('button:has-text("Fix Grade")');
+  await page.click('.btn-fix');
 
   // Modal closes
   await expect(page.locator('text=Smart Fix')).not.toBeVisible();
@@ -77,7 +77,7 @@ test('undo flow works as expected', async ({ page }) => {
 
   // Open modal again
   await page.locator('.recharts-scatter-symbol').first().click();
-  await page.click('button:has-text("Fix Grade")');
+  await page.click('.btn-fix');
 
   // Wait for toast
   await expect(page.locator('.undo-toast')).toBeVisible();
