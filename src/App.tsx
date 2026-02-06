@@ -247,8 +247,19 @@ function App() {
       try {
            const auth = btoa(`${appId}:${secret}`);
            console.log(`Committing change for ${update.updated.name} to PCO...`);
-           await updatePerson(update.updated.id, { grade: update.updated.pcoGrade }, auth, config.sandboxMode);
-           console.log('Successfully saved to PCO');
+
+           const attributes: Record<string, any> = {};
+           if (update.original.pcoGrade !== update.updated.pcoGrade) {
+               attributes.grade = update.updated.pcoGrade;
+           }
+           if (update.original.birthdate !== update.updated.birthdate) {
+               attributes.birthdate = update.updated.birthdate;
+           }
+
+           if (Object.keys(attributes).length > 0) {
+               await updatePerson(update.updated.id, attributes, auth, config.sandboxMode);
+               console.log('Successfully saved to PCO');
+           }
       } catch (error) {
           console.error('Failed to save to PCO', error);
           // Revert on error
@@ -465,6 +476,7 @@ function App() {
         student={selectedStudent}
         onClose={() => setSelectedStudent(null)}
         onSave={handleSaveStudent}
+        graderOptions={config.graderOptions}
       />
 
       <ConfigModal

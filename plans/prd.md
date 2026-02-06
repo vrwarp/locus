@@ -20,18 +20,18 @@ Locus is a "Data Health OS" for church administrators using Planning Center Onli
 
 ### 2.1 Must Have (MVP)
 *   **Correlation Engine:** Scatter plot of Age vs. Grade with "Diagonal of Truth" logic. [DONE]
-*   **Smart Fix Modal:** One-click corrections for Grade/Birthdate. [DONE - UI/Logic]
-    *   *Correction:* Must support full date selection, defaulting to Jan 1st of the estimated year if unknown.
+*   **Smart Fix Modal:** One-click corrections for Grade/Birthdate. [DONE]
+    *   *Correction:* Must support full date selection, defaulting to Jan 1st of the estimated year if unknown. [DONE]
 *   **PCO Integration:** Basic Auth, Read/Write capabilities.
     *   *Constraint:* Must handle pagination (recursive fetch) for datasets < 5,000. [DONE]
 *   **Undo System:** 10-second toast to revert actions. [DONE]
 *   **Persistence (Config):** Save "Cutoff Date" and user preferences locally (Encrypted). [DONE - Basic Auth/Storage]
 
 ### 2.2 Should Have (V1.1)
-*   **Ghost Protocol:** Identification of inactive records with "Archive" bulk action.
+*   **Ghost Protocol:** Identification of inactive records with "Archive" bulk action. [DONE]
 *   **Sandbox Mode:** Simulation environment for bulk edits. [DONE]
 *   **The Robert Report:** Web-based read-only dashboard. [DONE]
-*   **Cache Management:** Intelligent caching of API responses (e.g., 5-minute validity).
+*   **Cache Management:** Intelligent caching of API responses (e.g., 5-minute validity). [DONE]
 *   **Pagination Handling (Large DB):** "Load More" or "Virtual Scroll" for databases > 5,000 records to prevent browser crash.
 
 ### 2.3 Could Have (V2.0)

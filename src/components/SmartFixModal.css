@@ -220,3 +220,76 @@ body.high-contrast .magnetic-slider::-webkit-slider-thumb {
 body.high-contrast .magnetic-slider.matched::-webkit-slider-thumb {
     background: lime;
 }
+
+/* Mode Switcher */
+.mode-switcher {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.mode-switcher button {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #666;
+  border-bottom: 3px solid transparent;
+}
+
+.mode-switcher button.active {
+  color: #007bff;
+  border-bottom-color: #007bff;
+}
+
+.mode-switcher button:hover {
+  background-color: #f8f9fa;
+}
+
+/* Date Picker */
+.input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.date-picker {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.preview-info {
+    text-align: center;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+/* High Contrast Adjustments */
+body.high-contrast .mode-switcher button {
+    color: #ccc;
+}
+body.high-contrast .mode-switcher button.active {
+    color: cyan;
+    border-bottom-color: cyan;
+}
+body.high-contrast .mode-switcher button:hover {
+    background-color: #333;
+}
+body.high-contrast .date-picker {
+    background-color: black;
+    color: white;
+    border-color: white;
+}
+body.high-contrast .preview-info {
+    background-color: #333;
+    color: white;
+}

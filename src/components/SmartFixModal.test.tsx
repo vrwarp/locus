@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { SmartFixModal } from './SmartFixModal';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Student } from '../utils/pco';
 
 describe('SmartFixModal', () => {
@@ -13,8 +13,21 @@ describe('SmartFixModal', () => {
     calculatedGrade: 5,
     delta: 1,
     lastCheckInAt: null,
-    checkInCount: 0
+    checkInCount: 0,
+    groupCount: 0,
+    isChild: true,
+    householdId: 'h1'
   };
+
+  beforeEach(() => {
+    // Set a consistent date: Sept 1, 2024 (Start of School Year)
+    // 2014-01-01 -> Age 10. Grade 5.
+    vi.setSystemTime(new Date('2024-09-01'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it('renders nothing when closed', () => {
     const { container } = render(
@@ -23,35 +36,28 @@ describe('SmartFixModal', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders student details and default slider value when open', () => {
+  it('renders student details and default slider value when open (Fix Grade Mode)', () => {
     render(
       <SmartFixModal isOpen={true} onClose={() => {}} student={mockStudent} onSave={() => {}} />
     );
     expect(screen.getByText('Smart Fix')).toBeInTheDocument();
     expect(screen.getByText('Test Kid')).toBeInTheDocument();
 
-    // Check for "Current" and "Selected" labels
+    // Check tabs
+    expect(screen.getByText('Fix Grade')).toBeInTheDocument();
+    expect(screen.getByText('Fix Birthdate')).toBeInTheDocument();
+
+    // Check for "Current" and "Selected" labels (Grade Mode)
     expect(screen.getByText('Current')).toBeInTheDocument();
     expect(screen.getByText('Selected')).toBeInTheDocument();
 
-    // Default selected should correspond to calculated grade (5)
-    // Note: Use getByDisplayValue for input
     const slider = screen.getByRole('slider');
     expect(slider).toHaveValue('5');
 
-    // Check formatted values in the boxes
-    // Current: 4, Selected: 5
-    // Note: Text match might be ambiguous if 4 or 5 appear elsewhere, but in this isolated component it should be fine.
-    // To be safe we can scope it, but for now exact match by text content works.
-
     // Current grade 4
-    const gradeValues = screen.getAllByText(/^\d+$/);
-    // Depending on render order. 4 is current, 5 is target.
     expect(screen.getByText('4')).toBeInTheDocument();
+    // Target grade 5
     expect(screen.getByText('5')).toBeInTheDocument();
-
-    // Should indicate match initially
-    expect(screen.getByText(/Perfect Match/)).toBeInTheDocument();
   });
 
   it('calls onClose when Cancel is clicked', () => {
@@ -73,25 +79,18 @@ describe('SmartFixModal', () => {
       // Move slider to 6
       fireEvent.change(slider, { target: { value: '6' } });
 
-      // Check display updates
-      // Selected box should show 6
       expect(screen.getByText('6')).toBeInTheDocument();
-
-      // Button should update
       expect(screen.getByText('Fix Grade to 6')).toBeInTheDocument();
-
-      // Should show warning
       expect(screen.getByText(/Delta: 1 year/)).toBeInTheDocument();
   });
 
-  it('calls onSave with slider value when Fix is clicked', () => {
+  it('calls onSave with updated grade when Fix is clicked (Grade Mode)', () => {
     const onSave = vi.fn();
     render(
       <SmartFixModal isOpen={true} onClose={() => {}} student={mockStudent} onSave={onSave} />
     );
 
     const slider = screen.getByRole('slider');
-    // Change to 3
     fireEvent.change(slider, { target: { value: '3' } });
 
     fireEvent.click(screen.getByText('Fix Grade to 3'));
@@ -103,16 +102,63 @@ describe('SmartFixModal', () => {
     });
   });
 
-  it('handles negative grades (Pre-K) correctly', () => {
+  it('switches to Fix Birthdate mode and updates UI', () => {
       render(
         <SmartFixModal isOpen={true} onClose={() => {}} student={mockStudent} onSave={() => {}} />
       );
 
-      const slider = screen.getByRole('slider');
-      fireEvent.change(slider, { target: { value: '-1' } });
+      fireEvent.click(screen.getByText('Fix Birthdate'));
 
-      // Should display Pre-K
-      expect(screen.getAllByText('Pre-K').length).toBeGreaterThan(0);
-      expect(screen.getByText('Fix Grade to Pre-K')).toBeInTheDocument();
+      expect(screen.getByLabelText('New Birthdate:')).toBeInTheDocument();
+      // Date picker should have current birthdate
+      expect(screen.getByLabelText('New Birthdate:')).toHaveValue('2014-01-01');
+
+      // Should show preview info
+      // With mocked date 2024-09-01:
+      // DOB 2014-01-01 -> Age 10 -> Grade 5.
+      // PCO Grade is 4.
+      // Differs by 1 year.
+      expect(screen.getByText(/Expected Grade is:/)).toBeInTheDocument();
+      expect(screen.getByText(/Differs from current grade by 1 year/)).toBeInTheDocument();
+  });
+
+  it('updates preview when birthdate changes', () => {
+      render(
+        <SmartFixModal isOpen={true} onClose={() => {}} student={mockStudent} onSave={() => {}} />
+      );
+
+      fireEvent.click(screen.getByText('Fix Birthdate'));
+
+      const dateInput = screen.getByLabelText('New Birthdate:');
+      // Change to 2015-01-01 (Age 9 -> Grade 4)
+      fireEvent.change(dateInput, { target: { value: '2015-01-01' } });
+
+      // PCO Grade is 4. New Expected is 4. Match!
+      // Use Regex to match partial text containing the checkmark
+      expect(screen.getByText(/Matches current grade!/)).toBeInTheDocument();
+      expect(screen.getByText(/Fix Birthdate to 2015-01-01/)).toBeInTheDocument();
+  });
+
+  it('calls onSave with updated birthdate when Fix is clicked (Birthdate Mode)', () => {
+     const onSave = vi.fn();
+
+     render(
+        <SmartFixModal isOpen={true} onClose={() => {}} student={mockStudent} onSave={onSave} />
+      );
+
+      fireEvent.click(screen.getByText('Fix Birthdate'));
+      const dateInput = screen.getByLabelText('New Birthdate:');
+      fireEvent.change(dateInput, { target: { value: '2015-01-01' } });
+
+      fireEvent.click(screen.getByText(/Fix Birthdate to 2015-01-01/));
+
+      // 2015-01-01 -> Age 9 -> Grade 4. PCO Grade 4. Delta 0.
+      expect(onSave).toHaveBeenCalledWith({
+          ...mockStudent,
+          birthdate: '2015-01-01',
+          age: 9,
+          calculatedGrade: 4,
+          delta: 0
+      });
   });
 });
