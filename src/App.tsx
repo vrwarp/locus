@@ -11,11 +11,15 @@ import { GamificationWidget } from './components/GamificationWidget'
 import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount, fetchGroupCount, checkApiVersion } from './utils/pco'
 import { isGhost } from './utils/ghost'
 import { analyzeFamilies } from './utils/family'
-import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot, loadGamificationState, saveGamificationState, updateGamificationState } from './utils/storage'
+import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot, loadGamificationState, saveGamificationState } from './utils/storage'
+import { updateGamificationState } from './utils/gamification'
 import { saveToCache, loadFromCache } from './utils/cache'
 import { calculateHealthStats } from './utils/analytics'
+import { Confetti } from './components/Confetti'
+import { BadgeToast } from './components/BadgeToast'
 import type { AppConfig, HealthHistoryEntry, GamificationState } from './utils/storage'
 import type { Student, PcoPerson } from './utils/pco'
+import type { Badge } from './utils/gamification'
 import './App.css'
 
 function App() {
@@ -42,8 +46,11 @@ function App() {
       lastActiveDate: '',
       currentStreak: 0,
       dailyFixes: 0,
-      totalFixes: 0
+      totalFixes: 0,
+      unlockedBadges: []
   });
+  const [latestBadge, setLatestBadge] = useState<Badge | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Pending update state for UI (Toast)
   const [pendingUpdateUI, setPendingUpdateUI] = useState<{ original: Student, updated: Student } | null>(null)
@@ -331,8 +338,15 @@ function App() {
 
     // Update gamification state optimistically
     const prevGamificationState = gamificationState;
-    const newGamificationState = updateGamificationState(gamificationState);
+    const { newState: newGamificationState, newBadges } = updateGamificationState(gamificationState);
     setGamificationState(newGamificationState);
+
+    if (newBadges.length > 0) {
+        setLatestBadge(newBadges[0]);
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 3000);
+    }
+
     // Persist gamification state (fire and forget - but if undo happens we will revert via UI state, persistence might need revert too but it's minor)
     saveGamificationState(newGamificationState, appId);
 
@@ -507,6 +521,15 @@ function App() {
         stats={stats}
         history={healthHistory}
       />
+
+      {showConfetti && <Confetti />}
+
+      {latestBadge && (
+          <BadgeToast
+            badge={latestBadge}
+            onClose={() => setLatestBadge(null)}
+          />
+      )}
 
       {pendingUpdateUI && (
           <UndoToast

@@ -6,6 +6,7 @@ import api from './utils/api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Student } from './utils/pco';
 import * as storage from './utils/storage';
+import * as gamification from './utils/gamification';
 import { saveToCache, loadFromCache } from './utils/cache';
 import * as pco from './utils/pco';
 
@@ -36,9 +37,16 @@ vi.mock('./utils/storage', () => ({
   saveConfig: vi.fn().mockResolvedValue(undefined),
   loadHealthHistory: vi.fn().mockResolvedValue([]),
   saveHealthSnapshot: vi.fn().mockResolvedValue(undefined),
-  loadGamificationState: vi.fn().mockResolvedValue({ currentStreak: 0, dailyFixes: 0, totalFixes: 0, lastActiveDate: '' }),
+  loadGamificationState: vi.fn().mockResolvedValue({ currentStreak: 0, dailyFixes: 0, totalFixes: 0, lastActiveDate: '', unlockedBadges: [] }),
   saveGamificationState: vi.fn().mockResolvedValue(undefined),
-  updateGamificationState: vi.fn((state) => ({ ...state, currentStreak: state.currentStreak + 1, dailyFixes: state.dailyFixes + 1 })),
+}));
+
+// Mock gamification
+vi.mock('./utils/gamification', () => ({
+  updateGamificationState: vi.fn((state) => ({
+      newState: { ...state, currentStreak: state.currentStreak + 1, dailyFixes: state.dailyFixes + 1, unlockedBadges: [] },
+      newBadges: []
+  })),
 }));
 
 // Mock cache
@@ -134,6 +142,16 @@ vi.mock('./components/GamificationWidget', () => ({
   GamificationWidget: ({ streak, dailyFixes }: any) => (
     <div data-testid="gamification-widget">Streak: {streak}, Daily: {dailyFixes}</div>
   )
+}));
+
+// Mock Confetti
+vi.mock('./components/Confetti', () => ({
+    Confetti: () => <div data-testid="confetti">Confetti!</div>
+}));
+
+// Mock BadgeToast
+vi.mock('./components/BadgeToast', () => ({
+    BadgeToast: ({ badge }: any) => <div data-testid="badge-toast">{badge.name}</div>
 }));
 
 const queryClient = new QueryClient({
@@ -780,7 +798,7 @@ describe('App Integration', () => {
         fireEvent.click(screen.getByTestId('student-g1'));
         fireEvent.click(screen.getByText('Fix'));
 
-        await waitFor(() => expect(storage.updateGamificationState).toHaveBeenCalled());
+        await waitFor(() => expect(gamification.updateGamificationState).toHaveBeenCalled());
         expect(storage.saveGamificationState).toHaveBeenCalledWith(
             expect.objectContaining({ currentStreak: 1 }), // Mock increments by 1
             'test-id'

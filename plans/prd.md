@@ -35,8 +35,8 @@ Locus is a "Data Health OS" for church administrators using Planning Center Onli
 *   **Pagination Handling (Large DB):** "Load More" or "Virtual Scroll" for databases > 5,000 records to prevent browser crash.
 
 ### 2.3 Could Have (V2.0)
-*   **Gamification:** Progress bars, streaks, "Combo" sounds (with Mute toggle).
-*   **Family Logic:** Validator for Spouse/Child age gaps.
+*   **Gamification:** Progress bars, streaks, "Combo" sounds (with Mute toggle). [DONE]
+*   **Family Logic:** Validator for Spouse/Child age gaps. [DONE]
 *   **Genealogy Project:** Network graph of relationships.
 
 ### 2.4 Won't Have (Next 12 Months)
