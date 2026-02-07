@@ -22,6 +22,7 @@ export interface GamificationState {
   currentStreak: number;
   dailyFixes: number;
   totalFixes: number;
+  unlockedBadges: { id: string, date: string }[];
 }
 
 const STORAGE_KEY = 'locus_config';
@@ -110,23 +111,31 @@ export const saveHealthSnapshot = async (stats: HealthStats, appId: string): Pro
 };
 
 export const loadGamificationState = async (appId: string): Promise<GamificationState> => {
-  if (!appId) return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0 };
+  if (!appId) return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [] };
   try {
       const stored = localStorage.getItem(GAMIFICATION_KEY);
-      if (!stored) return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0 };
+      if (!stored) return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [] };
 
+      let state: GamificationState;
       try {
-          return await decryptData(stored, appId);
+          state = await decryptData(stored, appId);
       } catch (e) {
           try {
-              return JSON.parse(stored) as GamificationState;
+              state = JSON.parse(stored) as GamificationState;
           } catch {
-               return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0 };
+               return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [] };
           }
       }
+
+      // Migration: Ensure unlockedBadges exists
+      if (!state.unlockedBadges) {
+          state.unlockedBadges = [];
+      }
+      return state;
+
   } catch (e) {
       console.error("Failed to load gamification state", e);
-      return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0 };
+      return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [] };
   }
 };
 
@@ -138,42 +147,4 @@ export const saveGamificationState = async (state: GamificationState, appId: str
     } catch (e) {
         console.error("Failed to save gamification state", e);
     }
-};
-
-export const updateGamificationState = (currentState: GamificationState): GamificationState => {
-    const today = new Date().toISOString().split('T')[0];
-    const lastActive = currentState.lastActiveDate;
-
-    let newStreak = currentState.currentStreak;
-    let newDailyFixes = currentState.dailyFixes;
-
-    // Reset daily fixes if it's a new day
-    if (lastActive !== today) {
-        newDailyFixes = 0;
-    }
-
-    if (lastActive === today) {
-        newDailyFixes += 1;
-        // Streak already counted for today
-    } else {
-        // Check if yesterday
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-        if (lastActive === yesterdayStr) {
-            newStreak += 1;
-        } else {
-            // Broken streak (or first time)
-            newStreak = 1;
-        }
-        newDailyFixes = 1;
-    }
-
-    return {
-        lastActiveDate: today,
-        currentStreak: newStreak,
-        dailyFixes: newDailyFixes,
-        totalFixes: currentState.totalFixes + 1
-    };
 };

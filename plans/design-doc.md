@@ -92,3 +92,17 @@ interface Student {
 *   **VR/AR:**
     *   Will require WebXR integration.
     *   Data stream will need to switch from Polling to WebSockets for real-time lobby heatmaps.
+
+## 8. Gamification Engine
+*   **State:** Stored in `localStorage` (Encrypted) via `GamificationState`.
+    *   `currentStreak` (Days)
+    *   `dailyFixes` (Count)
+    *   `totalFixes` (Count)
+    *   `unlockedBadges` (Array of Badge IDs + Timestamps)
+*   **Logic:**
+    *   Updates triggered optimistically on `Fix` action.
+    *   Streak calculation handles day boundaries and 1-day gaps.
+    *   Badge system evaluates conditions (e.g., "First Fix", "Streak Master") dynamically.
+*   **Feedback:**
+    *   `BadgeToast` component for immediate unlock notification.
+    *   `Confetti` (Canvas-based) for celebration effects.

@@ -1,0 +1,71 @@
+.badge-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  z-index: 10000;
+  animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  max-width: 350px;
+  border: 2px solid #FFD700;
+}
+
+.badge-icon {
+  font-size: 3rem;
+  animation: bounce 1s infinite;
+}
+
+.badge-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.badge-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #888;
+  font-weight: bold;
+}
+
+.badge-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0.2rem 0;
+}
+
+.badge-description {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.badge-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+  align-self: flex-start;
+  margin-left: auto;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
