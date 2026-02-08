@@ -1,5 +1,5 @@
 # Locus: The Product Bible (Omnibus Edition)
-*Version 5.0 - The "Infinite Garden" Edition*
+*Version 6.0 - The "Symbiotic Intelligence" Edition*
 
 ---
 
@@ -7,7 +7,7 @@
 1.  [Chapter 1: The Locus Manifesto](#chapter-1-the-locus-manifesto)
 2.  [Chapter 2: The Landscape & Strategic Positioning](#chapter-2-the-landscape--strategic-positioning)
 3.  [Chapter 3: The Core Engine (Data Integrity)](#chapter-3-the-core-engine-data-integrity)
-4.  [Chapter 4: The Intelligence Layer (AI & Analytics)](#chapter-4-the-intelligence-layer-ai--analytics)
+4.  [Chapter 4: The Intelligence Layer (AI & LLMs)](#chapter-4-the-intelligence-layer-ai--llms)
 5.  [Chapter 5: The Ecosystem (Integrations & Automation)](#chapter-5-the-ecosystem-integrations--automation)
 6.  [Chapter 6: User Experience Philosophy](#chapter-6-user-experience-philosophy)
 7.  [Chapter 7: Go-to-Market & Growth Strategy](#chapter-7-go-to-market--growth-strategy)
@@ -92,34 +92,39 @@ Identifying the invisible.
 
 ---
 
-## Chapter 4: The Intelligence Layer (AI & Analytics)
+## Chapter 4: The Intelligence Layer (AI & LLMs)
 
-### 4.1 "Predictive Attrition" (The Early Warning System)
+### 4.1 "The Pastoral Co-Pilot" (LLM Integration)
+A conversational interface for database queries.
+-   **Query:** "Hey Locus, show me all the families with kids in 5th grade who haven't attended in 3 months but gave to the Christmas offering."
+-   **Response:** "I found 12 families matching that criteria. Here is the list. Would you like me to draft an email to them?"
+-   **Action:** AI drafts a personalized email template (e.g., "Missed you since Christmas...").
+
+### 4.2 "Predictive Attrition" (The Retention Engine)
 Using historical data to predict who will leave *before* they leave.
--   **Signals:**
-    -   Giving frequency drops.
-    -   Check-in regularity fades (e.g., 4x/mo -> 2x/mo -> 0x/mo).
-    -   Small group attendance stops.
--   **Output:** "Risk Score" (0-100).
--   **Action:** "Intervention Task" generated for the appropriate pastor.
+-   **The Model:** Analyzes 50+ data points (Giving cadence, Check-in gaps, Group attendance, Event sign-ups).
+-   **The Signal:** "High Risk Alert: The Miller Family."
+    -   *Reason:* "Giving stopped 3 months ago. Dad stopped serving in Usher team 2 weeks ago."
+-   **The Intervention:** Suggested task: "Pastor Mike -> Call Mr. Miller."
 
-### 4.2 "Ministry Matchmaker" (Volunteer Placement)
-Suggesting ideal roles based on data.
--   **Input:** Demographics, past serving, group attendance, distance from church.
--   **Logic:** "People who live in Zone A and have kids in Elementary are 40% more likely to serve in Kids Ministry."
--   **Output:** "Recruitment List" for ministry leaders.
-
-### 4.3 "The Event Impact" Analysis
-Did the event actually work?
--   **Tracking:** Measure retention of guests *after* a big event (e.g., Easter, VBS).
--   **Metric:** "Stickiness Score" (Percentage of guests who returned within 6 weeks).
--   **Visualization:** Cohort Analysis (Heatmap of return rates).
+### 4.3 "Ministry Matchmaker" (Genetic Algorithm)
+Optimizing volunteer placement.
+-   **Goal:** Fill 50 open spots in Kids Ministry with the *best* candidates.
+-   **Inputs:** Distance from church, Age of kids, Profession (Teacher/Nurse = High Score), Spiritual Gifts (if recorded).
+-   **Output:** Ranked list of candidates.
+-   **Feature:** "The Ask Script" - AI generates a personalized recruitment script based on the candidate's profile.
 
 ### 4.4 "Sentiment Pulse" (NLP)
 *Note: Requires ethical opt-in.*
 -   **Source:** Anonymized prayer requests, comment cards, or survey responses.
 -   **Analysis:** Natural Language Processing to detect themes (e.g., "Anxiety", "Financial Stress", "Gratitude").
 -   **Output:** "Spiritual Climate" word cloud for leadership.
+
+### 4.5 "The Sermon Correlator" (Correlation Engine)
+Connecting content to behavior.
+-   **Input:** Sermon Transcripts (uploaded weekly).
+-   **Analysis:** Correlates sermon topics (e.g., "Generosity", "Community", "Service") with subsequent behavior spikes.
+-   **Insight:** "Sermons about 'Community' result in a 15% spike in Small Group signups for 2 weeks."
 
 ---
 
@@ -171,7 +176,7 @@ Opening the platform to developers.
 -   **Free:** Read-only visualization. "See your mess."
 -   **Core ($49/mo):** Fix tools, Family Logic, Ghost Protocol.
 -   **Pro ($149/mo):** Locus Automate, Integrations, Advanced Hygiene.
--   **Enterprise ($499/mo):** AI Predictions, Multi-Campus Guilds, API Access.
+-   **Enterprise ($499/mo):** AI Co-Pilot, Multi-Campus Guilds, API Access.
 
 ### 7.2 The "Locus Academy"
 Certification program for Church Admins.
@@ -259,11 +264,11 @@ AI should never be a black box.
 29. **"The Golden Record":** Special animation for the 10,000th fix.
 30. **"Party Mode":** Confetti on every click (toggleable).
 
-### "Moonshot" Concepts
-31. **VR "War Room":** Oculus app for visualization.
-32. **AR "Usher Specs":** Smart glasses for ushers to see names/stats of people in lobby.
-33. **Voice Interface:** "Hey Locus, who is the family in the third row?"
-34. **Facial Recognition Check-in:** (Ethical hurdles high, but technically possible).
+### "AI Moonshot" Concepts (New)
+31. **"The Newsletter Architect":** AI drafts weekly newsletters based on upcoming calendar events + sermon topics.
+32. **"Small Group Sorter":** Genetic algorithm to create perfectly balanced small groups (mix of ages, life stages, introverts/extroverts).
+33. **"Prayer Partner Match":** Matches people with similar life struggles (anonymously at first) for prayer support.
+34. **"Burnout Predictor":** Analyzes serving hours vs. attendance to flag potential volunteer burnout.
 35. **"Locus Public":** Member-facing portal to update their own data.
 36. **"The Global Pulse":** Anonymized aggregate data of the "Global Church" health.
 37. **"Predictive Planting":** AI suggests where to plant a church based on unchurched density.

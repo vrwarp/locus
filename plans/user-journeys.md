@@ -1,5 +1,5 @@
 # User Journeys: The Locus Chronicles (Omnibus Edition)
-*Volume 4 - The "Infinite Garden" Edition*
+*Volume 5 - The "Symbiotic Intelligence" Edition*
 
 ---
 
@@ -85,40 +85,40 @@
 **The Reaction:** Sarah feels *known*, not used. "I was actually waiting for someone to ask."
 **The Outcome:** A perfect volunteer placement.
 
-### 8. Narrative Arc 7: The "Bus Factor" Crisis
-*A story of disaster recovery.*
-**Context:** Sarah (The Architect) gets the flu the week before Easter.
-**The Panic:** Who knows how to run the reports?
-**The Solution:** Emily (The Volunteer) logs in.
-**The Assist:** Locus **"Assistant Mode"** pops up.
-*   "Hi Emily. It looks like it's Easter week. Usually, Sarah runs the 'Projected Attendance' report today. Do you want me to run it?"
-**The Action:** Emily clicks "Yes".
-**The Result:** The report is generated. The Nursery is staffed correctly. The crisis is averted.
+### 8. Narrative Arc 7: The "Burnout Prevention" (New)
+*A story of caring for the shepherds.*
+**Context:** Linda serves on the Greeting Team, the Kids Team, and the Coffee Team. She is tired.
+**The Trigger:** Locus AI scans "Serving Hours" vs. "Worship Attendance".
+**The Insight:** Linda has served 8 weeks in a row without attending a service.
+**The Alert:** Pastor Mike gets a notification: "Burnout Risk: Linda. She hasn't sat in a service in 2 months."
+**The Action:** Mike approaches Linda. "Linda, you are off the schedule for the next month. We need you to rest."
+**The Result:** Linda cries with relief. She doesn't quit. She rests and returns healthier.
 
-### 9. Narrative Arc 8: The "Multi-Campus" War
-*A story of friendly competition.*
-**Context:** North Campus vs. South Campus.
-**The Event:** "The September Setup" (Data Cleaning Month).
-**The Gamification:** Locus launches a **"Guild Battle"**.
-**The Leaderboard:** "North Campus: 98% Integrity. South Campus: 94% Integrity."
-**The Behavior:** South Campus admins stay late to fix addresses just to beat North Campus.
-**The Result:** The entire church database is pristine. The staff had fun doing it.
+### 9. Narrative Arc 8: The "AI Staff Meeting" (New)
+*A story of real-time intelligence.*
+**Context:** Tuesday Staff Meeting. The team is debating whether to launch a 3rd service.
+**The Question:** "Do we have enough critical mass in the 9 AM service to split it?"
+**The Old Way:** "I don't know, I'll run a report and tell you next week."
+**The New Way:** Dr. Robert opens Locus Chat on the big screen.
+**The Interaction:**
+*   *Robert:* "Locus, show me the average attendance of the 9 AM service for the last 6 months, excluding holiday weekends."
+*   *Locus:* "Average is 450 adults. Capacity is 500. You are at 90% capacity."
+*   *Robert:* "How many of those families live within 10 minutes of the church?"
+*   *Locus:* "320 families (71%)."
+**The Decision:** "Okay, we have the density. Let's launch."
+**The Speed:** A strategic decision made in 2 minutes, not 2 weeks.
 
 ---
 
 ## Part 3: The Moonshot Journeys (10-Year Horizon)
 
-### 10. Narrative Arc 9: The VR War Room
-*A story of executive vision.*
-**Context:** Easter Sunday, 8:00 AM.
-**The Scene:** Dr. Robert puts on his Apple Vision Pro.
-**The View:** He sees a 3D twin of the church building.
-**The Data:**
-*   *Lobby:* Heatmap shows congestion at Door 3.
-*   *Parking:* AI predicts lot full in 14 minutes.
-*   *Kids:* Check-in latency is spiking.
-**The Command:** He taps a virtual button. "Open Overflow Parking." "Send Ops Team to Door 3."
-**The Feeling:** He is playing SimCity, but it's real life.
+### 10. Narrative Arc 9: The "Sermon Correlator"
+*A story of measuring impact.*
+**Context:** Pastor Mike preaches a 4-week series on "Community".
+**The Analysis:** Locus AI listens to the sermon transcripts.
+**The Correlation:** It overlays "Small Group Signups" and "New Volunteer Applications" on the timeline.
+**The Insight:** "Week 3 (The 'Serve One Another' sermon) resulted in a 400% spike in volunteer applications."
+**The Learning:** Mike realizes *how* he phrased the call to action matters. He becomes a more effective communicator.
 
 ### 11. Narrative Arc 10: The "Locus Public" Experience
 *A story of self-service.*
