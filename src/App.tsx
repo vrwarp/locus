@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { GradeScatter } from './components/GradeScatter'
 import { SmartFixModal } from './components/SmartFixModal'
+import { ReviewMode } from './components/ReviewMode'
 import { ConfigModal } from './components/ConfigModal'
 import { GhostModal } from './components/GhostModal'
 import { FamilyModal } from './components/FamilyModal'
@@ -30,6 +31,7 @@ function App() {
   const [isGhostModalOpen, setIsGhostModalOpen] = useState(false);
   const [isFamilyModalOpen, setIsFamilyModalOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
+  const [isReviewModeOpen, setIsReviewModeOpen] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
 
@@ -192,6 +194,7 @@ function App() {
   }, [students, stats, appId]);
 
   const ghosts = students.filter(s => isGhost(s));
+  const anomalies = students.filter(s => s.delta !== 0);
 
   const familyIssues = useMemo(() => analyzeFamilies(students), [students]);
 
@@ -427,6 +430,11 @@ function App() {
             )}
         </div>
         <div style={{display: 'flex', gap: '1rem'}}>
+            {anomalies.length > 0 && (
+                 <button onClick={() => setIsReviewModeOpen(true)} className="settings-btn">
+                     🚀 Review Mode ({anomalies.length})
+                 </button>
+            )}
             <button onClick={() => setIsReportOpen(true)} className="settings-btn">
                  📊 Report
             </button>
@@ -489,6 +497,14 @@ function App() {
         isOpen={!!selectedStudent}
         student={selectedStudent}
         onClose={() => setSelectedStudent(null)}
+        onSave={handleSaveStudent}
+        graderOptions={config.graderOptions}
+      />
+
+      <ReviewMode
+        isOpen={isReviewModeOpen}
+        onClose={() => setIsReviewModeOpen(false)}
+        students={anomalies}
         onSave={handleSaveStudent}
         graderOptions={config.graderOptions}
       />
