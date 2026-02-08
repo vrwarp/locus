@@ -1,5 +1,5 @@
 # Locus: The Product Bible
-*Version 3.1 - The "Emotional Engine" Edition*
+*Version 4.0 - The "Intelligence Era" Edition*
 
 ---
 
@@ -59,7 +59,7 @@ We are not just selling software; we are selling **Peace of Mind**.
 *   **The Skeptic (Dr. Robert, Exec Pastor/CFO):** The blocker. Does not care about features; cares about ROI. Needs to see "Money Saved" or "Risk Averted."
     *   *Strategy:* Build "ROI Reports" specifically for him (e.g., "Locus identified 15 'Disengaged Families' at risk of leaving").
 *   **The Enthusiast (Emily, Volunteer):** The danger. Needs guardrails.
-    *   *Strategy:* "Volunteer Mode" - a restricted UI that allows flagging errors but not committing changes without approval.
+    *   *Strategy:* "Review Mode" - a restricted UI that allows flagging errors but not committing changes without approval.
 
 ### 2.3 SWOT Analysis
 
@@ -85,7 +85,7 @@ We are not just selling software; we are selling **Peace of Mind**.
 
 ## Chapter 3: The Solution Architecture (Feature Deep Dive)
 
-### 3.1 The "Diagonal of Truth" Engine
+### 3.1 The "Diagonal of Truth" Engine (Core Capability)
 The core of Locus is the **Correlation Engine**.
 -   **Input:** Birthdate, Grade, School District Cutoff Date (configurable per church).
 -   **Processing:**
@@ -97,26 +97,36 @@ The core of Locus is the **Correlation Engine**.
     -   Delta = -1/+1: **Yellow** (Plausible - held back/started early).
     -   Delta > 1: **Red** (Anomaly).
 
-### 3.2 The "Smart Fix" Interface
+### 3.2 The "Smart Fix" Interface (Core Capability)
 We don't just flag errors; we offer **One-Click Resolutions**.
 -   **The "Time Travel" Fix:** "This child is listed as 2 years old but in 5th Grade. Based on the grade, they are likely 10. Do you want to update the Birth Year to 2014?"
 -   **The "Promotion" Fix:** "This child is listed in 5th Grade but is 14. Do you want to promote them to 9th Grade?"
 -   **The "Ghost" Protocol:**
     *   *Definition:* Users who exist in the database but have zero digital footprint (No check-in, no groups) for > 2 years.
+    *   *Rescue Logic:* Automatically saves students active in Small Groups, even if they miss Sunday check-in.
     *   *Action:* Auto-tag as "Archivable".
     *   *Impact:* Cleans up the "denominator" for attendance stats, making ministry metrics more accurate.
 
-### 3.3 The "Family Logic" Validator
+### 3.3 The "Family Logic" Validator (Core Capability)
 Data doesn't exist in a vacuum. People exist in families.
 -   **Spouse Gap:** Flag if two people are listed as "Married" but have an age gap > 40 years (possible data entry error).
 -   **Child/Parent Logic:** Flag if a "Child" is < 15 years younger than the "Parent".
 -   **Duplicate Detective:** Visual network graph connecting people by shared email, phone, or address. "These 3 'John Smiths' share a phone number. Merge them?"
 
-### 3.4 The "Ministry Pulse" Dashboards
+### 3.4 The "Ministry Pulse" Dashboards (Core Capability)
 Beyond static data, we visualize *movement*.
 -   **The Retention Funnel:** Visualize the flow of people from "First Visit" -> "Second Visit" -> "Group Join" -> "Volunteer". Where is the leak?
 -   **The Volunteer Ratio:** Heatmap of [Kids Checked In] vs [Volunteers Present] for every Sunday in the last year. Highlight "Danger Zones" where ratios were unsafe.
 -   **The "Robert Report" (Executive View):** A high-level, strategy-focused dashboard. "Retention vs. Last Year," "Database Health ROI."
+
+### 3.5 The Next Frontier (Moonshots & R&D)
+Where we are going next.
+-   **"Locus Automate" (The Workflow Engine):** A visual rules engine (IF/THEN) for data integrity.
+    -   *Example:* "IF Grade=12 AND Month=June THEN Move to Young Adults Folder."
+-   **"Predictive Attrition" (AI):** Using historical data to predict who will leave *before* they leave.
+    -   *Signal:* "Family X stopped giving, stopped checking in kids, and missed small group 3 weeks in a row. Risk Level: HIGH."
+-   **"Ministry Matchmaker" (AI):** Suggesting ideal volunteer roles based on demographics, skills, and family structure.
+    -   *Signal:* "Sarah is a teacher (Occupation), has kids in Elementary (Life Stage), and attends the 9 AM service. Suggestion: 11 AM Kids Ministry Volunteer."
 
 ---
 
@@ -131,8 +141,9 @@ Church admins are cognitively overloaded. Locus must be a spa for the brain.
 ### 4.2 Design Principle: "The Video Game Loop"
 Data cleaning is boring. We must gamify it.
 -   **The Progress Bar:** "You are 84% aligned. 16 records to go!"
--   **The "Combo" Mechanic:** Fixing 10 records in under a minute triggers a visual flair.
+-   **The "Combo" Mechanic:** Fixing 10 records in under a minute triggers a visual flair (Confetti).
 -   **Badges:** "The Archeologist" (Fixed 50 records older than 5 years).
+-   **Review Mode:** A focused, card-based interface for rapid-fire decision making ("Fix" or "Skip").
 
 ### 4.3 Design Principle: "Fearless Editing"
 Admins are terrified of "messing up" the main database.
@@ -184,14 +195,15 @@ We believe data manipulation should feel tactile, not administrative.
 
 ## Chapter 6: The 10-Year Horizon
 
-### 6.1 Phase 1: The Utility (Years 1-2)
+### 6.1 Phase 1: The Utility (Years 1-2) - **[COMPLETE]**
 Become the default "Spellcheck" for Planning Center. Every admin uses us because the native tools are insufficient.
+-   *Status:* Core visualization, Smart Fix, Gamification, and Sandbox Mode are live.
 
-### 6.2 Phase 2: The Platform (Years 3-5)
+### 6.2 Phase 2: The Platform (Years 3-5) - **[IN PROGRESS]**
 Expand to Rock RMS, CCB, and Breeze.
 Launch "Locus Automate"—a Zapier-like tool for data integrity rules. (e.g., "If a person turns 18, automatically move them to the 'Young Adults' category and send a welcome email.")
 
-### 6.3 Phase 3: The Intelligence (Years 5-8)
+### 6.3 Phase 3: The Intelligence (Years 5-8) - **[NEXT]**
 Train an LLM (Large Language Model) on anonymized church data structure.
 -   **Predictive Ministry:** "Based on 10,000 other churches, families who attend the 9 AM service are 30% more likely to volunteer. We recommend targeting them for recruitment."
 -   **Natural Language Query:** "Hey Locus, show me all the families with teenagers who haven't attended in 6 months but attended Christmas Eve."
