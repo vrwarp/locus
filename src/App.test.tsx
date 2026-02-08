@@ -137,6 +137,20 @@ vi.mock('./components/RobertReport', () => ({
   ) : null
 }));
 
+vi.mock('./components/ReviewMode', () => ({
+  ReviewMode: ({ isOpen, onClose, students, onSave }: any) => isOpen ? (
+    <div data-testid="review-mode">
+        <p>Reviewing {students.length} students</p>
+        <button onClick={() => {
+             if (students.length > 0) {
+                 onSave({...students[0], pcoGrade: 99}); // Simulate save
+             }
+        }}>Fix First</button>
+        <button onClick={onClose}>Close Review</button>
+    </div>
+  ) : null
+}));
+
 // Mock GamificationWidget to avoid CSS import issues in test environment if any
 vi.mock('./components/GamificationWidget', () => ({
   GamificationWidget: ({ streak, dailyFixes }: any) => (
@@ -633,6 +647,82 @@ describe('App Integration', () => {
 
         fireEvent.click(screen.getByText('Close Report'));
         expect(screen.queryByTestId('robert-report')).not.toBeInTheDocument();
+    });
+
+    it('shows Review Mode button only when anomalies exist and allows fixing', async () => {
+        // Set date
+        vi.setSystemTime(new Date('2024-11-01'));
+
+        (api.get as any).mockResolvedValue({
+            data: {
+                data: [
+                    {
+                        id: 'a1',
+                        type: 'Person',
+                        attributes: { birthdate: '2014-01-01', grade: 4, name: 'Anomaly Kid' } // Expected 5 -> Delta 1
+                    },
+                    {
+                         id: 'h1',
+                         type: 'Person',
+                         attributes: { birthdate: '2014-01-01', grade: 5, name: 'Healthy Kid' }
+                    }
+                ]
+            }
+        });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-a1')).toBeInTheDocument(), { timeout: 2500 });
+
+        // Check for Review Mode button
+        const reviewBtn = screen.getByText(/Review Mode/);
+        expect(reviewBtn).toBeInTheDocument();
+        expect(reviewBtn).toHaveTextContent('Review Mode (1)');
+
+        // Open Review Mode
+        fireEvent.click(reviewBtn);
+        expect(screen.getByTestId('review-mode')).toBeInTheDocument();
+        expect(screen.getByText('Reviewing 1 students')).toBeInTheDocument();
+
+        // Fix
+        fireEvent.click(screen.getByText('Fix First'));
+
+        // Should trigger toast/update logic (mocked in other tests, here we verify onSave was passed correctly)
+        // Since we are mocking ReviewMode, we check if the effect happened (e.g. toast appeared)
+        await waitFor(() => expect(screen.getByText(/Updated grade for Anomaly Kid/)).toBeInTheDocument());
+
+        // Close
+        fireEvent.click(screen.getByText('Close Review'));
+        expect(screen.queryByTestId('review-mode')).not.toBeInTheDocument();
+    });
+
+    it('hides Review Mode button when no anomalies exist', async () => {
+        // Set date
+        vi.setSystemTime(new Date('2024-11-01'));
+
+        (api.get as any).mockResolvedValue({
+            data: {
+                data: [
+                    {
+                         id: 'h1',
+                         type: 'Person',
+                         attributes: { birthdate: '2014-01-01', grade: 5, name: 'Healthy Kid' }
+                    }
+                ]
+            }
+        });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-h1')).toBeInTheDocument(), { timeout: 2500 });
+
+        expect(screen.queryByText(/Review Mode/)).not.toBeInTheDocument();
     });
 
     it('uses cache and does not fetch API if valid data exists', async () => {

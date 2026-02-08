@@ -1,0 +1,151 @@
+.review-mode-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.review-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+}
+
+.review-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.progress {
+    background: #f0f0f0;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.btn-close:hover {
+    color: #333;
+}
+
+.student-info {
+    text-align: center;
+}
+
+.student-info h3 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.8rem;
+}
+
+.student-meta {
+    margin: 0;
+    color: #666;
+}
+
+.mode-switcher {
+    display: flex;
+    background: #f5f5f5;
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.mode-switcher button {
+    flex: 1;
+    border: none;
+    background: none;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.mode-switcher button.active {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    color: #007bff;
+}
+
+.fix-area {
+    background: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.review-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-skip {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #666;
+}
+
+.btn-fix {
+    flex: 2;
+    padding: 12px;
+    border: none;
+    background: #007bff;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-fix:hover {
+    background: #0056b3;
+}
+
+.slider-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.magnetic-slider {
+    width: 100%;
+}
+
+.slider-value {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #007bff;
+}
