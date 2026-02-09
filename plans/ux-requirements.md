@@ -48,6 +48,7 @@
     *   Combo: Counter increments (2x, 3x).
     *   Streak: Flame icon in header. [DONE]
     *   Badge Unlock: Full screen confetti overlay (Canvas API). [DONE]
+    *   Success: "Ping" sound + Gold border glow. [DONE]
     *   **Controls:** "Mute Sounds" toggle prominent in UI. [DONE]
 
 ### 3.4 The "Robert Report" View
@@ -62,5 +63,5 @@
 
 ## 4. Accessibility
 *   **Colorblind Mode:** Use shapes (Triangles/Squares) in addition to colors for Green/Red states. [DONE]
-*   **Keyboard Nav:** Arrow keys must navigate the scatter plot points. Focus ring must be clearly visible.
-*   **Screen Readers:** Scatter plot points must offer "Audio Charts" (Pitch varies by Y-axis value). *Note: Investigating Recharts accessibility features or custom canvas implementation.*
+*   **Keyboard Nav:** Arrow keys must navigate the scatter plot points. Focus ring must be clearly visible. [DONE]
+*   **Screen Readers:** Scatter plot points must offer "Audio Charts" (Pitch varies by Y-axis value). [DONE]

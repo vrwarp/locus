@@ -3,6 +3,7 @@ import type { Student } from '../utils/pco';
 import { calculateExpectedGrade } from '../utils/grader';
 import type { GraderOptions } from '../utils/grader';
 import { differenceInYears } from 'date-fns';
+import { playTone } from '../utils/audio';
 import './ReviewMode.css';
 
 interface ReviewModeProps {
@@ -11,13 +12,15 @@ interface ReviewModeProps {
   students: Student[];
   onSave: (student: Student) => void;
   graderOptions?: GraderOptions;
+  muteSounds?: boolean;
 }
 
-export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, graderOptions }) => {
+export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, graderOptions, muteSounds }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mode, setMode] = useState<'grade' | 'birthdate'>('grade');
   const [targetGrade, setTargetGrade] = useState<number>(0);
   const [targetBirthdate, setTargetBirthdate] = useState<string>('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -72,6 +75,13 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
           };
       }
 
+      if (!muteSounds) {
+          playTone(523.25, 'sine', 0.2); // High C
+      }
+
+      setIsSuccess(true);
+      setTimeout(() => setIsSuccess(false), 500);
+
       onSave(updatedStudent);
       handleNext();
   };
@@ -88,7 +98,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
 
   return (
     <div className="review-mode-overlay">
-      <div className="review-card">
+      <div className={`review-card ${isSuccess ? 'success-glow' : ''}`}>
         <div className="review-header">
             <h2>Review Anomalies</h2>
             <div className="progress">

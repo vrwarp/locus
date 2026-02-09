@@ -14,6 +14,8 @@ const mockStudent: Student = {
     lastCheckInAt: null,
     checkInCount: null,
     groupCount: null,
+    isChild: true,
+    householdId: 'h1'
 };
 
 describe('isGhost', () => {

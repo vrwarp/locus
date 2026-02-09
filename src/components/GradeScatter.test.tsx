@@ -11,7 +11,7 @@ vi.mock('../utils/audio', () => ({
 }));
 
 // Mock ResizeObserver for Recharts
-global.ResizeObserver = class ResizeObserver {
+(window as any).ResizeObserver = class ResizeObserver {
   observe() {}
   unobserve() {}
   disconnect() {}
@@ -25,7 +25,12 @@ describe('GradeScatter Component', () => {
     name: 'Test Kid',
     birthdate: '2017-01-01',
     calculatedGrade: 2,
-    delta: 0
+    delta: 0,
+    isChild: true,
+    householdId: 'h1',
+    lastCheckInAt: null,
+    checkInCount: 0,
+    groupCount: 0
   };
 
   const mockData: Student[] = [mockStudent];
@@ -37,8 +42,8 @@ describe('GradeScatter Component', () => {
 
   it('renders the Diagonal of Truth reference line', () => {
     const mockDataRef: Student[] = [
-      { id: '1', age: 0, pcoGrade: -5, name: 'Young', birthdate: '2024-01-01', calculatedGrade: -5, delta: 0 },
-      { id: '2', age: 30, pcoGrade: 25, name: 'Old', birthdate: '1994-01-01', calculatedGrade: 25, delta: 0 }
+      { ...mockStudent, id: '1', age: 0, pcoGrade: -5, name: 'Young', birthdate: '2024-01-01', calculatedGrade: -5, delta: 0 },
+      { ...mockStudent, id: '2', age: 30, pcoGrade: 25, name: 'Old', birthdate: '1994-01-01', calculatedGrade: 25, delta: 0 }
     ];
     const { container } = render(<GradeScatter data={mockDataRef} />);
     expect(container.querySelector('.recharts-reference-line')).toBeInTheDocument();
@@ -175,5 +180,55 @@ describe('GradeScatter Component', () => {
         fireEvent.mouseEnter(symbol);
         expect(audioUtils.playTone).not.toHaveBeenCalled();
     }
+  });
+
+  it('renders points with tabIndex=0 and aria-label for accessibility', () => {
+      const { container } = render(<GradeScatter data={mockData} />);
+      // Our CustomShape renders a <circle> or <path> with tabIndex="0" inside the symbol
+      // Recharts puts CustomShape inside the scatter symbol group/wrapper.
+      const circle = container.querySelector('circle[tabIndex="0"]');
+
+      expect(circle).toBeInTheDocument();
+      expect(circle).toHaveAttribute('aria-label', expect.stringContaining('Student: Test Kid'));
+      expect(circle).toHaveAttribute('role', 'button');
+  });
+
+  it('plays a tone on focus when sound is enabled', () => {
+      const { container } = render(<GradeScatter data={mockData} muteSounds={false} />);
+      const circle = container.querySelector('circle[tabIndex="0"]');
+
+      if (circle) {
+          fireEvent.focus(circle);
+          expect(audioUtils.getFrequencyForGrade).toHaveBeenCalledWith(2);
+          expect(audioUtils.playTone).toHaveBeenCalled();
+      } else {
+          throw new Error('Focusable circle not found');
+      }
+  });
+
+  it('triggers onPointClick when Enter key is pressed', () => {
+      const onPointClick = vi.fn();
+      const { container } = render(<GradeScatter data={mockData} onPointClick={onPointClick} />);
+      const circle = container.querySelector('circle[tabIndex="0"]');
+
+      if (circle) {
+          fireEvent.keyDown(circle, { key: 'Enter', code: 'Enter' });
+          expect(onPointClick).toHaveBeenCalledWith(mockStudent);
+      } else {
+          throw new Error('Focusable circle not found');
+      }
+  });
+
+   it('triggers onPointClick when Space key is pressed', () => {
+      const onPointClick = vi.fn();
+      const { container } = render(<GradeScatter data={mockData} onPointClick={onPointClick} />);
+      const circle = container.querySelector('circle[tabIndex="0"]');
+
+      if (circle) {
+          fireEvent.keyDown(circle, { key: ' ', code: 'Space' });
+          expect(onPointClick).toHaveBeenCalledWith(mockStudent);
+      } else {
+          throw new Error('Focusable circle not found');
+      }
   });
 });

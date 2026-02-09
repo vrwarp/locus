@@ -507,6 +507,7 @@ function App() {
         students={anomalies}
         onSave={handleSaveStudent}
         graderOptions={config.graderOptions}
+        muteSounds={config.muteSounds}
       />
 
       <ConfigModal

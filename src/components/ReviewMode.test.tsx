@@ -1,8 +1,14 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ReviewMode } from './ReviewMode';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Student } from '../utils/pco';
+import * as audioUtils from '../utils/audio';
+
+// Mock audio utils
+vi.mock('../utils/audio', () => ({
+    playTone: vi.fn(),
+}));
 
 const mockStudent: Student = {
     id: '1',
@@ -14,7 +20,9 @@ const mockStudent: Student = {
     age: 9,
     lastCheckInAt: null,
     checkInCount: 0,
-    groupCount: 0
+    groupCount: 0,
+    isChild: true,
+    householdId: 'h1'
 };
 
 const mockStudents: Student[] = [
@@ -23,6 +31,10 @@ const mockStudents: Student[] = [
 ];
 
 describe('ReviewMode', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
     it('renders the first student', () => {
         render(
             <ReviewMode
@@ -89,7 +101,28 @@ describe('ReviewMode', () => {
             delta: 0 // New delta
         }));
 
+        // Verify success sound
+        expect(audioUtils.playTone).toHaveBeenCalledWith(523.25, 'sine', 0.2);
+
         expect(screen.getByText('Second Student')).toBeInTheDocument();
+    });
+
+    it('does NOT play sound if muted', () => {
+        const onSave = vi.fn();
+        render(
+            <ReviewMode
+                isOpen={true}
+                students={mockStudents}
+                onClose={vi.fn()}
+                onSave={onSave}
+                muteSounds={true}
+            />
+        );
+
+        fireEvent.click(screen.getByText('Fix Grade to 5'));
+
+        expect(onSave).toHaveBeenCalled();
+        expect(audioUtils.playTone).not.toHaveBeenCalled();
     });
 
     it('allows fixing birthdate', () => {
