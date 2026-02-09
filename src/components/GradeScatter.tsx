@@ -1,3 +1,4 @@
+import React from 'react';
 import { ScatterChart, Scatter, XAxis, YAxis, Tooltip, ReferenceLine, Cell } from 'recharts';
 import type { Student } from '../utils/pco';
 import { getFrequencyForGrade, playTone } from '../utils/audio';
@@ -77,8 +78,26 @@ export const CustomTooltip = ({ active, payload }: any) => {
 };
 
 const CustomShape = (props: any) => {
-    const { cx, cy, fill, payload, colorblindMode } = props;
+    const { cx, cy, fill, payload, colorblindMode, onPointClick, muteSounds } = props;
     const isAnomaly = Math.abs(payload.delta) > 0;
+
+    const handleFocus = () => {
+        if (!muteSounds && payload.pcoGrade !== undefined) {
+            const frequency = getFrequencyForGrade(payload.pcoGrade);
+            playTone(frequency);
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (onPointClick) {
+                onPointClick(payload);
+            }
+        }
+    };
+
+    const ariaLabel = `Student: ${payload.name}, Grade: ${payload.pcoGrade}, Delta: ${payload.delta > 0 ? '+' : ''}${payload.delta} years`;
 
     if (colorblindMode && isAnomaly) {
         // Render a Triangle for anomalies in colorblind mode
@@ -88,12 +107,31 @@ const CustomShape = (props: any) => {
             <path
                 d={`M${cx},${cy - 6} L${cx + 6},${cy + 6} L${cx - 6},${cy + 6} Z`}
                 fill={fill}
+                tabIndex={0}
+                aria-label={ariaLabel}
+                role="button"
+                onFocus={handleFocus}
+                onKeyDown={handleKeyDown}
+                style={{ cursor: 'pointer' }}
             />
         );
     }
 
     // Default Circle
-    return <circle cx={cx} cy={cy} r={5} fill={fill} />;
+    return (
+        <circle
+            cx={cx}
+            cy={cy}
+            r={5}
+            fill={fill}
+            tabIndex={0}
+            aria-label={ariaLabel}
+            role="button"
+            onFocus={handleFocus}
+            onKeyDown={handleKeyDown}
+            style={{ cursor: 'pointer' }}
+        />
+    );
 };
 
 export const GradeScatter = ({ data, onPointClick, colorblindMode, muteSounds }: GradeScatterProps) => (
@@ -129,9 +167,16 @@ export const GradeScatter = ({ data, onPointClick, colorblindMode, muteSounds }:
       name="Students"
       data={data}
       cursor="pointer"
-      shape={<CustomShape colorblindMode={colorblindMode} />}
+      shape={
+          <CustomShape
+              colorblindMode={colorblindMode}
+              onPointClick={onPointClick}
+              muteSounds={muteSounds}
+          />
+      }
       onClick={(dataPoint: any) => {
         // Recharts onClick passes an object that contains the payload (original data)
+        // This handles mouse clicks on the scatter group/symbol wrapper
         if (onPointClick && dataPoint && dataPoint.payload) {
           onPointClick(dataPoint.payload as Student);
         }

@@ -59,3 +59,19 @@
         - Verify save logic integration.
     - Verified all tests pass.
 - **Status:** Review Mode implemented.
+
+## Session 25
+- **Implemented:**
+    - **Accessibility Improvements (GradeScatter):**
+        - Added `tabIndex={0}` and `aria-label` to scatter points.
+        - Implemented `onFocus` handler to play grade-specific audio tones (Audio Charts).
+        - Implemented `onKeyDown` (Enter/Space) to trigger point selection.
+    - **Review Mode Feedback:**
+        - Added success sound (High C) on fix.
+        - Added visual "Gold Glow" effect on fix.
+        - Added `muteSounds` prop support to `ReviewMode`.
+- **Tests:**
+    - Updated `src/components/GradeScatter.test.tsx` to verify accessibility and audio.
+    - Updated `src/components/ReviewMode.test.tsx` to verify success feedback and mute logic.
+    - Validated all tests pass (146 tests).
+- **Status:** Accessibility and Review Mode Feedback implemented.
