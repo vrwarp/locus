@@ -49,6 +49,8 @@ describe('transformPerson', () => {
       age: 10,
       pcoGrade: 4,
       name: 'John Doe',
+      firstName: 'John',
+      lastName: 'Doe',
       birthdate: birthdate10,
       calculatedGrade: expectedGrade,
       delta: expectedGrade - 4,
@@ -57,8 +59,25 @@ describe('transformPerson', () => {
       groupCount: null,
       avatarUrl: undefined,
       isChild: true,
-      householdId: 'hh1'
+      householdId: 'hh1',
+      hasNameAnomaly: false
     });
+  });
+
+  it('detects name anomalies', () => {
+    const person: PcoPerson = {
+      id: '1',
+      type: 'Person',
+      attributes: {
+        birthdate: birthdate10,
+        grade: 4,
+        name: 'JOHN DOE',
+        first_name: 'JOHN',
+        last_name: 'DOE',
+      },
+    };
+    const result = transformPerson(person);
+    expect(result?.hasNameAnomaly).toBe(true);
   });
 
   it('transforms a person with avatar correctly', () => {
