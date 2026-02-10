@@ -2,6 +2,7 @@ import { differenceInYears } from 'date-fns';
 import { AxiosError } from 'axios';
 import api from './api';
 import { calculateExpectedGrade } from './grader';
+import { detectNameAnomaly } from './hygiene';
 import type { GraderOptions } from './grader';
 
 export interface PcoAttributes {
@@ -43,6 +44,8 @@ export interface Student {
   age: number;
   pcoGrade: number;
   name: string;
+  firstName: string;
+  lastName: string;
   birthdate: string;
   calculatedGrade: number;
   delta: number;
@@ -52,6 +55,7 @@ export interface Student {
   avatarUrl?: string;
   isChild: boolean;
   householdId: string | null;
+  hasNameAnomaly: boolean;
 }
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
@@ -74,12 +78,15 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
 
   // Use 'name' if available, otherwise construct from first/last, otherwise 'Unknown'
   const displayName = name || `${first_name || ''} ${last_name || ''}`.trim() || 'Unknown';
+  const hasNameAnomaly = detectNameAnomaly(displayName);
 
   return {
     id,
     age,
     pcoGrade: grade,
     name: displayName,
+    firstName: (first_name || '').trim(),
+    lastName: (last_name || '').trim(),
     birthdate,
     calculatedGrade,
     delta,
@@ -89,6 +96,7 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     avatarUrl: (avatar as string) || undefined,
     isChild: !!child,
     householdId: household_id || null,
+    hasNameAnomaly,
   };
 };
 

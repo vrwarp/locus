@@ -88,7 +88,7 @@ Identifying the invisible.
 -   **Address Validation:** Verify addresses against Google Maps/USPS API. Flag "Undeliverable".
 -   **Email Scrub:** Ping SMTP servers to verify email deliverability. Flag "Bounced".
 -   **Phone Format:** Standardize to E.164 format automatically.
--   **Name Case:** Auto-fix "JOHN DOE" or "john doe" to "John Doe".
+-   **Name Case:** Auto-fix "JOHN DOE" or "john doe" to "John Doe". [DONE]
 
 ---
 

@@ -4,6 +4,7 @@ import { calculateExpectedGrade } from '../utils/grader';
 import type { GraderOptions } from '../utils/grader';
 import { differenceInYears } from 'date-fns';
 import { playTone } from '../utils/audio';
+import { fixName } from '../utils/hygiene';
 import './ReviewMode.css';
 
 interface ReviewModeProps {
@@ -17,9 +18,10 @@ interface ReviewModeProps {
 
 export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, graderOptions, muteSounds }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [mode, setMode] = useState<'grade' | 'birthdate'>('grade');
+  const [mode, setMode] = useState<'grade' | 'birthdate' | 'name'>('grade');
   const [targetGrade, setTargetGrade] = useState<number>(0);
   const [targetBirthdate, setTargetBirthdate] = useState<string>('');
+  const [targetName, setTargetName] = useState<string>('');
   const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
@@ -34,7 +36,13 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
     if (currentStudent) {
       setTargetGrade(currentStudent.calculatedGrade);
       setTargetBirthdate(currentStudent.birthdate);
-      setMode('grade');
+      setTargetName(fixName(currentStudent.name));
+
+      if (currentStudent.hasNameAnomaly) {
+          setMode('name');
+      } else {
+          setMode('grade');
+      }
     }
   }, [currentStudent]);
 
@@ -60,7 +68,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
               pcoGrade: targetGrade,
               delta: newDelta
           };
-      } else {
+      } else if (mode === 'birthdate') {
           const newDob = new Date(targetBirthdate);
           const newAge = differenceInYears(new Date(), newDob);
           const newCalculatedGrade = calculateExpectedGrade(newDob, new Date(), graderOptions);
@@ -72,6 +80,15 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
               age: newAge,
               calculatedGrade: newCalculatedGrade,
               delta: newDelta
+          };
+      } else {
+          // Fix Name
+          updatedStudent = {
+              ...currentStudent,
+              name: targetName,
+              firstName: targetName.split(' ')[0],
+              lastName: targetName.split(' ').slice(1).join(' '),
+              hasNameAnomaly: false
           };
       }
 
@@ -125,6 +142,12 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
             >
                 Fix Birthdate
             </button>
+             <button
+                className={mode === 'name' ? 'active' : ''}
+                onClick={() => setMode('name')}
+            >
+                Fix Name
+            </button>
         </div>
 
         <div className="fix-area">
@@ -146,7 +169,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
                         </div>
                     </div>
                 </>
-            ) : (
+            ) : mode === 'birthdate' ? (
                 <>
                     <div className="input-container">
                         <label htmlFor="review-birthdate">New Birthdate:</label>
@@ -160,13 +183,27 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
                     </div>
                     <p>Expected Grade: <strong>{formatGrade(previewCalculatedGrade)}</strong></p>
                 </>
+            ) : (
+                <>
+                    <div className="input-container">
+                        <label htmlFor="review-name">Suggested Name:</label>
+                        <input
+                            id="review-name"
+                            type="text"
+                            value={targetName}
+                            onChange={(e) => setTargetName(e.target.value)}
+                            className="text-input"
+                        />
+                    </div>
+                    <p className="hint-text">Current: {currentStudent.name}</p>
+                </>
             )}
         </div>
 
         <div className="review-actions">
             <button onClick={handleNext} className="btn-skip">Skip</button>
             <button onClick={handleFix} className="btn-fix">
-                {mode === 'grade' ? `Fix Grade to ${formatGrade(targetGrade)}` : `Fix Birthdate`}
+                {mode === 'grade' ? `Fix Grade` : mode === 'birthdate' ? `Fix Birthdate` : `Fix Name`}
             </button>
         </div>
       </div>

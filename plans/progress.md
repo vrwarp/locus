@@ -75,3 +75,18 @@
     - Updated `src/components/ReviewMode.test.tsx` to verify success feedback and mute logic.
     - Validated all tests pass (146 tests).
 - **Status:** Accessibility and Review Mode Feedback implemented.
+
+## Session 26
+- **Implemented:**
+    - **Advanced Data Hygiene (Name Case):**
+        - Created `src/utils/hygiene.ts` to detect and fix name anomalies (e.g., "JOHN DOE" or "john doe").
+        - Updated `Student` model in `src/utils/pco.ts` to include `firstName`, `lastName`, and `hasNameAnomaly`.
+        - Integrated Name Case checks into `ReviewMode`, allowing "One-Click Fix" for name capitalization.
+        - Updated `App.tsx` to include name anomalies in the "Review Mode" queue.
+        - Updated `executeCommit` to handle name updates (splitting `name` into `first_name` and `last_name`).
+- **Tests:**
+    - Created `src/utils/hygiene.test.ts` to verify anomaly detection and fix logic.
+    - Updated `src/utils/pco.test.ts` to verify `hasNameAnomaly` population.
+    - Updated `src/components/ReviewMode.test.tsx` to verify "Fix Name" UI and logic.
+    - Verified all tests pass (156 tests).
+- **Status:** Advanced Data Hygiene (Name Case) implemented.

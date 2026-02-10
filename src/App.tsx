@@ -194,7 +194,7 @@ function App() {
   }, [students, stats, appId]);
 
   const ghosts = students.filter(s => isGhost(s));
-  const anomalies = students.filter(s => s.delta !== 0);
+  const anomalies = students.filter(s => s.delta !== 0 || s.hasNameAnomaly);
 
   const familyIssues = useMemo(() => analyzeFamilies(students), [students]);
 
@@ -264,6 +264,12 @@ function App() {
            }
            if (update.original.birthdate !== update.updated.birthdate) {
                attributes.birthdate = update.updated.birthdate;
+           }
+           if (update.original.firstName !== update.updated.firstName) {
+               attributes.first_name = update.updated.firstName;
+           }
+           if (update.original.lastName !== update.updated.lastName) {
+               attributes.last_name = update.updated.lastName;
            }
 
            if (Object.keys(attributes).length > 0) {

@@ -13,6 +13,8 @@ vi.mock('../utils/audio', () => ({
 const mockStudent: Student = {
     id: '1',
     name: 'Test Student',
+    firstName: 'Test',
+    lastName: 'Student',
     birthdate: '2015-01-01',
     pcoGrade: 4,
     calculatedGrade: 5,
@@ -22,7 +24,8 @@ const mockStudent: Student = {
     checkInCount: 0,
     groupCount: 0,
     isChild: true,
-    householdId: 'h1'
+    householdId: 'h1',
+    hasNameAnomaly: false
 };
 
 const mockStudents: Student[] = [
@@ -93,7 +96,11 @@ describe('ReviewMode', () => {
         );
 
         // Default mode is grade, default selected grade is calculatedGrade (5)
-        fireEvent.click(screen.getByText('Fix Grade to 5'));
+        const fixButtons = screen.getAllByText('Fix Grade');
+        const fixButton = fixButtons.find(btn => btn.classList.contains('btn-fix'));
+        if (!fixButton) throw new Error('Fix button not found');
+
+        fireEvent.click(fixButton);
 
         expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
             id: '1',
@@ -119,7 +126,11 @@ describe('ReviewMode', () => {
             />
         );
 
-        fireEvent.click(screen.getByText('Fix Grade to 5'));
+        const fixButtons = screen.getAllByText('Fix Grade');
+        const fixButton = fixButtons.find(btn => btn.classList.contains('btn-fix'));
+        if (!fixButton) throw new Error('Fix button not found');
+
+        fireEvent.click(fixButton);
 
         expect(onSave).toHaveBeenCalled();
         expect(audioUtils.playTone).not.toHaveBeenCalled();
@@ -151,6 +162,46 @@ describe('ReviewMode', () => {
         expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
             id: '1',
             birthdate: '2016-01-01'
+        }));
+    });
+
+    it('allows fixing name anomalies', () => {
+        const studentWithNameAnomaly: Student = {
+            ...mockStudent,
+            name: 'JOHN DOE',
+            hasNameAnomaly: true
+        };
+        const onSave = vi.fn();
+        render(
+            <ReviewMode
+                isOpen={true}
+                students={[studentWithNameAnomaly]}
+                onClose={vi.fn()}
+                onSave={onSave}
+            />
+        );
+
+        // Should default to Name mode. The button with 'active' class
+        const nameModeButton = screen.getAllByText('Fix Name').find(btn => btn.classList.contains('active'));
+        expect(nameModeButton).toBeInTheDocument();
+
+        expect(screen.getByLabelText('Suggested Name:')).toHaveValue('John Doe');
+
+        // Allow editing
+        fireEvent.change(screen.getByLabelText('Suggested Name:'), { target: { value: 'John P. Doe' } });
+
+        // Find the fix button
+        const fixButton = screen.getAllByText('Fix Name').find(btn => btn.classList.contains('btn-fix'));
+        if (!fixButton) throw new Error('Fix button not found');
+
+        fireEvent.click(fixButton);
+
+        expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
+            id: '1',
+            name: 'John P. Doe',
+            firstName: 'John',
+            lastName: 'P. Doe',
+            hasNameAnomaly: false
         }));
     });
 });
