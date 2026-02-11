@@ -4,7 +4,7 @@ import App from './App';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import api from './utils/api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Student } from './utils/pco';
+import type { Student } from './utils/pco';
 import * as pco from './utils/pco';
 
 // Mock pco (partial mock to override checkApiVersion)

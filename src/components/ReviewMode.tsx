@@ -5,6 +5,7 @@ import type { GraderOptions } from '../utils/grader';
 import { differenceInYears } from 'date-fns';
 import { playTone } from '../utils/audio';
 import { fixName } from '../utils/hygiene';
+import type { Address } from '../utils/hygiene';
 import './ReviewMode.css';
 
 interface ReviewModeProps {
@@ -18,10 +19,12 @@ interface ReviewModeProps {
 
 export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, graderOptions, muteSounds }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [mode, setMode] = useState<'grade' | 'birthdate' | 'name'>('grade');
+  const [mode, setMode] = useState<'grade' | 'birthdate' | 'name' | 'email' | 'address'>('grade');
   const [targetGrade, setTargetGrade] = useState<number>(0);
   const [targetBirthdate, setTargetBirthdate] = useState<string>('');
   const [targetName, setTargetName] = useState<string>('');
+  const [targetEmail, setTargetEmail] = useState<string>('');
+  const [targetAddress, setTargetAddress] = useState<Address>({ street: '', city: '', state: '', zip: '' });
   const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
@@ -37,9 +40,15 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
       setTargetGrade(currentStudent.calculatedGrade);
       setTargetBirthdate(currentStudent.birthdate);
       setTargetName(fixName(currentStudent.name));
+      setTargetEmail(currentStudent.email || '');
+      setTargetAddress(currentStudent.address || { street: '', city: '', state: '', zip: '' });
 
       if (currentStudent.hasNameAnomaly) {
           setMode('name');
+      } else if (currentStudent.hasEmailAnomaly) {
+          setMode('email');
+      } else if (currentStudent.hasAddressAnomaly) {
+          setMode('address');
       } else {
           setMode('grade');
       }
@@ -80,6 +89,18 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
               age: newAge,
               calculatedGrade: newCalculatedGrade,
               delta: newDelta
+          };
+      } else if (mode === 'email') {
+          updatedStudent = {
+              ...currentStudent,
+              email: targetEmail,
+              hasEmailAnomaly: false
+          };
+      } else if (mode === 'address') {
+          updatedStudent = {
+              ...currentStudent,
+              address: targetAddress,
+              hasAddressAnomaly: false
           };
       } else {
           // Fix Name
@@ -148,6 +169,18 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
             >
                 Fix Name
             </button>
+            <button
+                className={mode === 'email' ? 'active' : ''}
+                onClick={() => setMode('email')}
+            >
+                Fix Email
+            </button>
+            <button
+                className={mode === 'address' ? 'active' : ''}
+                onClick={() => setMode('address')}
+            >
+                Fix Address
+            </button>
         </div>
 
         <div className="fix-area">
@@ -183,6 +216,64 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
                     </div>
                     <p>Expected Grade: <strong>{formatGrade(previewCalculatedGrade)}</strong></p>
                 </>
+            ) : mode === 'email' ? (
+                <>
+                    <div className="input-container">
+                        <label htmlFor="review-email">Correct Email:</label>
+                        <input
+                            id="review-email"
+                            type="text"
+                            value={targetEmail}
+                            onChange={(e) => setTargetEmail(e.target.value)}
+                            className="text-input"
+                        />
+                    </div>
+                </>
+            ) : mode === 'address' ? (
+                 <>
+                    <div className="address-grid">
+                        <div className="input-container">
+                            <label htmlFor="review-street">Street:</label>
+                            <input
+                                id="review-street"
+                                type="text"
+                                value={targetAddress.street}
+                                onChange={(e) => setTargetAddress({...targetAddress, street: e.target.value})}
+                                className="text-input"
+                            />
+                        </div>
+                        <div className="input-container">
+                            <label htmlFor="review-city">City:</label>
+                            <input
+                                id="review-city"
+                                type="text"
+                                value={targetAddress.city}
+                                onChange={(e) => setTargetAddress({...targetAddress, city: e.target.value})}
+                                className="text-input"
+                            />
+                        </div>
+                        <div className="input-container">
+                            <label htmlFor="review-state">State:</label>
+                            <input
+                                id="review-state"
+                                type="text"
+                                value={targetAddress.state}
+                                onChange={(e) => setTargetAddress({...targetAddress, state: e.target.value})}
+                                className="text-input"
+                            />
+                        </div>
+                         <div className="input-container">
+                            <label htmlFor="review-zip">Zip:</label>
+                            <input
+                                id="review-zip"
+                                type="text"
+                                value={targetAddress.zip}
+                                onChange={(e) => setTargetAddress({...targetAddress, zip: e.target.value})}
+                                className="text-input"
+                            />
+                        </div>
+                    </div>
+                </>
             ) : (
                 <>
                     <div className="input-container">
@@ -203,7 +294,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
         <div className="review-actions">
             <button onClick={handleNext} className="btn-skip">Skip</button>
             <button onClick={handleFix} className="btn-fix">
-                {mode === 'grade' ? `Fix Grade` : mode === 'birthdate' ? `Fix Birthdate` : `Fix Name`}
+                {mode === 'grade' ? `Fix Grade` : mode === 'birthdate' ? `Fix Birthdate` : mode === 'name' ? `Fix Name` : mode === 'email' ? 'Fix Email' : 'Fix Address'}
             </button>
         </div>
       </div>

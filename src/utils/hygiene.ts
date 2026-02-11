@@ -21,3 +21,39 @@ export const fixName = (name: string): string => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 };
+
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  location?: string;
+}
+
+export const validateEmail = (email: string): boolean => {
+  if (!email) return false;
+  // Simple regex for email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+export const detectEmailAnomaly = (email: string): boolean => {
+    // If email is present but invalid, it's an anomaly
+    if (!email) return false;
+    return !validateEmail(email);
+}
+
+export const validateAddress = (address: Address): boolean => {
+    if (!address) return false;
+    // Check required fields
+    if (!address.street || !address.city || !address.state || !address.zip) return false;
+
+    // Check Zip format (US 5 digit)
+    const zipRegex = /^\d{5}(-\d{4})?$/;
+    return zipRegex.test(address.zip);
+}
+
+export const detectAddressAnomaly = (address: Address): boolean => {
+    if (!address) return false;
+    return !validateAddress(address);
+}

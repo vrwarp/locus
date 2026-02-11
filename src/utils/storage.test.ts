@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { loadConfig, saveConfig, AppConfig, loadHealthHistory, saveHealthSnapshot, HealthHistoryEntry, GamificationState, loadGamificationState, saveGamificationState } from './storage';
+import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot, loadGamificationState, saveGamificationState } from './storage';
+import type { AppConfig, HealthHistoryEntry, GamificationState } from './storage';
 import type { HealthStats } from './analytics';
 import * as cryptoUtils from './crypto';
 

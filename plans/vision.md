@@ -85,8 +85,8 @@ Identifying the invisible.
 -   **The Purge:** Batch archive true ghosts to clean the denominator.
 
 ### 3.4 Advanced Data Hygiene (New)
--   **Address Validation:** Verify addresses against Google Maps/USPS API. Flag "Undeliverable".
--   **Email Scrub:** Ping SMTP servers to verify email deliverability. Flag "Bounced".
+-   **Address Validation:** Verify addresses (Check Required Fields & Zip Format). Flag "Invalid". [DONE]
+-   **Email Scrub:** Validate email format (Regex). Flag "Invalid". [DONE]
 -   **Phone Format:** Standardize to E.164 format automatically.
 -   **Name Case:** Auto-fix "JOHN DOE" or "john doe" to "John Doe". [DONE]
 

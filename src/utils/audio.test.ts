@@ -1,6 +1,6 @@
 // src/utils/audio.test.ts
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getFrequencyForGrade, playTone, getAudioContext, resetAudioContextForTesting } from './audio';
+import { getFrequencyForGrade, playTone, resetAudioContextForTesting } from './audio';
 
 describe('Audio Utils', () => {
     // Mock AudioContext

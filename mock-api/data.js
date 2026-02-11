@@ -31,10 +31,36 @@ const generateHouseholds = () => {
     const adults = [];
     const householdId = String(personIdCounter); // Use the ID of the first adult as the household ID
 
+    // Generate shared household address
+    const streetNum = randomInt(100, 9999);
+    const streets = ['Main St', 'Oak Ave', 'Maple Dr', 'Cedar Ln', 'Pine Ct'];
+    const cities = ['Springfield', 'Rivertown', 'Lakeside', 'Hill Valley'];
+    const street = `${streetNum} ${randomItem(streets)}`;
+    const city = randomItem(cities);
+    const state = 'CA';
+    const zip = String(randomInt(90000, 99999));
+
+    // Address Anomaly Generator (5% chance)
+    const hasAddressAnomaly = Math.random() < 0.05;
+    const householdAddress = {
+        street: street,
+        city: city,
+        state: state,
+        zip: hasAddressAnomaly ? '' : zip, // Missing Zip
+        location: 'Home'
+    };
+
     for (let a = 0; a < adultCount; a++) {
       const isFemale = Math.random() > 0.5;
       const firstName = randomItem(isFemale ? femaleNames : maleNames);
       const id = String(personIdCounter++);
+
+      // Email Anomaly Generator (5% chance)
+      const hasEmailAnomaly = Math.random() < 0.05;
+      const email = hasEmailAnomaly
+        ? `${firstName.toLowerCase()}.${lastName.toLowerCase()}` // Missing @domain.com
+        : `${firstName.toLowerCase()}.${lastName.toLowerCase()}${randomInt(1,99)}@example.com`;
+
       const adult = {
         id,
         type: 'Person',
@@ -46,7 +72,8 @@ const generateHouseholds = () => {
           grade: null,
           birthdate: `${randomInt(1975, 1995)}-01-01`, // Rough adult age
           phone_numbers: [{ location: 'Mobile', number: `555-${randomInt(100, 999)}-${randomInt(1000, 9999)}` }],
-          email_addresses: [{ location: 'Home', address: `${firstName.toLowerCase()}.${lastName.toLowerCase()}${randomInt(1,99)}@example.com` }],
+          email_addresses: [{ location: 'Home', address: email }],
+          addresses: [householdAddress],
           avatar: `https://i.pravatar.cc/150?u=${id}`,
           household_id: householdId
         }
@@ -85,6 +112,7 @@ const generateHouseholds = () => {
           grade: grade,
           birthdate: `${birthYear}-${String(randomInt(1, 12)).padStart(2, '0')}-${String(randomInt(1, 28)).padStart(2, '0')}`,
           household_id: householdId,
+          addresses: [householdAddress],
           avatar: `https://i.pravatar.cc/150?u=${id}`
         }
       };

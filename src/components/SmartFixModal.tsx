@@ -63,9 +63,9 @@ export const SmartFixModal: React.FC<SmartFixModalProps> = ({ isOpen, onClose, s
       onClose();
   };
 
-  const isMatch = mode === 'grade'
-      ? targetGrade === student.calculatedGrade
-      : calculateExpectedGrade(new Date(targetBirthdate), new Date(), graderOptions) === student.pcoGrade;
+  // const isMatch = mode === 'grade'
+  //     ? targetGrade === student.calculatedGrade
+  //     : calculateExpectedGrade(new Date(targetBirthdate), new Date(), graderOptions) === student.pcoGrade;
 
   const formatGrade = (grade: number) => {
       if (grade <= -1) return 'Pre-K';

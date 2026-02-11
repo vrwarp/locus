@@ -90,3 +90,18 @@
     - Updated `src/components/ReviewMode.test.tsx` to verify "Fix Name" UI and logic.
     - Verified all tests pass (156 tests).
 - **Status:** Advanced Data Hygiene (Name Case) implemented.
+
+## Session 27
+- **Implemented:**
+    - **Advanced Data Hygiene (Email & Address):**
+        - Updated `mock-api/data.js` to generate `addresses` and introduce anomalies (missing Zip, bad Email format).
+        - Updated `src/utils/hygiene.ts` with `validateEmail`, `validateAddress`, and anomaly detection logic.
+        - Updated `Student` model in `src/utils/pco.ts` to include `email`, `address`, `hasEmailAnomaly`, and `hasAddressAnomaly`.
+        - Updated `ReviewMode` to support "Fix Email" and "Fix Address" modes with appropriate UI inputs.
+        - Updated `App.tsx` to include these anomalies in the review queue and handle API updates (simulated).
+- **Tests:**
+    - Updated `src/utils/hygiene.test.ts` to verify new validation logic.
+    - Updated `src/components/ReviewMode.test.tsx` to verify new "Fix Email" and "Fix Address" flows.
+    - Updated `src/utils/pco.test.ts` to reflect data model changes.
+    - Verified all tests pass (165 tests).
+- **Status:** Advanced Data Hygiene (Email & Address) implemented.

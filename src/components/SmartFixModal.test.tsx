@@ -1,7 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { SmartFixModal } from './SmartFixModal';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { Student } from '../utils/pco';
+import type { Student } from '../utils/pco';
 
 describe('SmartFixModal', () => {
   const mockStudent: Student = {
@@ -9,6 +9,8 @@ describe('SmartFixModal', () => {
     age: 10,
     pcoGrade: 4,
     name: 'Test Kid',
+    firstName: 'Test',
+    lastName: 'Kid',
     birthdate: '2014-01-01',
     calculatedGrade: 5,
     delta: 1,
@@ -16,7 +18,10 @@ describe('SmartFixModal', () => {
     checkInCount: 0,
     groupCount: 0,
     isChild: true,
-    householdId: 'h1'
+    householdId: 'h1',
+    hasNameAnomaly: false,
+    hasEmailAnomaly: false,
+    hasAddressAnomaly: false
   };
 
   beforeEach(() => {

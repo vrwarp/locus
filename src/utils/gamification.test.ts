@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
-import { updateGamificationState, BADGES } from './gamification';
+import { describe, it, expect } from 'vitest';
+import { updateGamificationState } from './gamification';
 import type { GamificationState } from './storage';
 
 describe('Gamification Logic', () => {

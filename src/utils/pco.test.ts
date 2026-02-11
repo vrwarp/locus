@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import api from './api';
-import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, fetchGroupCount, checkApiVersion, PcoPerson } from './pco';
+import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, fetchGroupCount, checkApiVersion } from './pco';
+import type { PcoPerson } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
 import { AxiosError } from 'axios';
@@ -60,7 +61,11 @@ describe('transformPerson', () => {
       avatarUrl: undefined,
       isChild: true,
       householdId: 'hh1',
-      hasNameAnomaly: false
+      hasNameAnomaly: false,
+      email: undefined,
+      address: undefined,
+      hasEmailAnomaly: false,
+      hasAddressAnomaly: false
     });
   });
 
