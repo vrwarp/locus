@@ -10,7 +10,7 @@ export default defineConfig({
       '/api': {
         target: process.env.VITE_API_TARGET || 'https://api.planningcenteronline.com',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path: string) => path.replace(/^\/api/, ''),
       },
     },
   },
@@ -20,4 +20,4 @@ export default defineConfig({
     globals: true,
     exclude: ['e2e/**', 'node_modules/**'],
   },
-})
+} as any)

@@ -4,7 +4,7 @@ import App from './App';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import api from './utils/api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Student } from './utils/pco';
+import type { Student } from './utils/pco';
 import * as storage from './utils/storage';
 import * as gamification from './utils/gamification';
 import { saveToCache, loadFromCache } from './utils/cache';

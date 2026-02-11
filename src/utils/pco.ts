@@ -2,7 +2,8 @@ import { differenceInYears } from 'date-fns';
 import { AxiosError } from 'axios';
 import api from './api';
 import { calculateExpectedGrade } from './grader';
-import { detectNameAnomaly, detectEmailAnomaly, detectAddressAnomaly, Address } from './hygiene';
+import { detectNameAnomaly, detectEmailAnomaly, detectAddressAnomaly } from './hygiene';
+import type { Address } from './hygiene';
 import type { GraderOptions } from './grader';
 
 export interface PcoAttributes {
@@ -190,9 +191,9 @@ export const fetchAllPeople = async (auth: string, url: string = '/api/people/v2
 
   while (nextUrl && pageCount < maxPages) {
     // Ensure we use the proxy for absolute URLs returned by PCO
-    const proxyUrl = nextUrl.replace('https://api.planningcenteronline.com', '/api');
+    const proxyUrl: string = nextUrl.replace('https://api.planningcenteronline.com', '/api');
 
-    const response = await api.get<PcoApiResponse>(proxyUrl, {
+    const response: { data: PcoApiResponse } = await api.get<PcoApiResponse>(proxyUrl, {
       headers: {
         Authorization: `Basic ${auth}`
       }

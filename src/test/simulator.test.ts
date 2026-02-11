@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 // @ts-ignore - Importing JS file
 import { app, resetDb } from '../../mock-api/server.js';

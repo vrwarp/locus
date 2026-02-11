@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { analyzeFamilies } from './family';
-import { Student } from './pco';
+import type { Student } from './pco';
 
 const mockStudent = (id: string, name: string, age: number, isChild: boolean, householdId: string): Student => ({
     id,
     name,
+    firstName: name,
+    lastName: 'Doe',
     age,
     isChild,
     householdId,
@@ -14,7 +16,10 @@ const mockStudent = (id: string, name: string, age: number, isChild: boolean, ho
     delta: 0,
     lastCheckInAt: null,
     checkInCount: 0,
-    groupCount: 0
+    groupCount: 0,
+    hasNameAnomaly: false,
+    hasEmailAnomaly: false,
+    hasAddressAnomaly: false
 });
 
 describe('analyzeFamilies', () => {

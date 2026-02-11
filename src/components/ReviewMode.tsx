@@ -4,7 +4,8 @@ import { calculateExpectedGrade } from '../utils/grader';
 import type { GraderOptions } from '../utils/grader';
 import { differenceInYears } from 'date-fns';
 import { playTone } from '../utils/audio';
-import { fixName, Address } from '../utils/hygiene';
+import { fixName } from '../utils/hygiene';
+import type { Address } from '../utils/hygiene';
 import './ReviewMode.css';
 
 interface ReviewModeProps {

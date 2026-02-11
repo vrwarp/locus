@@ -1,7 +1,7 @@
 import { render, fireEvent, screen } from '@testing-library/react';
 import { GradeScatter, CustomTooltip } from './GradeScatter';
 import { describe, it, expect, vi } from 'vitest';
-import { Student } from '../utils/pco';
+import type { Student } from '../utils/pco';
 import * as audioUtils from '../utils/audio';
 
 // Mock Audio Utils
@@ -23,6 +23,8 @@ describe('GradeScatter Component', () => {
     age: 7,
     pcoGrade: 2,
     name: 'Test Kid',
+    firstName: 'Test',
+    lastName: 'Kid',
     birthdate: '2017-01-01',
     calculatedGrade: 2,
     delta: 0,
@@ -30,7 +32,10 @@ describe('GradeScatter Component', () => {
     householdId: 'h1',
     lastCheckInAt: null,
     checkInCount: 0,
-    groupCount: 0
+    groupCount: 0,
+    hasNameAnomaly: false,
+    hasEmailAnomaly: false,
+    hasAddressAnomaly: false
   };
 
   const mockData: Student[] = [mockStudent];
@@ -116,7 +121,7 @@ describe('GradeScatter Component', () => {
 
     // Let's render normal mode first
     const { container: normalContainer } = render(<GradeScatter data={anomalyData} colorblindMode={false} />);
-    const normalPath = normalContainer.querySelector('.recharts-scatter-symbol path');
+    // const normalPath = normalContainer.querySelector('.recharts-scatter-symbol path');
 
     // In our implementation:
     // Normal: <circle>

@@ -8,6 +8,8 @@ const mockStudent: Student = {
     age: 10,
     pcoGrade: 4,
     name: 'Test Student',
+    firstName: 'Test',
+    lastName: 'Student',
     birthdate: '2014-01-01',
     calculatedGrade: 4,
     delta: 0,
@@ -15,7 +17,10 @@ const mockStudent: Student = {
     checkInCount: null,
     groupCount: null,
     isChild: true,
-    householdId: 'h1'
+    householdId: 'h1',
+    hasNameAnomaly: false,
+    hasEmailAnomaly: false,
+    hasAddressAnomaly: false
 };
 
 describe('isGhost', () => {
