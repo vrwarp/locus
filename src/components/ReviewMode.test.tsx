@@ -25,7 +25,9 @@ const mockStudent: Student = {
     groupCount: 0,
     isChild: true,
     householdId: 'h1',
-    hasNameAnomaly: false
+    hasNameAnomaly: false,
+    hasEmailAnomaly: false,
+    hasAddressAnomaly: false
 };
 
 const mockStudents: Student[] = [
@@ -202,6 +204,82 @@ describe('ReviewMode', () => {
             firstName: 'John',
             lastName: 'P. Doe',
             hasNameAnomaly: false
+        }));
+    });
+
+    it('allows fixing email anomalies', () => {
+        const studentWithEmailAnomaly: Student = {
+            ...mockStudent,
+            email: 'bademail',
+            hasEmailAnomaly: true
+        };
+        const onSave = vi.fn();
+        render(
+            <ReviewMode
+                isOpen={true}
+                students={[studentWithEmailAnomaly]}
+                onClose={vi.fn()}
+                onSave={onSave}
+            />
+        );
+
+        // Should default to Email mode
+        const emailModeButton = screen.getAllByText('Fix Email').find(btn => btn.classList.contains('active'));
+        expect(emailModeButton).toBeInTheDocument();
+
+        expect(screen.getByLabelText('Correct Email:')).toHaveValue('bademail');
+
+        // Allow editing
+        fireEvent.change(screen.getByLabelText('Correct Email:'), { target: { value: 'good@email.com' } });
+
+        // Find the fix button
+        const fixButton = screen.getAllByText('Fix Email').find(btn => btn.classList.contains('btn-fix'));
+        if (!fixButton) throw new Error('Fix button not found');
+
+        fireEvent.click(fixButton);
+
+        expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
+            id: '1',
+            email: 'good@email.com',
+            hasEmailAnomaly: false
+        }));
+    });
+
+    it('allows fixing address anomalies', () => {
+        const studentWithAddressAnomaly: Student = {
+            ...mockStudent,
+            address: { street: '123 Main', city: 'City', state: 'CA', zip: '123' },
+            hasAddressAnomaly: true
+        };
+        const onSave = vi.fn();
+        render(
+            <ReviewMode
+                isOpen={true}
+                students={[studentWithAddressAnomaly]}
+                onClose={vi.fn()}
+                onSave={onSave}
+            />
+        );
+
+        // Should default to Address mode
+        const addressModeButton = screen.getAllByText('Fix Address').find(btn => btn.classList.contains('active'));
+        expect(addressModeButton).toBeInTheDocument();
+
+        expect(screen.getByLabelText('Zip:')).toHaveValue('123');
+
+        // Allow editing
+        fireEvent.change(screen.getByLabelText('Zip:'), { target: { value: '90210' } });
+
+        // Find the fix button
+        const fixButton = screen.getAllByText('Fix Address').find(btn => btn.classList.contains('btn-fix'));
+        if (!fixButton) throw new Error('Fix button not found');
+
+        fireEvent.click(fixButton);
+
+        expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
+            id: '1',
+            address: expect.objectContaining({ zip: '90210' }),
+            hasAddressAnomaly: false
         }));
     });
 });

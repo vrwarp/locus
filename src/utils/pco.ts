@@ -2,7 +2,7 @@ import { differenceInYears } from 'date-fns';
 import { AxiosError } from 'axios';
 import api from './api';
 import { calculateExpectedGrade } from './grader';
-import { detectNameAnomaly } from './hygiene';
+import { detectNameAnomaly, detectEmailAnomaly, detectAddressAnomaly, Address } from './hygiene';
 import type { GraderOptions } from './grader';
 
 export interface PcoAttributes {
@@ -13,6 +13,8 @@ export interface PcoAttributes {
   last_name?: string;
   child?: boolean;
   household_id?: string;
+  email_addresses?: { address: string, location: string }[];
+  addresses?: Address[];
   [key: string]: unknown;
 }
 
@@ -56,11 +58,15 @@ export interface Student {
   isChild: boolean;
   householdId: string | null;
   hasNameAnomaly: boolean;
+  email?: string;
+  address?: Address;
+  hasEmailAnomaly: boolean;
+  hasAddressAnomaly: boolean;
 }
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
   const { id, attributes } = person;
-  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id } = attributes;
+  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id, email_addresses, addresses } = attributes;
 
   if (!birthdate || grade === undefined || grade === null) {
     return null;
@@ -80,6 +86,13 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
   const displayName = name || `${first_name || ''} ${last_name || ''}`.trim() || 'Unknown';
   const hasNameAnomaly = detectNameAnomaly(displayName);
 
+  const primaryEmail = email_addresses && email_addresses.length > 0 ? email_addresses[0].address : undefined;
+  const primaryAddress = addresses && addresses.length > 0 ? addresses[0] : undefined;
+
+  const hasEmailAnomaly = primaryEmail ? detectEmailAnomaly(primaryEmail) : false;
+  // Only flag address if it exists and is invalid
+  const hasAddressAnomaly = primaryAddress ? detectAddressAnomaly(primaryAddress) : false;
+
   return {
     id,
     age,
@@ -97,6 +110,10 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     isChild: !!child,
     householdId: household_id || null,
     hasNameAnomaly,
+    email: primaryEmail,
+    address: primaryAddress,
+    hasEmailAnomaly,
+    hasAddressAnomaly,
   };
 };
 
