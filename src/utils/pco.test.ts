@@ -65,7 +65,9 @@ describe('transformPerson', () => {
       email: undefined,
       address: undefined,
       hasEmailAnomaly: false,
-      hasAddressAnomaly: false
+      hasAddressAnomaly: false,
+      phoneNumber: undefined,
+      hasPhoneAnomaly: false
     });
   });
 
@@ -83,6 +85,38 @@ describe('transformPerson', () => {
     };
     const result = transformPerson(person);
     expect(result?.hasNameAnomaly).toBe(true);
+  });
+
+  it('detects phone anomalies', () => {
+    const person: PcoPerson = {
+      id: '1',
+      type: 'Person',
+      attributes: {
+        birthdate: birthdate10,
+        grade: 4,
+        name: 'John Doe',
+        phone_numbers: [{ number: '555-1234', location: 'Mobile' }]
+      },
+    };
+    const result = transformPerson(person);
+    expect(result?.hasPhoneAnomaly).toBe(true);
+    expect(result?.phoneNumber).toBe('555-1234');
+  });
+
+  it('accepts valid E.164 phone numbers', () => {
+    const person: PcoPerson = {
+      id: '1',
+      type: 'Person',
+      attributes: {
+        birthdate: birthdate10,
+        grade: 4,
+        name: 'John Doe',
+        phone_numbers: [{ number: '+15551234567', location: 'Mobile' }]
+      },
+    };
+    const result = transformPerson(person);
+    expect(result?.hasPhoneAnomaly).toBe(false);
+    expect(result?.phoneNumber).toBe('+15551234567');
   });
 
   it('transforms a person with avatar correctly', () => {

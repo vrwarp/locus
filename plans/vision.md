@@ -87,7 +87,7 @@ Identifying the invisible.
 ### 3.4 Advanced Data Hygiene (New)
 -   **Address Validation:** Verify addresses (Check Required Fields & Zip Format). Flag "Invalid". [DONE]
 -   **Email Scrub:** Validate email format (Regex). Flag "Invalid". [DONE]
--   **Phone Format:** Standardize to E.164 format automatically.
+-   **Phone Format:** Standardize to E.164 format automatically. [DONE]
 -   **Name Case:** Auto-fix "JOHN DOE" or "john doe" to "John Doe". [DONE]
 
 ---

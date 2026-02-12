@@ -143,7 +143,12 @@ vi.mock('./components/ReviewMode', () => ({
         <p>Reviewing {students.length} students</p>
         <button onClick={() => {
              if (students.length > 0) {
-                 onSave({...students[0], pcoGrade: 99}); // Simulate save
+                 const s = students[0];
+                 if (s.hasPhoneAnomaly) {
+                    onSave({...s, phoneNumber: '+15551234567', hasPhoneAnomaly: false});
+                 } else {
+                    onSave({...s, pcoGrade: 99}); // Simulate save
+                 }
              }
         }}>Fix First</button>
         <button onClick={onClose}>Close Review</button>
@@ -647,6 +652,59 @@ describe('App Integration', () => {
 
         fireEvent.click(screen.getByText('Close Report'));
         expect(screen.queryByTestId('robert-report')).not.toBeInTheDocument();
+    });
+
+    it('allows fixing a phone anomaly via Review Mode', async () => {
+        // Mock data with phone anomaly
+        (api.get as any).mockResolvedValue({
+            data: {
+                data: [{
+                    id: 'p1',
+                    type: 'Person',
+                    attributes: {
+                        birthdate: '2000-01-01',
+                        grade: 10,
+                        name: 'Phone Kid',
+                        phone_numbers: [{ number: '555-1234', location: 'Mobile' }]
+                    }
+                }]
+            }
+        });
+        (api.patch as any).mockResolvedValue({ data: { data: {} } });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-p1')).toBeInTheDocument(), { timeout: 2500 });
+
+        // Check for Review Mode button
+        const reviewBtn = screen.getByText(/Review Mode/);
+        fireEvent.click(reviewBtn);
+
+        // Wait for commit
+        vi.useFakeTimers();
+
+        // Fix
+        fireEvent.click(screen.getByText('Fix First'));
+
+        act(() => {
+            vi.advanceTimersByTime(5000);
+        });
+
+        // Verify API called with phone number
+        expect(api.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/p1',
+            expect.objectContaining({
+                data: expect.objectContaining({
+                    attributes: {
+                        phone_numbers: [{ number: '+15551234567', location: 'Mobile' }]
+                    }
+                })
+            }),
+            expect.any(Object)
+        );
     });
 
     it('shows Review Mode button only when anomalies exist and allows fixing', async () => {

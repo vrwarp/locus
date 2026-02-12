@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectNameAnomaly, fixName, validateEmail, detectEmailAnomaly, validateAddress, detectAddressAnomaly } from './hygiene';
+import { detectNameAnomaly, fixName, validateEmail, detectEmailAnomaly, validateAddress, detectAddressAnomaly, validatePhone, detectPhoneAnomaly, fixPhone } from './hygiene';
 
 describe('detectNameAnomaly', () => {
   it('should detect all uppercase names', () => {
@@ -84,5 +84,45 @@ describe('Address Validation', () => {
     it('should detect anomalies correctly', () => {
          expect(detectAddressAnomaly(validAddress)).toBe(false);
          expect(detectAddressAnomaly({ ...validAddress, zip: '' })).toBe(true);
+    });
+});
+
+describe('Phone Validation', () => {
+    it('should validate E.164 phone numbers', () => {
+        expect(validatePhone('+15551234567')).toBe(true);
+    });
+
+    it('should invalidate non-E.164 phone numbers', () => {
+        expect(validatePhone('555-123-4567')).toBe(false);
+        expect(validatePhone('(555) 123-4567')).toBe(false);
+        expect(validatePhone('5551234567')).toBe(false);
+        expect(validatePhone('+1555123456')).toBe(false); // Too short
+        expect(validatePhone('+155512345678')).toBe(false); // Too long
+        expect(validatePhone('')).toBe(false);
+    });
+
+    it('should detect anomalies correctly', () => {
+        expect(detectPhoneAnomaly('+15551234567')).toBe(false);
+        expect(detectPhoneAnomaly('555-123-4567')).toBe(true);
+        expect(detectPhoneAnomaly('')).toBe(false); // Empty is not anomaly
+    });
+});
+
+describe('fixPhone', () => {
+    it('should format 10 digit numbers to E.164', () => {
+        expect(fixPhone('5551234567')).toBe('+15551234567');
+        expect(fixPhone('555-123-4567')).toBe('+15551234567');
+        expect(fixPhone('(555) 123-4567')).toBe('+15551234567');
+        expect(fixPhone('555.123.4567')).toBe('+15551234567');
+    });
+
+    it('should format 11 digit numbers starting with 1 to E.164', () => {
+        expect(fixPhone('15551234567')).toBe('+15551234567');
+        expect(fixPhone('1-555-123-4567')).toBe('+15551234567');
+    });
+
+    it('should return original if unable to fix standardly', () => {
+        expect(fixPhone('555-1234')).toBe('555-1234'); // 7 digits
+        expect(fixPhone('123')).toBe('123');
     });
 });

@@ -71,7 +71,15 @@ const generateHouseholds = () => {
           child: false,
           grade: null,
           birthdate: `${randomInt(1975, 1995)}-01-01`, // Rough adult age
-          phone_numbers: [{ location: 'Mobile', number: `555-${randomInt(100, 999)}-${randomInt(1000, 9999)}` }],
+          phone_numbers: [{ location: 'Mobile', number: (() => {
+            const r = Math.random();
+            const n1 = randomInt(100, 999);
+            const n2 = randomInt(1000, 9999);
+            if (r < 0.05) return `555${n1}${n2}`; // Missing dashes
+            if (r < 0.10) return `555.${n1}.${n2}`; // Dots
+            if (r < 0.15) return `555-${randomInt(100, 999)}`; // Short / Missing
+            return `555-${n1}-${n2}`; // Standard
+          })() }],
           email_addresses: [{ location: 'Home', address: email }],
           addresses: [householdAddress],
           avatar: `https://i.pravatar.cc/150?u=${id}`,
