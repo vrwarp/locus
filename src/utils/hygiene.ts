@@ -57,3 +57,33 @@ export const detectAddressAnomaly = (address: Address): boolean => {
     if (!address) return false;
     return !validateAddress(address);
 }
+
+export const validatePhone = (phone: string): boolean => {
+    if (!phone) return false;
+    // E.164 format for US: +1 followed by 10 digits
+    const e164Regex = /^\+1\d{10}$/;
+    return e164Regex.test(phone);
+};
+
+export const detectPhoneAnomaly = (phone: string): boolean => {
+    if (!phone) return false;
+    return !validatePhone(phone);
+};
+
+export const fixPhone = (phone: string): string => {
+    if (!phone) return '';
+    // Strip non-digits
+    const digits = phone.replace(/\D/g, '');
+
+    // If 10 digits, prepend +1
+    if (digits.length === 10) {
+        return `+1${digits}`;
+    }
+
+    // If 11 digits and starts with 1, prepend +
+    if (digits.length === 11 && digits.startsWith('1')) {
+        return `+${digits}`;
+    }
+
+    return phone;
+};

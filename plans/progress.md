@@ -105,3 +105,19 @@
     - Updated `src/utils/pco.test.ts` to reflect data model changes.
     - Verified all tests pass (165 tests).
 - **Status:** Advanced Data Hygiene (Email & Address) implemented.
+
+## Session 28
+- **Implemented:**
+    - **Advanced Data Hygiene (Phone Numbers):**
+        - Updated `mock-api/data.js` to generate `phone_numbers` and introduce anomalies (missing dashes, dots, missing area codes).
+        - Updated `src/utils/hygiene.ts` with `validatePhone` (checking E.164 format), `detectPhoneAnomaly`, and `fixPhone` (standardizing to E.164).
+        - Updated `Student` model in `src/utils/pco.ts` to include `phoneNumber` and `hasPhoneAnomaly`.
+        - Updated `ReviewMode` to support "Fix Phone" mode with input for E.164 formatted phone number.
+        - Updated `App.tsx` to include phone anomalies in the review queue and handle API updates for `phone_numbers`.
+- **Tests:**
+    - Updated `src/utils/hygiene.test.ts` to verify phone validation and fix logic.
+    - Updated `src/utils/pco.test.ts` to verify `hasPhoneAnomaly` detection.
+    - Updated `src/components/ReviewMode.test.tsx` to verify "Fix Phone" UI and interactions.
+    - Updated `src/App.test.tsx` with integration tests for fixing phone anomalies.
+    - Verified all tests pass (172 tests).
+- **Status:** Advanced Data Hygiene (Phone Numbers) implemented.

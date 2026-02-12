@@ -2,7 +2,7 @@ import { differenceInYears } from 'date-fns';
 import { AxiosError } from 'axios';
 import api from './api';
 import { calculateExpectedGrade } from './grader';
-import { detectNameAnomaly, detectEmailAnomaly, detectAddressAnomaly } from './hygiene';
+import { detectNameAnomaly, detectEmailAnomaly, detectAddressAnomaly, detectPhoneAnomaly } from './hygiene';
 import type { Address } from './hygiene';
 import type { GraderOptions } from './grader';
 
@@ -15,6 +15,7 @@ export interface PcoAttributes {
   child?: boolean;
   household_id?: string;
   email_addresses?: { address: string, location: string }[];
+  phone_numbers?: { number: string, location: string }[];
   addresses?: Address[];
   [key: string]: unknown;
 }
@@ -61,13 +62,15 @@ export interface Student {
   hasNameAnomaly: boolean;
   email?: string;
   address?: Address;
+  phoneNumber?: string;
   hasEmailAnomaly: boolean;
   hasAddressAnomaly: boolean;
+  hasPhoneAnomaly: boolean;
 }
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
   const { id, attributes } = person;
-  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id, email_addresses, addresses } = attributes;
+  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id, email_addresses, addresses, phone_numbers } = attributes;
 
   if (!birthdate || grade === undefined || grade === null) {
     return null;
@@ -89,10 +92,12 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
 
   const primaryEmail = email_addresses && email_addresses.length > 0 ? email_addresses[0].address : undefined;
   const primaryAddress = addresses && addresses.length > 0 ? addresses[0] : undefined;
+  const primaryPhone = phone_numbers && phone_numbers.length > 0 ? phone_numbers[0].number : undefined;
 
   const hasEmailAnomaly = primaryEmail ? detectEmailAnomaly(primaryEmail) : false;
   // Only flag address if it exists and is invalid
   const hasAddressAnomaly = primaryAddress ? detectAddressAnomaly(primaryAddress) : false;
+  const hasPhoneAnomaly = primaryPhone ? detectPhoneAnomaly(primaryPhone) : false;
 
   return {
     id,
@@ -113,8 +118,10 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     hasNameAnomaly,
     email: primaryEmail,
     address: primaryAddress,
+    phoneNumber: primaryPhone,
     hasEmailAnomaly,
     hasAddressAnomaly,
+    hasPhoneAnomaly,
   };
 };
 

@@ -4,7 +4,7 @@ import { calculateExpectedGrade } from '../utils/grader';
 import type { GraderOptions } from '../utils/grader';
 import { differenceInYears } from 'date-fns';
 import { playTone } from '../utils/audio';
-import { fixName } from '../utils/hygiene';
+import { fixName, fixPhone } from '../utils/hygiene';
 import type { Address } from '../utils/hygiene';
 import './ReviewMode.css';
 
@@ -19,12 +19,13 @@ interface ReviewModeProps {
 
 export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, graderOptions, muteSounds }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [mode, setMode] = useState<'grade' | 'birthdate' | 'name' | 'email' | 'address'>('grade');
+  const [mode, setMode] = useState<'grade' | 'birthdate' | 'name' | 'email' | 'address' | 'phone'>('grade');
   const [targetGrade, setTargetGrade] = useState<number>(0);
   const [targetBirthdate, setTargetBirthdate] = useState<string>('');
   const [targetName, setTargetName] = useState<string>('');
   const [targetEmail, setTargetEmail] = useState<string>('');
   const [targetAddress, setTargetAddress] = useState<Address>({ street: '', city: '', state: '', zip: '' });
+  const [targetPhone, setTargetPhone] = useState<string>('');
   const [isSuccess, setIsSuccess] = useState(false);
 
   useEffect(() => {
@@ -42,6 +43,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
       setTargetName(fixName(currentStudent.name));
       setTargetEmail(currentStudent.email || '');
       setTargetAddress(currentStudent.address || { street: '', city: '', state: '', zip: '' });
+      setTargetPhone(currentStudent.phoneNumber ? fixPhone(currentStudent.phoneNumber) : '');
 
       if (currentStudent.hasNameAnomaly) {
           setMode('name');
@@ -49,6 +51,8 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
           setMode('email');
       } else if (currentStudent.hasAddressAnomaly) {
           setMode('address');
+      } else if (currentStudent.hasPhoneAnomaly) {
+          setMode('phone');
       } else {
           setMode('grade');
       }
@@ -101,6 +105,12 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
               ...currentStudent,
               address: targetAddress,
               hasAddressAnomaly: false
+          };
+      } else if (mode === 'phone') {
+          updatedStudent = {
+              ...currentStudent,
+              phoneNumber: targetPhone,
+              hasPhoneAnomaly: false
           };
       } else {
           // Fix Name
@@ -180,6 +190,12 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
                 onClick={() => setMode('address')}
             >
                 Fix Address
+            </button>
+            <button
+                className={mode === 'phone' ? 'active' : ''}
+                onClick={() => setMode('phone')}
+            >
+                Fix Phone
             </button>
         </div>
 
@@ -274,6 +290,20 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
                         </div>
                     </div>
                 </>
+            ) : mode === 'phone' ? (
+                <>
+                    <div className="input-container">
+                        <label htmlFor="review-phone">Suggested Phone (E.164):</label>
+                        <input
+                            id="review-phone"
+                            type="text"
+                            value={targetPhone}
+                            onChange={(e) => setTargetPhone(e.target.value)}
+                            className="text-input"
+                        />
+                    </div>
+                    <p className="hint-text">Current: {currentStudent.phoneNumber}</p>
+                </>
             ) : (
                 <>
                     <div className="input-container">
@@ -294,7 +324,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
         <div className="review-actions">
             <button onClick={handleNext} className="btn-skip">Skip</button>
             <button onClick={handleFix} className="btn-fix">
-                {mode === 'grade' ? `Fix Grade` : mode === 'birthdate' ? `Fix Birthdate` : mode === 'name' ? `Fix Name` : mode === 'email' ? 'Fix Email' : 'Fix Address'}
+                {mode === 'grade' ? `Fix Grade` : mode === 'birthdate' ? `Fix Birthdate` : mode === 'name' ? `Fix Name` : mode === 'email' ? 'Fix Email' : mode === 'address' ? 'Fix Address' : 'Fix Phone'}
             </button>
         </div>
       </div>

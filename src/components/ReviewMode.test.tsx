@@ -281,4 +281,42 @@ describe('ReviewMode', () => {
             hasAddressAnomaly: false
         }));
     });
+
+    it('allows fixing phone anomalies', () => {
+        const studentWithPhoneAnomaly: Student = {
+            ...mockStudent,
+            phoneNumber: '555-1234',
+            hasPhoneAnomaly: true
+        };
+        const onSave = vi.fn();
+        render(
+            <ReviewMode
+                isOpen={true}
+                students={[studentWithPhoneAnomaly]}
+                onClose={vi.fn()}
+                onSave={onSave}
+            />
+        );
+
+        // Should default to Phone mode
+        const phoneModeButton = screen.getAllByText('Fix Phone').find(btn => btn.classList.contains('active'));
+        expect(phoneModeButton).toBeInTheDocument();
+
+        expect(screen.getByLabelText('Suggested Phone (E.164):')).toHaveValue('555-1234'); // fixPhone won't change 7 digits
+
+        // Allow editing
+        fireEvent.change(screen.getByLabelText('Suggested Phone (E.164):'), { target: { value: '+15551234567' } });
+
+        // Find the fix button
+        const fixButton = screen.getAllByText('Fix Phone').find(btn => btn.classList.contains('btn-fix'));
+        if (!fixButton) throw new Error('Fix button not found');
+
+        fireEvent.click(fixButton);
+
+        expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
+            id: '1',
+            phoneNumber: '+15551234567',
+            hasPhoneAnomaly: false
+        }));
+    });
 });
