@@ -121,3 +121,16 @@
     - Updated `src/App.test.tsx` with integration tests for fixing phone anomalies.
     - Verified all tests pass (172 tests).
 - **Status:** Advanced Data Hygiene (Phone Numbers) implemented.
+
+## Session 29
+- **Implemented:**
+    - **Family Logic Enhancements:**
+        - Updated `src/utils/family.ts` to implement `checkSpouseGap` (detecting >40y age gap between spouses) and `checkSplitHouseholds` (detecting shared address/email/phone across different households).
+        - Updated `Student` model and `transformPerson` in `src/utils/pco.ts` to support people with `null` grades (e.g. adults), enabling Family Logic on the full dataset.
+        - Updated `GradeScatter` to filter out students without grades to prevent rendering issues.
+        - Updated `mock-api/data.js` to generate "Spouse Gap" and "Split Household" scenarios for testing.
+- **Tests:**
+    - Updated `src/utils/family.test.ts` with unit tests for Spouse Gap and Split Household detection.
+    - Updated `src/App.test.tsx` with integration tests verifying that these new anomalies appear in the `FamilyModal`.
+    - Verified all tests pass.
+- **Status:** Family Logic (Spouse Gap & Split Household) implemented.

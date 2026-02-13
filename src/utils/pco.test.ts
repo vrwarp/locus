@@ -154,7 +154,7 @@ describe('transformPerson', () => {
     expect(transformPerson(person)).toBeNull();
   });
 
-  it('returns null if grade is missing', () => {
+  it('returns student object with null grade if grade is missing', () => {
     const person: PcoPerson = {
       id: '3',
       type: 'Person',
@@ -164,7 +164,10 @@ describe('transformPerson', () => {
         name: 'No Grade',
       },
     };
-    expect(transformPerson(person)).toBeNull();
+    const result = transformPerson(person);
+    expect(result).not.toBeNull();
+    expect(result?.pcoGrade).toBeNull();
+    expect(result?.name).toBe('No Grade');
   });
 
   it('returns null if birthdate is invalid', () => {

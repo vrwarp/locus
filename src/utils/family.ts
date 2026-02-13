@@ -8,6 +8,91 @@ export interface FamilyIssue {
   members: Student[];
 }
 
+const checkSpouseGap = (parents: Student[], householdId: string, familyName: string, members: Student[], issues: FamilyIssue[]) => {
+  if (parents.length === 2) {
+    const p1 = parents[0];
+    const p2 = parents[1];
+    const ageDiff = Math.abs(p1.age - p2.age);
+    if (ageDiff > 40) {
+      issues.push({
+        type: 'Critical',
+        message: `Large age gap (${ageDiff}y) between Spouses: ${p1.name} (${p1.age}) & ${p2.name} (${p2.age})`,
+        householdId,
+        familyName,
+        members
+      });
+    }
+  }
+};
+
+const checkSplitHouseholds = (students: Student[], households: Record<string, Student[]>, issues: FamilyIssue[]) => {
+  // Group by Address (serialized), Email, Phone
+  const addressMap: Record<string, Set<string>> = {};
+  const emailMap: Record<string, Set<string>> = {};
+  const phoneMap: Record<string, Set<string>> = {};
+
+  students.forEach(s => {
+    if (s.householdId) {
+      if (s.address) {
+        // Simple serialization of address for key
+        const addrKey = `${s.address.street}|${s.address.city}|${s.address.zip}`.toLowerCase();
+        // Skip empty addresses
+        if (addrKey.replace(/\|/g, '').trim().length > 0) {
+            if (!addressMap[addrKey]) addressMap[addrKey] = new Set();
+            addressMap[addrKey].add(s.householdId);
+        }
+      }
+      if (s.email) {
+        const emailKey = s.email.toLowerCase();
+        if (!emailMap[emailKey]) emailMap[emailKey] = new Set();
+        emailMap[emailKey].add(s.householdId);
+      }
+      if (s.phoneNumber) {
+        const phoneKey = s.phoneNumber.replace(/\D/g, ''); // strip non-digits
+        if (phoneKey.length >= 10) { // minimum length to be useful
+             if (!phoneMap[phoneKey]) phoneMap[phoneKey] = new Set();
+             phoneMap[phoneKey].add(s.householdId);
+        }
+      }
+    }
+  });
+
+  const checkMap = (map: Record<string, Set<string>>, type: string) => {
+    Object.entries(map).forEach(([key, householdIds]) => {
+      if (householdIds.size > 1) {
+        const householdIdArray = Array.from(householdIds);
+
+        // Gather all members from these households
+        let allMembers: Student[] = [];
+        householdIdArray.forEach(hid => {
+            if (households[hid]) {
+                allMembers = allMembers.concat(households[hid]);
+            }
+        });
+
+        const familyNames = householdIdArray.map(hid => {
+            const hMembers = households[hid];
+            // Try to find a parent name
+            const parent = hMembers.find(m => !m.isChild);
+            return parent ? parent.lastName : (hMembers[0]?.lastName || 'Unknown');
+        }).filter((v, i, a) => a.indexOf(v) === i).join(' & '); // Unique family names
+
+        issues.push({
+          type: 'Warning',
+          message: `Potential Split Household: ${householdIds.size} households share ${type} (${key})`,
+          householdId: householdIdArray.join(', '),
+          familyName: familyNames,
+          members: allMembers
+        });
+      }
+    });
+  };
+
+  checkMap(addressMap, 'Address');
+  checkMap(emailMap, 'Email');
+  checkMap(phoneMap, 'Phone');
+};
+
 export const analyzeFamilies = (students: Student[]): FamilyIssue[] => {
   const issues: FamilyIssue[] = [];
 
@@ -24,25 +109,17 @@ export const analyzeFamilies = (students: Student[]): FamilyIssue[] => {
 
   // 2. Analyze each household
   Object.entries(households).forEach(([householdId, members]) => {
-    // Only analyze if we have at least 2 members to compare
-    if (members.length < 2) return;
-
-    // Separate parents and children based on isChild flag
-    // If isChild is not reliable (e.g. not set), we could try to infer, but for now rely on flag.
+    // Determine Family Name
     const parents = members.filter(m => !m.isChild);
     const children = members.filter(m => m.isChild);
-
-    // If no parents or no children, we can't really do parent-child comparison
-    // But we could check for "All Children" household which is weird?
-    if (parents.length === 0 && children.length > 0) {
-       // Optional: Warning for kids without adults in household?
-       // For now, skip.
-       return;
-    }
-
-    // Determine Family Name (Try to find a common last name or use the first parent's name)
     const firstParent = parents[0];
-    const familyName = firstParent ? firstParent.name.split(' ').pop() || 'Family' : 'Family';
+    const familyName = firstParent ? firstParent.name.split(' ').pop() || 'Family' : (members[0]?.lastName || 'Family');
+
+    // Check Spouse Gap
+    checkSpouseGap(parents, householdId, familyName, members, issues);
+
+    // Only analyze parent/child if we have at least 2 members to compare
+    if (members.length < 2) return;
 
     children.forEach(child => {
       parents.forEach(parent => {
@@ -70,6 +147,9 @@ export const analyzeFamilies = (students: Student[]): FamilyIssue[] => {
       });
     });
   });
+
+  // 3. Analyze across households (Split Households)
+  checkSplitHouseholds(students, households, issues);
 
   return issues;
 };

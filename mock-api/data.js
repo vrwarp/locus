@@ -50,6 +50,12 @@ const generateHouseholds = () => {
         location: 'Home'
     };
 
+    // Spouse Gap Generator (5% chance, only if 2 adults)
+    const hasSpouseGap = adultCount === 2 && Math.random() < 0.05;
+
+    // Split Household Generator (5% chance)
+    const hasSplitHousehold = Math.random() < 0.05;
+
     for (let a = 0; a < adultCount; a++) {
       const isFemale = Math.random() > 0.5;
       const firstName = randomItem(isFemale ? femaleNames : maleNames);
@@ -61,6 +67,12 @@ const generateHouseholds = () => {
         ? `${firstName.toLowerCase()}.${lastName.toLowerCase()}` // Missing @domain.com
         : `${firstName.toLowerCase()}.${lastName.toLowerCase()}${randomInt(1,99)}@example.com`;
 
+      let birthYear = randomInt(1975, 1995);
+      if (hasSpouseGap && a === 1) {
+          // Make second spouse much older (e.g. +45 years)
+          birthYear -= 45;
+      }
+
       const adult = {
         id,
         type: 'Person',
@@ -70,7 +82,7 @@ const generateHouseholds = () => {
           name: `${firstName} ${lastName}`,
           child: false,
           grade: null,
-          birthdate: `${randomInt(1975, 1995)}-01-01`, // Rough adult age
+          birthdate: `${birthYear}-01-01`, // Rough adult age
           phone_numbers: [{ location: 'Mobile', number: (() => {
             const r = Math.random();
             const n1 = randomInt(100, 999);
@@ -109,6 +121,11 @@ const generateHouseholds = () => {
       const grade = Math.max(0, age - 5);
 
       const id = String(personIdCounter++);
+
+      // If Split Household, use a NEW household ID for children
+      // But keep the same address
+      const childHouseholdId = hasSplitHousehold ? `${householdId}-split` : householdId;
+
       const child = {
         id,
         type: 'Person',
@@ -119,7 +136,7 @@ const generateHouseholds = () => {
           child: true,
           grade: grade,
           birthdate: `${birthYear}-${String(randomInt(1, 12)).padStart(2, '0')}-${String(randomInt(1, 28)).padStart(2, '0')}`,
-          household_id: householdId,
+          household_id: childHouseholdId,
           addresses: [householdAddress],
           avatar: `https://i.pravatar.cc/150?u=${id}`
         }
