@@ -493,7 +493,7 @@ function App() {
           {!isLoading && !error && students.length === 0 && appId && secret && apiStatus === 'ok' && <p>No data found or check credentials.</p>}
 
           <GradeScatter
-            data={students}
+            data={students.filter(s => s.pcoGrade !== null)}
             onPointClick={setSelectedStudent}
             colorblindMode={config.colorblindMode}
             muteSounds={config.muteSounds}

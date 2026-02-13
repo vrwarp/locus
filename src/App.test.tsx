@@ -123,6 +123,9 @@ vi.mock('./components/FamilyModal', () => ({
   FamilyModal: ({ isOpen, onClose, issues }: any) => isOpen ? (
     <div data-testid="family-modal">
         <p>Found {issues.length} anomalies</p>
+        <ul>
+            {issues.map((i: any, idx: number) => <li key={idx}>{i.message}</li>)}
+        </ul>
         <button onClick={onClose}>Close</button>
     </div>
   ) : null
@@ -618,6 +621,38 @@ describe('App Integration', () => {
 
         fireEvent.click(screen.getByText('Close'));
         expect(screen.queryByTestId('family-modal')).not.toBeInTheDocument();
+    });
+
+    it('identifies spouse gap and split household anomalies', async () => {
+        // Mock data
+        const spouses = [
+            { id: 's1', type: 'Person', attributes: { birthdate: '1940-01-01', grade: null, name: 'Old Husband', household_id: 'h1', child: false } },
+            { id: 's2', type: 'Person', attributes: { birthdate: '1990-01-01', grade: null, name: 'Young Wife', household_id: 'h1', child: false } }
+        ];
+        const splitFamily = [
+            { id: 'sf1', type: 'Person', attributes: { birthdate: '1980-01-01', grade: null, name: 'Split Dad', household_id: 'h2', child: false, addresses: [{street: '123 Main', city: 'City', zip: '12345'}] } },
+            { id: 'sf2', type: 'Person', attributes: { birthdate: '2010-01-01', grade: 5, name: 'Split Kid', household_id: 'h3', child: true, addresses: [{street: '123 Main', city: 'City', zip: '12345'}] } }
+        ];
+
+        (api.get as any).mockResolvedValue({
+            data: { data: [...spouses, ...splitFamily] }
+        });
+
+        render(<Wrapper><App /></Wrapper>);
+
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+
+        await waitFor(() => expect(screen.getByTestId('student-sf2')).toBeInTheDocument(), { timeout: 2500 });
+
+        fireEvent.click(screen.getByText('👨‍👩‍👧‍👦 Family Audit'));
+        expect(screen.getByTestId('family-modal')).toBeInTheDocument();
+
+        // Check for Spouse Gap
+        expect(screen.getByText(/Large age gap/)).toBeInTheDocument();
+
+        // Check for Split Household
+        expect(screen.getByText(/Potential Split Household/)).toBeInTheDocument();
     });
 
     it('opens and closes the Robert Report', async () => {

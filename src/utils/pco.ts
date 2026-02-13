@@ -46,7 +46,7 @@ export interface PcoSingleResponse {
 export interface Student {
   id: string;
   age: number;
-  pcoGrade: number;
+  pcoGrade: number | null;
   name: string;
   firstName: string;
   lastName: string;
@@ -72,7 +72,7 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
   const { id, attributes } = person;
   const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id, email_addresses, addresses, phone_numbers } = attributes;
 
-  if (!birthdate || grade === undefined || grade === null) {
+  if (!birthdate) {
     return null;
   }
 
@@ -84,7 +84,7 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
 
   const age = differenceInYears(new Date(), dob);
   const calculatedGrade = calculateExpectedGrade(dob, undefined, options);
-  const delta = calculatedGrade - grade;
+  const delta = (grade !== null && grade !== undefined) ? calculatedGrade - grade : 0;
 
   // Use 'name' if available, otherwise construct from first/last, otherwise 'Unknown'
   const displayName = name || `${first_name || ''} ${last_name || ''}`.trim() || 'Unknown';
@@ -102,7 +102,7 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
   return {
     id,
     age,
-    pcoGrade: grade,
+    pcoGrade: grade ?? null,
     name: displayName,
     firstName: (first_name || '').trim(),
     lastName: (last_name || '').trim(),
