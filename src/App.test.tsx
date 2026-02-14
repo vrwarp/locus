@@ -132,9 +132,10 @@ vi.mock('./components/FamilyModal', () => ({
 }));
 
 vi.mock('./components/RobertReport', () => ({
-  RobertReport: ({ isOpen, stats, onClose }: any) => isOpen ? (
+  RobertReport: ({ isOpen, stats, onClose, students }: any) => isOpen ? (
     <div data-testid="robert-report">
         <p>Health Score: {stats.score}</p>
+        <p>Students Count: {students ? students.length : 0}</p>
         <button onClick={onClose}>Close Report</button>
     </div>
   ) : null
