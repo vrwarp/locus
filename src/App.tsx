@@ -552,6 +552,7 @@ function App() {
         onClose={() => setIsReportOpen(false)}
         stats={stats}
         history={healthHistory}
+        students={students}
       />
 
       {showConfetti && <Confetti />}

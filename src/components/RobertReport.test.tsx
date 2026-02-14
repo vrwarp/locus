@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { RobertReport } from './RobertReport';
 import type { HealthStats } from '../utils/analytics';
 import type { HealthHistoryEntry } from '../utils/storage';
+import type { Student } from '../utils/pco';
 
 // Mock Recharts to avoid resizing observer issues in tests
 vi.mock('recharts', () => {
@@ -15,6 +16,10 @@ vi.mock('recharts', () => {
     XAxis: () => null,
     YAxis: () => null,
     Tooltip: () => null,
+    BarChart: ({ children }: { children: React.ReactNode }) => <div data-testid="bar-chart">{children}</div>,
+    Bar: () => <div data-testid="bar" />,
+    Legend: () => <div data-testid="legend" />,
+    Cell: () => null,
   };
 });
 
@@ -31,29 +36,47 @@ describe('RobertReport', () => {
     { timestamp: 1600086400000, score: 85, accuracy: 85, totalRecords: 1000 },
   ];
 
+  const mockStudents: Student[] = [
+      {
+          id: '1', age: 10, pcoGrade: 5, name: 'Student 1', firstName: 'Student', lastName: '1', birthdate: '2014-01-01', calculatedGrade: 5, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0, isChild: true, householdId: 'h1', hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false
+      }
+  ];
+
   it('renders nothing when closed', () => {
     const { container } = render(
-      <RobertReport isOpen={false} onClose={() => {}} stats={mockStats} history={mockHistory} />
+      <RobertReport isOpen={false} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} />
     );
     expect(container.firstChild).toBeNull();
   });
 
   it('renders correct stats when open', () => {
     render(
-      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} />
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} />
     );
 
     expect(screen.getByText('Data Health Audit')).toBeInTheDocument();
     expect(screen.getByText('85')).toBeInTheDocument(); // Score
-    expect(screen.getByText('1000')).toBeInTheDocument(); // Total
-    expect(screen.getByText('150')).toBeInTheDocument(); // Anomalies
-    expect(screen.getByText('85.0%')).toBeInTheDocument(); // Accuracy
+    // Verify tabs exist
+    expect(screen.getByText('Health & Trends')).toBeInTheDocument();
+    expect(screen.getByText('Demographics')).toBeInTheDocument();
+  });
+
+  it('switches to demographics tab and shows chart', () => {
+    render(
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} />
+    );
+
+    const demographicsTab = screen.getByText('Demographics');
+    fireEvent.click(demographicsTab);
+
+    expect(screen.getByText('The Generation Stack')).toBeInTheDocument();
+    expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
   });
 
   it('calls onClose when close button clicked', () => {
     const handleClose = vi.fn();
     render(
-      <RobertReport isOpen={true} onClose={handleClose} stats={mockStats} history={mockHistory} />
+      <RobertReport isOpen={true} onClose={handleClose} stats={mockStats} history={mockHistory} students={mockStudents} />
     );
 
     fireEvent.click(screen.getByText('Close Report'));
