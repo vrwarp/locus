@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import api from './api';
-import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, fetchGroupCount, checkApiVersion } from './pco';
-import type { PcoPerson } from './pco';
+import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, fetchGroupCount, checkApiVersion, prepareUpdateAttributes } from './pco';
+import type { PcoPerson, Student } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
 import { AxiosError } from 'axios';
@@ -445,4 +445,77 @@ describe('checkApiVersion', () => {
 
     await expect(checkApiVersion('token')).rejects.toThrow('Network Error');
   });
+});
+
+describe('prepareUpdateAttributes', () => {
+    // Helper to create a partial student
+    const createStudent = (overrides: Partial<Student>): Student => ({
+        id: '1',
+        age: 10,
+        pcoGrade: 5,
+        name: 'Test',
+        firstName: 'Test',
+        lastName: 'Student',
+        birthdate: '2010-01-01',
+        calculatedGrade: 5,
+        delta: 0,
+        lastCheckInAt: null,
+        checkInCount: 0,
+        groupCount: 0,
+        isChild: true,
+        householdId: null,
+        hasNameAnomaly: false,
+        hasEmailAnomaly: false,
+        hasAddressAnomaly: false,
+        hasPhoneAnomaly: false,
+        ...overrides
+    });
+
+    it('returns empty object if no changes', () => {
+        const student = createStudent({});
+        const result = prepareUpdateAttributes(student, student);
+        expect(result).toEqual({});
+    });
+
+    it('detects grade change', () => {
+        const original = createStudent({ pcoGrade: 5 });
+        const updated = createStudent({ pcoGrade: 6 });
+        const result = prepareUpdateAttributes(original, updated);
+        expect(result).toEqual({ grade: 6 });
+    });
+
+    it('detects birthdate change', () => {
+        const original = createStudent({ birthdate: '2010-01-01' });
+        const updated = createStudent({ birthdate: '2010-01-02' });
+        const result = prepareUpdateAttributes(original, updated);
+        expect(result).toEqual({ birthdate: '2010-01-02' });
+    });
+
+    it('detects name change', () => {
+        const original = createStudent({ firstName: 'Test', lastName: 'Student' });
+        const updated = createStudent({ firstName: 'New', lastName: 'Name' });
+        const result = prepareUpdateAttributes(original, updated);
+        expect(result).toEqual({ first_name: 'New', last_name: 'Name' });
+    });
+
+    it('detects email change', () => {
+        const original = createStudent({ email: 'old@test.com' });
+        const updated = createStudent({ email: 'new@test.com' });
+        const result = prepareUpdateAttributes(original, updated);
+        expect(result).toEqual({ email_addresses: [{ address: 'new@test.com', location: 'Home' }] });
+    });
+
+    it('detects address change', () => {
+        const original = createStudent({ address: { street: 'Old St', city: 'City', state: 'ST', zip: '12345' } });
+        const updated = createStudent({ address: { street: 'New St', city: 'City', state: 'ST', zip: '12345' } });
+        const result = prepareUpdateAttributes(original, updated);
+        expect(result).toEqual({ addresses: [{ street: 'New St', city: 'City', state: 'ST', zip: '12345', location: 'Home' }] });
+    });
+
+    it('detects phone change', () => {
+        const original = createStudent({ phoneNumber: '123' });
+        const updated = createStudent({ phoneNumber: '456' });
+        const result = prepareUpdateAttributes(original, updated);
+        expect(result).toEqual({ phone_numbers: [{ number: '456', location: 'Mobile' }] });
+    });
 });
