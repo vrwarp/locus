@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { analyzeFamilies } from './family';
-import type { Student, Address } from './pco';
+import type { Student } from './pco';
+import type { Address } from './hygiene';
 
 const mockAddress = (street: string): Address => ({
     street,

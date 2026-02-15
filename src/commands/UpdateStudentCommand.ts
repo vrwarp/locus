@@ -1,14 +1,27 @@
-import { Student, updatePerson, prepareUpdateAttributes } from '../utils/pco';
-import { Command } from '../utils/commands';
+import { updatePerson, prepareUpdateAttributes } from '../utils/pco';
+import type { Student } from '../utils/pco';
+import type { Command } from '../utils/commands';
 
 export class UpdateStudentCommand implements Command {
+    public original: Student;
+    public updated: Student;
+    private auth: string;
+    private sandboxMode: boolean;
+    private onStateChange: (student: Student) => void;
+
     constructor(
-        public original: Student,
-        public updated: Student,
-        private auth: string,
-        private sandboxMode: boolean,
-        private onStateChange: (student: Student) => void
-    ) {}
+        original: Student,
+        updated: Student,
+        auth: string,
+        sandboxMode: boolean,
+        onStateChange: (student: Student) => void
+    ) {
+        this.original = original;
+        this.updated = updated;
+        this.auth = auth;
+        this.sandboxMode = sandboxMode;
+        this.onStateChange = onStateChange;
+    }
 
     get description() {
         return `Update ${this.updated.name}`;

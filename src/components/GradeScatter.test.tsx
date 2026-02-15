@@ -35,7 +35,8 @@ describe('GradeScatter Component', () => {
     groupCount: 0,
     hasNameAnomaly: false,
     hasEmailAnomaly: false,
-    hasAddressAnomaly: false
+    hasAddressAnomaly: false,
+        hasPhoneAnomaly: false
   };
 
   const mockData: Student[] = [mockStudent];

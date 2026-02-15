@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { CommandManager, Command } from './commands';
+import { CommandManager } from './commands';
+import type { Command } from './commands';
 import { UpdateStudentCommand } from '../commands/UpdateStudentCommand';
-import { Student, updatePerson } from './pco';
+import { updatePerson } from './pco';
+import type { Student } from './pco';
 
 vi.mock('./pco', () => ({
     updatePerson: vi.fn(),
@@ -31,7 +33,7 @@ const mockStudent = (id: string, grade: number): Student => ({
     hasNameAnomaly: false,
     hasEmailAnomaly: false,
     hasAddressAnomaly: false,
-    hasPhoneAnomaly: false
+        hasPhoneAnomaly: false
 });
 
 describe('CommandManager', () => {

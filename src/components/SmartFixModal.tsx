@@ -48,7 +48,7 @@ export const SmartFixModal: React.FC<SmartFixModalProps> = ({ isOpen, onClose, s
           const newCalculatedGrade = calculateExpectedGrade(newDob, new Date(), graderOptions);
           // Delta uses the CURRENT pcoGrade because we are fixing birthdate, not grade.
           // But now Expected (newCalculated) vs Recorded (pcoGrade).
-          const newDelta = newCalculatedGrade - student.pcoGrade;
+          const newDelta = newCalculatedGrade - (student.pcoGrade || 0);
 
           updatedStudent = {
               ...student,
@@ -107,7 +107,7 @@ export const SmartFixModal: React.FC<SmartFixModalProps> = ({ isOpen, onClose, s
                     <div className="grade-comparison">
                         <div className="grade-box current">
                             <span className="label">Current</span>
-                            <span className="value">{formatGrade(student.pcoGrade)}</span>
+                            <span className="value">{formatGrade(student.pcoGrade || -99)}</span>
                         </div>
                         <div className="arrow">→</div>
                         <div className={`grade-box target ${targetGrade === student.calculatedGrade ? 'match' : ''}`}>
@@ -147,7 +147,7 @@ export const SmartFixModal: React.FC<SmartFixModalProps> = ({ isOpen, onClose, s
                 </>
             ) : (
                 <>
-                    <p><strong>Current Grade:</strong> {formatGrade(student.pcoGrade)}</p>
+                    <p><strong>Current Grade:</strong> {formatGrade(student.pcoGrade || -99)}</p>
                     <div className="input-container">
                         <label htmlFor="birthdate-picker">New Birthdate:</label>
                         <input
@@ -161,10 +161,10 @@ export const SmartFixModal: React.FC<SmartFixModalProps> = ({ isOpen, onClose, s
 
                     <div className="preview-info">
                          <p>Based on this date, Expected Grade is: <strong>{formatGrade(previewCalculatedGrade)}</strong></p>
-                         {previewCalculatedGrade === student.pcoGrade ? (
+                         {previewCalculatedGrade === (student.pcoGrade || -99) ? (
                              <span className="success-text">✓ Matches current grade!</span>
                          ) : (
-                             <span className="warning-text">⚠️ Differs from current grade by {Math.abs(previewCalculatedGrade - student.pcoGrade)} year(s)</span>
+                             <span className="warning-text">⚠️ Differs from current grade by {Math.abs(previewCalculatedGrade - (student.pcoGrade || 0))} year(s)</span>
                          )}
                     </div>
                 </>

@@ -21,7 +21,8 @@ describe('SmartFixModal', () => {
     householdId: 'h1',
     hasNameAnomaly: false,
     hasEmailAnomaly: false,
-    hasAddressAnomaly: false
+    hasAddressAnomaly: false,
+        hasPhoneAnomaly: false
   };
 
   beforeEach(() => {

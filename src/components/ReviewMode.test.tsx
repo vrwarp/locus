@@ -26,7 +26,8 @@ const mockStudent: Student = {
     householdId: 'h1',
     hasNameAnomaly: false,
     hasEmailAnomaly: false,
-    hasAddressAnomaly: false
+    hasAddressAnomaly: false,
+        hasPhoneAnomaly: false
 };
 
 const mockStudents: Student[] = [
@@ -278,7 +279,8 @@ describe('ReviewMode', () => {
         expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
             id: '1',
             address: expect.objectContaining({ zip: '90210' }),
-            hasAddressAnomaly: false
+            hasAddressAnomaly: false,
+        hasPhoneAnomaly: false
         }));
     });
 

@@ -66,8 +66,8 @@ describe('transformPerson', () => {
       address: undefined,
       hasEmailAnomaly: false,
       hasAddressAnomaly: false,
-      phoneNumber: undefined,
-      hasPhoneAnomaly: false
+      hasPhoneAnomaly: false,
+      phoneNumber: undefined
     });
   });
 

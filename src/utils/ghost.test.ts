@@ -20,7 +20,8 @@ const mockStudent: Student = {
     householdId: 'h1',
     hasNameAnomaly: false,
     hasEmailAnomaly: false,
-    hasAddressAnomaly: false
+    hasAddressAnomaly: false,
+        hasPhoneAnomaly: false
 };
 
 describe('isGhost', () => {

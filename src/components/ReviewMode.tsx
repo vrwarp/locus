@@ -85,7 +85,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
           const newDob = new Date(targetBirthdate);
           const newAge = differenceInYears(new Date(), newDob);
           const newCalculatedGrade = calculateExpectedGrade(newDob, new Date(), graderOptions);
-          const newDelta = newCalculatedGrade - currentStudent.pcoGrade;
+          const newDelta = newCalculatedGrade - (currentStudent.pcoGrade || 0);
 
           updatedStudent = {
               ...currentStudent,
@@ -157,7 +157,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
 
         <div className="student-info">
             <h3>{currentStudent.name}</h3>
-            <p className="student-meta">Age: {currentStudent.age} • Current Grade: {formatGrade(currentStudent.pcoGrade)}</p>
+            <p className="student-meta">Age: {currentStudent.age} • Current Grade: {formatGrade(currentStudent.pcoGrade || -99)}</p>
         </div>
 
         <div className="mode-switcher">
