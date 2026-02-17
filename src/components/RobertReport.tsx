@@ -4,6 +4,7 @@ import type { HealthStats } from '../utils/analytics';
 import type { HealthHistoryEntry } from '../utils/storage';
 import type { Student } from '../utils/pco';
 import { calculateDemographics } from '../utils/demographics';
+import { BurnoutReport } from './BurnoutReport';
 import './RobertReport.css';
 
 interface RobertReportProps {
@@ -12,10 +13,11 @@ interface RobertReportProps {
   stats: HealthStats;
   history: HealthHistoryEntry[];
   students: Student[];
+  auth: string;
 }
 
-export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, stats, history, students }) => {
-  const [activeTab, setActiveTab] = useState<'health' | 'demographics'>('health');
+export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, stats, history, students, auth }) => {
+  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout'>('health');
 
   if (!isOpen) return null;
 
@@ -61,6 +63,21 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
                 }}
             >
                 Demographics
+            </button>
+            <button
+                className={`tab-btn ${activeTab === 'burnout' ? 'active' : ''}`}
+                onClick={() => setActiveTab('burnout')}
+                style={{
+                    padding: '0.5rem 1rem',
+                    border: 'none',
+                    background: 'none',
+                    cursor: 'pointer',
+                    fontWeight: activeTab === 'burnout' ? 'bold' : 'normal',
+                    borderBottom: activeTab === 'burnout' ? '2px solid #007bff' : 'none',
+                    color: activeTab === 'burnout' ? '#007bff' : 'inherit'
+                }}
+            >
+                Burnout Risk
             </button>
         </div>
 
@@ -122,6 +139,10 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
                     Breakdown of your database by generation based on birthdate.
                 </p>
             </div>
+        )}
+
+        {activeTab === 'burnout' && (
+            <BurnoutReport students={students} auth={auth} />
         )}
 
         <div className="modal-actions" style={{marginTop: '2rem'}}>

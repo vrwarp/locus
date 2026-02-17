@@ -158,6 +158,22 @@ const generateEvents = () => {
       id: '2',
       type: 'Event',
       attributes: { name: 'Sunday Kids Church', frequency: 'weekly' }
+    },
+    // New Events for Burnout Logic
+    {
+      id: '3',
+      type: 'Event',
+      attributes: { name: 'Sunday Worship Service', frequency: 'weekly' } // Worship
+    },
+    {
+      id: '4',
+      type: 'Event',
+      attributes: { name: 'Kids Ministry Team', frequency: 'weekly' } // Serving
+    },
+    {
+      id: '5',
+      type: 'Event',
+      attributes: { name: 'Greeter Team', frequency: 'weekly' } // Serving
     }
   );
 };
@@ -179,6 +195,25 @@ const generateCheckIns = () => {
 
   // Get all children for check-ins
   const children = people.filter(p => p.attributes.child);
+  const adults = people.filter(p => !p.attributes.child);
+
+  // Identify Specific Scenarios
+  // 1. Burnout Candidate (Linda): High Serving, Zero Worship
+  // 2. Healthy Volunteer (Mark): High Serving, High Worship
+  // 3. Attendee Only (Sarah): High Worship, Zero Serving
+
+  const linda = adults[0]; // First adult is Linda
+  if(linda) linda.attributes.first_name = "Linda"; // Rename for clarity
+
+  const mark = adults[1];
+  if(mark) mark.attributes.first_name = "Mark";
+
+  const sarah = adults[2];
+  if(sarah) sarah.attributes.first_name = "Sarah";
+
+  // Randomly assign other adults to be "Volunteers" (serving sometimes) or "Regulars" (worship sometimes)
+  const volunteers = adults.slice(3).filter(() => Math.random() < 0.3); // 30% of remaining adults serve
+  const regularAttendees = adults.slice(3).filter(() => Math.random() < 0.6); // 60% of remaining adults attend
 
   weeks.forEach(weekStart => {
     // Skip if ANY day in this week falls in retreat?
@@ -236,6 +271,78 @@ const generateCheckIns = () => {
           });
         }
       });
+    }
+
+    // --- Adult Check-Ins ---
+    if (!isRetreatWeek(sundayDate) && sundayDate <= yearEnd) {
+        const worshipTime = setMinutes(setHours(sundayDate, 9), 0); // 9am Service
+        const servingTime = setMinutes(setHours(sundayDate, 8), 30); // 8:30 Call time
+
+        // 1. Linda: Serves (Kids Team), No Worship.
+        // Make sure she serves consistently (e.g., > 90%)
+        if (linda && Math.random() < 0.95) {
+             checkIns.push({
+                id: String(checkInIdCounter++),
+                type: 'CheckIn',
+                attributes: { created_at: formatISO(servingTime), kind: 'Volunteer' },
+                relationships: { person: { data: { type: 'Person', id: linda.id } }, event: { data: { type: 'Event', id: '4' } } } // Kids Ministry
+             });
+        }
+
+        // 2. Mark: Serves (Greeter) AND Worships
+        if (mark) {
+            if (Math.random() < 0.9) { // Serves
+                checkIns.push({
+                    id: String(checkInIdCounter++),
+                    type: 'CheckIn',
+                    attributes: { created_at: formatISO(servingTime), kind: 'Volunteer' },
+                    relationships: { person: { data: { type: 'Person', id: mark.id } }, event: { data: { type: 'Event', id: '5' } } } // Greeter
+                });
+            }
+            if (Math.random() < 0.9) { // Worships
+                 checkIns.push({
+                    id: String(checkInIdCounter++),
+                    type: 'CheckIn',
+                    attributes: { created_at: formatISO(worshipTime), kind: 'Regular' },
+                    relationships: { person: { data: { type: 'Person', id: mark.id } }, event: { data: { type: 'Event', id: '3' } } } // Worship
+                });
+            }
+        }
+
+        // 3. Sarah: Worships Only
+        if (sarah && Math.random() < 0.8) {
+             checkIns.push({
+                id: String(checkInIdCounter++),
+                type: 'CheckIn',
+                attributes: { created_at: formatISO(worshipTime), kind: 'Regular' },
+                relationships: { person: { data: { type: 'Person', id: sarah.id } }, event: { data: { type: 'Event', id: '3' } } } // Worship
+            });
+        }
+
+        // 4. Other Regulars (Worship)
+        regularAttendees.forEach(p => {
+            if (Math.random() < 0.6) {
+                checkIns.push({
+                    id: String(checkInIdCounter++),
+                    type: 'CheckIn',
+                    attributes: { created_at: formatISO(worshipTime), kind: 'Regular' },
+                    relationships: { person: { data: { type: 'Person', id: p.id } }, event: { data: { type: 'Event', id: '3' } } }
+                });
+            }
+        });
+
+        // 5. Other Volunteers (Serve)
+        volunteers.forEach(p => {
+             if (Math.random() < 0.5) {
+                const teamId = Math.random() > 0.5 ? '4' : '5';
+                checkIns.push({
+                    id: String(checkInIdCounter++),
+                    type: 'CheckIn',
+                    attributes: { created_at: formatISO(servingTime), kind: 'Volunteer' },
+                    relationships: { person: { data: { type: 'Person', id: p.id } }, event: { data: { type: 'Event', id: teamId } } }
+                });
+            }
+        });
     }
   });
 };

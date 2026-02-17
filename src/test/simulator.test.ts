@@ -88,11 +88,11 @@ describe('Local API Simulator', () => {
     expect(response.data.meta.total_count).toBeGreaterThan(1000);
   });
 
-  it('GET /check-ins/v2/events returns 2 events', async () => {
+  it('GET /check-ins/v2/events returns 5 events', async () => {
     const response = await axios.get(`${baseUrl}/check-ins/v2/events`);
     expect(response.status).toBe(200);
-    expect(response.data.data).toHaveLength(2);
-    expect(response.data.data[0].attributes.name).toMatch(/Friday|Sunday/);
+    expect(response.data.data).toHaveLength(5);
+    expect(response.data.data[0].attributes.name).toMatch(/Friday|Sunday|Worship|Team/);
   });
 
   it('Verifies adults have contact info', async () => {
