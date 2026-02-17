@@ -64,8 +64,8 @@ test('undo flow works as expected', async ({ page }) => {
   await expect(page.locator('.undo-toast')).toBeVisible();
   await expect(page.locator('text=Updated grade for Undo Alice')).toBeVisible();
 
-  // Click Undo
-  await page.click('button:has-text("Undo")');
+  // Click Undo (Target the button inside the toast to avoid ambiguity with the header Undo)
+  await page.click('.undo-toast button');
 
   // Toast disappears
   await expect(page.locator('.undo-toast')).not.toBeVisible();

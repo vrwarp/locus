@@ -9,7 +9,8 @@ import { FamilyModal } from './components/FamilyModal'
 import { UndoToast } from './components/UndoToast'
 import { RobertReport } from './components/RobertReport'
 import { GamificationWidget } from './components/GamificationWidget'
-import { transformPerson, updatePerson, fetchAllPeople, archivePerson, fetchCheckInCount, fetchGroupCount, checkApiVersion } from './utils/pco'
+import { UndoRedoControls } from './components/UndoRedoControls'
+import { transformPerson, fetchAllPeople, archivePerson, fetchCheckInCount, fetchGroupCount, checkApiVersion } from './utils/pco'
 import { isGhost } from './utils/ghost'
 import { analyzeFamilies } from './utils/family'
 import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot, loadGamificationState, saveGamificationState } from './utils/storage'
@@ -18,6 +19,8 @@ import { saveToCache, loadFromCache } from './utils/cache'
 import { calculateHealthStats } from './utils/analytics'
 import { Confetti } from './components/Confetti'
 import { BadgeToast } from './components/BadgeToast'
+import { CommandManager } from './utils/commands'
+import { UpdateStudentCommand } from './commands/UpdateStudentCommand'
 import type { AppConfig, HealthHistoryEntry, GamificationState } from './utils/storage'
 import type { Student, PcoPerson } from './utils/pco'
 import type { Badge } from './utils/gamification'
@@ -34,6 +37,11 @@ function App() {
   const [isReviewModeOpen, setIsReviewModeOpen] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
+
+  // Command Manager state
+  const commandManagerRef = useRef<CommandManager>(new CommandManager());
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
 
   // API Status state
   const [apiStatus, setApiStatus] = useState<'idle' | 'checking' | 'ok' | 'error'>('idle');
@@ -258,33 +266,31 @@ function App() {
            const auth = btoa(`${appId}:${secret}`);
            console.log(`Committing change for ${update.updated.name} to PCO...`);
 
-           const attributes: Record<string, any> = {};
-           if (update.original.pcoGrade !== update.updated.pcoGrade) {
-               attributes.grade = update.updated.pcoGrade;
-           }
-           if (update.original.birthdate !== update.updated.birthdate) {
-               attributes.birthdate = update.updated.birthdate;
-           }
-           if (update.original.firstName !== update.updated.firstName) {
-               attributes.first_name = update.updated.firstName;
-           }
-           if (update.original.lastName !== update.updated.lastName) {
-               attributes.last_name = update.updated.lastName;
-           }
-           if (update.original.email !== update.updated.email && update.updated.email) {
-               attributes.email_addresses = [{ address: update.updated.email, location: 'Home' }];
-           }
-           if (update.original.address !== update.updated.address && update.updated.address) {
-               attributes.addresses = [{ ...update.updated.address, location: 'Home' }];
-           }
-           if (update.original.phoneNumber !== update.updated.phoneNumber && update.updated.phoneNumber) {
-               attributes.phone_numbers = [{ number: update.updated.phoneNumber, location: 'Mobile' }];
-           }
+           const onStateChange = (student: Student) => {
+               queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+                  if (!oldData) return oldData;
+                  const newStudents = oldData.students.map((s: Student) => s.id === student.id ? student : s);
+                  return { ...oldData, students: newStudents };
+              });
+           };
 
-           if (Object.keys(attributes).length > 0) {
-               await updatePerson(update.updated.id, attributes, auth, config.sandboxMode);
-               console.log('Successfully saved to PCO');
-           }
+           const command = new UpdateStudentCommand(
+               update.original,
+               update.updated,
+               auth,
+               config.sandboxMode || false,
+               onStateChange
+           );
+
+           // Execute the command (calls API)
+           await command.execute();
+           console.log('Successfully saved to PCO');
+
+           // Add to history
+           commandManagerRef.current.execute(command);
+           setCanUndo(commandManagerRef.current.canUndo);
+           setCanRedo(commandManagerRef.current.canRedo);
+
       } catch (error) {
           console.error('Failed to save to PCO', error);
           // Revert on error
@@ -411,6 +417,18 @@ function App() {
       setPendingUpdateUI(null);
   }
 
+  const handleHistoryUndo = async () => {
+      await commandManagerRef.current.undo();
+      setCanUndo(commandManagerRef.current.canUndo);
+      setCanRedo(commandManagerRef.current.canRedo);
+  };
+
+  const handleHistoryRedo = async () => {
+      await commandManagerRef.current.redo();
+      setCanUndo(commandManagerRef.current.canUndo);
+      setCanRedo(commandManagerRef.current.canRedo);
+  };
+
   const handleSaveConfig = async (newConfig: AppConfig) => {
     setConfig(newConfig);
     await saveConfig(newConfig, appId);
@@ -445,6 +463,12 @@ function App() {
             )}
         </div>
         <div style={{display: 'flex', gap: '1rem'}}>
+            <UndoRedoControls
+                canUndo={canUndo}
+                canRedo={canRedo}
+                onUndo={handleHistoryUndo}
+                onRedo={handleHistoryRedo}
+            />
             {anomalies.length > 0 && (
                  <button onClick={() => setIsReviewModeOpen(true)} className="settings-btn">
                      🚀 Review Mode ({anomalies.length})

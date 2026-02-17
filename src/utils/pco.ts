@@ -125,6 +125,34 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
   };
 };
 
+export const prepareUpdateAttributes = (original: Student, updated: Student): PcoAttributes => {
+  const attributes: PcoAttributes = {};
+
+  if (original.pcoGrade !== updated.pcoGrade) {
+      attributes.grade = updated.pcoGrade;
+  }
+  if (original.birthdate !== updated.birthdate) {
+      attributes.birthdate = updated.birthdate;
+  }
+  if (original.firstName !== updated.firstName) {
+      attributes.first_name = updated.firstName;
+  }
+  if (original.lastName !== updated.lastName) {
+      attributes.last_name = updated.lastName;
+  }
+  if (original.email !== updated.email && updated.email) {
+      attributes.email_addresses = [{ address: updated.email, location: 'Home' }];
+  }
+  if (original.address !== updated.address && updated.address) {
+      attributes.addresses = [{ ...updated.address, location: 'Home' }];
+  }
+  if (original.phoneNumber !== updated.phoneNumber && updated.phoneNumber) {
+      attributes.phone_numbers = [{ number: updated.phoneNumber, location: 'Mobile' }];
+  }
+
+  return attributes;
+};
+
 export const updatePerson = async (id: string, attributes: PcoAttributes, auth: string, sandboxMode?: boolean): Promise<PcoPerson> => {
     const headers: Record<string, string> = {
         Authorization: `Basic ${auth}`,

@@ -137,6 +137,17 @@
 
 ## Session 30
 - **Implemented:**
+    - **Undo Architecture (Command Pattern):**
+        - Refactored attribute diffing logic from `App.tsx` to `src/utils/pco.ts` (`prepareUpdateAttributes`).
+        - Created `Command` interface and `CommandManager` class (`src/utils/commands.ts`) to manage history/redo stacks.
+        - Created `UpdateStudentCommand` class (`src/commands/UpdateStudentCommand.ts`) to encapsulate student updates and undo logic (inverse API operations).
+        - Created `UndoRedoControls` component (`src/components/UndoRedoControls.tsx`) for the UI.
+        - Integrated `CommandManager` into `App.tsx`, preserving the existing 5-second "Pending Update" buffer before committing to history.
+- **Tests:**
+    - Created `src/utils/commands.test.ts` for unit testing Command Manager and Command logic.
+    - Created `src/App.undo.integration.test.tsx` for end-to-end integration testing of the Undo flow.
+    - Verified all tests pass.
+- **Status:** Undo/Redo Architecture implemented.
     - **Demographics Report (The Generation Stack):**
         - Created `src/utils/demographics.ts` to calculate counts per generation (Alpha, Z, Millennials, X, Boomers, Silent).
         - Updated `RobertReport` to include a "Demographics" tab with a `BarChart` visualization.
