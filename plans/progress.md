@@ -148,3 +148,13 @@
     - Created `src/App.undo.integration.test.tsx` for end-to-end integration testing of the Undo flow.
     - Verified all tests pass.
 - **Status:** Undo/Redo Architecture implemented.
+    - **Demographics Report (The Generation Stack):**
+        - Created `src/utils/demographics.ts` to calculate counts per generation (Alpha, Z, Millennials, X, Boomers, Silent).
+        - Updated `RobertReport` to include a "Demographics" tab with a `BarChart` visualization.
+        - Integrated demographic data into the main `App` workflow.
+- **Tests:**
+    - Created `src/utils/demographics.test.ts` to verify generation logic.
+    - Updated `src/components/RobertReport.test.tsx` to verify new tab and chart rendering.
+    - Updated `src/App.test.tsx` to ensure `students` prop is passed correctly.
+    - Verified all tests pass (184 tests).
+- **Status:** Demographics Report implemented.
