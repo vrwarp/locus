@@ -23,6 +23,11 @@ vi.mock('recharts', () => {
   };
 });
 
+// Mock BurnoutReport
+vi.mock('./BurnoutReport', () => ({
+    BurnoutReport: () => <div data-testid="burnout-report">Mock Burnout Report</div>
+}));
+
 describe('RobertReport', () => {
   const mockStats: HealthStats = {
     score: 85,
@@ -44,14 +49,14 @@ describe('RobertReport', () => {
 
   it('renders nothing when closed', () => {
     const { container } = render(
-      <RobertReport isOpen={false} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} />
+      <RobertReport isOpen={false} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
     );
     expect(container.firstChild).toBeNull();
   });
 
   it('renders correct stats when open', () => {
     render(
-      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} />
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
     );
 
     expect(screen.getByText('Data Health Audit')).toBeInTheDocument();
@@ -59,11 +64,12 @@ describe('RobertReport', () => {
     // Verify tabs exist
     expect(screen.getByText('Health & Trends')).toBeInTheDocument();
     expect(screen.getByText('Demographics')).toBeInTheDocument();
+    expect(screen.getByText('Burnout Risk')).toBeInTheDocument();
   });
 
   it('switches to demographics tab and shows chart', () => {
     render(
-      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} />
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
     );
 
     const demographicsTab = screen.getByText('Demographics');
@@ -73,10 +79,21 @@ describe('RobertReport', () => {
     expect(screen.getByTestId('bar-chart')).toBeInTheDocument();
   });
 
+  it('switches to burnout tab', () => {
+    render(
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
+    );
+
+    const burnoutTab = screen.getByText('Burnout Risk');
+    fireEvent.click(burnoutTab);
+
+    expect(screen.getByTestId('burnout-report')).toBeInTheDocument();
+  });
+
   it('calls onClose when close button clicked', () => {
     const handleClose = vi.fn();
     render(
-      <RobertReport isOpen={true} onClose={handleClose} stats={mockStats} history={mockHistory} students={mockStudents} />
+      <RobertReport isOpen={true} onClose={handleClose} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
     );
 
     fireEvent.click(screen.getByText('Close Report'));

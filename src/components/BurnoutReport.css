@@ -1,0 +1,133 @@
+.burnout-report {
+    padding: 1rem;
+}
+
+.burnout-report h3 {
+    margin-top: 0;
+}
+
+.burnout-report .description {
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.empty-state .icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.candidate-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.candidate-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.candidate-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.candidate-card.high {
+    border-left: 5px solid #ff4444;
+}
+
+.candidate-card.medium {
+    border-left: 5px solid #ffbb33;
+}
+
+.candidate-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.candidate-info .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.candidate-info h4 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.risk-badge {
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #eee;
+    color: #333;
+}
+
+.candidate-card.high .risk-badge {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.candidate-card.medium .risk-badge {
+    background: #fff8e1;
+    color: #f57f17;
+}
+
+.candidate-stats {
+    display: flex;
+    justify-content: space-around;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat .label {
+    display: block;
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.stat .value {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.stat.serving .value {
+    color: #2e7d32;
+}
+
+.stat.worship .value {
+    color: #1565c0;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+    padding: 2rem;
+}

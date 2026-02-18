@@ -158,3 +158,19 @@
     - Updated `src/App.test.tsx` to ensure `students` prop is passed correctly.
     - Verified all tests pass (184 tests).
 - **Status:** Demographics Report implemented.
+
+## Session 31
+- **Implemented:**
+    - **Burnout Risk Report:**
+        - Created `src/utils/burnout.ts` to identify burnout risks (High Serving > 6, Low Worship < 2 in 8 weeks).
+        - Updated `mock-api/data.js` to simulate "Worship" and "Serving" events and assign check-ins to adults.
+        - Created `src/components/BurnoutReport.tsx` to visualize risk candidates.
+        - Integrated "Burnout Risk" tab into `RobertReport`.
+        - Updated `src/utils/pco.ts` to include `fetchEvents` and `fetchRecentCheckIns`.
+- **Tests:**
+    - Created `src/utils/burnout.test.ts` to verify risk calculation logic.
+    - Created `src/components/BurnoutReport.test.tsx` to verify component rendering and API integration.
+    - Updated `src/components/RobertReport.test.tsx` to verify new tab integration.
+    - Updated `src/test/simulator.test.ts` to reflect new mock events.
+    - Verified all tests pass (204 tests).
+- **Status:** Burnout Risk Report implemented.

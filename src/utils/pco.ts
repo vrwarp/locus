@@ -68,6 +68,29 @@ export interface Student {
   hasPhoneAnomaly: boolean;
 }
 
+export interface PcoEvent {
+  id: string;
+  type: string;
+  attributes: {
+    name: string;
+    frequency?: string;
+  };
+}
+
+export interface PcoCheckIn {
+  id: string;
+  type: string;
+  attributes: {
+    created_at: string;
+    kind: string;
+  };
+  relationships: {
+    person: { data: { type: 'Person', id: string } };
+    event: { data: { type: 'Event', id: string } };
+  };
+}
+
+
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
   const { id, attributes } = person;
   const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id, email_addresses, addresses, phone_numbers } = attributes;
@@ -262,4 +285,35 @@ export const checkApiVersion = async (auth: string): Promise<boolean> => {
     }
     throw error;
   }
+};
+
+export const fetchEvents = async (auth: string): Promise<PcoEvent[]> => {
+  try {
+    const response = await api.get<{ data: PcoEvent[] }>(
+      '/api/check-ins/v2/events',
+      {
+        headers: { Authorization: `Basic ${auth}` }
+      }
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error('Failed to fetch events', error);
+    return [];
+  }
+};
+
+export const fetchRecentCheckIns = async (auth: string): Promise<PcoCheckIn[]> => {
+    // In a real app we might paginate. Here we fetch a large chunk.
+    try {
+        const response = await api.get<{ data: PcoCheckIn[] }>(
+            '/api/check-ins/v2/check_ins?per_page=1000',
+             {
+                headers: { Authorization: `Basic ${auth}` }
+             }
+        );
+        return response.data.data;
+    } catch (error) {
+        console.error('Failed to fetch check-ins', error);
+        return [];
+    }
 };

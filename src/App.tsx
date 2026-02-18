@@ -38,6 +38,11 @@ function App() {
   const [isArchiving, setIsArchiving] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
 
+  const auth = useMemo(() => {
+    if (appId && secret) return btoa(`${appId}:${secret}`);
+    return '';
+  }, [appId, secret]);
+
   // Command Manager state
   const commandManagerRef = useRef<CommandManager>(new CommandManager());
   const [canUndo, setCanUndo] = useState(false);
@@ -577,6 +582,7 @@ function App() {
         stats={stats}
         history={healthHistory}
         students={students}
+        auth={auth}
       />
 
       {showConfetti && <Confetti />}
