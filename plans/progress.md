@@ -174,3 +174,18 @@
     - Updated `src/test/simulator.test.ts` to reflect new mock events.
     - Verified all tests pass (204 tests).
 - **Status:** Burnout Risk Report implemented.
+
+## Session 32
+- **Implemented:**
+    - **Ministry Matchmaker (Recruitment Report):**
+        - Created `src/utils/recruitment.ts` to identify "High Capacity" attendees (Frequent Worship > 4, Low Serving <= 1 in 8 weeks).
+        - Created `src/components/RecruitmentReport.tsx` to visualize candidates with a "Match Score".
+        - Integrated "Recruiting" tab into `RobertReport`.
+        - Added logic to boost score for Parents (+20 points).
+        - Added "Draft Email" feature using `mailto:` links.
+- **Tests:**
+    - Created `src/utils/recruitment.test.ts` to verify identification logic.
+    - Created `src/components/RecruitmentReport.test.tsx` to verify component rendering and interactions.
+    - Updated `src/components/RobertReport.test.tsx` to verify new tab integration.
+    - Verified all tests pass.
+- **Status:** Ministry Matchmaker implemented.
