@@ -28,6 +28,11 @@ vi.mock('./BurnoutReport', () => ({
     BurnoutReport: () => <div data-testid="burnout-report">Mock Burnout Report</div>
 }));
 
+// Mock RecruitmentReport
+vi.mock('./RecruitmentReport', () => ({
+    RecruitmentReport: () => <div data-testid="recruitment-report">Mock Recruitment Report</div>
+}));
+
 describe('RobertReport', () => {
   const mockStats: HealthStats = {
     score: 85,
@@ -88,6 +93,17 @@ describe('RobertReport', () => {
     fireEvent.click(burnoutTab);
 
     expect(screen.getByTestId('burnout-report')).toBeInTheDocument();
+  });
+
+  it('switches to recruitment tab', () => {
+    render(
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
+    );
+
+    const recruitmentTab = screen.getByText('Recruiting');
+    fireEvent.click(recruitmentTab);
+
+    expect(screen.getByTestId('recruitment-report')).toBeInTheDocument();
   });
 
   it('calls onClose when close button clicked', () => {

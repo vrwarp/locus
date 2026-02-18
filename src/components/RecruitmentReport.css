@@ -1,0 +1,157 @@
+.recruitment-report {
+    padding: 1rem;
+}
+
+.recruitment-report h3 {
+    margin-top: 0;
+}
+
+.recruitment-report .description {
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.empty-state .icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.candidate-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.candidate-card {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 1rem;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.candidate-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.candidate-card.recruitment-card {
+    border-left: 5px solid #4CAF50; /* Green for opportunity */
+}
+
+.candidate-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.candidate-info .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.candidate-info h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.parent-badge {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.score-badge {
+    display: inline-block;
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+}
+
+.candidate-stats {
+    display: flex;
+    justify-content: space-around;
+    border-top: 1px solid #eee;
+    padding-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat .label {
+    display: block;
+    font-size: 0.8rem;
+    color: #888;
+    text-transform: uppercase;
+}
+
+.stat .value {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.candidate-actions {
+    margin-top: auto;
+    text-align: center;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    background: #007bff;
+    color: white;
+    transition: background 0.2s;
+}
+
+.btn-sm:hover {
+    background: #0056b3;
+}
+
+.btn-sm:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+}
+
+.error-message {
+    color: red;
+    text-align: center;
+    padding: 2rem;
+}
