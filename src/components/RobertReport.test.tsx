@@ -6,8 +6,8 @@ import type { HealthHistoryEntry } from '../utils/storage';
 import type { Student } from '../utils/pco';
 
 // Mock Recharts to avoid resizing observer issues in tests
-vi.mock('recharts', () => {
-  const OriginalModule = vi.importActual('recharts');
+vi.mock('recharts', async () => {
+  const OriginalModule = await vi.importActual('recharts');
   return {
     ...OriginalModule,
     ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div className="recharts-responsive-container">{children}</div>,
@@ -31,6 +31,11 @@ vi.mock('./BurnoutReport', () => ({
 // Mock RecruitmentReport
 vi.mock('./RecruitmentReport', () => ({
     RecruitmentReport: () => <div data-testid="recruitment-report">Mock Recruitment Report</div>
+}));
+
+// Mock AttendancePulse
+vi.mock('./AttendancePulse', () => ({
+    AttendancePulse: () => <div data-testid="attendance-pulse">Mock Attendance Pulse</div>
 }));
 
 describe('RobertReport', () => {
@@ -70,6 +75,7 @@ describe('RobertReport', () => {
     expect(screen.getByText('Health & Trends')).toBeInTheDocument();
     expect(screen.getByText('Demographics')).toBeInTheDocument();
     expect(screen.getByText('Burnout Risk')).toBeInTheDocument();
+    expect(screen.getByText('Pulse')).toBeInTheDocument();
   });
 
   it('switches to demographics tab and shows chart', () => {
@@ -104,6 +110,17 @@ describe('RobertReport', () => {
     fireEvent.click(recruitmentTab);
 
     expect(screen.getByTestId('recruitment-report')).toBeInTheDocument();
+  });
+
+  it('switches to pulse tab', () => {
+    render(
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
+    );
+
+    const pulseTab = screen.getByText('Pulse');
+    fireEvent.click(pulseTab);
+
+    expect(screen.getByTestId('attendance-pulse')).toBeInTheDocument();
   });
 
   it('calls onClose when close button clicked', () => {
