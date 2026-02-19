@@ -6,6 +6,7 @@ import type { Student } from '../utils/pco';
 import { calculateDemographics } from '../utils/demographics';
 import { BurnoutReport } from './BurnoutReport';
 import { RecruitmentReport } from './RecruitmentReport';
+import { AttendancePulse } from './AttendancePulse';
 import './RobertReport.css';
 
 interface RobertReportProps {
@@ -18,7 +19,7 @@ interface RobertReportProps {
 }
 
 export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, stats, history, students, auth }) => {
-  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment'>('health');
+  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse'>('health');
 
   if (!isOpen) return null;
 
@@ -99,6 +100,22 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
             >
                 Recruiting
             </button>
+            <button
+                className={`tab-btn ${activeTab === 'pulse' ? 'active' : ''}`}
+                onClick={() => setActiveTab('pulse')}
+                style={{
+                    padding: '0.5rem 1rem',
+                    border: 'none',
+                    background: 'none',
+                    cursor: 'pointer',
+                    fontWeight: activeTab === 'pulse' ? 'bold' : 'normal',
+                    borderBottom: activeTab === 'pulse' ? '2px solid #007bff' : 'none',
+                    color: activeTab === 'pulse' ? '#007bff' : 'inherit',
+                    whiteSpace: 'nowrap'
+                }}
+            >
+                Pulse
+            </button>
         </div>
 
         {activeTab === 'health' && (
@@ -167,6 +184,10 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
 
         {activeTab === 'recruitment' && (
             <RecruitmentReport students={students} auth={auth} />
+        )}
+
+        {activeTab === 'pulse' && (
+            <AttendancePulse auth={auth} />
         )}
 
         <div className="modal-actions" style={{marginTop: '2rem'}}>

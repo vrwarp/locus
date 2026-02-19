@@ -234,7 +234,7 @@ AI should never be a black box.
 2.  **The Heatmap of Life:** Calendar view showing "Life Events" (Births, Marriages, Deaths) density.
 3.  **The Volunteer Web:** Force-directed graph of who serves with whom.
 4.  **The Giving River:** Sankey diagram of giving flow (General Fund -> Missions -> Building).
-5.  **The Attendance Pulse:** EKG-style chart of weekly attendance.
+5.  **The Attendance Pulse:** EKG-style chart of weekly attendance. [DONE]
 6.  **The Map View:** Geospatial clusters of members. "Where should we plant the next campus?"
 7.  **The "Bus Factor" Graph:** Identify critical volunteers who are single points of failure.
 8.  **The "Newcomer Funnel":** 3D funnel visualization of guest retention.
