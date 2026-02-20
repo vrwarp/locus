@@ -26,7 +26,7 @@
 
 .candidate-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1rem;
 }
 
@@ -52,14 +52,14 @@
 
 .candidate-info {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 1rem;
     margin-bottom: 1rem;
 }
 
 .candidate-info .avatar {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     object-fit: cover;
 }
@@ -68,7 +68,15 @@
     margin: 0;
     font-size: 1.1rem;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.badges-row {
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
 }
 
@@ -85,6 +93,11 @@
     color: #1565c0;
 }
 
+.tenure-badge {
+    background: #e0f2f1;
+    color: #00695c;
+}
+
 .score-badge {
     display: inline-block;
     background: #e8f5e9;
@@ -92,7 +105,16 @@
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.8rem;
-    margin-top: 0.2rem;
+}
+
+.role-badge {
+    display: inline-block;
+    background: #fff3e0;
+    color: #ef6c00;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    border: 1px solid #ffe0b2;
 }
 
 .candidate-stats {
@@ -109,13 +131,13 @@
 
 .stat .label {
     display: block;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     color: #888;
     text-transform: uppercase;
 }
 
 .stat .value {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: bold;
 }
 
@@ -130,18 +152,51 @@
     border-radius: 4px;
     cursor: pointer;
     border: none;
-    background: #007bff;
-    color: white;
     transition: background 0.2s;
 }
 
-.btn-sm:hover {
-    background: #0056b3;
+.btn-script {
+    background: #673ab7;
+    color: white;
+    width: 100%;
+}
+.btn-script:hover { background: #5e35b1; }
+
+.btn-copy {
+    background: #2196f3;
+    color: white;
+    flex: 1;
+}
+.btn-copy:hover { background: #1976d2; }
+
+.btn-cancel {
+    background: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+}
+.btn-cancel:hover { background: #e0e0e0; }
+
+
+.script-view {
+    margin-top: 1rem;
 }
 
-.btn-sm:disabled {
-    background: #ccc;
-    cursor: not-allowed;
+.script-textarea {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-family: monospace;
+    font-size: 0.9rem;
+    resize: vertical;
+    margin-bottom: 0.5rem;
+    box-sizing: border-box;
+    background: #fafafa;
+}
+
+.script-actions {
+    display: flex;
+    gap: 0.5rem;
 }
 
 .loading-spinner {

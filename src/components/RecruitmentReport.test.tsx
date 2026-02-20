@@ -10,22 +10,24 @@ vi.mock('../utils/pco', () => ({
     fetchRecentCheckIns: vi.fn(),
 }));
 
-// Mock window.location
-Object.defineProperty(window, 'location', {
-    writable: true,
-    value: { href: '' }
+// Mock navigator.clipboard
+Object.assign(navigator, {
+    clipboard: {
+        writeText: vi.fn().mockImplementation(() => Promise.resolve()),
+    },
 });
 
 describe('RecruitmentReport', () => {
-    const mockStudents: Student[] = [
-        {
+    // Basic Mock Student
+    const mockStudent: Student = {
             id: '1', name: 'Sarah Saint', firstName: 'Sarah', lastName: 'Saint',
             isChild: false, householdId: 'h1', email: 'sarah@example.com',
             age: 30, pcoGrade: null, calculatedGrade: 12, delta: 0, birthdate: '1990-01-01',
             lastCheckInAt: null, checkInCount: null, groupCount: null,
             hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false
-        }
-    ];
+    };
+
+    const mockStudents: Student[] = [mockStudent];
 
     const mockEvents: PcoEvent[] = [
         { id: '100', type: 'Event', attributes: { name: 'Sunday Worship' } }
@@ -62,18 +64,35 @@ describe('RecruitmentReport', () => {
         expect(screen.getByText('Match Score: 50')).toBeInTheDocument(); // 5 * 10
     });
 
-    it('handles email draft click', async () => {
+    it('handles view script toggle', async () => {
         (fetchEvents as any).mockResolvedValue(mockEvents);
         (fetchRecentCheckIns as any).mockResolvedValue(mockCheckIns);
 
         render(<RecruitmentReport students={mockStudents} auth="auth" />);
 
         await waitFor(() => {
-            expect(screen.getByText('✉️ Draft Email')).toBeInTheDocument();
+            expect(screen.getByText('📝 View Ask Script')).toBeInTheDocument();
         });
 
-        fireEvent.click(screen.getByText('✉️ Draft Email'));
-        expect(window.location.href).toContain('mailto:sarah@example.com');
+        // Click view script
+        fireEvent.click(screen.getByText('📝 View Ask Script'));
+
+        // Should show textarea and copy button
+        expect(screen.getByDisplayValue(/Hi Sarah/)).toBeInTheDocument();
+        expect(screen.getByText('📋 Copy to Clipboard')).toBeInTheDocument();
+
+        // Click copy
+        fireEvent.click(screen.getByText('📋 Copy to Clipboard'));
+
+        await waitFor(() => {
+             expect(screen.getByText('✅ Copied!')).toBeInTheDocument();
+        });
+
+        expect(navigator.clipboard.writeText).toHaveBeenCalled();
+
+        // Click close
+        fireEvent.click(screen.getByText('Close'));
+        expect(screen.queryByDisplayValue(/Hi Sarah/)).not.toBeInTheDocument();
     });
 
     it('shows empty state if no candidates', async () => {

@@ -113,7 +113,7 @@ Optimizing volunteer placement.
 -   **Inputs:** Distance from church, Age of kids, Profession (Teacher/Nurse = High Score), Spiritual Gifts (if recorded).
 -   **Output:** Ranked list of candidates.
 -   **Feature:** "The Ask Script" - AI generates a personalized recruitment script based on the candidate's profile.
--   **Status:** [PARTIAL] Core identification logic implemented (Attendance vs Serving Ratio).
+-   **Status:** [COMPLETE] Generates scripts based on tenure, family status, and potential roles.
 
 ### 4.4 "Sentiment Pulse" (NLP)
 *Note: Requires ethical opt-in.*
