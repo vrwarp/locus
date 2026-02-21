@@ -14,7 +14,7 @@ app.use(express.json({ type: ['application/json', 'application/vnd.api+json'] })
 let db = {
   people: JSON.parse(JSON.stringify(people)),
   events: JSON.parse(JSON.stringify(events)),
-  checkIns: JSON.parse(JSON.stringify(checkIns)),
+  checkIns: JSON.parse(JSON.stringify(checkIns)).reverse(), // Newest first
   groups: JSON.parse(JSON.stringify(groups)),
   groupMemberships: JSON.parse(JSON.stringify(groupMemberships))
 };

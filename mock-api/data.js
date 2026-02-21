@@ -1,4 +1,4 @@
-import { addDays, eachWeekOfInterval, getDay, isSameWeek, setHours, setMinutes, formatISO } from 'date-fns';
+import { addDays, eachWeekOfInterval, getDay, isSameWeek, setHours, setMinutes, formatISO, subWeeks } from 'date-fns';
 
 export const people = [];
 export const events = [];
@@ -180,12 +180,13 @@ const generateEvents = () => {
 
 // 3. Generate Check-Ins
 const generateCheckIns = () => {
-  const yearStart = new Date(2024, 0, 1); // Jan 1 2024
-  const yearEnd = new Date(2024, 11, 31);
+  const today = new Date();
+  const yearStart = subWeeks(today, 52); // Last 52 weeks
+  const yearEnd = today;
 
-  // Retreat Week: 2nd Week of July 2024 (approx July 7-13)
-  const retreatStart = new Date(2024, 6, 7); // Month is 0-indexed
-  const retreatEnd = new Date(2024, 6, 14);
+  // Retreat Week: Just pick a week roughly 6 months ago to simulate a break
+  const retreatStart = subWeeks(today, 26);
+  const retreatEnd = addDays(retreatStart, 7);
 
   const isRetreatWeek = (date) => {
     return date >= retreatStart && date < retreatEnd;
