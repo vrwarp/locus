@@ -237,7 +237,7 @@ AI should never be a black box.
 5.  **The Attendance Pulse:** EKG-style chart of weekly attendance. [DONE]
 6.  **The Map View:** Geospatial clusters of members. "Where should we plant the next campus?"
 7.  **The "Bus Factor" Graph:** Identify critical volunteers who are single points of failure.
-8.  **The "Newcomer Funnel":** 3D funnel visualization of guest retention.
+8.  **The "Newcomer Funnel":** 3D funnel visualization of guest retention. [DONE]
 9.  **The "Generation Stack":** Bar chart of Age demographics (Boomers vs Gen Z). [DONE]
 10. **The "Check-in Velocity":** Real-time gauge of check-ins per minute on Sunday morning.
 

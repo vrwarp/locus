@@ -302,18 +302,29 @@ export const fetchEvents = async (auth: string): Promise<PcoEvent[]> => {
   }
 };
 
-export const fetchRecentCheckIns = async (auth: string): Promise<PcoCheckIn[]> => {
-    // In a real app we might paginate. Here we fetch a large chunk.
-    try {
-        const response = await api.get<{ data: PcoCheckIn[] }>(
-            '/api/check-ins/v2/check_ins?per_page=1000',
-             {
-                headers: { Authorization: `Basic ${auth}` }
-             }
-        );
-        return response.data.data;
-    } catch (error) {
-        console.error('Failed to fetch check-ins', error);
-        return [];
+export const fetchRecentCheckIns = async (auth: string, maxPages: number = 100): Promise<PcoCheckIn[]> => {
+    let allCheckIns: PcoCheckIn[] = [];
+    let nextUrl: string | undefined = '/api/check-ins/v2/check_ins?per_page=100';
+    let pageCount = 0;
+
+    while (nextUrl && pageCount < maxPages) {
+        try {
+            // Ensure we use the proxy for absolute URLs returned by PCO
+            const proxyUrl = nextUrl.replace('https://api.planningcenteronline.com', '/api');
+
+            const response = await api.get<{ data: PcoCheckIn[], links?: { next?: string } }>(
+                proxyUrl,
+                 {
+                    headers: { Authorization: `Basic ${auth}` }
+                 }
+            );
+            allCheckIns = [...allCheckIns, ...response.data.data];
+            nextUrl = response.data.links?.next;
+            pageCount++;
+        } catch (error) {
+            console.error('Failed to fetch check-ins', error);
+            break;
+        }
     }
+    return allCheckIns;
 };
