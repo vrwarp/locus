@@ -38,6 +38,11 @@ vi.mock('./AttendancePulse', () => ({
     AttendancePulse: () => <div data-testid="attendance-pulse">Mock Attendance Pulse</div>
 }));
 
+// Mock NewcomerFunnel
+vi.mock('./NewcomerFunnel', () => ({
+    NewcomerFunnel: () => <div data-testid="newcomer-funnel">Mock Newcomer Funnel</div>
+}));
+
 describe('RobertReport', () => {
   const mockStats: HealthStats = {
     score: 85,
@@ -76,6 +81,7 @@ describe('RobertReport', () => {
     expect(screen.getByText('Demographics')).toBeInTheDocument();
     expect(screen.getByText('Burnout Risk')).toBeInTheDocument();
     expect(screen.getByText('Pulse')).toBeInTheDocument();
+    expect(screen.getByText('Retention')).toBeInTheDocument();
   });
 
   it('switches to demographics tab and shows chart', () => {
@@ -121,6 +127,17 @@ describe('RobertReport', () => {
     fireEvent.click(pulseTab);
 
     expect(screen.getByTestId('attendance-pulse')).toBeInTheDocument();
+  });
+
+  it('switches to retention tab', () => {
+    render(
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
+    );
+
+    const retentionTab = screen.getByText('Retention');
+    fireEvent.click(retentionTab);
+
+    expect(screen.getByTestId('newcomer-funnel')).toBeInTheDocument();
   });
 
   it('calls onClose when close button clicked', () => {

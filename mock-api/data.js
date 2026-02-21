@@ -389,8 +389,97 @@ const generateGroups = () => {
   });
 };
 
+// 5. Generate Newcomers (Funnel Logic)
+const generateNewcomers = () => {
+  // Goal: Create ~40 Newcomers distributed across 2024
+  // Retention Profiles:
+  // 1. One-and-Done (40%): 1 visit
+  // 2. Two-Time Visitor (30%): 2 visits
+  // 3. Shopper (20%): 3 visits
+  // 4. Sticker (10%): 4+ visits
+
+  const newcomerCount = 40;
+
+  for (let i = 0; i < newcomerCount; i++) {
+    const isFemale = Math.random() > 0.5;
+    const firstName = randomItem(isFemale ? femaleNames : maleNames);
+    const lastName = randomItem(lastNames);
+    const id = String(personIdCounter++);
+
+    // Determine Start Date (First Visit) - Random week in 2024
+    // Avoid last week to allow for return visits
+    const startWeekIndex = randomInt(0, 48);
+    const yearStart = new Date(2024, 0, 1);
+    const firstVisitDate = addDays(yearStart, startWeekIndex * 7); // Rough approx
+
+    // Determine Retention Profile
+    const r = Math.random();
+    let visitCount = 1;
+    if (r > 0.4) visitCount = 2; // > 40%
+    if (r > 0.7) visitCount = 3; // > 70%
+    if (r > 0.9) visitCount = randomInt(4, 8); // > 90%
+
+    // Create Person
+    const person = {
+      id,
+      type: 'Person',
+      attributes: {
+        first_name: firstName,
+        last_name: lastName,
+        name: `${firstName} ${lastName}`,
+        child: false, // Make them adults for simplicity or mix? Let's say adults/families.
+        grade: null,
+        birthdate: `${randomInt(1980, 2000)}-01-01`,
+        addresses: [],
+        email_addresses: [],
+        phone_numbers: [],
+        avatar: `https://i.pravatar.cc/150?u=${id}`,
+        created_at: formatISO(firstVisitDate) // Metadata for "Newcomer" status if we used that field
+      }
+    };
+    people.push(person);
+
+    // Generate Check-Ins
+    // Visit 1: On First Visit Date (Sunday)
+    const sundayVisit1 = addDays(firstVisitDate, 0); // Assuming firstVisitDate aligns roughly.
+    // Let's force it to be a Sunday
+    const dayOfWeek = getDay(firstVisitDate);
+    const daysUntilSunday = (7 - dayOfWeek) % 7; // If 0 (Sun) -> 0. If 1 (Mon) -> 6.
+
+    // Actually simpler: iterate and add check-ins for `visitCount` consecutive weeks
+    // or skip a week for "Shoppers".
+
+    // Let's just do consecutive weeks for simplicity of "returning"
+    let currentVisitDate = addDays(firstVisitDate, daysUntilSunday); // Align to next Sunday
+
+    for (let v = 0; v < visitCount; v++) {
+        // Ensure we don't go past current date (mocked as end of 2024)
+        if (currentVisitDate > new Date(2024, 11, 31)) break;
+
+        const eventTime = setMinutes(setHours(currentVisitDate, 10), 0); // 10:00 AM
+
+        checkIns.push({
+            id: String(checkInIdCounter++),
+            type: 'CheckIn',
+            attributes: {
+              created_at: formatISO(eventTime),
+              kind: 'Regular'
+            },
+            relationships: {
+              person: { data: { type: 'Person', id: person.id } },
+              event: { data: { type: 'Event', id: '3' } } // Worship Service
+            }
+        });
+
+        // Next visit next week
+        currentVisitDate = addDays(currentVisitDate, 7);
+    }
+  }
+};
+
 // Execute
 generateHouseholds();
 generateEvents();
 generateCheckIns();
+generateNewcomers();
 generateGroups();

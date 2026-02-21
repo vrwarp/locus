@@ -7,6 +7,7 @@ import { calculateDemographics } from '../utils/demographics';
 import { BurnoutReport } from './BurnoutReport';
 import { RecruitmentReport } from './RecruitmentReport';
 import { AttendancePulse } from './AttendancePulse';
+import { NewcomerFunnel } from './NewcomerFunnel';
 import './RobertReport.css';
 
 interface RobertReportProps {
@@ -19,7 +20,7 @@ interface RobertReportProps {
 }
 
 export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, stats, history, students, auth }) => {
-  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse'>('health');
+  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention'>('health');
 
   if (!isOpen) return null;
 
@@ -116,6 +117,22 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
             >
                 Pulse
             </button>
+            <button
+                className={`tab-btn ${activeTab === 'retention' ? 'active' : ''}`}
+                onClick={() => setActiveTab('retention')}
+                style={{
+                    padding: '0.5rem 1rem',
+                    border: 'none',
+                    background: 'none',
+                    cursor: 'pointer',
+                    fontWeight: activeTab === 'retention' ? 'bold' : 'normal',
+                    borderBottom: activeTab === 'retention' ? '2px solid #007bff' : 'none',
+                    color: activeTab === 'retention' ? '#007bff' : 'inherit',
+                    whiteSpace: 'nowrap'
+                }}
+            >
+                Retention
+            </button>
         </div>
 
         {activeTab === 'health' && (
@@ -188,6 +205,10 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
 
         {activeTab === 'pulse' && (
             <AttendancePulse auth={auth} />
+        )}
+
+        {activeTab === 'retention' && (
+            <NewcomerFunnel auth={auth} />
         )}
 
         <div className="modal-actions" style={{marginTop: '2rem'}}>

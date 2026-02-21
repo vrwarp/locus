@@ -108,6 +108,15 @@
 **The Decision:** "Okay, we have the density. Let's launch."
 **The Speed:** A strategic decision made in 2 minutes, not 2 weeks.
 
+### 10. Narrative Arc 9b: The "Newcomer Analysis" (New)
+*A story of strategic hospitality.*
+**Context:** The church has had 50 first-time guests this month.
+**The Problem:** "Are they sticking?"
+**The Insight:** The "Newcomer Funnel" shows only 20% return for a 2nd visit.
+**The Pivot:** The team realizes the follow-up email is going to spam or is too generic.
+**The Action:** They rewrite the email sequence.
+**The Result:** Next month, the funnel shows 40% retention for the 2nd visit.
+
 ---
 
 ## Part 3: The Moonshot Journeys (10-Year Horizon)
