@@ -39,3 +39,17 @@
     - Updated `src/components/RecruitmentReport.test.tsx` to verify UI interactions.
     - Verified all tests pass.
 - **Status:** Ministry Matchmaker enhanced with "Ask Script".
+
+## Session 35
+- **Implemented:**
+    - **The Bus Factor Graph:**
+        - Created `src/utils/busFactor.ts` to identify critical volunteers (serving solo).
+        - Implemented clustering logic to group check-ins by service instance (60 min gap threshold), avoiding false positives from arrival time variations.
+        - Created `src/components/BusFactorGraph.tsx` to visualize high-risk volunteers using Recharts.
+        - Integrated "Bus Factor" tab into `RobertReport`.
+- **Tests:**
+    - Created `src/utils/busFactor.test.ts` to verify solo detection and clustering logic.
+    - Created `src/components/BusFactorGraph.test.tsx` to verify component rendering.
+    - Updated `src/components/RobertReport.test.tsx` to verify new tab integration.
+    - Verified all tests pass.
+- **Status:** Bus Factor Graph implemented.
