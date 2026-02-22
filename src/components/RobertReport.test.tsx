@@ -43,6 +43,11 @@ vi.mock('./NewcomerFunnel', () => ({
     NewcomerFunnel: () => <div data-testid="newcomer-funnel">Mock Newcomer Funnel</div>
 }));
 
+// Mock BusFactorGraph
+vi.mock('./BusFactorGraph', () => ({
+    BusFactorGraph: () => <div data-testid="bus-factor-graph">Mock Bus Factor Graph</div>
+}));
+
 describe('RobertReport', () => {
   const mockStats: HealthStats = {
     score: 85,
@@ -138,6 +143,17 @@ describe('RobertReport', () => {
     fireEvent.click(retentionTab);
 
     expect(screen.getByTestId('newcomer-funnel')).toBeInTheDocument();
+  });
+
+  it('switches to bus factor tab', () => {
+    render(
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
+    );
+
+    const busFactorTab = screen.getByText('Bus Factor');
+    fireEvent.click(busFactorTab);
+
+    expect(screen.getByTestId('bus-factor-graph')).toBeInTheDocument();
   });
 
   it('calls onClose when close button clicked', () => {
