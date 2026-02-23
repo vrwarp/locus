@@ -21,6 +21,7 @@ let checkInIdCounter = 1;
 
 // 1. Generate Households
 const generateHouseholds = () => {
+  console.log("Generating Households...");
   const householdCount = 35; // Target ~30-40
 
   for (let i = 0; i < householdCount; i++) {
@@ -55,6 +56,9 @@ const generateHouseholds = () => {
 
     // Split Household Generator (5% chance)
     const hasSplitHousehold = Math.random() < 0.05;
+
+    // Child Older Than Parent Generator (5% chance)
+    const hasChildOlderThanParent = adultCount > 0 && Math.random() < 0.05;
 
     for (let a = 0; a < adultCount; a++) {
       const isFemale = Math.random() > 0.5;
@@ -111,7 +115,7 @@ const generateHouseholds = () => {
       // Age 5-11 (Grades K-5)
       // Current year approx 2024/2025 context.
       // Born 2014 (10yo, Gr5) to 2019 (5yo, K)
-      const birthYear = randomInt(2014, 2019);
+      let birthYear = randomInt(2014, 2019);
       // Simple grade calc: Year - 5 (approx)
       // 2019 (5) -> 0 (K)
       // 2014 (10) -> 5
@@ -125,6 +129,22 @@ const generateHouseholds = () => {
       // If Split Household, use a NEW household ID for children
       // But keep the same address
       const childHouseholdId = hasSplitHousehold ? `${householdId}-split` : householdId;
+
+      // If Child Older Than Parent anomaly, and this is the first child (to keep it simple)
+      if (hasChildOlderThanParent && c === 0 && adults.length > 0) {
+          const parent = adults[0];
+          const parentBirthYear = parseInt(parent.attributes.birthdate.split('-')[0]);
+
+          // Swap ages: Child becomes ~Parent Age, Parent becomes ~Child Age
+          const newParentYear = birthYear;
+          const newChildYear = parentBirthYear;
+
+          // Update Parent
+          parent.attributes.birthdate = `${newParentYear}-01-01`;
+
+          // Update Child Year
+          birthYear = newChildYear;
+      }
 
       const child = {
         id,

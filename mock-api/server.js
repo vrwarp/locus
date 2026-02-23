@@ -5,6 +5,11 @@ import { fileURLToPath } from 'url';
 
 export const app = express();
 
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.originalUrl}`);
+    next();
+});
+
 app.use(cors());
 // Support both standard JSON and JSON:API content type
 app.use(express.json({ type: ['application/json', 'application/vnd.api+json'] }));

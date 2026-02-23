@@ -6,9 +6,10 @@ interface FamilyModalProps {
   isOpen: boolean;
   onClose: () => void;
   issues: FamilyIssue[];
+  onFix?: (issue: FamilyIssue, type: string) => void;
 }
 
-export const FamilyModal: React.FC<FamilyModalProps> = ({ isOpen, onClose, issues }) => {
+export const FamilyModal: React.FC<FamilyModalProps> = ({ isOpen, onClose, issues, onFix }) => {
   if (!isOpen) return null;
 
   return (
@@ -29,6 +30,18 @@ export const FamilyModal: React.FC<FamilyModalProps> = ({ isOpen, onClose, issue
                         <div className="family-issue-header">
                             <span className="family-issue-title">{issue.familyName} Family</span>
                             <span className={`family-issue-tag ${issue.type}`}>{issue.type}</span>
+                            {issue.fixType === 'Swap' && onFix && (
+                                <button
+                                    className="btn-fix"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onFix(issue, 'Swap');
+                                    }}
+                                    style={{ marginLeft: 'auto', padding: '4px 8px', backgroundColor: '#4caf50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                                >
+                                    Swap Roles
+                                </button>
+                            )}
                         </div>
                         <div className="family-issue-message">{issue.message}</div>
                         <div className="family-members-list">
