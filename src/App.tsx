@@ -21,8 +21,10 @@ import { Confetti } from './components/Confetti'
 import { BadgeToast } from './components/BadgeToast'
 import { CommandManager } from './utils/commands'
 import { UpdateStudentCommand } from './commands/UpdateStudentCommand'
+import { BatchUpdateCommand } from './commands/BatchUpdateCommand'
 import type { AppConfig, HealthHistoryEntry, GamificationState } from './utils/storage'
 import type { Student, PcoPerson } from './utils/pco'
+import type { FamilyIssue } from './utils/family'
 import type { Badge } from './utils/gamification'
 import './App.css'
 
@@ -131,6 +133,7 @@ function App() {
           await checkApiVersion(auth);
           setApiStatus('ok');
         } catch (e: any) {
+          console.error("API Check Failed", e);
           setApiStatus('error');
           setApiError(e.message || 'Unknown API Error');
         }
@@ -139,6 +142,7 @@ function App() {
       const timer = setTimeout(check, 1000);
       return () => clearTimeout(timer);
     } else {
+        console.log("App: Missing credentials, idle");
         setApiStatus('idle');
         setApiError(null);
     }
@@ -346,6 +350,50 @@ function App() {
           setIsLoadingMore(false);
       }
   }
+
+  const handleFamilySwap = async (issue: FamilyIssue, type: string) => {
+      if (type !== 'Swap') return;
+
+      const auth = btoa(`${appId}:${secret}`);
+
+      const child = students.find(s => s.id === issue.studentId);
+      const parent = students.find(s => s.id === issue.parentId);
+
+      if (!child || !parent) return;
+
+      // Swap roles
+      // Child becomes Parent (child: false)
+      // Parent becomes Child (child: true)
+
+      const updates = [
+          { original: child, updated: { ...child, isChild: false } },
+          { original: parent, updated: { ...parent, isChild: true } }
+      ];
+
+      const command = new BatchUpdateCommand(
+          updates,
+          auth,
+          config.sandboxMode || false,
+          (updatedStudent) => {
+               queryClient.setQueryData(['people', appId, secret, config], (oldData: { students: Student[], nextUrl: string | undefined, raw: PcoPerson[] } | undefined) => {
+                  if (!oldData) return oldData;
+                  const newStudents = oldData.students.map((s: Student) => s.id === updatedStudent.id ? updatedStudent : s);
+                  return { ...oldData, students: newStudents };
+              });
+          }
+      );
+
+      try {
+          await command.execute();
+          commandManagerRef.current.execute(command);
+          setCanUndo(commandManagerRef.current.canUndo);
+          setCanRedo(commandManagerRef.current.canRedo);
+          // alert('Roles swapped successfully!'); // Don't alert in test?
+      } catch (e) {
+          console.error('Failed to swap roles', e);
+          alert('Failed to swap roles.');
+      }
+  };
 
   const handleSaveStudent = (updatedStudent: Student) => {
     // 1. If there is an existing pending update, flush it immediately
@@ -574,6 +622,7 @@ function App() {
         isOpen={isFamilyModalOpen}
         onClose={() => setIsFamilyModalOpen(false)}
         issues={familyIssues}
+        onFix={handleFamilySwap}
       />
 
       <RobertReport

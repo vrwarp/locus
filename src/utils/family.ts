@@ -6,6 +6,11 @@ export interface FamilyIssue {
   householdId: string;
   familyName: string;
   members: Student[];
+  fixType?: 'Swap';
+  studentId?: string;
+  parentId?: string;
+  studentName?: string;
+  parentName?: string;
 }
 
 const checkSpouseGap = (parents: Student[], householdId: string, familyName: string, members: Student[], issues: FamilyIssue[]) => {
@@ -94,6 +99,7 @@ const checkSplitHouseholds = (students: Student[], households: Record<string, St
 };
 
 export const analyzeFamilies = (students: Student[]): FamilyIssue[] => {
+  console.log(`Analyzing families for ${students.length} students...`);
   const issues: FamilyIssue[] = [];
 
   // 1. Group by Household
@@ -126,13 +132,19 @@ export const analyzeFamilies = (students: Student[]): FamilyIssue[] => {
         const ageDiff = parent.age - child.age;
 
         if (ageDiff < 0) {
+            console.log(`Found anomaly: Child ${child.name} (${child.age}) > Parent ${parent.name} (${parent.age})`);
             // Child is older than parent!
             issues.push({
                 type: 'Critical',
                 message: `Child (${child.name}, ${child.age}) is older than Parent (${parent.name}, ${parent.age})`,
                 householdId,
                 familyName,
-                members
+                members,
+                fixType: 'Swap',
+                studentId: child.id,
+                parentId: parent.id,
+                studentName: child.name,
+                parentName: parent.name
             });
         } else if (ageDiff < 15) {
              // Parent is very young (< 15 years older)
