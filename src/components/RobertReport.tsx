@@ -9,6 +9,7 @@ import { RecruitmentReport } from './RecruitmentReport';
 import { AttendancePulse } from './AttendancePulse';
 import { NewcomerFunnel } from './NewcomerFunnel';
 import { BusFactorGraph } from './BusFactorGraph';
+import { CheckInVelocity } from './CheckInVelocity';
 import './RobertReport.css';
 
 interface RobertReportProps {
@@ -21,7 +22,7 @@ interface RobertReportProps {
 }
 
 export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, stats, history, students, auth }) => {
-  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor'>('health');
+  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity'>('health');
 
   if (!isOpen) return null;
 
@@ -150,6 +151,22 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
             >
                 Bus Factor
             </button>
+            <button
+                className={`tab-btn ${activeTab === 'velocity' ? 'active' : ''}`}
+                onClick={() => setActiveTab('velocity')}
+                style={{
+                    padding: '0.5rem 1rem',
+                    border: 'none',
+                    background: 'none',
+                    cursor: 'pointer',
+                    fontWeight: activeTab === 'velocity' ? 'bold' : 'normal',
+                    borderBottom: activeTab === 'velocity' ? '2px solid #007bff' : 'none',
+                    color: activeTab === 'velocity' ? '#007bff' : 'inherit',
+                    whiteSpace: 'nowrap'
+                }}
+            >
+                Velocity
+            </button>
         </div>
 
         {activeTab === 'health' && (
@@ -230,6 +247,10 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
 
         {activeTab === 'busFactor' && (
             <BusFactorGraph students={students} auth={auth} />
+        )}
+
+        {activeTab === 'velocity' && (
+            <CheckInVelocity auth={auth} />
         )}
 
         <div className="modal-actions" style={{marginTop: '2rem'}}>
