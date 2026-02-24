@@ -53,3 +53,16 @@
     - Updated `src/components/RobertReport.test.tsx` to verify new tab integration.
     - Verified all tests pass.
 - **Status:** Bus Factor Graph implemented.
+
+## Session 36
+- **Implemented:**
+    - **The Check-in Velocity:**
+        - Updated `mock-api/data.js` to include random jitter in check-in times for realistic arrival distribution.
+        - Created `src/utils/velocity.ts` to calculate check-in volume per minute (Average vs Latest Sunday).
+        - Created `src/components/CheckInVelocity.tsx` to visualize velocity using an AreaChart.
+        - Integrated "Velocity" tab into `RobertReport`.
+- **Tests:**
+    - Created `src/utils/velocity.test.ts` to verify bucketing and averaging logic.
+    - Created `src/components/CheckInVelocity.test.tsx` to verify component rendering and error handling.
+    - Verified all tests pass.
+- **Status:** Check-in Velocity implemented.

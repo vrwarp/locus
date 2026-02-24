@@ -1,4 +1,4 @@
-import { addDays, eachWeekOfInterval, getDay, isSameWeek, setHours, setMinutes, formatISO, subWeeks } from 'date-fns';
+import { addDays, addMinutes, eachWeekOfInterval, getDay, isSameWeek, setHours, setMinutes, formatISO, subWeeks } from 'date-fns';
 
 export const people = [];
 export const events = [];
@@ -250,11 +250,12 @@ const generateCheckIns = () => {
 
     // Setup Friday Event (Event 1)
     if (!isRetreatWeek(fridayDate) && fridayDate <= yearEnd) {
-      const eventTime = setMinutes(setHours(fridayDate, 19), 0); // 19:00
+      const baseTime = setMinutes(setHours(fridayDate, 19), 0); // 19:00
 
       // Randomly select kids (e.g. 60%)
       children.forEach(child => {
         if (Math.random() < 0.6) {
+          const eventTime = addMinutes(baseTime, randomInt(-15, 15));
           checkIns.push({
             id: String(checkInIdCounter++),
             type: 'CheckIn',
@@ -273,11 +274,12 @@ const generateCheckIns = () => {
 
     // Setup Sunday Event (Event 2) (Sunday 10am)
     if (!isRetreatWeek(sundayDate) && sundayDate <= yearEnd) {
-      const eventTime = setMinutes(setHours(sundayDate, 10), 0); // 10:00
+      const baseTime = setMinutes(setHours(sundayDate, 10), 0); // 10:00
 
       // Higher attendance on Sundays (e.g. 80%)
       children.forEach(child => {
         if (Math.random() < 0.8) {
+          const eventTime = addMinutes(baseTime, randomInt(-20, 20)); // More spread for Sunday Morning
           checkIns.push({
             id: String(checkInIdCounter++),
             type: 'CheckIn',
@@ -296,16 +298,17 @@ const generateCheckIns = () => {
 
     // --- Adult Check-Ins ---
     if (!isRetreatWeek(sundayDate) && sundayDate <= yearEnd) {
-        const worshipTime = setMinutes(setHours(sundayDate, 9), 0); // 9am Service
-        const servingTime = setMinutes(setHours(sundayDate, 8), 30); // 8:30 Call time
+        const baseWorshipTime = setMinutes(setHours(sundayDate, 9), 0); // 9am Service
+        const baseServingTime = setMinutes(setHours(sundayDate, 8), 30); // 8:30 Call time
 
         // 1. Linda: Serves (Kids Team), No Worship.
         // Make sure she serves consistently (e.g., > 90%)
         if (linda && Math.random() < 0.95) {
+             const checkInTime = addMinutes(baseServingTime, randomInt(-10, 10));
              checkIns.push({
                 id: String(checkInIdCounter++),
                 type: 'CheckIn',
-                attributes: { created_at: formatISO(servingTime), kind: 'Volunteer' },
+                attributes: { created_at: formatISO(checkInTime), kind: 'Volunteer' },
                 relationships: { person: { data: { type: 'Person', id: linda.id } }, event: { data: { type: 'Event', id: '4' } } } // Kids Ministry
              });
         }
@@ -313,18 +316,20 @@ const generateCheckIns = () => {
         // 2. Mark: Serves (Greeter) AND Worships
         if (mark) {
             if (Math.random() < 0.9) { // Serves
+                const checkInTime = addMinutes(baseServingTime, randomInt(-10, 10));
                 checkIns.push({
                     id: String(checkInIdCounter++),
                     type: 'CheckIn',
-                    attributes: { created_at: formatISO(servingTime), kind: 'Volunteer' },
+                    attributes: { created_at: formatISO(checkInTime), kind: 'Volunteer' },
                     relationships: { person: { data: { type: 'Person', id: mark.id } }, event: { data: { type: 'Event', id: '5' } } } // Greeter
                 });
             }
             if (Math.random() < 0.9) { // Worships
+                 const checkInTime = addMinutes(baseWorshipTime, randomInt(-15, 15));
                  checkIns.push({
                     id: String(checkInIdCounter++),
                     type: 'CheckIn',
-                    attributes: { created_at: formatISO(worshipTime), kind: 'Regular' },
+                    attributes: { created_at: formatISO(checkInTime), kind: 'Regular' },
                     relationships: { person: { data: { type: 'Person', id: mark.id } }, event: { data: { type: 'Event', id: '3' } } } // Worship
                 });
             }
@@ -332,10 +337,11 @@ const generateCheckIns = () => {
 
         // 3. Sarah: Worships Only
         if (sarah && Math.random() < 0.8) {
+             const checkInTime = addMinutes(baseWorshipTime, randomInt(-15, 15));
              checkIns.push({
                 id: String(checkInIdCounter++),
                 type: 'CheckIn',
-                attributes: { created_at: formatISO(worshipTime), kind: 'Regular' },
+                attributes: { created_at: formatISO(checkInTime), kind: 'Regular' },
                 relationships: { person: { data: { type: 'Person', id: sarah.id } }, event: { data: { type: 'Event', id: '3' } } } // Worship
             });
         }
@@ -343,10 +349,11 @@ const generateCheckIns = () => {
         // 4. Other Regulars (Worship)
         regularAttendees.forEach(p => {
             if (Math.random() < 0.6) {
+                const checkInTime = addMinutes(baseWorshipTime, randomInt(-15, 15));
                 checkIns.push({
                     id: String(checkInIdCounter++),
                     type: 'CheckIn',
-                    attributes: { created_at: formatISO(worshipTime), kind: 'Regular' },
+                    attributes: { created_at: formatISO(checkInTime), kind: 'Regular' },
                     relationships: { person: { data: { type: 'Person', id: p.id } }, event: { data: { type: 'Event', id: '3' } } }
                 });
             }
@@ -356,10 +363,11 @@ const generateCheckIns = () => {
         volunteers.forEach(p => {
              if (Math.random() < 0.5) {
                 const teamId = Math.random() > 0.5 ? '4' : '5';
+                const checkInTime = addMinutes(baseServingTime, randomInt(-10, 10));
                 checkIns.push({
                     id: String(checkInIdCounter++),
                     type: 'CheckIn',
-                    attributes: { created_at: formatISO(servingTime), kind: 'Volunteer' },
+                    attributes: { created_at: formatISO(checkInTime), kind: 'Volunteer' },
                     relationships: { person: { data: { type: 'Person', id: p.id } }, event: { data: { type: 'Event', id: teamId } } }
                 });
             }
@@ -476,7 +484,8 @@ const generateNewcomers = () => {
         // Ensure we don't go past current date (mocked as end of 2024)
         if (currentVisitDate > new Date(2024, 11, 31)) break;
 
-        const eventTime = setMinutes(setHours(currentVisitDate, 10), 0); // 10:00 AM
+        const baseTime = setMinutes(setHours(currentVisitDate, 10), 0); // 10:00 AM
+        const eventTime = addMinutes(baseTime, randomInt(-20, 20));
 
         checkIns.push({
             id: String(checkInIdCounter++),

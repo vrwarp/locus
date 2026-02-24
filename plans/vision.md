@@ -239,7 +239,7 @@ AI should never be a black box.
 7.  **The "Bus Factor" Graph:** Identify critical volunteers who are single points of failure. [DONE]
 8.  **The "Newcomer Funnel":** 3D funnel visualization of guest retention. [DONE]
 9.  **The "Generation Stack":** Bar chart of Age demographics (Boomers vs Gen Z). [DONE]
-10. **The "Check-in Velocity":** Real-time gauge of check-ins per minute on Sunday morning.
+10. **The "Check-in Velocity":** Real-time gauge of check-ins per minute on Sunday morning. [DONE]
 
 ### Automation Concepts
 11. **Birthday Bot:** Auto-email parents 1 week before kid's birthday.
