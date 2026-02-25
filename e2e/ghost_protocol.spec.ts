@@ -6,11 +6,11 @@ test('Ghost Protocol: Analyze and Archive', async ({ page }) => {
   await page.getByPlaceholder('Application ID').fill('test_app_id');
   await page.getByPlaceholder('Secret').fill('test_secret');
 
-  // 2. Wait for data
-  await expect(page.locator('.recharts-surface')).toBeVisible({ timeout: 15000 });
+  // 2. Wait for data loading
+  await expect(page.getByText('Loading Data...')).not.toBeVisible({ timeout: 15000 });
 
   // 3. Open Ghost Protocol
-  await page.getByText('👻 Ghost Protocol').click();
+  await page.locator('button.nav-item', { hasText: 'Ghost Protocol' }).click();
   const modal = page.locator('.modal-content');
   await expect(modal).toBeVisible();
   await expect(modal.locator('h2')).toHaveText('Ghost Protocol');
