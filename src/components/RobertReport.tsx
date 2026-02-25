@@ -10,6 +10,7 @@ import { AttendancePulse } from './AttendancePulse';
 import { NewcomerFunnel } from './NewcomerFunnel';
 import { BusFactorGraph } from './BusFactorGraph';
 import { CheckInVelocity } from './CheckInVelocity';
+import { BirthdayHeatmap } from './BirthdayHeatmap';
 import './RobertReport.css';
 
 interface RobertReportProps {
@@ -22,7 +23,7 @@ interface RobertReportProps {
 }
 
 export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, stats, history, students, auth }) => {
-  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity'>('health');
+  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity' | 'heatmap'>('health');
 
   if (!isOpen) return null;
 
@@ -167,6 +168,22 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
             >
                 Velocity
             </button>
+            <button
+                className={`tab-btn ${activeTab === 'heatmap' ? 'active' : ''}`}
+                onClick={() => setActiveTab('heatmap')}
+                style={{
+                    padding: '0.5rem 1rem',
+                    border: 'none',
+                    background: 'none',
+                    cursor: 'pointer',
+                    fontWeight: activeTab === 'heatmap' ? 'bold' : 'normal',
+                    borderBottom: activeTab === 'heatmap' ? '2px solid #007bff' : 'none',
+                    color: activeTab === 'heatmap' ? '#007bff' : 'inherit',
+                    whiteSpace: 'nowrap'
+                }}
+            >
+                Heatmap
+            </button>
         </div>
 
         {activeTab === 'health' && (
@@ -251,6 +268,10 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
 
         {activeTab === 'velocity' && (
             <CheckInVelocity auth={auth} />
+        )}
+
+        {activeTab === 'heatmap' && (
+            <BirthdayHeatmap students={students} />
         )}
 
         <div className="modal-actions" style={{marginTop: '2rem'}}>
