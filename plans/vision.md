@@ -3,8 +3,26 @@
 
 ---
 
+## Preface: The Pivot
+*Added in Version 6.1*
+
+What began as a simple "Line Graph" utility to visualize attendance trends has fundamentally outgrown its original container. The initial vision—a lightweight visualization tool—was insufficient to solve the deeper crisis of data entropy in the church.
+
+We realized that visualizing the problem wasn't enough; we needed to fix it, predict it, and automate it.
+
+Locus has pivoted from a **Data Visualization Tool** to a **Ministry Intelligence Platform**.
+It is no longer just about seeing the lines; it is about:
+1.  **Actionable Intelligence:** Not just showing a dip in attendance, but identifying *who* is drifting and *why*.
+2.  **Automated Hygiene:** Self-healing data structures (Family Logic, Smart Fix) that clean themselves.
+3.  **Predictive Ministry:** Using AI to forecast burnout, recruitment needs, and retention risks before they happen.
+
+This document reflects this expanded mandate. We are building the operating system for the future of ministry logic.
+
+---
+
 ## Table of Contents
-1.  [Chapter 1: The Locus Manifesto](#chapter-1-the-locus-manifesto)
+1.  [Preface: The Pivot](#preface-the-pivot)
+2.  [Chapter 1: The Locus Manifesto](#chapter-1-the-locus-manifesto)
 2.  [Chapter 2: The Landscape & Strategic Positioning](#chapter-2-the-landscape--strategic-positioning)
 3.  [Chapter 3: The Core Engine (Data Integrity)](#chapter-3-the-core-engine-data-integrity)
 4.  [Chapter 4: The Intelligence Layer (AI & LLMs)](#chapter-4-the-intelligence-layer-ai--llms)
@@ -34,7 +52,9 @@ To know someone's name, age, and life stage correctly is the most basic form of 
 **Locus exists to remove the stumbling blocks.**
 
 ### 1.3 The Mission
-To build the world's first **Data Health OS** for faith-based organizations. We are moving beyond "Database Management" (storing text) to "Data Stewardship" (cultivating truth).
+To build the world's first **Data Health OS** for faith-based organizations.
+
+We have moved far beyond our original scope of "Database Visualization." We are now in the business of **"Data Stewardship" (cultivating truth) and "Automated Intelligence" (predicting need).**
 
 ### 1.4 The Emotional Promise
 We sell **Peace of Mind**.

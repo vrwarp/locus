@@ -3,6 +3,15 @@
 
 ---
 
+## Prologue: The Expanding Universe
+*Note: These journeys have evolved significantly since the inception of Locus.*
+
+In the beginning, our user stories were simple: "Sarah fixes a grade." "Robert views a graph."
+As Locus pivoted from a visualization tool to a Ministry Intelligence Platform, the stories became richer, more complex, and more impactful.
+The narratives below reflect this shift—moving from simple data hygiene to strategic, AI-assisted ministry.
+
+---
+
 ## 1. The Dramatis Personae (The Cast)
 
 ### 1.1 The Administration

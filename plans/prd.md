@@ -2,12 +2,16 @@
 *Status: Final | Version: 4.0 - Battle Tested*
 
 ## 1. Introduction
-Locus is a "Data Health OS" for church administrators using Planning Center Online (PCO). It visualizes data anomalies (specifically Age/Grade mismatches) to ensure data integrity, which directly correlates to effective pastoral care.
+Locus is a **Data Health OS** for church administrators using Planning Center Online (PCO).
+
+*Note: Originally conceived as a simple visualization tool for Age/Grade anomalies, Locus has evolved into a comprehensive Ministry Intelligence Platform.*
+
+While visualization (seeing the problem) remains a core capability, the product focus has shifted to **Automation (fixing the problem)** and **Intelligence (predicting the future)**. We are not just flagging errors; we are automating the stewardship of people data.
 
 ### 1.1 Goals
-*   **Primary:** Reduce the "Entropy Rate" of church databases by providing actionable insights.
-*   **Secondary:** Reduce administrative time spent on auditing by 80%.
-*   **Tertiary:** Increase "Peace of Mind" for Executive Pastors regarding data accuracy.
+*   **Primary:** Reduce the "Entropy Rate" of church databases by providing actionable, automated insights.
+*   **Secondary:** Shift administrative focus from "Data Entry" to "Ministry Strategy" by automating 80% of routine hygiene tasks.
+*   **Tertiary:** Increase "Peace of Mind" for Executive Pastors by transforming raw data into predictive risk indicators (Burnout, Attrition).
 
 ### 1.2 Target Audience
 *   **Sarah (Admin):** Power user, needs efficiency and safety.
