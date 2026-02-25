@@ -48,6 +48,11 @@ vi.mock('./BusFactorGraph', () => ({
     BusFactorGraph: () => <div data-testid="bus-factor-graph">Mock Bus Factor Graph</div>
 }));
 
+// Mock BirthdayHeatmap
+vi.mock('./BirthdayHeatmap', () => ({
+    BirthdayHeatmap: () => <div data-testid="birthday-heatmap">Mock Birthday Heatmap</div>
+}));
+
 describe('RobertReport', () => {
   const mockStats: HealthStats = {
     score: 85,
@@ -154,6 +159,17 @@ describe('RobertReport', () => {
     fireEvent.click(busFactorTab);
 
     expect(screen.getByTestId('bus-factor-graph')).toBeInTheDocument();
+  });
+
+  it('switches to heatmap tab', () => {
+    render(
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
+    );
+
+    const heatmapTab = screen.getByText('Heatmap');
+    fireEvent.click(heatmapTab);
+
+    expect(screen.getByTestId('birthday-heatmap')).toBeInTheDocument();
   });
 
   it('calls onClose when close button clicked', () => {
