@@ -7,7 +7,13 @@ import { ConfigModal } from './components/ConfigModal'
 import { GhostModal } from './components/GhostModal'
 import { FamilyModal } from './components/FamilyModal'
 import { UndoToast } from './components/UndoToast'
-import { RobertReport } from './components/RobertReport'
+// import { RobertReport } from './components/RobertReport' // Deprecated in favor of direct views
+import { BurnoutReport } from './components/BurnoutReport'
+import { RecruitmentReport } from './components/RecruitmentReport'
+import { NewcomerFunnel } from './components/NewcomerFunnel'
+import { AttendancePulse } from './components/AttendancePulse'
+import { BusFactorGraph } from './components/BusFactorGraph'
+
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
 import { transformPerson, fetchAllPeople, archivePerson, fetchCheckInCount, fetchGroupCount, checkApiVersion } from './utils/pco'
@@ -28,15 +34,24 @@ import type { FamilyIssue } from './utils/family'
 import type { Badge } from './utils/gamification'
 import './App.css'
 
+// New Components
+import { Sidebar } from './components/Sidebar'
+import { Dashboard } from './components/Dashboard'
+
 function App() {
   const [appId, setAppId] = useState('')
   const [secret, setSecret] = useState('')
   const [config, setConfig] = useState<AppConfig>({ graderOptions: {} });
+
+  // View State
+  const [currentView, setCurrentView] = useState('dashboard');
+
+  // Modals
   const [isConfigOpen, setIsConfigOpen] = useState(false);
   const [isGhostModalOpen, setIsGhostModalOpen] = useState(false);
   const [isFamilyModalOpen, setIsFamilyModalOpen] = useState(false);
-  const [isReportOpen, setIsReportOpen] = useState(false);
   const [isReviewModeOpen, setIsReviewModeOpen] = useState(false);
+
   const [isArchiving, setIsArchiving] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
 
@@ -487,8 +502,20 @@ function App() {
     await saveConfig(newConfig, appId);
   };
 
+  const handleNavigation = (view: string) => {
+      if (view === 'ghosts') {
+          setIsGhostModalOpen(true);
+      } else if (view === 'families') {
+          setIsFamilyModalOpen(true);
+      } else if (view === 'settings') {
+          setIsConfigOpen(true);
+      } else {
+          setCurrentView(view);
+      }
+  };
+
   return (
-    <div className="app-container">
+    <div className="app-container" style={{display: 'flex'}}>
        {config.sandboxMode && (
           <div style={{
               backgroundColor: '#ff9800',
@@ -505,86 +532,151 @@ function App() {
               ⚠️ SANDBOX MODE ACTIVE - Changes are simulated
           </div>
       )}
-      <div className="header" style={config.sandboxMode ? {marginTop: '40px'} : {}}>
-        <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
-            <h1>Locus</h1>
-            {appId && (
-                <GamificationWidget
-                    streak={gamificationState.currentStreak}
-                    dailyFixes={gamificationState.dailyFixes}
-                />
-            )}
-        </div>
-        <div style={{display: 'flex', gap: '1rem'}}>
-            <UndoRedoControls
-                canUndo={canUndo}
-                canRedo={canRedo}
-                onUndo={handleHistoryUndo}
-                onRedo={handleHistoryRedo}
-            />
-            {anomalies.length > 0 && (
-                 <button onClick={() => setIsReviewModeOpen(true)} className="settings-btn">
-                     🚀 Review Mode ({anomalies.length})
-                 </button>
-            )}
-            <button onClick={() => setIsReportOpen(true)} className="settings-btn">
-                 📊 Report
-            </button>
-            <button onClick={() => setIsGhostModalOpen(true)} className="settings-btn">
-                 👻 Ghost Protocol
-            </button>
-            <button onClick={() => setIsFamilyModalOpen(true)} className="settings-btn">
-                 👨‍👩‍👧‍👦 Family Audit
-            </button>
-            <button onClick={() => setIsConfigOpen(true)} className="settings-btn">
-                 ⚙️ Settings
-            </button>
-        </div>
-      </div>
 
-      <div className="auth-section">
-        <input
-            type="text"
-            placeholder="Application ID"
-            value={appId}
-            onChange={(e) => setAppId(e.target.value)}
-        />
-        <input
-            type="password"
-            placeholder="Secret"
-            value={secret}
-            onChange={(e) => setSecret(e.target.value)}
-        />
-      </div>
+      {/* Sidebar Navigation */}
+      <Sidebar
+        currentView={currentView}
+        onChangeView={handleNavigation}
+        anomaliesCount={anomalies.length}
+      />
 
-      <div className="chart-section">
-          {apiStatus === 'checking' && <p>Checking PCO API connection...</p>}
-          {apiStatus === 'error' && (
-              <div style={{color: 'red', border: '1px solid red', padding: '10px', marginBottom: '10px'}}>
-                  {apiError}
+      <div className="main-content" style={{
+          marginLeft: '250px',
+          width: 'calc(100% - 250px)',
+          padding: '2rem',
+          marginTop: config.sandboxMode ? '40px' : '0'
+      }}>
+          {/* Main Content Area */}
+
+          {/* Auth Screen (Overlay if not authed) */}
+          {!appId || !secret || apiStatus === 'idle' || apiStatus === 'error' ? (
+              <div className="auth-overlay" style={{
+                  position: 'fixed',
+                  top: 0, left: 0, right: 0, bottom: 0,
+                  background: '#1a1a1a',
+                  zIndex: 2000,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+              }}>
+                  <h1>Locus</h1>
+                  <p>Ministry Intelligence Platform</p>
+                   <div className="auth-section" style={{display: 'flex', gap: '1rem', marginTop: '2rem'}}>
+                    <input
+                        type="text"
+                        placeholder="Application ID"
+                        value={appId}
+                        onChange={(e) => setAppId(e.target.value)}
+                    />
+                    <input
+                        type="password"
+                        placeholder="Secret"
+                        value={secret}
+                        onChange={(e) => setSecret(e.target.value)}
+                    />
+                  </div>
+                  {apiStatus === 'checking' && <p>Connecting...</p>}
+                  {apiStatus === 'error' && <p style={{color: 'red'}}>{apiError}</p>}
               </div>
+          ) : (
+              <>
+                  {/* Global Toolbar (Undo/Redo, Gamification) */}
+                   <div className="toolbar" style={{display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginBottom: '2rem'}}>
+                        <UndoRedoControls
+                            canUndo={canUndo}
+                            canRedo={canRedo}
+                            onUndo={handleHistoryUndo}
+                            onRedo={handleHistoryRedo}
+                        />
+                        <GamificationWidget
+                            streak={gamificationState.currentStreak}
+                            dailyFixes={gamificationState.dailyFixes}
+                        />
+                   </div>
+
+                  {isLoading && <p>Loading Data...</p>}
+                  {error && <p style={{color: 'red'}}>Error: {error.message}</p>}
+
+                  {!isLoading && !error && (
+                      <>
+                        {currentView === 'dashboard' && (
+                            <Dashboard
+                                students={students}
+                                onNavigate={handleNavigation}
+                                auth={auth}
+                            />
+                        )}
+
+                        {currentView === 'data-health' && (
+                            <div className="view-container">
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
+                                    <h2>Data Health</h2>
+                                    {anomalies.length > 0 && (
+                                         <button onClick={() => setIsReviewModeOpen(true)} className="settings-btn">
+                                             🚀 Review Mode ({anomalies.length})
+                                         </button>
+                                    )}
+                                </div>
+
+                                <GradeScatter
+                                    data={students.filter(s => s.pcoGrade !== null)}
+                                    onPointClick={setSelectedStudent}
+                                    colorblindMode={config.colorblindMode}
+                                    muteSounds={config.muteSounds}
+                                />
+                                {nextUrl && (
+                                    <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                                        <button onClick={handleLoadMore} disabled={isLoadingMore} className="settings-btn">
+                                            {isLoadingMore ? 'Loading...' : 'Load More Records'}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {currentView === 'burnout' && (
+                            <div className="view-container">
+                                <h2>Burnout Risk Analysis</h2>
+                                <BurnoutReport students={students} auth={auth} />
+                            </div>
+                        )}
+
+                        {currentView === 'recruitment' && (
+                            <div className="view-container">
+                                <h2>Recruitment Intelligence</h2>
+                                <RecruitmentReport students={students} auth={auth} />
+                            </div>
+                        )}
+
+                        {currentView === 'retention' && (
+                             <div className="view-container">
+                                <h2>Retention Funnel</h2>
+                                <NewcomerFunnel auth={auth} />
+                            </div>
+                        )}
+
+                        {currentView === 'bus-factor' && (
+                             <div className="view-container">
+                                <h2>Bus Factor Analysis</h2>
+                                <BusFactorGraph students={students} auth={auth} />
+                            </div>
+                        )}
+
+                        {currentView === 'pulse' && (
+                             <div className="view-container">
+                                <h2>Attendance Pulse</h2>
+                                <AttendancePulse auth={auth} />
+                            </div>
+                        )}
+                      </>
+                  )}
+              </>
           )}
 
-          {isLoading && apiStatus === 'ok' && <p>Loading...</p>}
-          {error && <p style={{color: 'red'}}>Error fetching data: {error.message}</p>}
-          {!isLoading && !error && students.length === 0 && appId && secret && apiStatus === 'ok' && <p>No data found or check credentials.</p>}
-
-          <GradeScatter
-            data={students.filter(s => s.pcoGrade !== null)}
-            onPointClick={setSelectedStudent}
-            colorblindMode={config.colorblindMode}
-            muteSounds={config.muteSounds}
-          />
-
-          {nextUrl && !isLoading && (
-              <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                  <button onClick={handleLoadMore} disabled={isLoadingMore} className="settings-btn">
-                      {isLoadingMore ? 'Loading...' : 'Load More Records'}
-                  </button>
-              </div>
-          )}
       </div>
 
+      {/* Modals & Toasts */}
       <SmartFixModal
         isOpen={!!selectedStudent}
         student={selectedStudent}
@@ -623,15 +715,6 @@ function App() {
         onClose={() => setIsFamilyModalOpen(false)}
         issues={familyIssues}
         onFix={handleFamilySwap}
-      />
-
-      <RobertReport
-        isOpen={isReportOpen}
-        onClose={() => setIsReportOpen(false)}
-        stats={stats}
-        history={healthHistory}
-        students={students}
-        auth={auth}
       />
 
       {showConfetti && <Confetti />}

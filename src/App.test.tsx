@@ -10,12 +10,14 @@ import * as gamification from './utils/gamification';
 import { saveToCache, loadFromCache } from './utils/cache';
 import * as pco from './utils/pco';
 
-// Mock pco (partial mock to override checkApiVersion)
+// Mock pco (partial mock to override checkApiVersion and other methods)
 vi.mock('./utils/pco', async (importOriginal) => {
     const actual = await importOriginal<typeof import('./utils/pco')>();
     return {
         ...actual,
         checkApiVersion: vi.fn().mockResolvedValue(true),
+        fetchRecentCheckIns: vi.fn().mockResolvedValue([]),
+        fetchEvents: vi.fn().mockResolvedValue([]),
     };
 });
 
@@ -131,16 +133,6 @@ vi.mock('./components/FamilyModal', () => ({
   ) : null
 }));
 
-vi.mock('./components/RobertReport', () => ({
-  RobertReport: ({ isOpen, stats, onClose, students }: any) => isOpen ? (
-    <div data-testid="robert-report">
-        <p>Health Score: {stats.score}</p>
-        <p>Students Count: {students ? students.length : 0}</p>
-        <button onClick={onClose}>Close Report</button>
-    </div>
-  ) : null
-}));
-
 vi.mock('./components/ReviewMode', () => ({
   ReviewMode: ({ isOpen, onClose, students, onSave }: any) => isOpen ? (
     <div data-testid="review-mode">
@@ -177,6 +169,14 @@ vi.mock('./components/BadgeToast', () => ({
     BadgeToast: ({ badge }: any) => <div data-testid="badge-toast">{badge.name}</div>
 }));
 
+// Mock New Components
+vi.mock('./components/BurnoutReport', () => ({
+    BurnoutReport: () => <div data-testid="burnout-report">Burnout Report Content</div>
+}));
+vi.mock('./components/RecruitmentReport', () => ({
+    RecruitmentReport: () => <div data-testid="recruitment-report">Recruitment Report Content</div>
+}));
+
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
@@ -198,11 +198,22 @@ describe('App Integration', () => {
         window.alert = vi.fn();
         // Reset checkApiVersion to success by default
         (pco.checkApiVersion as any).mockResolvedValue(true);
+        (pco.fetchRecentCheckIns as any).mockResolvedValue([]);
+        (pco.fetchEvents as any).mockResolvedValue([]);
     });
 
     afterEach(() => {
         vi.useRealTimers();
     });
+
+    const loginAndNavigateToDashboard = async () => {
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Wait for GamificationWidget to confirm login
+        await waitFor(() => expect(screen.getByTestId('gamification-widget')).toBeInTheDocument(), { timeout: 3000 });
+        // Wait for data loading to finish
+        await waitFor(() => expect(screen.queryByText('Loading Data...')).not.toBeInTheDocument(), { timeout: 5000 });
+    };
 
     it('renders and allows fixing a student grade', async () => {
         // Mock API Response
@@ -221,9 +232,10 @@ describe('App Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument(), { timeout: 2500 });
         expect(screen.getByText('Problem Kid - Grade 4')).toBeInTheDocument();
@@ -253,9 +265,10 @@ describe('App Integration', () => {
         (api.patch as any).mockResolvedValue({ data: { data: {} } });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument(), { timeout: 2500 });
 
@@ -291,9 +304,10 @@ describe('App Integration', () => {
         (api.patch as any).mockResolvedValue({ data: { data: {} } });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-2')).toBeInTheDocument(), { timeout: 2500 });
 
@@ -339,9 +353,10 @@ describe('App Integration', () => {
         (api.patch as any).mockResolvedValue({ data: { data: {} } });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-bd1')).toBeInTheDocument(), { timeout: 2500 });
 
@@ -391,9 +406,10 @@ describe('App Integration', () => {
        (api.patch as any).mockResolvedValue({ data: { data: {} } });
 
        render(<Wrapper><App /></Wrapper>);
+       await loginAndNavigateToDashboard();
 
-       fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-       fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+       // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
        await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument(), { timeout: 2500 });
 
@@ -462,9 +478,10 @@ describe('App Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-3')).toBeInTheDocument(), { timeout: 2500 });
 
@@ -474,7 +491,7 @@ describe('App Integration', () => {
         fireEvent.click(screen.getByText('Close')); // Close fix modal
 
         // Open Settings
-        fireEvent.click(screen.getByText('⚙️ Settings'));
+        fireEvent.click(screen.getByText(/Settings/));
         expect(screen.getByTestId('config-modal')).toBeInTheDocument();
 
         // Save Config (Change to Oct 1)
@@ -497,12 +514,11 @@ describe('App Integration', () => {
 
        expect(document.body).not.toHaveClass('high-contrast');
 
-       // Trigger login to enable config loading
-       fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+       await loginAndNavigateToDashboard();
 
        // Note: loadConfig defaults to empty. So no class yet.
 
-       fireEvent.click(screen.getByText('⚙️ Settings'));
+       fireEvent.click(screen.getByText(/Settings/));
        fireEvent.click(screen.getByText('Save High Contrast'));
 
        expect(document.body).toHaveClass('high-contrast');
@@ -541,13 +557,14 @@ describe('App Integration', () => {
         (api.patch as any).mockResolvedValue({ data: { data: {} } });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-g1')).toBeInTheDocument(), { timeout: 2500 });
 
-        fireEvent.click(screen.getByText('👻 Ghost Protocol'));
+        fireEvent.click(screen.getByText(/Ghost Protocol/));
         expect(screen.getByTestId('ghost-modal')).toBeInTheDocument();
         expect(screen.getByText('Found 1 ghosts')).toBeInTheDocument();
 
@@ -610,13 +627,14 @@ describe('App Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-p1')).toBeInTheDocument(), { timeout: 2500 });
 
-        fireEvent.click(screen.getByText('👨‍👩‍👧‍👦 Family Audit'));
+        fireEvent.click(screen.getByText(/Family Audit/));
         expect(screen.getByTestId('family-modal')).toBeInTheDocument();
         expect(screen.getByText('Found 1 anomalies')).toBeInTheDocument(); // Child older than parent
 
@@ -640,13 +658,14 @@ describe('App Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-sf2')).toBeInTheDocument(), { timeout: 2500 });
 
-        fireEvent.click(screen.getByText('👨‍👩‍👧‍👦 Family Audit'));
+        fireEvent.click(screen.getByText(/Family Audit/));
         expect(screen.getByTestId('family-modal')).toBeInTheDocument();
 
         // Check for Spouse Gap
@@ -656,7 +675,7 @@ describe('App Integration', () => {
         expect(screen.getByText(/Potential Split Household/)).toBeInTheDocument();
     });
 
-    it('opens and closes the Robert Report', async () => {
+    it('opens and displays Burnout Risk', async () => {
         // Set date to ensure consistent age calculation
         vi.setSystemTime(new Date('2024-11-01')); // Nov 2024
 
@@ -675,19 +694,16 @@ describe('App Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Wait for Dashboard content
+        await waitFor(() => expect(screen.getByText('Health Score')).toBeInTheDocument(), { timeout: 5000 });
 
-        await waitFor(() => expect(screen.getByTestId('student-1')).toBeInTheDocument(), { timeout: 2500 });
+        // Click sidebar button (first one found if dupes, or better yet be specific)
+        const buttons = screen.getAllByText(/Burnout Risk/);
+        fireEvent.click(buttons[0]);
 
-        fireEvent.click(screen.getByText('📊 Report'));
-        expect(screen.getByTestId('robert-report')).toBeInTheDocument();
-
-        expect(screen.getByText('Health Score: 100')).toBeInTheDocument();
-
-        fireEvent.click(screen.getByText('Close Report'));
-        expect(screen.queryByTestId('robert-report')).not.toBeInTheDocument();
+        expect(screen.getByTestId('burnout-report')).toBeInTheDocument();
     });
 
     it('allows fixing a phone anomaly via Review Mode', async () => {
@@ -709,9 +725,10 @@ describe('App Integration', () => {
         (api.patch as any).mockResolvedValue({ data: { data: {} } });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-p1')).toBeInTheDocument(), { timeout: 2500 });
 
@@ -765,9 +782,10 @@ describe('App Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-a1')).toBeInTheDocument(), { timeout: 2500 });
 
@@ -810,9 +828,10 @@ describe('App Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-h1')).toBeInTheDocument(), { timeout: 2500 });
 
@@ -834,9 +853,10 @@ describe('App Integration', () => {
         (loadFromCache as any).mockResolvedValue(cachedPeople);
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-cached-1')).toBeInTheDocument(), { timeout: 2500 });
 
@@ -848,14 +868,19 @@ describe('App Integration', () => {
     it('passes colorblind mode to GradeScatter when configured', async () => {
        render(<Wrapper><App /></Wrapper>);
 
-       // Trigger login
-       fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
+       await loginAndNavigateToDashboard();
+
+       // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
        // Default is false
-       expect(screen.getByTestId('grade-scatter')).toHaveAttribute('data-colorblind-mode', 'false');
+       await waitFor(() => expect(screen.getByTestId('grade-scatter')).toHaveAttribute('data-colorblind-mode', 'false'));
 
-       fireEvent.click(screen.getByText('⚙️ Settings'));
+       fireEvent.click(screen.getByText(/Settings/));
        fireEvent.click(screen.getByText('Save Colorblind'));
+
+       // Config change triggers re-fetch, wait for loading to clear
+       await waitFor(() => expect(screen.queryByText('Loading Data...')).not.toBeInTheDocument(), { timeout: 5000 });
 
        await waitFor(() => {
            expect(screen.getByTestId('grade-scatter')).toHaveAttribute('data-colorblind-mode', 'true');
@@ -882,9 +907,10 @@ describe('App Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-api-1')).toBeInTheDocument(), { timeout: 2500 });
 
@@ -921,9 +947,10 @@ describe('App Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         // Expect p1 through p5 to be present
         await waitFor(() => expect(screen.getByTestId('student-p5')).toBeInTheDocument(), { timeout: 2500 });
@@ -970,9 +997,10 @@ describe('App Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
 
-        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
-        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+        // Navigate to Data Health
+        fireEvent.click(screen.getByText(/Data Health/));
 
         await waitFor(() => expect(screen.getByTestId('student-g1')).toBeInTheDocument(), { timeout: 2500 });
 
