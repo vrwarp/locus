@@ -32,12 +32,16 @@ export const calculateBurnoutRisk = (checkIns: PcoCheckIn[], events: PcoEvent[],
   if (checkIns.length === 0) return [];
 
   // 2. Filter Check-ins (Last 8 Weeks)
-  const dates = checkIns.map(c => parseISO(c.attributes.created_at).getTime());
+  const validCheckIns = checkIns.filter(c => c.attributes?.created_at);
+  if (validCheckIns.length === 0) return [];
+
+  const dates = validCheckIns.map(c => parseISO(c.attributes.created_at).getTime());
   const maxDate = new Date(Math.max(...dates));
   const cutoffDate = new Date(maxDate);
   cutoffDate.setDate(cutoffDate.getDate() - (8 * 7)); // 8 weeks ago
 
   const recentCheckIns = checkIns.filter(c => {
+    if (!c.attributes?.created_at) return false;
     const d = parseISO(c.attributes.created_at);
     return d >= cutoffDate;
   });
