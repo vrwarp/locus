@@ -13,6 +13,7 @@ import { RecruitmentReport } from './components/RecruitmentReport'
 import { NewcomerFunnel } from './components/NewcomerFunnel'
 import { AttendancePulse } from './components/AttendancePulse'
 import { BusFactorGraph } from './components/BusFactorGraph'
+import { BirthdayHeatmap } from './components/BirthdayHeatmap'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
@@ -663,10 +664,17 @@ function App() {
                             </div>
                         )}
 
-                        {currentView === 'pulse' && (
+                        {currentView === 'attendance' && (
                              <div className="view-container">
                                 <h2>Attendance Pulse</h2>
                                 <AttendancePulse auth={auth} />
+                            </div>
+                        )}
+
+                        {currentView === 'heatmap' && (
+                             <div className="view-container">
+                                <h2>Birthday Heatmap</h2>
+                                <BirthdayHeatmap students={students} />
                             </div>
                         )}
                       </>
