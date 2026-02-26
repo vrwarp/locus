@@ -1,0 +1,144 @@
+.dashboard-container {
+  padding: 2rem;
+  color: #fff;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  margin: 0;
+  color: #fff;
+}
+
+.dashboard-header .subtitle {
+  color: #aaa;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.metric-card {
+  background-color: #2a2a2a;
+  padding: 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #333;
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  background-color: #333;
+}
+
+.metric-title {
+  font-size: 0.9rem;
+  color: #aaa;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.metric-trend {
+  font-size: 0.8rem;
+  color: #4caf50; /* Green by default */
+}
+
+.metric-card.anomalies .metric-value {
+  color: #ff4d4f; /* Red for anomalies */
+}
+.metric-card.anomalies .metric-trend {
+    color: #ff7875;
+}
+
+
+.metric-card.burnout .metric-value {
+  color: #faad14; /* Orange/Yellow */
+}
+.metric-card.burnout .metric-trend {
+    color: #ffc069;
+}
+
+
+.quick-actions h3, .dashboard-insights h3 {
+  border-bottom: 1px solid #444;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  color: #eee;
+}
+
+.actions-grid {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+}
+
+.action-btn {
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.action-btn.primary {
+  background-color: #1890ff;
+  color: white;
+}
+
+.action-btn.primary:hover {
+  background-color: #40a9ff;
+}
+
+.action-btn.secondary {
+  background-color: #333;
+  color: #ddd;
+  border: 1px solid #444;
+}
+
+.action-btn.secondary:hover {
+  background-color: #444;
+  color: white;
+}
+
+.insight-list {
+  background-color: #222;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.insight-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #333;
+}
+
+.insight-item:last-child {
+  border-bottom: none;
+}

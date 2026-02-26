@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import * as pco from './utils/pco';
@@ -62,14 +62,20 @@ vi.mock('./components/ConfigModal', () => ({ ConfigModal: () => null }));
 vi.mock('./components/GhostModal', () => ({ GhostModal: () => null }));
 vi.mock('./components/FamilyModal', () => ({ FamilyModal: () => null }));
 vi.mock('./components/RobertReport', () => ({ RobertReport: () => null }));
+vi.mock('./components/GamificationWidget', () => ({ GamificationWidget: () => <div data-testid="gamification-widget" /> }));
+
+const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 describe('Undo/Redo Integration', () => {
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.useFakeTimers();
+        vi.useRealTimers();
 
         // Mock PCO API
         (pco.checkApiVersion as any).mockResolvedValue(true);
+        (pco.fetchRecentCheckIns as any).mockResolvedValue([]);
+        (pco.fetchEvents as any).mockResolvedValue([]);
+
         (pco.fetchAllPeople as any).mockResolvedValue({
             people: [{
                 id: '1',
@@ -122,7 +128,7 @@ describe('Undo/Redo Integration', () => {
     });
 
     afterEach(() => {
-        vi.useRealTimers();
+        // cleanup
     });
 
     it('should allow undoing a committed change', async () => {
@@ -146,24 +152,28 @@ describe('Undo/Redo Integration', () => {
         fireEvent.change(appIdInput, { target: { value: 'test-app' } });
         fireEvent.change(secretInput, { target: { value: 'test-secret' } });
 
-        // Wait for data load (debounced)
-        await act(async () => {
-            await vi.advanceTimersByTimeAsync(2000);
-        });
+        // Wait for login (debounce 1s + api check)
+        await waitFor(() => expect(screen.getByTestId('gamification-widget')).toBeInTheDocument(), { timeout: 3000 });
+
+        // Ensure data loading is done before navigation
+        await waitFor(() => expect(screen.queryByText(/Loading/)).not.toBeInTheDocument(), { timeout: 3000 });
+
+        // Navigate to Data Health (where GradeScatter is)
+        fireEvent.click(screen.getByText(/Data Health/));
+
+        // Wait for scatter plot to render
+        await waitFor(() => expect(screen.getByTestId('scatter-plot')).toBeInTheDocument(), { timeout: 3000 });
 
         // Select student
-        await act(async () => {
-             fireEvent.click(screen.getByText('Select Student'));
-        });
+        fireEvent.click(screen.getByText('Select Student'));
 
         // Fix Grade
-        await act(async () => {
-            fireEvent.click(screen.getByText('Fix Grade'));
-        });
+        fireEvent.click(screen.getByText('Fix Grade'));
 
-        // Advance timer to trigger commit (5000ms)
+        // Wait for commit (5s timeout in App.tsx)
+        // We use act to wrap the waiting
         await act(async () => {
-            await vi.advanceTimersByTimeAsync(6000);
+            await sleep(6000);
         });
 
         // Verify updatePerson called
@@ -180,5 +190,5 @@ describe('Undo/Redo Integration', () => {
 
         // Verify updatePerson called with original value
         expect(pco.updatePerson).toHaveBeenCalledWith('1', { grade: 5 }, expect.any(String), expect.any(Boolean));
-    });
+    }, 15000);
 });

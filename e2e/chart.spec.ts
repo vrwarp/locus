@@ -27,6 +27,9 @@ test('renders the Diagonal of Truth', async ({ page }) => {
   await page.fill('input[placeholder="Application ID"]', 'test');
   await page.fill('input[placeholder="Secret"]', 'test');
 
+  // Navigate to Data Health
+  await page.click('button:has-text("Data Health")');
+
   // Wait for chart
   const surface = page.locator('.recharts-surface');
   await expect(surface).toBeVisible();

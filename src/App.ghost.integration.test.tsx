@@ -61,7 +61,7 @@ vi.mock('./components/RobertReport', () => ({
   RobertReport: () => null
 }));
 vi.mock('./components/GamificationWidget', () => ({
-    GamificationWidget: () => null
+    GamificationWidget: () => <div data-testid="gamification-widget">Widget</div>
 }));
 
 // Mock GhostModal with functional buttons
@@ -115,10 +115,15 @@ describe('Ghost Protocol Integration', () => {
         // Current date: 2024
         vi.setSystemTime(new Date('2024-01-01'));
 
-        (api.get as any).mockResolvedValue({
-            data: {
-                data: [ghostCandidate]
+        // Smart mock implementation to handle different API calls
+        (api.get as any).mockImplementation((url: string) => {
+            if (url.includes('/api/people/v2/people') && !url.includes('check-ins')) {
+                return Promise.resolve({ data: { data: [ghostCandidate] } });
             }
+            if (url.includes('check_ins') || url.includes('events')) {
+                return Promise.resolve({ data: { data: [] } }); // Empty stats for Dashboard
+            }
+            return Promise.resolve({ data: { data: [] } });
         });
 
         render(<Wrapper><App /></Wrapper>);
@@ -126,15 +131,14 @@ describe('Ghost Protocol Integration', () => {
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 
+        // Wait for login
+        await waitFor(() => expect(screen.getByTestId('gamification-widget')).toBeInTheDocument(), { timeout: 5000 });
+
         // Wait for API call
         await waitFor(() => expect(api.get).toHaveBeenCalledWith(expect.stringContaining('/api/people/v2/people'), expect.anything()), { timeout: 3000 });
 
-        // Wait for data to settle (loading gone)
-        // Check that "No data found" is NOT present
-        await waitFor(() => expect(screen.queryByText(/No data found/)).not.toBeInTheDocument());
-
-        // Open Ghost Modal
-        fireEvent.click(screen.getByText('👻 Ghost Protocol'));
+        // Open Ghost Modal - use regex to handle icon span
+        fireEvent.click(screen.getByText(/Ghost Protocol/));
         expect(screen.getByTestId('ghost-modal')).toBeInTheDocument();
 
         // Should initially be in the list
@@ -149,8 +153,8 @@ describe('Ghost Protocol Integration', () => {
             if (url.includes('/groups/v2/people/g1/memberships')) {
                  return Promise.resolve({ data: { meta: { total_count: 1 } } });
             }
-            // Fallback for any other calls (like re-fetching people if invalidateQueries happened?)
-            if (url.includes('/people/v2/people')) {
+            // Fallback for any other calls
+            if (url.includes('/people/v2/people') && !url.includes('check-ins')) {
                 return Promise.resolve({ data: { data: [ghostCandidate] } });
             }
             return Promise.resolve({ data: { data: [] } });

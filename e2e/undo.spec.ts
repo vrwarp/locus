@@ -44,6 +44,9 @@ test('undo flow works as expected', async ({ page }) => {
   await page.fill('input[placeholder="Application ID"]', 'test');
   await page.fill('input[placeholder="Secret"]', 'test');
 
+  // Navigate to Data Health
+  await page.click('button:has-text("Data Health")');
+
   // Wait for chart point (Recharts makes this tricky, but we can look for the dot)
   // The points are rendered as circles.
   await page.waitForSelector('.recharts-scatter-symbol');

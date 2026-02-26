@@ -20,10 +20,11 @@ interface RobertReportProps {
   history: HealthHistoryEntry[];
   students: Student[];
   auth: string;
+  initialTab?: 'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity' | 'heatmap';
 }
 
-export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, stats, history, students, auth }) => {
-  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity' | 'heatmap'>('health');
+export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, stats, history, students, auth, initialTab = 'health' }) => {
+  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity' | 'heatmap'>(initialTab);
 
   if (!isOpen) return null;
 

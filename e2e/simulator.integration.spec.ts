@@ -10,6 +10,12 @@ test('Full flow with simulator: Login, View Data, Smart Fix', async ({ page }) =
   await page.getByPlaceholder('Secret').fill('test_secret');
 
   // 3. Wait for data
+  // Wait for loading to finish
+  await expect(page.getByText('Loading Data...')).not.toBeVisible({ timeout: 15000 });
+
+  // Navigate to Data Health
+  await page.click('button:has-text("Data Health")');
+
   // The chart surface should appear once data is loaded.
   await expect(page.locator('.recharts-surface')).toBeVisible({ timeout: 15000 });
 
