@@ -79,3 +79,17 @@
     - Updated `src/components/RobertReport.test.tsx` to verify new tab integration.
     - Verified all tests pass.
 - **Status:** Birthday Heatmap implemented (Heatmap of Life).
+
+## Session 38
+- **Implemented:**
+    - **The Volunteer Web:**
+        - Created `src/utils/volunteerWeb.ts` to build a network graph of volunteers based on shared serving shifts.
+        - Implemented a custom force-directed layout algorithm (Repulsion + Spring) to visualize connections.
+        - Created `src/components/VolunteerWeb.tsx` to render the interactive graph using SVG.
+        - Integrated "Network" tab into `RobertReport`.
+- **Tests:**
+    - Created `src/utils/volunteerWeb.test.ts` to verify graph construction and link weighting logic.
+    - Created `src/components/VolunteerWeb.test.tsx` to verify component rendering and loading states.
+    - Updated `src/components/RobertReport.test.tsx` to verify new tab integration.
+    - Verified all tests pass.
+- **Status:** Volunteer Web implemented.
