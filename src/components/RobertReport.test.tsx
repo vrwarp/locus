@@ -53,6 +53,11 @@ vi.mock('./BirthdayHeatmap', () => ({
     BirthdayHeatmap: () => <div data-testid="birthday-heatmap">Mock Birthday Heatmap</div>
 }));
 
+// Mock VolunteerWeb
+vi.mock('./VolunteerWeb', () => ({
+    VolunteerWeb: () => <div data-testid="volunteer-web">Mock Volunteer Web</div>
+}));
+
 describe('RobertReport', () => {
   const mockStats: HealthStats = {
     score: 85,
@@ -170,6 +175,17 @@ describe('RobertReport', () => {
     fireEvent.click(heatmapTab);
 
     expect(screen.getByTestId('birthday-heatmap')).toBeInTheDocument();
+  });
+
+  it('switches to network tab', () => {
+    render(
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
+    );
+
+    const networkTab = screen.getByText('Network');
+    fireEvent.click(networkTab);
+
+    expect(screen.getByTestId('volunteer-web')).toBeInTheDocument();
   });
 
   it('calls onClose when close button clicked', () => {

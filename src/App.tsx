@@ -14,6 +14,7 @@ import { NewcomerFunnel } from './components/NewcomerFunnel'
 import { AttendancePulse } from './components/AttendancePulse'
 import { BusFactorGraph } from './components/BusFactorGraph'
 import { BirthdayHeatmap } from './components/BirthdayHeatmap'
+import { VolunteerWeb } from './components/VolunteerWeb'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
@@ -675,6 +676,13 @@ function App() {
                              <div className="view-container">
                                 <h2>Birthday Heatmap</h2>
                                 <BirthdayHeatmap students={students} />
+                            </div>
+                        )}
+
+                        {currentView === 'network' && (
+                             <div className="view-container">
+                                <h2>The Volunteer Web</h2>
+                                <VolunteerWeb students={students} auth={auth} />
                             </div>
                         )}
                       </>

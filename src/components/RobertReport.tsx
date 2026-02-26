@@ -11,6 +11,7 @@ import { NewcomerFunnel } from './NewcomerFunnel';
 import { BusFactorGraph } from './BusFactorGraph';
 import { CheckInVelocity } from './CheckInVelocity';
 import { BirthdayHeatmap } from './BirthdayHeatmap';
+import { VolunteerWeb } from './VolunteerWeb';
 import './RobertReport.css';
 
 interface RobertReportProps {
@@ -20,11 +21,11 @@ interface RobertReportProps {
   history: HealthHistoryEntry[];
   students: Student[];
   auth: string;
-  initialTab?: 'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity' | 'heatmap';
+  initialTab?: 'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity' | 'heatmap' | 'network';
 }
 
 export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, stats, history, students, auth, initialTab = 'health' }) => {
-  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity' | 'heatmap'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity' | 'heatmap' | 'network'>(initialTab);
 
   if (!isOpen) return null;
 
@@ -185,6 +186,22 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
             >
                 Heatmap
             </button>
+            <button
+                className={`tab-btn ${activeTab === 'network' ? 'active' : ''}`}
+                onClick={() => setActiveTab('network')}
+                style={{
+                    padding: '0.5rem 1rem',
+                    border: 'none',
+                    background: 'none',
+                    cursor: 'pointer',
+                    fontWeight: activeTab === 'network' ? 'bold' : 'normal',
+                    borderBottom: activeTab === 'network' ? '2px solid #007bff' : 'none',
+                    color: activeTab === 'network' ? '#007bff' : 'inherit',
+                    whiteSpace: 'nowrap'
+                }}
+            >
+                Network
+            </button>
         </div>
 
         {activeTab === 'health' && (
@@ -273,6 +290,10 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
 
         {activeTab === 'heatmap' && (
             <BirthdayHeatmap students={students} />
+        )}
+
+        {activeTab === 'network' && (
+            <VolunteerWeb auth={auth} students={students} />
         )}
 
         <div className="modal-actions" style={{marginTop: '2rem'}}>
