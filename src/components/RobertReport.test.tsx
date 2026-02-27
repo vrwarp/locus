@@ -58,6 +58,11 @@ vi.mock('./VolunteerWeb', () => ({
     VolunteerWeb: () => <div data-testid="volunteer-web">Mock Volunteer Web</div>
 }));
 
+// Mock DriftReport
+vi.mock('./DriftReport', () => ({
+    DriftReport: () => <div data-testid="drift-report">Mock Drift Report</div>
+}));
+
 describe('RobertReport', () => {
   const mockStats: HealthStats = {
     score: 85,
@@ -186,6 +191,17 @@ describe('RobertReport', () => {
     fireEvent.click(networkTab);
 
     expect(screen.getByTestId('volunteer-web')).toBeInTheDocument();
+  });
+
+  it('switches to attrition tab', () => {
+    render(
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
+    );
+
+    const attritionTab = screen.getByText('Attrition');
+    fireEvent.click(attritionTab);
+
+    expect(screen.getByTestId('drift-report')).toBeInTheDocument();
   });
 
   it('calls onClose when close button clicked', () => {

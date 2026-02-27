@@ -15,6 +15,7 @@ import { AttendancePulse } from './components/AttendancePulse'
 import { BusFactorGraph } from './components/BusFactorGraph'
 import { BirthdayHeatmap } from './components/BirthdayHeatmap'
 import { VolunteerWeb } from './components/VolunteerWeb'
+import { DriftReport } from './components/DriftReport'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
@@ -641,6 +642,13 @@ function App() {
                             <div className="view-container">
                                 <h2>Burnout Risk Analysis</h2>
                                 <BurnoutReport students={students} auth={auth} />
+                            </div>
+                        )}
+
+                        {currentView === 'attrition' && (
+                            <div className="view-container">
+                                <h2>Predictive Attrition</h2>
+                                <DriftReport students={students} auth={auth} />
                             </div>
                         )}
 

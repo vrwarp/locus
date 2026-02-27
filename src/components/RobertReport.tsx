@@ -12,6 +12,7 @@ import { BusFactorGraph } from './BusFactorGraph';
 import { CheckInVelocity } from './CheckInVelocity';
 import { BirthdayHeatmap } from './BirthdayHeatmap';
 import { VolunteerWeb } from './VolunteerWeb';
+import { DriftReport } from './DriftReport';
 import './RobertReport.css';
 
 interface RobertReportProps {
@@ -21,11 +22,11 @@ interface RobertReportProps {
   history: HealthHistoryEntry[];
   students: Student[];
   auth: string;
-  initialTab?: 'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity' | 'heatmap' | 'network';
+  initialTab?: 'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity' | 'heatmap' | 'network' | 'attrition';
 }
 
 export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, stats, history, students, auth, initialTab = 'health' }) => {
-  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity' | 'heatmap' | 'network'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'health' | 'demographics' | 'burnout' | 'recruitment' | 'pulse' | 'retention' | 'busFactor' | 'velocity' | 'heatmap' | 'network' | 'attrition'>(initialTab);
 
   if (!isOpen) return null;
 
@@ -202,6 +203,22 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
             >
                 Network
             </button>
+            <button
+                className={`tab-btn ${activeTab === 'attrition' ? 'active' : ''}`}
+                onClick={() => setActiveTab('attrition')}
+                style={{
+                    padding: '0.5rem 1rem',
+                    border: 'none',
+                    background: 'none',
+                    cursor: 'pointer',
+                    fontWeight: activeTab === 'attrition' ? 'bold' : 'normal',
+                    borderBottom: activeTab === 'attrition' ? '2px solid #007bff' : 'none',
+                    color: activeTab === 'attrition' ? '#007bff' : 'inherit',
+                    whiteSpace: 'nowrap'
+                }}
+            >
+                Attrition
+            </button>
         </div>
 
         {activeTab === 'health' && (
@@ -294,6 +311,10 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
 
         {activeTab === 'network' && (
             <VolunteerWeb auth={auth} students={students} />
+        )}
+
+        {activeTab === 'attrition' && (
+            <DriftReport students={students} auth={auth} />
         )}
 
         <div className="modal-actions" style={{marginTop: '2rem'}}>

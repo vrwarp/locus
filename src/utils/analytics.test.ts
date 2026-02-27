@@ -15,8 +15,8 @@ describe('calculateHealthStats', () => {
 
   it('calculates 100% score for perfect data', () => {
     const students = [
-      { delta: 0 },
-      { delta: 0 },
+      { delta: 0, hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false },
+      { delta: 0, hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false },
     ] as Student[];
 
     const stats = calculateHealthStats(students);
@@ -30,8 +30,8 @@ describe('calculateHealthStats', () => {
 
   it('calculates 0% score for all anomalies', () => {
     const students = [
-      { delta: 1 },
-      { delta: -1 },
+      { delta: 1, hasNameAnomaly: false },
+      { delta: -1, hasNameAnomaly: false },
     ] as Student[];
 
     const stats = calculateHealthStats(students);
@@ -57,6 +57,24 @@ describe('calculateHealthStats', () => {
       total: 4,
       anomalies: 1,
       accuracy: 75,
+    });
+  });
+
+  it('detects hygiene anomalies', () => {
+    const students = [
+      { delta: 0, hasNameAnomaly: true },
+      { delta: 0, hasEmailAnomaly: true },
+      { delta: 0, hasAddressAnomaly: true },
+      { delta: 0, hasPhoneAnomaly: true },
+      { delta: 0 }, // Good
+    ] as Student[];
+
+    const stats = calculateHealthStats(students);
+    expect(stats).toEqual({
+      score: 20, // 1 good out of 5
+      total: 5,
+      anomalies: 4,
+      accuracy: 20,
     });
   });
 
