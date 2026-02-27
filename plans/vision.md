@@ -1,5 +1,5 @@
 # Locus: The Product Bible (Omnibus Edition)
-*Version 6.0 - The "Symbiotic Intelligence" Edition*
+*Version 6.2 - The "Pastoral Co-Pilot" Edition*
 
 ---
 
@@ -15,6 +15,7 @@ It is no longer just about seeing the lines; it is about:
 1.  **Actionable Intelligence:** Not just showing a dip in attendance, but identifying *who* is drifting and *why*.
 2.  **Automated Hygiene:** Self-healing data structures (Family Logic, Smart Fix) that clean themselves.
 3.  **Predictive Ministry:** Using AI to forecast burnout, recruitment needs, and retention risks before they happen.
+4.  **Natural Language Interaction:** The Pastoral Co-Pilot allows simple, conversational queries to access complex data.
 
 This document reflects this expanded mandate. We are building the operating system for the future of ministry logic.
 
@@ -115,10 +116,15 @@ Identifying the invisible.
 ## Chapter 4: The Intelligence Layer (AI & LLMs)
 
 ### 4.1 "The Pastoral Co-Pilot" (LLM Integration)
-A conversational interface for database queries.
--   **Query:** "Hey Locus, show me all the families with kids in 5th grade who haven't attended in 3 months but gave to the Christmas offering."
--   **Response:** "I found 12 families matching that criteria. Here is the list. Would you like me to draft an email to them?"
--   **Action:** AI drafts a personalized email template (e.g., "Missed you since Christmas...").
+A conversational interface for database queries. [BETA COMPLETE]
+-   **Query:** "Hey Locus, show me all the families with kids in 5th grade."
+-   **Response:** Returns a filtered list of students.
+-   **Intents:**
+    -   "What is my health score?" (Stats)
+    -   "Who is at risk of burnout?" (Burnout Analysis)
+    -   "Find potential volunteers." (Recruitment Analysis)
+    -   "Who is in 5th grade?" (Grade Search)
+    -   "Find [Name]" (Person Search)
 
 ### 4.2 "Predictive Attrition" (The Retention Engine)
 Using historical data to predict who will leave *before* they leave.
@@ -126,7 +132,7 @@ Using historical data to predict who will leave *before* they leave.
 -   **The Signal:** "High Risk Alert: The Miller Family."
     -   *Reason:* "Giving stopped 3 months ago. Dad stopped serving in Usher team 2 weeks ago."
 -   **The Intervention:** Suggested task: "Pastor Mike -> Call Mr. Miller."
--   **Status:** [IN PROGRESS / ALPHA] "Drift Report" implemented based on attendance drop.
+-   **Status:** [DONE] "Drift Report" implemented based on attendance drop.
 
 ### 4.3 "Ministry Matchmaker" (Genetic Algorithm)
 Optimizing volunteer placement.

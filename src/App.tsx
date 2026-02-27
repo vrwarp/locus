@@ -16,6 +16,7 @@ import { BusFactorGraph } from './components/BusFactorGraph'
 import { BirthdayHeatmap } from './components/BirthdayHeatmap'
 import { VolunteerWeb } from './components/VolunteerWeb'
 import { DriftReport } from './components/DriftReport'
+import { CoPilot } from './components/CoPilot'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
@@ -609,6 +610,12 @@ function App() {
                                 onNavigate={handleNavigation}
                                 auth={auth}
                             />
+                        )}
+
+                        {currentView === 'copilot' && (
+                            <div className="view-container" style={{height: 'calc(100vh - 100px)'}}>
+                                <CoPilot students={students} auth={auth} />
+                            </div>
                         )}
 
                         {currentView === 'data-health' && (
