@@ -126,6 +126,7 @@ Using historical data to predict who will leave *before* they leave.
 -   **The Signal:** "High Risk Alert: The Miller Family."
     -   *Reason:* "Giving stopped 3 months ago. Dad stopped serving in Usher team 2 weeks ago."
 -   **The Intervention:** Suggested task: "Pastor Mike -> Call Mr. Miller."
+-   **Status:** [IN PROGRESS / ALPHA] "Drift Report" implemented based on attendance drop.
 
 ### 4.3 "Ministry Matchmaker" (Genetic Algorithm)
 Optimizing volunteer placement.

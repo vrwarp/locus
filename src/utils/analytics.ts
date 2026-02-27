@@ -18,7 +18,15 @@ export const calculateHealthStats = (students: Student[]): HealthStats => {
     };
   }
 
-  const anomalies = students.filter((s) => s.delta !== 0).length;
+  // Count anomalies across all categories: Grade Delta, Name, Email, Address, Phone
+  const anomalies = students.filter((s) =>
+      s.delta !== 0 ||
+      s.hasNameAnomaly ||
+      s.hasEmailAnomaly ||
+      s.hasAddressAnomaly ||
+      s.hasPhoneAnomaly
+  ).length;
+
   const valid = total - anomalies;
   const accuracy = (valid / total) * 100;
 
