@@ -20,6 +20,10 @@ export class BatchUpdateCommand implements Command {
         this.onStateChange = onStateChange;
     }
 
+    get description() {
+        return `Batch update of ${this.updates.length} records`;
+    }
+
     async execute(): Promise<void> {
         for (const update of this.updates) {
              const attributes = prepareUpdateAttributes(update.original, update.updated);

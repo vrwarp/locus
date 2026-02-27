@@ -1,17 +1,23 @@
 
-## Session 39
+## Session 40
 - **Implemented:**
-    - **Predictive Attrition (Drift Detection):**
-        - Created `src/utils/drift.ts` to implement the logic for identifying "Drifting" (50% drop), "At Risk" (25% drop), and "Gone" (100% drop) members.
-        - Logic compares "Baseline" attendance (months -7 to -2) vs "Recent" attendance (last 6 weeks).
-        - Created `src/components/DriftReport.tsx` to visualize these candidates.
-        - Integrated "Attrition" tab into `RobertReport`.
-    - **Enhanced Data Health Analytics:**
-        - Updated `src/utils/analytics.ts` to include Name, Email, Address, and Phone anomalies in the total health score calculation (previously only Grade Delta).
+    - **Pastoral Co-Pilot (Beta):**
+        - Created `src/utils/copilot.ts` with natural language processing logic (`processQuery`) for intents:
+            - Health Score
+            - Burnout Risk
+            - Recruitment Candidates
+            - Ghosts
+            - Grade Search
+            - Person Search
+        - Created `src/components/CoPilot.tsx` (and `.css`) as a chat interface with typing indicators and card-based responses.
+        - Integrated Co-Pilot into `App.tsx` and `Sidebar.tsx`.
+    - **Test Coverage Improvements:**
+        - Created `src/utils/copilot.test.ts` to verify NLP logic.
+        - Created `src/components/CoPilot.test.tsx` to verify chat interactions.
+        - Created `src/components/Sidebar.test.tsx` to verify navigation.
+        - Created `src/components/Dashboard.test.tsx` to verify dashboard metrics.
+        - Created `src/components/FamilyModal.test.tsx` to verify family audit rendering.
 - **Tests:**
-    - Created `src/utils/drift.test.ts` to verify drift calculation logic.
-    - Created `src/components/DriftReport.test.tsx` to verify component rendering.
-    - Updated `src/utils/analytics.test.ts` to verify comprehensive anomaly counting.
-    - Updated `src/components/RobertReport.test.tsx` to verify new tab integration.
-    - Verified all tests pass.
-- **Status:** Predictive Attrition implemented.
+    - All new tests passing.
+    - Full regression test suite passing.
+- **Status:** Pastoral Co-Pilot integrated and functional.

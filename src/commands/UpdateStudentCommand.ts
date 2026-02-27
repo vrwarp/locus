@@ -1,5 +1,5 @@
 import { updatePerson, prepareUpdateAttributes } from '../utils/pco';
-import type { Student } from '../utils/pco';
+import type { Student, PcoAttributes } from '../utils/pco';
 import type { Command } from '../utils/commands';
 
 export class UpdateStudentCommand implements Command {
@@ -28,7 +28,7 @@ export class UpdateStudentCommand implements Command {
     }
 
     async execute() {
-        const attributes = prepareUpdateAttributes(this.original, this.updated);
+        const attributes: PcoAttributes = prepareUpdateAttributes(this.original, this.updated);
         if (Object.keys(attributes).length > 0) {
             await updatePerson(this.updated.id, attributes, this.auth, this.sandboxMode);
             this.onStateChange(this.updated);
@@ -38,7 +38,7 @@ export class UpdateStudentCommand implements Command {
     async undo() {
         // To undo, we update the person back to the ORIGINAL state.
         // We compare 'updated' (current state) to 'original' (target state).
-        const attributes = prepareUpdateAttributes(this.updated, this.original);
+        const attributes: PcoAttributes = prepareUpdateAttributes(this.updated, this.original);
          if (Object.keys(attributes).length > 0) {
             await updatePerson(this.original.id, attributes, this.auth, this.sandboxMode);
             this.onStateChange(this.original);
