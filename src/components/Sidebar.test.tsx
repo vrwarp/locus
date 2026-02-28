@@ -17,6 +17,7 @@ describe('Sidebar Component', () => {
         expect(screen.getByText('Data Health')).toBeInTheDocument();
         expect(screen.getByText('Pastoral Co-Pilot')).toBeInTheDocument(); // New item
         expect(screen.getByText('Burnout Risk')).toBeInTheDocument();
+        expect(screen.getByText('Demographics')).toBeInTheDocument();
     });
 
     it('highlights current view', () => {
@@ -57,5 +58,8 @@ describe('Sidebar Component', () => {
 
         fireEvent.click(screen.getByText('Pastoral Co-Pilot'));
         expect(onChangeView).toHaveBeenCalledWith('copilot');
+
+        fireEvent.click(screen.getByText('Demographics'));
+        expect(onChangeView).toHaveBeenCalledWith('demographics');
     });
 });
