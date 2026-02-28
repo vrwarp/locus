@@ -21,3 +21,21 @@
     - All new tests passing.
     - Full regression test suite passing.
 - **Status:** Pastoral Co-Pilot integrated and functional.
+
+## Session 41
+- **Implemented:**
+    - **Generation Stack Visualization:**
+        - Created `src/components/GenerationStack.tsx` utilizing Recharts `BarChart` to display a stacked demographic view of students grouped by generation (Gen Z, Millennials, etc.).
+        - Integrated the component into `src/App.tsx` and added corresponding navigation entry to `src/components/Sidebar.tsx` under 'Intelligence'.
+    - **Test Coverage:**
+        - Added `src/components/GenerationStack.test.tsx` to verify correct rendering of demographic data.
+        - Updated `src/components/Sidebar.test.tsx` to ensure proper routing functionality for the new view.
+- **Tests:**
+    - Full test suite run and passed (51 passing test suites, 291 tests).
+- **Status:** Generation Stack visualization complete and verified.
+- **Discovered:**
+    - The Recharts `ResponsiveContainer` requires explicit height constraints on its parent element to prevent layout collapse.
+    - Vitest JS DOM struggles with measuring DOM elements for Recharts, requiring custom mocked components for `ResponsiveContainer` and `BarChart` to allow the tests to pass without warnings or errors.
+- **Future Ideas:**
+    - Drill-down capability: Clicking on a generation bar (e.g., 'Gen Z') should filter the main `Data Health` scatter plot to only show those individuals.
+    - Export functionality: Provide a button to download the demographic chart as a PNG or PDF for the `Robert Report` (Executive view).

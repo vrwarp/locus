@@ -17,6 +17,7 @@ import { BirthdayHeatmap } from './components/BirthdayHeatmap'
 import { VolunteerWeb } from './components/VolunteerWeb'
 import { DriftReport } from './components/DriftReport'
 import { CoPilot } from './components/CoPilot'
+import { GenerationStack } from './components/GenerationStack'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
@@ -698,6 +699,13 @@ function App() {
                              <div className="view-container">
                                 <h2>The Volunteer Web</h2>
                                 <VolunteerWeb students={students} auth={auth} />
+                            </div>
+                        )}
+
+                        {currentView === 'demographics' && (
+                             <div className="view-container">
+                                <h2>Demographics</h2>
+                                <GenerationStack students={students} />
                             </div>
                         )}
                       </>
