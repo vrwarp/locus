@@ -8,7 +8,8 @@ describe('Gamification Logic', () => {
     currentStreak: 1,
     dailyFixes: 0,
     totalFixes: 0,
-    unlockedBadges: []
+    unlockedBadges: [],
+    fixHistory: {}
   };
 
   it('increments total fixes', () => {
@@ -40,7 +41,7 @@ describe('Gamification Logic', () => {
   it('increments streak if active yesterday', () => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
 
     const state: GamificationState = {
         ...baseState,
@@ -55,7 +56,7 @@ describe('Gamification Logic', () => {
   it('awards Streak Master badge', () => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
 
     const state: GamificationState = {
         ...baseState,
@@ -75,7 +76,7 @@ describe('Gamification Logic', () => {
   it('resets streak if gap > 1 day', () => {
      const twoDaysAgo = new Date();
      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-     const twoDaysAgoStr = twoDaysAgo.toISOString().split('T')[0];
+     const twoDaysAgoStr = `${twoDaysAgo.getFullYear()}-${String(twoDaysAgo.getMonth() + 1).padStart(2, '0')}-${String(twoDaysAgo.getDate()).padStart(2, '0')}`;
 
      const state: GamificationState = {
          ...baseState,
@@ -85,5 +86,24 @@ describe('Gamification Logic', () => {
 
      const { newState } = updateGamificationState(state);
      expect(newState.currentStreak).toBe(1);
+  });
+
+  it('updates fixHistory correctly', () => {
+      const now = new Date();
+      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const state: GamificationState = {
+          ...baseState,
+          fixHistory: {
+              '2023-01-01': 5
+          }
+      };
+
+      const { newState } = updateGamificationState(state);
+      expect(newState.fixHistory).toBeDefined();
+      expect(newState.fixHistory?.[today]).toBe(1);
+      expect(newState.fixHistory?.['2023-01-01']).toBe(5);
+
+      const { newState: state2 } = updateGamificationState(newState);
+      expect(state2.fixHistory?.[today]).toBe(2);
   });
 });

@@ -288,7 +288,7 @@ AI should never be a black box.
 25. **"Bounty Board":** Admin posts "Bounties" (e.g., "Fix 50 emails") for volunteers.
 26. **"Achievement Case":** Virtual trophy shelf.
 27. **"Daily Streak":** Fire icon for consecutive days.
-28. **"Contribution Graph":** GitHub-style green squares for data fixes.
+28. **"Contribution Graph":** GitHub-style green squares for data fixes. [DONE]
 29. **"The Golden Record":** Special animation for the 10,000th fix.
 30. **"Party Mode":** Confetti on every click (toggleable).
 

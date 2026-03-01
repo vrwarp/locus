@@ -23,6 +23,7 @@ export interface GamificationState {
   dailyFixes: number;
   totalFixes: number;
   unlockedBadges: { id: string, date: string }[];
+  fixHistory?: Record<string, number>; // YYYY-MM-DD -> count
 }
 
 const STORAGE_KEY = 'locus_config';
@@ -111,10 +112,10 @@ export const saveHealthSnapshot = async (stats: HealthStats, appId: string): Pro
 };
 
 export const loadGamificationState = async (appId: string): Promise<GamificationState> => {
-  if (!appId) return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [] };
+  if (!appId) return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [], fixHistory: {} };
   try {
       const stored = localStorage.getItem(GAMIFICATION_KEY);
-      if (!stored) return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [] };
+      if (!stored) return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [], fixHistory: {} };
 
       let state: GamificationState;
       try {
@@ -123,7 +124,7 @@ export const loadGamificationState = async (appId: string): Promise<Gamification
           try {
               state = JSON.parse(stored) as GamificationState;
           } catch {
-               return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [] };
+               return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [], fixHistory: {} };
           }
       }
 
@@ -131,11 +132,16 @@ export const loadGamificationState = async (appId: string): Promise<Gamification
       if (!state.unlockedBadges) {
           state.unlockedBadges = [];
       }
+
+      // Migration: Ensure fixHistory exists
+      if (!state.fixHistory) {
+          state.fixHistory = {};
+      }
       return state;
 
   } catch (e) {
       console.error("Failed to load gamification state", e);
-      return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [] };
+      return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [], fixHistory: {} };
   }
 };
 
