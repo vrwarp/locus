@@ -6,14 +6,17 @@ import { calculateRecruitmentCandidates } from '../utils/recruitment';
 import { isGhost } from '../utils/ghost';
 import { fetchRecentCheckIns, fetchEvents } from '../utils/pco';
 import type { Student, PcoCheckIn, PcoEvent } from '../utils/pco';
+import type { GamificationState } from '../utils/storage';
+import { ContributionGraph } from './ContributionGraph';
 
 interface DashboardProps {
   students: Student[];
   onNavigate: (view: string) => void;
   auth: string;
+  gamificationState?: GamificationState;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ students, onNavigate, auth }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ students, onNavigate, auth, gamificationState }) => {
   const [checkIns, setCheckIns] = useState<PcoCheckIn[]>([]);
   const [events, setEvents] = useState<PcoEvent[]>([]);
   const [loadingStats, setLoadingStats] = useState(true);
@@ -139,6 +142,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ students, onNavigate, auth
           )}
         </div>
       </div>
+
+      {gamificationState && (
+        <div className="dashboard-impact" style={{ marginTop: '2rem' }}>
+          <ContributionGraph fixHistory={gamificationState.fixHistory} weeks={26} />
+        </div>
+      )}
     </div>
   );
 };

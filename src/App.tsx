@@ -610,6 +610,7 @@ function App() {
                                 students={students}
                                 onNavigate={handleNavigation}
                                 auth={auth}
+                                gamificationState={gamificationState}
                             />
                         )}
 
