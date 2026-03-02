@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectNameAnomaly, fixName, validateEmail, detectEmailAnomaly, validateAddress, detectAddressAnomaly, validatePhone, detectPhoneAnomaly, fixPhone } from './hygiene';
+import { detectNameAnomaly, fixName, validateEmail, detectEmailAnomaly, validateAddress, detectAddressAnomaly, fixAddress, validatePhone, detectPhoneAnomaly, fixPhone } from './hygiene';
 
 describe('detectNameAnomaly', () => {
   it('should detect all uppercase names', () => {
@@ -84,6 +84,40 @@ describe('Address Validation', () => {
     it('should detect anomalies correctly', () => {
          expect(detectAddressAnomaly(validAddress)).toBe(false);
          expect(detectAddressAnomaly({ ...validAddress, zip: '' })).toBe(true);
+    });
+});
+
+describe('fixAddress', () => {
+    it('should expand common abbreviations', () => {
+        expect(fixAddress('123 Main St.')).toBe('123 Main Street');
+        expect(fixAddress('123 Main St')).toBe('123 Main Street');
+        expect(fixAddress('456 Oak Rd.')).toBe('456 Oak Road');
+        expect(fixAddress('456 Oak rd')).toBe('456 Oak Road');
+        expect(fixAddress('789 Pine Ave.')).toBe('789 Pine Avenue');
+        expect(fixAddress('789 Pine Ave')).toBe('789 Pine Avenue');
+    });
+
+    it('should correctly format other suffixes', () => {
+        expect(fixAddress('101 Maple Blvd.')).toBe('101 Maple Boulevard');
+        expect(fixAddress('202 Cedar Dr')).toBe('202 Cedar Drive');
+        expect(fixAddress('303 Elm Ln.')).toBe('303 Elm Lane');
+        expect(fixAddress('404 Birch Ct')).toBe('404 Birch Court');
+        expect(fixAddress('505 Walnut Pl.')).toBe('505 Walnut Place');
+        expect(fixAddress('606 Ash Ter')).toBe('606 Ash Terrace');
+        expect(fixAddress('707 Cherry Cir.')).toBe('707 Cherry Circle');
+    });
+
+    it('should capitalize fixed abbreviations properly', () => {
+        expect(fixAddress('123 Main street')).toBe('123 Main Street');
+        expect(fixAddress('123 main ave')).toBe('123 main Avenue');
+    });
+
+    it('should not modify non-matching text', () => {
+        expect(fixAddress('123 Main')).toBe('123 Main');
+    });
+
+    it('should handle empty or null address gracefully', () => {
+        expect(fixAddress('')).toBe('');
     });
 });
 

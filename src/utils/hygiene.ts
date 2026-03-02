@@ -58,6 +58,41 @@ export const detectAddressAnomaly = (address: Address): boolean => {
     return !validateAddress(address);
 }
 
+export const fixAddress = (addressStr: string): string => {
+    if (!addressStr) return '';
+
+    let fixed = addressStr;
+
+    // Define common abbreviations and their full forms
+    const replacements: Record<string, string> = {
+        'St\\.?': 'Street',
+        'Rd\\.?': 'Road',
+        'Ave\\.?': 'Avenue',
+        'Blvd\\.?': 'Boulevard',
+        'Dr\\.?': 'Drive',
+        'Ln\\.?': 'Lane',
+        'Ct\\.?': 'Court',
+        'Pl\\.?': 'Place',
+        'Ter\\.?': 'Terrace',
+        'Cir\\.?': 'Circle'
+    };
+
+    for (const [abbr, full] of Object.entries(replacements)) {
+        // Match at the end of the string or followed by a space
+        const regex = new RegExp(`\\b${abbr}(?=\\s|$)`, 'gi');
+        fixed = fixed.replace(regex, full);
+    }
+
+    // Attempt to maintain capitalization correctly:
+    // Usually these parts are capitalized.
+    // e.g., '123 Main street' -> '123 Main Street'
+    fixed = fixed.replace(/\b(Street|Road|Avenue|Boulevard|Drive|Lane|Court|Place|Terrace|Circle)\b/gi, (match) => {
+        return match.charAt(0).toUpperCase() + match.slice(1).toLowerCase();
+    });
+
+    return fixed;
+};
+
 export const validatePhone = (phone: string): boolean => {
     if (!phone) return false;
     // E.164 format for US: +1 followed by 10 digits

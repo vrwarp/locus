@@ -248,7 +248,7 @@ describe('ReviewMode', () => {
     it('allows fixing address anomalies', () => {
         const studentWithAddressAnomaly: Student = {
             ...mockStudent,
-            address: { street: '123 Main', city: 'City', state: 'CA', zip: '123' },
+            address: { street: '123 Main St.', city: 'City', state: 'CA', zip: '123' },
             hasAddressAnomaly: true
         };
         const onSave = vi.fn();
@@ -265,6 +265,9 @@ describe('ReviewMode', () => {
         const addressModeButton = screen.getAllByText('Fix Address').find(btn => btn.classList.contains('active'));
         expect(addressModeButton).toBeInTheDocument();
 
+        // Should auto-suggest fixed street
+        expect(screen.getByLabelText('Street:')).toHaveValue('123 Main Street');
+
         expect(screen.getByLabelText('Zip:')).toHaveValue('123');
 
         // Allow editing
@@ -278,7 +281,7 @@ describe('ReviewMode', () => {
 
         expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
             id: '1',
-            address: expect.objectContaining({ zip: '90210' }),
+            address: expect.objectContaining({ street: '123 Main Street', zip: '90210' }),
             hasAddressAnomaly: false,
         hasPhoneAnomaly: false
         }));
