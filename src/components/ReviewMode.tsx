@@ -4,7 +4,7 @@ import { calculateExpectedGrade } from '../utils/grader';
 import type { GraderOptions } from '../utils/grader';
 import { differenceInYears } from 'date-fns';
 import { playTone } from '../utils/audio';
-import { fixName, fixPhone } from '../utils/hygiene';
+import { fixName, fixPhone, fixAddress } from '../utils/hygiene';
 import type { Address } from '../utils/hygiene';
 import './ReviewMode.css';
 
@@ -42,7 +42,13 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
       setTargetBirthdate(currentStudent.birthdate);
       setTargetName(fixName(currentStudent.name));
       setTargetEmail(currentStudent.email || '');
-      setTargetAddress(currentStudent.address || { street: '', city: '', state: '', zip: '' });
+
+      const currentAddress = currentStudent.address || {street: '', city: '', state: '', zip: ''};
+      setTargetAddress({
+          ...currentAddress,
+          street: fixAddress(currentAddress.street)
+      });
+
       setTargetPhone(currentStudent.phoneNumber ? fixPhone(currentStudent.phoneNumber) : '');
 
       if (currentStudent.hasNameAnomaly) {
