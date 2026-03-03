@@ -4,6 +4,7 @@ import { calculateHealthStats } from '../utils/analytics';
 import { calculateBurnoutRisk } from '../utils/burnout';
 import { calculateRecruitmentCandidates } from '../utils/recruitment';
 import { isGhost } from '../utils/ghost';
+import { calculateMissingVolunteers } from '../utils/missing';
 import { fetchRecentCheckIns, fetchEvents } from '../utils/pco';
 import type { Student, PcoCheckIn, PcoEvent } from '../utils/pco';
 import type { GamificationState } from '../utils/storage';
@@ -56,6 +57,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ students, onNavigate, auth
   const recruitmentCandidates = useMemo(() => {
       if (checkIns.length === 0 || events.length === 0) return [];
       return calculateRecruitmentCandidates(checkIns, events, students);
+  }, [checkIns, events, students]);
+
+  const missingVolunteers = useMemo(() => {
+      if (checkIns.length === 0 || events.length === 0) return [];
+      return calculateMissingVolunteers(checkIns, events, students);
   }, [checkIns, events, students]);
 
   const ghosts = useMemo(() => students.filter(s => isGhost(s)), [students]);
@@ -137,6 +143,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ students, onNavigate, auth
                 <span className="icon">🌱</span>
                 <div>
                   <strong>Growth Opportunity:</strong> Found {recruitmentCandidates.length} potential volunteers based on attendance patterns.
+                </div>
+              </div>
+          )}
+          {!loadingStats && missingVolunteers.length > 0 && (
+              <div className="insight-item missing-alert">
+                <span className="icon">🚨</span>
+                <div>
+                  <strong>Missing Person Alert:</strong> {missingVolunteers.length} key {missingVolunteers.length === 1 ? 'volunteer has' : 'volunteers have'} missed 2+ consecutive weeks.
                 </div>
               </div>
           )}
