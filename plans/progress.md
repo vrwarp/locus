@@ -56,3 +56,16 @@
     - All new tests passing.
     - Full regression test suite passing.
 - **Status:** Gamification "Contribution Graph" feature fully implemented and verified.
+
+## Session 43
+- **Implemented:**
+    - **Missing Person Alert:**
+        - Created `src/utils/missing.ts` to identify "key volunteers" (served >= 2 times in the last 6 weeks of their history) who have gone "missing" (0 check-ins in the last 2 weeks).
+        - Integrated alert into the `Dashboard` component's Insights section.
+    - **Test Coverage Improvements:**
+        - Created `src/utils/missing.test.ts` to verify the missing volunteer logic handles varied check-in histories correctly.
+        - Updated `src/components/Dashboard.test.tsx` to verify the rendering of the missing person alert.
+- **Tests:**
+    - All new tests passing.
+    - Full regression test suite passing.
+- **Status:** Missing Person Alert feature fully implemented and verified.

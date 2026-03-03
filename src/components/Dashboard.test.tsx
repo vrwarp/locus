@@ -3,10 +3,16 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { Dashboard } from './Dashboard';
 import * as pco from '../utils/pco';
+import { calculateMissingVolunteers } from '../utils/missing';
+import { waitFor } from '@testing-library/react';
 
 vi.mock('../utils/pco', () => ({
-    fetchEvents: vi.fn().mockResolvedValue([]),
-    fetchRecentCheckIns: vi.fn().mockResolvedValue([]),
+    fetchEvents: vi.fn().mockResolvedValue([{ id: '1', attributes: { name: 'Test' } }]),
+    fetchRecentCheckIns: vi.fn().mockResolvedValue([{ id: '1', attributes: { created_at: '2023-01-01' }, relationships: { person: { data: { id: '1' } }, event: { data: { id: '1' } } } }]),
+}));
+
+vi.mock('../utils/missing', () => ({
+    calculateMissingVolunteers: vi.fn().mockReturnValue([])
 }));
 
 describe('Dashboard Component', () => {
@@ -37,5 +43,18 @@ describe('Dashboard Component', () => {
 
         fireEvent.click(screen.getByText('Start Review'));
         expect(onNavigate).toHaveBeenCalledWith('data-health');
+    });
+
+    it('displays missing volunteer alert when present', async () => {
+        vi.mocked(calculateMissingVolunteers).mockReturnValue([
+            { person: mockStudents[0] as any, lastSeen: '2023-01-01', missingWeeks: 3 }
+        ]);
+
+        render(<Dashboard students={mockStudents} onNavigate={vi.fn()} auth="test" />);
+
+        await waitFor(() => {
+            expect(screen.getByText(/Missing Person Alert/)).toBeInTheDocument();
+            expect(screen.getByText(/1 key volunteer has missed 2\+ consecutive weeks/)).toBeInTheDocument();
+        });
     });
 });

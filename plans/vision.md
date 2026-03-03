@@ -272,7 +272,7 @@ AI should never be a black box.
 11. **Birthday Bot:** Auto-email parents 1 week before kid's birthday.
 12. **Grade Promotion Script:** Auto-promote grades on June 1st.
 13. **"First Time Giver" Alert:** Slack notification to Pastor when someone gives for the first time.
-14. **"Missing Person" Alert:** Notification if a key volunteer misses 2 weeks.
+14. **"Missing Person" Alert:** Notification if a key volunteer misses 2 weeks. [DONE]
 15. **Address Cleaner:** Auto-format "St." to "Street". [DONE]
 16. **Phone Formatter:** Auto-add area codes based on Zip Code.
 17. **Duplicate Merger:** Auto-merge if Name + Email + Phone match 100%.
