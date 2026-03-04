@@ -1,32 +1,30 @@
-# Locus: Ministry Intelligence Platform
+# Locus
 
-Locus is a **Data Health OS** designed for church administrators (currently focusing on integrations with Planning Center Online - PCO). It has evolved from a simple data visualization tool into a comprehensive **Ministry Intelligence Platform**.
+Locus is a data management and analytics platform designed for church administrators, integrating primarily with Planning Center Online (PCO).
 
-Locus exists to solve the silent crisis of data entropy in church databases, transforming raw data into actionable intelligence, automated hygiene, and predictive insights.
-
-**Data Integrity is Pastoral Care.** To correctly know someone's name, age, and life stage is the most basic form of dignity. When data is accurate, effective ministry follows. Locus provides peace of mind by turning "Unknown Unknowns" into "Known Knowns".
+The platform focuses on improving database accuracy through automated data hygiene tools, identifying patterns in engagement, and providing visual dashboards to help staff track health metrics like attendance and volunteer involvement.
 
 ## Features
 
-Locus is divided into three core pillars:
+Locus is divided into three core functional areas:
 
-### 1. The Core Engine (Data Integrity)
-*   **The "Diagonal of Truth":** A correlation engine that calculates a health score based on Birthdate, Grade, and School District Cutoff, featuring one-click corrections (Smart Fix).
-*   **Family Logic Validator:** Cross-references family data to flag abnormal spouse age gaps, parent/child age logic, and potential duplicates.
-*   **The "Ghost" Protocol:** Identifies inactive records (active in the DB but zero real-world footprint for >2 years) for safe batch archiving.
-*   **Advanced Data Hygiene:** Automated formatting and validation for Addresses, Emails, Phone Numbers (E.164), and Name casing.
+### 1. Data Integrity and Management
+*   **Grade & Age Correlation:** Analyzes Birthdate, Grade, and School District Cutoff data to flag mismatched records, with a one-click correction tool.
+*   **Family Logic Validator:** Cross-references family profiles to flag abnormal spouse age gaps, parent/child age logic, and potential duplicate households.
+*   **Inactive Record Archiving:** Identifies records that have been inactive for over two years for bulk archiving.
+*   **Data Standardization:** Automates formatting and validation for Addresses, Emails, Phone Numbers (E.164), and Name casing.
 
-### 2. The Intelligence Layer (AI & LLMs)
-*   **The Pastoral Co-Pilot:** A conversational natural-language interface allowing users to ask complex questions like "Who is at risk of burnout?" or "Find potential volunteers."
-*   **Predictive Attrition (Drift Report):** Analyzes attendance drops and check-in gaps to predict and flag members at high risk of leaving, suggesting timely pastoral interventions.
-*   **Ministry Matchmaker:** Optimizes volunteer placement using algorithms that factor in life stage, tenure, and engagement.
+### 2. Analytics and Insights
+*   **Pastoral Co-Pilot:** A conversational interface allowing users to query database metrics via natural language (e.g., "Find potential volunteers").
+*   **Attrition Tracking:** Analyzes attendance drops and check-in gaps to flag individuals who may be disengaging.
+*   **Volunteer Placement:** Evaluates and suggests volunteer placements based on life stage, tenure, and prior engagement history.
 
-### 3. Data Visualization & Insights
-*   **The Bus Factor Graph:** Identifies critical, "high-risk" volunteers who act as single points of failure.
-*   **The Heatmap of Life:** A visual calendar showing density for events like Birthdays.
-*   **The Volunteer Web:** A force-directed graph revealing who serves with whom.
-*   **The Contribution Graph:** A GitHub-style activity grid visualizing daily data hygiene contributions.
-*   **The Newcomer Funnel:** Tracks guest retention from 1st visit through to membership.
+### 3. Visual Dashboards
+*   **Bus Factor Graph:** Identifies critical volunteers who handle a disproportionate amount of responsibilities.
+*   **Birthday Heatmap:** A visual calendar showing the density of birthdays across the congregation.
+*   **Volunteer Web:** A force-directed graph revealing shared serving schedules among volunteers.
+*   **Hygiene Contribution Graph:** An activity grid displaying daily data hygiene contributions by administrative staff.
+*   **Newcomer Funnel:** Tracks guest retention rates from the first visit through to official membership.
 
 ## Tech Stack
 
@@ -37,7 +35,7 @@ Locus is divided into three core pillars:
 
 ## Getting Started
 
-To run Locus locally, you need to start both the Vite development server and the Mock API backend.
+To run Locus locally, start both the Vite development server and the mock API backend.
 
 1.  **Install Dependencies:**
     ```bash
@@ -56,11 +54,11 @@ To run Locus locally, you need to start both the Vite development server and the
     ```
 
 4.  **Login:**
-    By default, with the mock API running, use any credentials (e.g., `test` / `test`) to bypass the login overlay.
+    With the mock API running, use any credentials (e.g., `test` / `test`) to bypass the login overlay.
 
 ## Testing
 
-Locus uses Vitest for unit/integration tests and Playwright for E2E verification.
+Locus uses Vitest for unit/integration testing and Playwright for E2E verification.
 
 *   **Run Unit Tests:**
     ```bash
@@ -69,14 +67,11 @@ Locus uses Vitest for unit/integration tests and Playwright for E2E verification
     *(Note: Recharts `ResponsiveContainer` and `BarChart` are mocked in Vitest due to JS DOM measurement limitations).*
 
 *   **E2E Verification Scripts:**
-    There are Python/Playwright scripts located in the `verification/` folder to generate screenshots of various views:
+    Python/Playwright scripts to verify UI components are located in the `verification/` folder:
     ```bash
     python verification/verify_dashboard.py
     ```
 
-## Roadmap & Vision
+## Documentation
 
-For a deeper dive into the product philosophy, future roadmap, and over 100+ feature concepts in the "Idea Vault", refer to the included plans:
-*   `plans/vision.md` (Version 6.2 - The "Pastoral Co-Pilot" Edition)
-*   `plans/prd.md`
-*   `plans/user-journeys.md`
+For further context regarding product philosophy and future roadmap features, see the `plans/` directory.
