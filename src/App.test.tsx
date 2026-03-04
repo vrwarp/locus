@@ -176,6 +176,9 @@ vi.mock('./components/BurnoutReport', () => ({
 vi.mock('./components/RecruitmentReport', () => ({
     RecruitmentReport: () => <div data-testid="recruitment-report">Recruitment Report Content</div>
 }));
+vi.mock('./components/CheckInVelocity', () => ({
+    CheckInVelocity: () => <div data-testid="check-in-velocity">Check-in Velocity Content</div>
+}));
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -704,6 +707,25 @@ describe('App Integration', () => {
         fireEvent.click(buttons[0]);
 
         expect(screen.getByTestId('burnout-report')).toBeInTheDocument();
+    });
+
+    it('opens and displays Check-in Velocity', async () => {
+        (api.get as any).mockResolvedValue({
+            data: {
+                data: []
+            }
+        });
+
+        render(<Wrapper><App /></Wrapper>);
+        await loginAndNavigateToDashboard();
+
+        // Wait for Dashboard content
+        await waitFor(() => expect(screen.getByText('Health Score')).toBeInTheDocument(), { timeout: 5000 });
+
+        const button = screen.getByText('Check-in Velocity');
+        fireEvent.click(button);
+
+        expect(screen.getByTestId('check-in-velocity')).toBeInTheDocument();
     });
 
     it('allows fixing a phone anomaly via Review Mode', async () => {

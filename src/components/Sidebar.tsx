@@ -84,6 +84,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
         </button>
 
         <button
+          className={`nav-item ${currentView === 'velocity' ? 'active' : ''}`}
+          onClick={() => onChangeView('velocity')}
+        >
+          <span className="icon">⏱️</span>
+          Check-in Velocity
+        </button>
+
+        <button
           className={`nav-item ${currentView === 'bus-factor' ? 'active' : ''}`}
           onClick={() => onChangeView('bus-factor')}
         >
