@@ -18,6 +18,7 @@ describe('Sidebar Component', () => {
         expect(screen.getByText('Pastoral Co-Pilot')).toBeInTheDocument(); // New item
         expect(screen.getByText('Burnout Risk')).toBeInTheDocument();
         expect(screen.getByText('Demographics')).toBeInTheDocument();
+        expect(screen.getByText('Check-in Velocity')).toBeInTheDocument();
     });
 
     it('highlights current view', () => {

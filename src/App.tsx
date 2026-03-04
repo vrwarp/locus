@@ -13,6 +13,7 @@ import { RecruitmentReport } from './components/RecruitmentReport'
 import { NewcomerFunnel } from './components/NewcomerFunnel'
 import { AttendancePulse } from './components/AttendancePulse'
 import { BusFactorGraph } from './components/BusFactorGraph'
+import { CheckInVelocity } from './components/CheckInVelocity'
 import { BirthdayHeatmap } from './components/BirthdayHeatmap'
 import { VolunteerWeb } from './components/VolunteerWeb'
 import { DriftReport } from './components/DriftReport'
@@ -686,6 +687,13 @@ function App() {
                              <div className="view-container">
                                 <h2>Attendance Pulse</h2>
                                 <AttendancePulse auth={auth} />
+                            </div>
+                        )}
+
+                        {currentView === 'velocity' && (
+                             <div className="view-container">
+                                <h2>Check-in Velocity</h2>
+                                <CheckInVelocity auth={auth} />
                             </div>
                         )}
 
