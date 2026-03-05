@@ -1,6 +1,6 @@
 # Locus
 
-This project was built exclusively using Jules.
+This project was built exclusively using Jules, an AI software engineer.
 
 ## Getting Started
 
