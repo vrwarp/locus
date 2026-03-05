@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import type { Student } from '../utils/pco';
-import { detectDuplicates, DuplicateGroup } from '../utils/duplicates';
+import { detectDuplicates } from '../utils/duplicates';
+import type { DuplicateGroup } from '../utils/duplicates';
 import './DuplicatesReport.css';
 
 interface DuplicatesReportProps {
