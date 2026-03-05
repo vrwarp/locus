@@ -19,6 +19,7 @@ import { VolunteerWeb } from './components/VolunteerWeb'
 import { DriftReport } from './components/DriftReport'
 import { CoPilot } from './components/CoPilot'
 import { GenerationStack } from './components/GenerationStack'
+import { DuplicatesReport } from './components/DuplicatesReport'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
@@ -715,6 +716,13 @@ function App() {
                              <div className="view-container">
                                 <h2>Demographics</h2>
                                 <GenerationStack students={students} />
+                            </div>
+                        )}
+
+                        {currentView === 'duplicates' && (
+                             <div className="view-container">
+                                <h2>Duplicate Detective</h2>
+                                <DuplicatesReport students={students} />
                             </div>
                         )}
                       </>

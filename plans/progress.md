@@ -79,3 +79,22 @@
 - **Tests:**
     - Full regression test suite passing.
 - **Status:** Check-in Velocity visualization integrated and verified.
+
+## Session 45
+- **Implemented:**
+    - **Duplicate Detective (Duplicate Merger Phase 1):**
+        - Created `src/utils/duplicates.ts` with `detectDuplicates` function to identify duplicate student records based on matching 'Name & Email' or 'Name & Phone'.
+        - Created `src/components/DuplicatesReport.tsx` (and `.css`) to visualize the identified duplicate groups. The component shows a list of duplicate groups, displaying avatar, name, ID, and contact info, alongside a 'View in PCO' button.
+        - Integrated the `DuplicatesReport` component into the application's main navigation flow (`src/components/Sidebar.tsx` and `src/App.tsx`), placed under the 'Tools' section.
+    - **Test Coverage Improvements:**
+        - Created `src/utils/duplicates.test.ts` to assert that grouping logic accurately detects duplicates while avoiding false positives and deduplicating overlapping matches.
+        - Created `src/components/DuplicatesReport.test.tsx` to verify empty state behavior and correct rendering of student details and grouping criteria.
+- **Tests:**
+    - All new tests passing.
+    - Full regression test suite passing.
+- **Status:** Duplicate Detective UI and detection logic implemented and verified.
+- **Discovered:**
+    - Matching logic needs to be mindful of phone number formatting. `duplicates.ts` strips non-digits and ensures at least 10 digits before comparing.
+- **Future Ideas:**
+    - Provide a one-click "Merge in PCO" button. Currently, users must click "View in PCO" and manually merge. PCO API might not expose a merge endpoint, in which case we might have to simulate it or guide the user.
+    - Expand matching criteria to fuzzy matching (e.g. Levinshtein distance on names + matching address).
