@@ -1,0 +1,170 @@
+.duplicates-report {
+  padding: 24px;
+  background-color: var(--surface-color, #ffffff);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-bottom: 24px;
+}
+
+.duplicates-report.empty-state {
+  text-align: center;
+  padding: 48px;
+}
+
+.duplicates-report.empty-state .empty-icon {
+  font-size: 48px;
+  color: #4CAF50;
+  margin: 16px 0;
+}
+
+.report-header {
+  margin-bottom: 24px;
+}
+
+.report-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  color: var(--text-primary, #333);
+}
+
+.report-header p {
+  margin: 0;
+  color: var(--text-secondary, #666);
+  font-size: 14px;
+}
+
+.duplicates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.duplicate-card {
+  border: 1px solid var(--border-color, #eee);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--surface-hover, #fdfdfd);
+}
+
+.duplicate-card-header {
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid var(--border-color, #eee);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.criteria-badge {
+  background-color: #ffe0b2;
+  color: #e65100;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.group-name {
+  font-weight: 600;
+  color: var(--text-primary, #333);
+}
+
+.duplicate-members {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background-color: var(--surface-color, #ffffff);
+  border: 1px solid var(--border-color, #eee);
+  border-radius: 6px;
+}
+
+.member-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.member-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  color: #666;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.member-details {
+  flex-grow: 1;
+}
+
+.member-name {
+  font-weight: 600;
+  color: var(--text-primary, #333);
+  margin-bottom: 4px;
+}
+
+.member-id {
+  font-size: 12px;
+  color: var(--text-secondary, #666);
+  font-weight: normal;
+}
+
+.member-contact {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-secondary, #666);
+}
+
+.member-actions {
+  flex-shrink: 0;
+}
+
+.btn-view {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: transparent;
+  color: #2196F3;
+  border: 1px solid #2196F3;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-view:hover {
+  background-color: #e3f2fd;
+}
+
+.card-footer {
+  padding: 12px 16px;
+  background-color: #fafafa;
+  border-top: 1px dashed var(--border-color, #eee);
+}
+
+.instruction-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary, #666);
+  font-style: italic;
+}

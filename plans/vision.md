@@ -96,7 +96,7 @@ The correlation engine that started it all.
 Data doesn't exist in a vacuum. People exist in families.
 -   **Spouse Gap:** Flag if "Married" couple has age gap > 40 years.
 -   **Child/Parent Logic:** Flag if "Child" is < 15 years younger than "Parent".
--   **Duplicate Detective:** Network graph connecting people by shared email/phone/address.
+-   **Duplicate Detective:** Network graph connecting people by shared email/phone/address. [DONE]
 -   **The "Split Household" Finder:** Identify families where kids live in one household record and parents in another (divorce/duplicate scenarios).
 
 ### 3.3 The "Ghost" Protocol (Core)
@@ -275,7 +275,7 @@ AI should never be a black box.
 14. **"Missing Person" Alert:** Notification if a key volunteer misses 2 weeks. [DONE]
 15. **Address Cleaner:** Auto-format "St." to "Street". [DONE]
 16. **Phone Formatter:** Auto-add area codes based on Zip Code.
-17. **Duplicate Merger:** Auto-merge if Name + Email + Phone match 100%.
+17. **Duplicate Merger:** Auto-merge if Name + Email + Phone match 100%. [DONE]
 18. **"College Send-off":** Auto-move 18yo to "College" folder in August.
 19. **"Background Check" Expiry:** Auto-email volunteer 30 days before background check expires.
 20. **"Safe Sanctuary" Audit:** Auto-remove volunteers from roster if background check expires.
