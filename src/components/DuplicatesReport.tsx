@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import type { Student } from '../utils/pco';
 import { detectDuplicates } from '../utils/duplicates';
 import type { DuplicateGroup } from '../utils/duplicates';
@@ -10,6 +10,11 @@ interface DuplicatesReportProps {
 
 export const DuplicatesReport: React.FC<DuplicatesReportProps> = ({ students }) => {
   const duplicates = useMemo(() => detectDuplicates(students), [students]);
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+
+  const toggleInstructions = (groupId: string) => {
+      setExpandedGroup(prev => prev === groupId ? null : groupId);
+  };
 
   if (duplicates.length === 0) {
     return (
@@ -65,8 +70,27 @@ export const DuplicatesReport: React.FC<DuplicatesReportProps> = ({ students }) 
               ))}
             </div>
             <div className="card-footer">
-              <p className="instruction-text">Review these profiles in Planning Center to merge them into a single record.</p>
+              <button
+                  className="btn-merge-instructions"
+                  onClick={() => toggleInstructions(group.id)}
+              >
+                  {expandedGroup === group.id ? 'Hide Instructions' : 'Merge Instructions'}
+              </button>
             </div>
+
+            {expandedGroup === group.id && (
+                <div className="merge-instructions-panel">
+                    <h4>How to Merge in Planning Center</h4>
+                    <ol>
+                        <li>Open the profiles by clicking the <strong>View in PCO</strong> buttons above.</li>
+                        <li>Decide which profile should be the primary (usually the one with more history).</li>
+                        <li>On the primary profile, click the <strong>gear icon</strong> (Actions) near the top right.</li>
+                        <li>Select <strong>Merge Duplicate</strong>.</li>
+                        <li>Search for the other person's name or ID (e.g. <code>{group.students.find(s => s !== group.students[0])?.id}</code>).</li>
+                        <li>Follow the prompts to complete the merge.</li>
+                    </ol>
+                </div>
+            )}
           </div>
         ))}
       </div>

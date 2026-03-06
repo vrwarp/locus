@@ -98,3 +98,19 @@
 - **Future Ideas:**
     - Provide a one-click "Merge in PCO" button. Currently, users must click "View in PCO" and manually merge. PCO API might not expose a merge endpoint, in which case we might have to simulate it or guide the user.
     - Expand matching criteria to fuzzy matching (e.g. Levinshtein distance on names + matching address).
+
+## Session 46
+- **Implemented:**
+    - **Duplicate Detective (Phase 2 - Fuzzy Matching & Instructions):**
+        - Added `levenshteinDistance` helper to `src/utils/duplicates.ts` to implement string distance calculation.
+        - Expanded `detectDuplicates` logic to include fuzzy matching: It now groups individuals sharing the exact same address whose names have a Levenshtein distance of 2 or less.
+        - Updated `src/components/DuplicatesReport.tsx` (and `.css`) to include a "Merge Instructions" button on each duplicate card. Expanding it provides clear, step-by-step instructions on how to merge duplicate records directly within Planning Center Online (PCO).
+    - **Test Coverage Improvements:**
+        - Updated `src/utils/duplicates.test.ts` to verify the new fuzzy matching logic (testing similar names with matching vs non-matching addresses).
+        - Updated `src/components/DuplicatesReport.test.tsx` to verify the behavior and toggling of the new merge instructions panel.
+- **Tests:**
+    - All new tests passing.
+    - Full regression test suite passing.
+- **Status:** Duplicate Detective Phase 2 implemented and verified.
+- **Discovered:**
+    - The PCO API still does not appear to expose a public endpoint for merging records. Therefore, providing copy-paste instructions that guide the user to perform the merge manually within the PCO UI is the most reliable workaround.

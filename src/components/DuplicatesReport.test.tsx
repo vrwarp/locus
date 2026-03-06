@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { DuplicatesReport } from './DuplicatesReport';
 import type { Student } from '../utils/pco';
@@ -69,5 +69,30 @@ describe('DuplicatesReport', () => {
         expect(screen.getAllByText('📧 john@example.com')).toHaveLength(2);
         expect(screen.getByText('📱 555-123-4567')).toBeInTheDocument();
         expect(screen.getByText('📱 5551234567')).toBeInTheDocument();
+    });
+
+    it('toggles merge instructions when clicked', () => {
+        const students = [
+            createMockStudent('1', 'John Doe', 'john@example.com'),
+            createMockStudent('2', 'John Doe', 'john@example.com'),
+        ];
+
+        render(<DuplicatesReport students={students} />);
+
+        // Instructions should be hidden initially
+        expect(screen.queryByText('How to Merge in Planning Center')).not.toBeInTheDocument();
+
+        // Click the button
+        const button = screen.getByText('Merge Instructions');
+        fireEvent.click(button);
+
+        // Instructions should now be visible
+        expect(screen.getByText('How to Merge in Planning Center')).toBeInTheDocument();
+        expect(button).toHaveTextContent('Hide Instructions');
+
+        // Click again to hide
+        fireEvent.click(button);
+        expect(screen.queryByText('How to Merge in Planning Center')).not.toBeInTheDocument();
+        expect(button).toHaveTextContent('Merge Instructions');
     });
 });
