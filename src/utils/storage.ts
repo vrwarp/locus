@@ -8,6 +8,7 @@ export interface AppConfig {
   sandboxMode?: boolean;
   colorblindMode?: boolean;
   muteSounds?: boolean;
+  partyMode?: boolean;
 }
 
 export interface HealthHistoryEntry {

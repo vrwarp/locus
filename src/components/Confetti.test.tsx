@@ -8,4 +8,10 @@ describe('Confetti Component', () => {
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
   });
+
+  it('renders without error when origin and duration are provided', () => {
+    const { container } = render(<Confetti origin={{ x: 100, y: 100 }} duration={500} />);
+    const canvas = container.querySelector('canvas');
+    expect(canvas).toBeInTheDocument();
+  });
 });

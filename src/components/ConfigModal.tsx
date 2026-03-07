@@ -21,6 +21,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
   const [sandboxMode, setSandboxMode] = useState(false);
   const [colorblindMode, setColorblindMode] = useState(false);
   const [muteSounds, setMuteSounds] = useState(false);
+  const [partyMode, setPartyMode] = useState(false);
 
   // Load current config when modal opens
   useEffect(() => {
@@ -31,6 +32,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         setSandboxMode(currentConfig.sandboxMode ?? false);
         setColorblindMode(currentConfig.colorblindMode ?? false);
         setMuteSounds(currentConfig.muteSounds ?? false);
+        setPartyMode(currentConfig.partyMode ?? false);
     }
   }, [isOpen, currentConfig]);
 
@@ -43,6 +45,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         sandboxMode,
         colorblindMode,
         muteSounds,
+        partyMode,
         graderOptions: {
             ...currentConfig.graderOptions,
             cutoffMonth,
@@ -136,6 +139,20 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
             </label>
             <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
                 Disable audio effects and accessibility tones.
+            </p>
+        </div>
+
+        <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input
+                    type="checkbox"
+                    checked={partyMode}
+                    onChange={(e) => setPartyMode(e.target.checked)}
+                />
+                Party Mode
+            </label>
+            <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
+                Enable confetti on every click.
             </p>
         </div>
 

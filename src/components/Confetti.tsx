@@ -1,6 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 
-export const Confetti: React.FC = () => {
+interface ConfettiProps {
+    origin?: { x: number, y: number };
+    duration?: number;
+}
+
+export const Confetti: React.FC<ConfettiProps> = ({ origin, duration }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -30,24 +35,37 @@ export const Confetti: React.FC = () => {
       rotationSpeed: number;
 
       constructor() {
-        this.x = Math.random() * canvas!.width;
-        // Start scattered above the fold but some near the top to be seen immediately
-        this.y = Math.random() * canvas!.height - canvas!.height;
+        if (origin) {
+            this.x = origin.x;
+            this.y = origin.y;
+            this.speedX = (Math.random() * 10) - 5;
+            this.speedY = (Math.random() * -10) - 2; // Burst upwards
+        } else {
+            this.x = Math.random() * canvas!.width;
+            // Start scattered above the fold but some near the top to be seen immediately
+            this.y = Math.random() * canvas!.height - canvas!.height;
+            this.speedX = Math.random() * 2 - 1;
+            this.speedY = Math.random() * 3 + 3;
+        }
+
         this.size = Math.random() * 10 + 5;
-        this.speedX = Math.random() * 2 - 1;
-        this.speedY = Math.random() * 3 + 3;
         this.color = colors[Math.floor(Math.random() * colors.length)];
         this.rotation = Math.random() * 360;
         this.rotationSpeed = Math.random() * 5 - 2.5;
       }
 
       update() {
+        // Gravity effect
+        if (origin) {
+            this.speedY += 0.2;
+        }
+
         this.y += this.speedY;
         this.x += this.speedX;
         this.rotation += this.rotationSpeed;
 
         // Wrap around if it goes off bottom
-        if (this.y > canvas!.height) {
+        if (this.y > canvas!.height && !origin) {
           this.y = -20;
           this.x = Math.random() * canvas!.width;
         }
@@ -65,7 +83,7 @@ export const Confetti: React.FC = () => {
     }
 
     const particles: Particle[] = [];
-    const particleCount = 150;
+    const particleCount = origin ? 30 : 150;
     for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle());
     }
@@ -82,6 +100,14 @@ export const Confetti: React.FC = () => {
 
     animate();
 
+    let timeoutId: number;
+    if (duration) {
+        timeoutId = setTimeout(() => {
+             cancelAnimationFrame(animationId);
+             ctx.clearRect(0, 0, canvas!.width, canvas!.height);
+        }, duration);
+    }
+
     const handleResize = () => {
       setSize();
     };
@@ -90,9 +116,10 @@ export const Confetti: React.FC = () => {
 
     return () => {
       cancelAnimationFrame(animationId);
+      clearTimeout(timeoutId);
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [origin, duration]);
 
   return (
     <canvas

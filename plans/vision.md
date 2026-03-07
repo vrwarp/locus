@@ -290,7 +290,7 @@ AI should never be a black box.
 27. **"Daily Streak":** Fire icon for consecutive days.
 28. **"Contribution Graph":** GitHub-style green squares for data fixes. [DONE]
 29. **"The Golden Record":** Special animation for the 10,000th fix.
-30. **"Party Mode":** Confetti on every click (toggleable).
+30. **"Party Mode":** Confetti on every click (toggleable). [DONE]
 
 ### "AI Moonshot" Concepts (New)
 31. **"The Newsletter Architect":** AI drafts weekly newsletters based on upcoming calendar events + sermon topics.
