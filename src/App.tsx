@@ -90,6 +90,7 @@ function App() {
   });
   const [latestBadge, setLatestBadge] = useState<Badge | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [partyClickOrigin, setPartyClickOrigin] = useState<{ x: number, y: number, id: number } | null>(null);
 
   // Pending update state for UI (Toast)
   const [pendingUpdateUI, setPendingUpdateUI] = useState<{ original: Student, updated: Student } | null>(null)
@@ -521,8 +522,15 @@ function App() {
       }
   };
 
+  const handleAppClick = (e: React.MouseEvent) => {
+      if (config.partyMode) {
+          // Use Date.now() as a simple unique ID to force re-render even if clicked in same spot
+          setPartyClickOrigin({ x: e.clientX, y: e.clientY, id: Date.now() });
+      }
+  };
+
   return (
-    <div className="app-container" style={{display: 'flex'}}>
+    <div className="app-container" style={{display: 'flex'}} onClick={handleAppClick}>
        {config.sandboxMode && (
           <div style={{
               backgroundColor: '#ff9800',
@@ -774,6 +782,10 @@ function App() {
       />
 
       {showConfetti && <Confetti />}
+
+      {partyClickOrigin && (
+          <Confetti key={partyClickOrigin.id} origin={{ x: partyClickOrigin.x, y: partyClickOrigin.y }} duration={500} />
+      )}
 
       {latestBadge && (
           <BadgeToast
