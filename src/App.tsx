@@ -20,6 +20,7 @@ import { DriftReport } from './components/DriftReport'
 import { CoPilot } from './components/CoPilot'
 import { GenerationStack } from './components/GenerationStack'
 import { DuplicatesReport } from './components/DuplicatesReport'
+import { AchievementCase } from './components/AchievementCase'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
@@ -281,6 +282,19 @@ function App() {
           }
       }
 
+      // Gamification for archiving ghosts
+      if (successCount > 0) {
+          const { newState: newGamificationState, newBadges } = updateGamificationState(gamificationState, 'ghost', successCount);
+          setGamificationState(newGamificationState);
+
+          if (newBadges.length > 0) {
+              setLatestBadge(newBadges[0]);
+              setShowConfetti(true);
+              setTimeout(() => setShowConfetti(false), 3000);
+          }
+          saveGamificationState(newGamificationState, appId);
+      }
+
       // Invalidate to refetch
       queryClient.invalidateQueries({ queryKey: ['people', appId, secret, config] });
       setIsArchiving(false);
@@ -436,9 +450,17 @@ function App() {
     const originalStudent = students.find(s => s.id === updatedStudent.id);
     if (!originalStudent) return;
 
+    // Determine the type of fix
+    let actionType: 'general' | 'grade' | 'birthdate' = 'general';
+    if (updatedStudent.pcoGrade !== originalStudent.pcoGrade) {
+        actionType = 'grade';
+    } else if (updatedStudent.birthdate !== originalStudent.birthdate) {
+        actionType = 'birthdate';
+    }
+
     // Update gamification state optimistically
     const prevGamificationState = gamificationState;
-    const { newState: newGamificationState, newBadges } = updateGamificationState(gamificationState);
+    const { newState: newGamificationState, newBadges } = updateGamificationState(gamificationState, actionType);
     setGamificationState(newGamificationState);
 
     if (newBadges.length > 0) {
@@ -731,6 +753,13 @@ function App() {
                              <div className="view-container">
                                 <h2>Duplicate Detective</h2>
                                 <DuplicatesReport students={students} />
+                            </div>
+                        )}
+
+                        {currentView === 'achievements' && (
+                             <div className="view-container">
+                                <h2>Achievement Case</h2>
+                                <AchievementCase gamificationState={gamificationState} />
                             </div>
                         )}
                       </>

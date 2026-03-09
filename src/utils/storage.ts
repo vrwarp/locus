@@ -23,6 +23,9 @@ export interface GamificationState {
   currentStreak: number;
   dailyFixes: number;
   totalFixes: number;
+  ghostsCleared?: number;
+  birthdatesFixed?: number;
+  gradesFixed?: number;
   unlockedBadges: { id: string, date: string }[];
   fixHistory?: Record<string, number>; // YYYY-MM-DD -> count
 }
@@ -112,11 +115,23 @@ export const saveHealthSnapshot = async (stats: HealthStats, appId: string): Pro
   }
 };
 
+const getDefaultGamificationState = (): GamificationState => ({
+  lastActiveDate: '',
+  currentStreak: 0,
+  dailyFixes: 0,
+  totalFixes: 0,
+  ghostsCleared: 0,
+  birthdatesFixed: 0,
+  gradesFixed: 0,
+  unlockedBadges: [],
+  fixHistory: {}
+});
+
 export const loadGamificationState = async (appId: string): Promise<GamificationState> => {
-  if (!appId) return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [], fixHistory: {} };
+  if (!appId) return getDefaultGamificationState();
   try {
       const stored = localStorage.getItem(GAMIFICATION_KEY);
-      if (!stored) return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [], fixHistory: {} };
+      if (!stored) return getDefaultGamificationState();
 
       let state: GamificationState;
       try {
@@ -125,24 +140,22 @@ export const loadGamificationState = async (appId: string): Promise<Gamification
           try {
               state = JSON.parse(stored) as GamificationState;
           } catch {
-               return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [], fixHistory: {} };
+               return getDefaultGamificationState();
           }
       }
 
-      // Migration: Ensure unlockedBadges exists
-      if (!state.unlockedBadges) {
-          state.unlockedBadges = [];
-      }
+      // Migration: Ensure new fields exist
+      if (state.ghostsCleared === undefined) state.ghostsCleared = 0;
+      if (state.birthdatesFixed === undefined) state.birthdatesFixed = 0;
+      if (state.gradesFixed === undefined) state.gradesFixed = 0;
+      if (!state.unlockedBadges) state.unlockedBadges = [];
+      if (!state.fixHistory) state.fixHistory = {};
 
-      // Migration: Ensure fixHistory exists
-      if (!state.fixHistory) {
-          state.fixHistory = {};
-      }
       return state;
 
   } catch (e) {
       console.error("Failed to load gamification state", e);
-      return { lastActiveDate: '', currentStreak: 0, dailyFixes: 0, totalFixes: 0, unlockedBadges: [], fixHistory: {} };
+      return getDefaultGamificationState();
   }
 };
 

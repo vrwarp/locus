@@ -118,6 +118,23 @@
     - Provide a one-click "Merge in PCO" button. Currently, users must click "View in PCO" and manually merge. PCO API might not expose a merge endpoint, in which case we might have to simulate it or guide the user.
     - Expand matching criteria to fuzzy matching (e.g. Levinshtein distance on names + matching address).
 
+## Session 47
+- **Implemented:**
+    - **Gamification Expansion (Achievement Case & Rare Badges):**
+        - Expanded `GamificationState` in `src/utils/storage.ts` to track granular fix metrics (`ghostsCleared`, `birthdatesFixed`, `gradesFixed`), and included robust migration logic to apply default values.
+        - Updated `src/utils/gamification.ts` to accept an `actionType` upon state updates, accurately incrementing specific metrics based on the fix performed.
+        - Added new rare badges from the vision document: "The Exorcist" (1,000 Ghosts), "The Time Lord" (500 Birthdates), and "The Golden Record" (10,000 Fixes).
+        - Created `src/components/AchievementCase.tsx` (and `.css`) to visualize unlocked and locked badges in a virtual "trophy case", displaying the date each was unlocked alongside the overall fix statistics.
+        - Integrated the `AchievementCase` component into `App.tsx` under a new 'achievements' view, accessible via a new navigation item in `Sidebar.tsx`.
+        - Wired `handleArchiveGhosts` and `handleSaveStudent` in `App.tsx` to pass the correct `actionType` to `updateGamificationState`.
+    - **Test Coverage Improvements:**
+        - Created `src/components/AchievementCase.test.tsx` to verify the rendering of both locked and unlocked states.
+        - Updated `src/utils/gamification.test.ts` to assert that granular action types correctly increment the corresponding metrics and that the new rare badges are awarded at the appropriate thresholds.
+        - Updated `src/utils/storage.test.ts` to verify the migration logic successfully adds the new trackers with default values.
+- **Tests:**
+    - Test suite run and passed successfully (56 test files, 327 tests). No regressions found.
+- **Status:** Achievement Case and Gamification expansion complete and verified.
+
 ## Session 46
 - **Implemented:**
     - **Duplicate Detective (Phase 2 - Fuzzy Matching & Instructions):**
