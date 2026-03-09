@@ -8,6 +8,9 @@ describe('Gamification Logic', () => {
     currentStreak: 1,
     dailyFixes: 0,
     totalFixes: 0,
+    ghostsCleared: 0,
+    birthdatesFixed: 0,
+    gradesFixed: 0,
     unlockedBadges: [],
     fixHistory: {}
   };
@@ -15,6 +18,47 @@ describe('Gamification Logic', () => {
   it('increments total fixes', () => {
     const { newState } = updateGamificationState(baseState);
     expect(newState.totalFixes).toBe(1);
+  });
+
+  it('increments specific action types correctly', () => {
+    const { newState: ghostState } = updateGamificationState(baseState, 'ghost', 5);
+    expect(ghostState.ghostsCleared).toBe(5);
+    expect(ghostState.totalFixes).toBe(5);
+
+    const { newState: gradeState } = updateGamificationState(ghostState, 'grade', 2);
+    expect(gradeState.gradesFixed).toBe(2);
+    expect(gradeState.totalFixes).toBe(7);
+
+    const { newState: bdayState } = updateGamificationState(gradeState, 'birthdate', 3);
+    expect(bdayState.birthdatesFixed).toBe(3);
+    expect(bdayState.totalFixes).toBe(10);
+  });
+
+  it('awards The Exorcist badge', () => {
+      const state = { ...baseState, ghostsCleared: 995, totalFixes: 995 };
+      const { newState, newBadges } = updateGamificationState(state, 'ghost', 5);
+
+      expect(newState.ghostsCleared).toBe(1000);
+      const exorcistBadge = newBadges.find(b => b.id === 'the-exorcist');
+      expect(exorcistBadge).toBeDefined();
+  });
+
+  it('awards The Time Lord badge', () => {
+      const state = { ...baseState, birthdatesFixed: 499, totalFixes: 499 };
+      const { newState, newBadges } = updateGamificationState(state, 'birthdate', 1);
+
+      expect(newState.birthdatesFixed).toBe(500);
+      const timeLordBadge = newBadges.find(b => b.id === 'the-time-lord');
+      expect(timeLordBadge).toBeDefined();
+  });
+
+  it('awards The Golden Record badge', () => {
+      const state = { ...baseState, totalFixes: 9999 };
+      const { newState, newBadges } = updateGamificationState(state, 'general', 1);
+
+      expect(newState.totalFixes).toBe(10000);
+      const goldenRecordBadge = newBadges.find(b => b.id === 'the-golden-record');
+      expect(goldenRecordBadge).toBeDefined();
   });
 
   it('awards First Fix badge', () => {

@@ -166,7 +166,7 @@ describe('Storage Utils', () => {
   });
 
   describe('Gamification Storage', () => {
-      it('loads gamification state with default unlockedBadges', async () => {
+      it('loads gamification state with default unlockedBadges and new trackers', async () => {
           const storedState = { lastActiveDate: '2023-01-01', currentStreak: 5, dailyFixes: 0, totalFixes: 100 };
           mockGetItem.mockReturnValue('enc-gamification');
           vi.mocked(cryptoUtils.decryptData).mockResolvedValue(storedState);
@@ -174,6 +174,9 @@ describe('Storage Utils', () => {
           const loaded = await loadGamificationState(appId);
           expect(loaded.unlockedBadges).toEqual([]);
           expect(loaded.currentStreak).toBe(5);
+          expect(loaded.ghostsCleared).toBe(0);
+          expect(loaded.birthdatesFixed).toBe(0);
+          expect(loaded.gradesFixed).toBe(0);
       });
 
       it('saves gamification state', async () => {
@@ -182,7 +185,11 @@ describe('Storage Utils', () => {
               currentStreak: 5,
               dailyFixes: 0,
               totalFixes: 100,
-              unlockedBadges: []
+              ghostsCleared: 10,
+              birthdatesFixed: 5,
+              gradesFixed: 2,
+              unlockedBadges: [],
+              fixHistory: {}
           };
           const encrypted = 'enc-state';
           vi.mocked(cryptoUtils.encryptData).mockResolvedValue(encrypted);

@@ -36,10 +36,37 @@ export const BADGES: Badge[] = [
       description: 'You fixed 10 records in one day!',
       icon: '☕',
       condition: (state) => state.dailyFixes >= 10
+  },
+  {
+      id: 'the-exorcist',
+      name: 'The Exorcist',
+      description: 'You cleared 1,000 Ghosts!',
+      icon: '👻',
+      condition: (state) => (state.ghostsCleared || 0) >= 1000
+  },
+  {
+      id: 'the-time-lord',
+      name: 'The Time Lord',
+      description: 'You fixed 500 Birthdates!',
+      icon: '⌛',
+      condition: (state) => (state.birthdatesFixed || 0) >= 500
+  },
+  {
+      id: 'the-golden-record',
+      name: 'The Golden Record',
+      description: 'You made your 10,000th fix!',
+      icon: '📀',
+      condition: (state) => state.totalFixes >= 10000
   }
 ];
 
-export const updateGamificationState = (currentState: GamificationState): { newState: GamificationState, newBadges: Badge[] } => {
+export type ActionType = 'general' | 'ghost' | 'birthdate' | 'grade';
+
+export const updateGamificationState = (
+    currentState: GamificationState,
+    actionType: ActionType = 'general',
+    count: number = 1
+): { newState: GamificationState, newBadges: Badge[] } => {
     // Use local date string instead of UTC ISO string to prevent timezone bugs
     const now = new Date();
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -76,7 +103,7 @@ export const updateGamificationState = (currentState: GamificationState): { newS
     if (!fixHistory[today]) {
         fixHistory[today] = 0;
     }
-    fixHistory[today] += 1;
+    fixHistory[today] += count;
 
     // Optional: Prune fixHistory to keep it from growing indefinitely (e.g., last 365 days)
     // We do a simple prune: if Object.keys > 400, keep only the most recent 365
@@ -92,13 +119,22 @@ export const updateGamificationState = (currentState: GamificationState): { newS
     }
 
     const nextState: GamificationState = {
+        ...currentState,
         lastActiveDate: today,
         currentStreak: newStreak,
         dailyFixes: newDailyFixes,
-        totalFixes: currentState.totalFixes + 1,
+        totalFixes: currentState.totalFixes + count,
         unlockedBadges: currentState.unlockedBadges ? [...currentState.unlockedBadges] : [],
         fixHistory
     };
+
+    if (actionType === 'ghost') {
+        nextState.ghostsCleared = (currentState.ghostsCleared || 0) + count;
+    } else if (actionType === 'birthdate') {
+        nextState.birthdatesFixed = (currentState.birthdatesFixed || 0) + count;
+    } else if (actionType === 'grade') {
+        nextState.gradesFixed = (currentState.gradesFixed || 0) + count;
+    }
 
     // Check for new badges
     const newBadges: Badge[] = [];
