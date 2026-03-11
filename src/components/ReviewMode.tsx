@@ -15,9 +15,10 @@ interface ReviewModeProps {
   onSave: (student: Student) => void;
   graderOptions?: GraderOptions;
   muteSounds?: boolean;
+  isSpeedRun?: boolean;
 }
 
-export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, graderOptions, muteSounds }) => {
+export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, graderOptions, muteSounds, isSpeedRun = false }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mode, setMode] = useState<'grade' | 'birthdate' | 'name' | 'email' | 'address' | 'phone'>('grade');
   const [targetGrade, setTargetGrade] = useState<number>(0);
@@ -27,12 +28,38 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
   const [targetAddress, setTargetAddress] = useState<Address>({ street: '', city: '', state: '', zip: '' });
   const [targetPhone, setTargetPhone] = useState<string>('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [score, setScore] = useState(0);
+  const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
         setCurrentIndex(0);
+        if (isSpeedRun) {
+            setTimeLeft(60);
+            setScore(0);
+            setShowResults(false);
+        }
     }
-  }, [isOpen]);
+  }, [isOpen, isSpeedRun]);
+
+  useEffect(() => {
+      let timer: number;
+      if (isOpen && isSpeedRun && !showResults && timeLeft > 0) {
+          timer = window.setInterval(() => {
+              setTimeLeft(prev => prev - 1);
+          }, 1000);
+      } else if (timeLeft === 0 && isSpeedRun && !showResults) {
+          setShowResults(true);
+          if (!muteSounds) {
+              playTone(261.63, 'square', 0.5); // Low C buzz for time up
+          }
+      }
+
+      return () => {
+          if (timer) clearInterval(timer);
+      };
+  }, [isOpen, isSpeedRun, timeLeft, showResults, muteSounds]);
 
   const currentStudent = students[currentIndex];
 
@@ -71,7 +98,11 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
       if (currentIndex < students.length - 1) {
           setCurrentIndex(currentIndex + 1);
       } else {
-          onClose(); // Finished all
+          if (isSpeedRun) {
+              setShowResults(true);
+          } else {
+              onClose(); // Finished all
+          }
       }
   };
 
@@ -136,6 +167,10 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
       setIsSuccess(true);
       setTimeout(() => setIsSuccess(false), 500);
 
+      if (isSpeedRun) {
+          setScore(prev => prev + 1);
+      }
+
       onSave(updatedStudent);
       handleNext();
   };
@@ -150,15 +185,49 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
       ? calculateExpectedGrade(new Date(targetBirthdate), new Date(), graderOptions)
       : currentStudent.calculatedGrade;
 
+  if (showResults) {
+      return (
+          <div className="review-mode-overlay">
+              <div className="review-card results-card">
+                  <div className="review-header">
+                      <h2>Speed Run Complete!</h2>
+                      <button onClick={onClose} className="btn-close">Exit</button>
+                  </div>
+                  <div className="results-content">
+                      <div className="score-display">
+                          <span className="score-label">Total Fixes</span>
+                          <span className="score-value">{score}</span>
+                      </div>
+                      <p className="results-message">
+                          {score >= 15 ? 'Incredible speed! 🚀' : score >= 5 ? 'Great job! 👍' : 'Good effort!'}
+                      </p>
+                      <button className="btn-primary" onClick={() => {
+                          setTimeLeft(60);
+                          setScore(0);
+                          setShowResults(false);
+                      }}>
+                          Play Again
+                      </button>
+                  </div>
+              </div>
+          </div>
+      );
+  }
+
   return (
     <div className="review-mode-overlay">
       <div className={`review-card ${isSuccess ? 'success-glow' : ''}`}>
         <div className="review-header">
-            <h2>Review Anomalies</h2>
+            <h2>{isSpeedRun ? `Speed Run ⏱️ ${timeLeft}s` : 'Review Anomalies'}</h2>
+            {isSpeedRun && (
+                <div className="score-indicator">
+                    Score: {score}
+                </div>
+            )}
             <div className="progress">
                 {currentIndex + 1} / {students.length}
             </div>
-            <button onClick={onClose} className="btn-close">Exit Review</button>
+            <button onClick={onClose} className="btn-close">Exit</button>
         </div>
 
         <div className="student-info">
