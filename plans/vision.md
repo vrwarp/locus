@@ -269,14 +269,14 @@ AI should never be a black box.
 10. **The "Check-in Velocity":** Real-time gauge of check-ins per minute on Sunday morning. [DONE]
 
 ### Automation Concepts
-11. **Birthday Bot:** Auto-email parents 1 week before kid's birthday.
-12. **Grade Promotion Script:** Auto-promote grades on June 1st.
+11. **Birthday Bot:** Auto-email parents 1 week before kid's birthday. [DONE]
+12. **Grade Promotion Script:** Auto-promote grades on June 1st. [DONE]
 13. **"First Time Giver" Alert:** Slack notification to Pastor when someone gives for the first time.
 14. **"Missing Person" Alert:** Notification if a key volunteer misses 2 weeks. [DONE]
 15. **Address Cleaner:** Auto-format "St." to "Street". [DONE]
 16. **Phone Formatter:** Auto-add area codes based on Zip Code.
 17. **Duplicate Merger:** Auto-merge if Name + Email + Phone match 100%. [DONE]
-18. **"College Send-off":** Auto-move 18yo to "College" folder in August.
+18. **"College Send-off":** Auto-move 18yo to "College" folder in August. [DONE]
 19. **"Background Check" Expiry:** Auto-email volunteer 30 days before background check expires.
 20. **"Safe Sanctuary" Audit:** Auto-remove volunteers from roster if background check expires.
 
