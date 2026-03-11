@@ -1,4 +1,20 @@
 
+## Session 45
+- **Implemented:**
+    - **Automations Engine & Report (`AutomationsReport.tsx`, `automations.ts`):**
+        - Added logic to identify "Upcoming Birthdays" (7 days out), supporting leap year logic.
+        - Added logic to identify "Pending Grade Promotions" for children who missed a rollover (checks against expected grade for the *current* school year calculated as of June 1st).
+        - Added logic to identify "College Send-offs" for 18-year-olds needing to be moved to a young adult group, scoped only to August.
+        - Created a dedicated `AutomationsReport` UI component (`src/components/AutomationsReport.tsx` & `.css`) displaying action lanes with dismissible workflow cards.
+    - **Integration:**
+        - Integrated the `AutomationsReport` as a "Tools" navigation item ("Automations") in the `Sidebar.tsx`.
+        - Configured `App.tsx` routing to show the automations UI.
+- **Test Coverage:**
+    - Created `src/utils/automations.test.ts` (100% logic coverage) verifying proper leap year handling and edge cases around school year boundaries for grade calculation.
+    - Created `src/components/AutomationsReport.test.tsx` verifying empty states and action logic via mocked dates (`vi.useFakeTimers()`).
+    - Test suite passed successfully (58 suites, 343 tests).
+- **Status:** Birthday Bot, Grade Promotion, and College Send-off feature logic implemented and visualized.
+
 ## Session 43
 - **Implemented:**
     - **"Party Mode" Gamification Feature:**

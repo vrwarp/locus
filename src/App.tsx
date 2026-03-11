@@ -45,6 +45,7 @@ import './App.css'
 // New Components
 import { Sidebar } from './components/Sidebar'
 import { Dashboard } from './components/Dashboard'
+import { AutomationsReport } from './components/AutomationsReport'
 
 function App() {
   const [appId, setAppId] = useState('')
@@ -758,6 +759,12 @@ function App() {
                              <div className="view-container">
                                 <h2>Demographics</h2>
                                 <GenerationStack students={students} />
+                            </div>
+                        )}
+
+                        {currentView === 'automations' && (
+                             <div className="view-container">
+                                <AutomationsReport students={students} graderOptions={config.graderOptions} />
                             </div>
                         )}
 
