@@ -59,6 +59,7 @@ function App() {
   const [isGhostModalOpen, setIsGhostModalOpen] = useState(false);
   const [isFamilyModalOpen, setIsFamilyModalOpen] = useState(false);
   const [isReviewModeOpen, setIsReviewModeOpen] = useState(false);
+  const [isReviewModeSpeedRun, setIsReviewModeSpeedRun] = useState(false);
 
   const [isArchiving, setIsArchiving] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
@@ -657,9 +658,20 @@ function App() {
                                 <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
                                     <h2>Data Health</h2>
                                     {anomalies.length > 0 && (
-                                         <button onClick={() => setIsReviewModeOpen(true)} className="settings-btn">
-                                             🚀 Review Mode ({anomalies.length})
-                                         </button>
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <button onClick={() => {
+                                                setIsReviewModeSpeedRun(false);
+                                                setIsReviewModeOpen(true);
+                                            }} className="settings-btn">
+                                                🚀 Review Mode ({anomalies.length})
+                                            </button>
+                                            <button onClick={() => {
+                                                setIsReviewModeSpeedRun(true);
+                                                setIsReviewModeOpen(true);
+                                            }} className="settings-btn" title="Fix as many as you can in 60 seconds!">
+                                                ⏱️ Speed Run
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
 
@@ -785,6 +797,7 @@ function App() {
         onSave={handleSaveStudent}
         graderOptions={config.graderOptions}
         muteSounds={config.muteSounds}
+        isSpeedRun={isReviewModeSpeedRun}
       />
 
       <ConfigModal

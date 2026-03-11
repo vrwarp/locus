@@ -1,6 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { ReviewMode } from './ReviewMode';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { Student } from '../utils/pco';
 import * as audioUtils from '../utils/audio';
 
@@ -323,5 +323,92 @@ describe('ReviewMode', () => {
             phoneNumber: '+15551234567',
             hasPhoneAnomaly: false
         }));
+    });
+
+    describe('Speed Run Mode', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        it('displays timer and score when in Speed Run mode', () => {
+            render(
+                <ReviewMode
+                    isOpen={true}
+                    students={mockStudents}
+                    onClose={vi.fn()}
+                    onSave={vi.fn()}
+                    isSpeedRun={true}
+                />
+            );
+
+            expect(screen.getByText(/Speed Run ⏱️ 60s/)).toBeInTheDocument();
+            expect(screen.getByText('Score: 0')).toBeInTheDocument();
+        });
+
+        it('increments score on fix and shows Results Screen when time is up', () => {
+            const onClose = vi.fn();
+            const onSave = vi.fn();
+
+            // Render with enough students to not trigger the standard "Finished all" logic immediately
+            const manyStudents = Array(20).fill(null).map((_, i) => ({ ...mockStudent, id: `${i}` }));
+
+            render(
+                <ReviewMode
+                    isOpen={true}
+                    students={manyStudents}
+                    onClose={onClose}
+                    onSave={onSave}
+                    isSpeedRun={true}
+                />
+            );
+
+            // Fix one
+            const fixButton = screen.getAllByText('Fix Grade').find(btn => btn.classList.contains('btn-fix'));
+            if (!fixButton) throw new Error('Fix button not found');
+            fireEvent.click(fixButton);
+
+            expect(screen.getByText('Score: 1')).toBeInTheDocument();
+
+            // Advance time to zero
+            act(() => {
+                vi.advanceTimersByTime(60000);
+            });
+
+            expect(screen.getByText('Speed Run Complete!')).toBeInTheDocument();
+            expect(screen.getByText('Total Fixes')).toBeInTheDocument();
+            expect(screen.getByText('1')).toBeInTheDocument(); // The score
+
+            // Should not close automatically
+            expect(onClose).not.toHaveBeenCalled();
+
+            // Click play again
+            fireEvent.click(screen.getByText('Play Again'));
+            expect(screen.queryByText('Speed Run Complete!')).not.toBeInTheDocument();
+            expect(screen.getByText(/Speed Run ⏱️ 60s/)).toBeInTheDocument();
+        });
+
+        it('shows Results Screen early if all students are fixed', () => {
+             render(
+                <ReviewMode
+                    isOpen={true}
+                    students={[mockStudent]} // Only one student
+                    onClose={vi.fn()}
+                    onSave={vi.fn()}
+                    isSpeedRun={true}
+                />
+            );
+
+            const fixButton = screen.getAllByText('Fix Grade').find(btn => btn.classList.contains('btn-fix'));
+            if (!fixButton) throw new Error('Fix button not found');
+            fireEvent.click(fixButton);
+
+            // Even though 60s haven't passed, we finished the list
+            expect(screen.getByText('Speed Run Complete!')).toBeInTheDocument();
+            expect(screen.getByText('1')).toBeInTheDocument();
+        });
     });
 });
