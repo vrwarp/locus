@@ -16,9 +16,10 @@ interface ReviewModeProps {
   graderOptions?: GraderOptions;
   muteSounds?: boolean;
   isSpeedRun?: boolean;
+  zenMode?: boolean;
 }
 
-export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, graderOptions, muteSounds, isSpeedRun = false }) => {
+export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, graderOptions, muteSounds, isSpeedRun = false, zenMode = false }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mode, setMode] = useState<'grade' | 'birthdate' | 'name' | 'email' | 'address' | 'phone'>('grade');
   const [targetGrade, setTargetGrade] = useState<number>(0);
@@ -45,11 +46,11 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
 
   useEffect(() => {
       let timer: number;
-      if (isOpen && isSpeedRun && !showResults && timeLeft > 0) {
+      if (isOpen && isSpeedRun && !showResults && timeLeft > 0 && !zenMode) {
           timer = window.setInterval(() => {
               setTimeLeft(prev => prev - 1);
           }, 1000);
-      } else if (timeLeft === 0 && isSpeedRun && !showResults) {
+      } else if (timeLeft === 0 && isSpeedRun && !showResults && !zenMode) {
           setShowResults(true);
           if (!muteSounds) {
               playTone(261.63, 'square', 0.5); // Low C buzz for time up
@@ -59,7 +60,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
       return () => {
           if (timer) clearInterval(timer);
       };
-  }, [isOpen, isSpeedRun, timeLeft, showResults, muteSounds]);
+  }, [isOpen, isSpeedRun, timeLeft, showResults, muteSounds, zenMode]);
 
   const currentStudent = students[currentIndex];
 
@@ -190,16 +191,20 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
           <div className="review-mode-overlay">
               <div className="review-card results-card">
                   <div className="review-header">
-                      <h2>Speed Run Complete!</h2>
+                      <h2>{zenMode ? 'Review Complete!' : 'Speed Run Complete!'}</h2>
                       <button onClick={onClose} className="btn-close">Exit</button>
                   </div>
                   <div className="results-content">
-                      <div className="score-display">
-                          <span className="score-label">Total Fixes</span>
-                          <span className="score-value">{score}</span>
-                      </div>
+                      {!zenMode && (
+                          <div className="score-display">
+                              <span className="score-label">Total Fixes</span>
+                              <span className="score-value">{score}</span>
+                          </div>
+                      )}
                       <p className="results-message">
-                          {score >= 15 ? 'Incredible speed! 🚀' : score >= 5 ? 'Great job! 👍' : 'Good effort!'}
+                          {!zenMode
+                              ? (score >= 15 ? 'Incredible speed! 🚀' : score >= 5 ? 'Great job! 👍' : 'Good effort!')
+                              : 'Great job maintaining the data!'}
                       </p>
                       <button className="btn-primary" onClick={() => {
                           setTimeLeft(60);
@@ -218,8 +223,8 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
     <div className="review-mode-overlay">
       <div className={`review-card ${isSuccess ? 'success-glow' : ''}`}>
         <div className="review-header">
-            <h2>{isSpeedRun ? `Speed Run ⏱️ ${timeLeft}s` : 'Review Anomalies'}</h2>
-            {isSpeedRun && (
+            <h2>{isSpeedRun && !zenMode ? `Speed Run ⏱️ ${timeLeft}s` : 'Review Anomalies'}</h2>
+            {isSpeedRun && !zenMode && (
                 <div className="score-indicator">
                     Score: {score}
                 </div>

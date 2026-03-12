@@ -9,6 +9,7 @@ export interface AppConfig {
   colorblindMode?: boolean;
   muteSounds?: boolean;
   partyMode?: boolean;
+  zenMode?: boolean;
 }
 
 export interface HealthHistoryEntry {

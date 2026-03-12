@@ -177,4 +177,40 @@ describe('ConfigModal', () => {
    const checkbox = screen.getByLabelText('Party Mode');
    expect(checkbox).toBeChecked();
  });
+
+  it('toggles Zen Mode and saves', () => {
+    render(
+      <ConfigModal
+        isOpen={true}
+        currentConfig={mockConfig}
+        onSave={mockOnSave}
+        onClose={mockOnClose}
+      />
+    );
+
+    const checkbox = screen.getByLabelText('Zen Mode');
+    expect(checkbox).not.toBeChecked();
+
+    fireEvent.click(checkbox);
+    expect(checkbox).toBeChecked();
+
+    fireEvent.click(screen.getByText('Save Settings'));
+
+    expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
+        zenMode: true
+    }));
+  });
+
+  it('loads existing Zen Mode setting', () => {
+    render(
+     <ConfigModal
+       isOpen={true}
+       currentConfig={{ ...mockConfig, zenMode: true }}
+       onSave={mockOnSave}
+       onClose={mockOnClose}
+     />
+   );
+   const checkbox = screen.getByLabelText('Zen Mode');
+   expect(checkbox).toBeChecked();
+ });
 });

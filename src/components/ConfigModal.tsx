@@ -22,6 +22,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
   const [colorblindMode, setColorblindMode] = useState(false);
   const [muteSounds, setMuteSounds] = useState(false);
   const [partyMode, setPartyMode] = useState(false);
+  const [zenMode, setZenMode] = useState(false);
 
   // Load current config when modal opens
   useEffect(() => {
@@ -33,6 +34,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         setColorblindMode(currentConfig.colorblindMode ?? false);
         setMuteSounds(currentConfig.muteSounds ?? false);
         setPartyMode(currentConfig.partyMode ?? false);
+        setZenMode(currentConfig.zenMode ?? false);
     }
   }, [isOpen, currentConfig]);
 
@@ -46,6 +48,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         colorblindMode,
         muteSounds,
         partyMode,
+        zenMode,
         graderOptions: {
             ...currentConfig.graderOptions,
             cutoffMonth,
@@ -153,6 +156,20 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
             </label>
             <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
                 Enable confetti on every click.
+            </p>
+        </div>
+
+        <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input
+                    type="checkbox"
+                    checked={zenMode}
+                    onChange={(e) => setZenMode(e.target.checked)}
+                />
+                Zen Mode
+            </label>
+            <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
+                Disable timers and hide scores for a pressure-free experience.
             </p>
         </div>
 
