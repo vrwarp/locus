@@ -282,8 +282,8 @@ AI should never be a black box.
 
 ### Gamification Concepts
 21. **"The Data Ninja" Avatar:** Customizable avatar that levels up.
-22. **"Speed Run" Mode:** How many fixes in 60 seconds?
-23. **"Zen Mode":** No timers, just satisfying sounds and visuals.
+22. **"Speed Run" Mode:** How many fixes in 60 seconds? [DONE]
+23. **"Zen Mode":** No timers, just satisfying sounds and visuals. [DONE]
 24. **"Campus Cup":** Multi-campus competition.
 25. **"Bounty Board":** Admin posts "Bounties" (e.g., "Fix 50 emails") for volunteers.
 26. **"Achievement Case":** Virtual trophy shelf.

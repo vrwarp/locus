@@ -410,5 +410,104 @@ describe('ReviewMode', () => {
             expect(screen.getByText('Speed Run Complete!')).toBeInTheDocument();
             expect(screen.getByText('1')).toBeInTheDocument();
         });
+
+        it('hides timer and score when zenMode is true', () => {
+            render(
+                <ReviewMode
+                    isOpen={true}
+                    students={mockStudents}
+                    onClose={vi.fn()}
+                    onSave={vi.fn()}
+                    isSpeedRun={true}
+                    zenMode={true}
+                />
+            );
+
+            expect(screen.queryByText(/Speed Run ⏱️/)).not.toBeInTheDocument();
+            expect(screen.getByText('Review Anomalies')).toBeInTheDocument();
+            expect(screen.queryByText(/Score:/)).not.toBeInTheDocument();
+        });
+
+        it('shows Zen Mode specific completion screen', () => {
+            render(
+                <ReviewMode
+                    isOpen={true}
+                    students={[mockStudent]}
+                    onClose={vi.fn()}
+                    onSave={vi.fn()}
+                    isSpeedRun={true}
+                    zenMode={true}
+                />
+            );
+
+            const fixButton = screen.getAllByText('Fix Grade').find(btn => btn.classList.contains('btn-fix'));
+            if (!fixButton) throw new Error('Fix button not found');
+            fireEvent.click(fixButton);
+
+            expect(screen.getByText('Review Complete!')).toBeInTheDocument();
+            expect(screen.getByText('Great job maintaining the data!')).toBeInTheDocument();
+            expect(screen.queryByText('Total Fixes')).not.toBeInTheDocument();
+        });
+
+        it('disables the timer completely in Zen Mode to prevent abrupt completions', () => {
+            const onClose = vi.fn();
+            const onSave = vi.fn();
+
+            // Render with multiple students
+            render(
+                <ReviewMode
+                    isOpen={true}
+                    students={mockStudents}
+                    onClose={onClose}
+                    onSave={onSave}
+                    isSpeedRun={true}
+                    zenMode={true}
+                />
+            );
+
+            // Advance time past the normal 60s limit
+            act(() => {
+                vi.advanceTimersByTime(65000);
+            });
+
+            // The session should NOT be forcefully completed by the timer
+            expect(screen.queryByText('Review Complete!')).not.toBeInTheDocument();
+            expect(screen.getByText('Review Anomalies')).toBeInTheDocument();
+        });
+
+        it('retains the success-glow animation in Zen Mode for satisfying feedback', () => {
+            render(
+                <ReviewMode
+                    isOpen={true}
+                    students={mockStudents}
+                    onClose={vi.fn()}
+                    onSave={vi.fn()}
+                    isSpeedRun={true}
+                    zenMode={true}
+                />
+            );
+
+            const fixButton = screen.getAllByText('Fix Grade').find(btn => btn.classList.contains('btn-fix'));
+            if (!fixButton) throw new Error('Fix button not found');
+
+            // Check card does not have glow
+            let card = screen.getByText('Review Anomalies').closest('.review-card');
+            expect(card).not.toHaveClass('success-glow');
+
+            // Trigger fix
+            fireEvent.click(fixButton);
+
+            // Card should now briefly have success-glow
+            card = screen.getByText('Review Anomalies').closest('.review-card');
+            expect(card).toHaveClass('success-glow');
+
+            // Advance timers to clear the glow
+            act(() => {
+                vi.advanceTimersByTime(600);
+            });
+
+            // Glow should be gone
+            expect(card).not.toHaveClass('success-glow');
+        });
     });
 });

@@ -805,6 +805,7 @@ function App() {
         graderOptions={config.graderOptions}
         muteSounds={config.muteSounds}
         isSpeedRun={isReviewModeSpeedRun}
+        zenMode={config.zenMode}
       />
 
       <ConfigModal
