@@ -134,6 +134,27 @@ export const updateGamificationState = (
         nextState.birthdatesFixed = (currentState.birthdatesFixed || 0) + count;
     } else if (actionType === 'grade') {
         nextState.gradesFixed = (currentState.gradesFixed || 0) + count;
+    } else if (actionType === 'phone') {
+        nextState.phonesFixed = (currentState.phonesFixed || 0) + count;
+    } else if (actionType === 'email') {
+        nextState.emailsFixed = (currentState.emailsFixed || 0) + count;
+    } else if (actionType === 'address') {
+        nextState.addressesFixed = (currentState.addressesFixed || 0) + count;
+    }
+
+    // Process Bounties
+    if (nextState.bounties) {
+        nextState.bounties = nextState.bounties.map(bounty => {
+            if (!bounty.completedAt && (bounty.actionType === 'general' || bounty.actionType === actionType)) {
+                const newCount = bounty.currentCount + count;
+                return {
+                    ...bounty,
+                    currentCount: Math.min(newCount, bounty.targetCount),
+                    completedAt: newCount >= bounty.targetCount ? new Date().toISOString() : undefined
+                };
+            }
+            return bounty;
+        });
     }
 
     // Check for new badges

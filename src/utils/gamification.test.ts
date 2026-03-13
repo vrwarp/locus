@@ -132,6 +132,56 @@ describe('Gamification Logic', () => {
      expect(newState.currentStreak).toBe(1);
   });
 
+  it('processes bounties correctly', () => {
+    const stateWithBounty: GamificationState = {
+        ...baseState,
+        bounties: [
+            {
+                id: 'b1',
+                title: 'Fix 10 Phones',
+                description: 'test',
+                actionType: 'phone',
+                targetCount: 10,
+                currentCount: 8,
+                reward: 'Cookie',
+                createdAt: '2023-10-01'
+            },
+            {
+                id: 'b2',
+                title: 'General fixes',
+                description: 'test',
+                actionType: 'general',
+                targetCount: 50,
+                currentCount: 45,
+                reward: 'High Five',
+                createdAt: '2023-10-01'
+            }
+        ]
+    };
+
+    // Update with phone action
+    const { newState: state1 } = updateGamificationState(stateWithBounty, 'phone', 2);
+
+    // Check specific bounty (phone)
+    expect(state1.bounties?.[0].currentCount).toBe(10);
+    expect(state1.bounties?.[0].completedAt).toBeDefined();
+
+    // Check general bounty (it should progress regardless of actionType)
+    expect(state1.bounties?.[1].currentCount).toBe(47);
+    expect(state1.bounties?.[1].completedAt).toBeUndefined();
+
+    // Update with email action
+    const { newState: state2 } = updateGamificationState(state1, 'email', 3);
+
+    // Check specific bounty (phone) remains completed, doesn't increment past target due to logic?
+    // Wait, the logic only updates if !completedAt.
+    expect(state2.bounties?.[0].currentCount).toBe(10);
+
+    // Check general bounty progresses and completes
+    expect(state2.bounties?.[1].currentCount).toBe(50);
+    expect(state2.bounties?.[1].completedAt).toBeDefined();
+  });
+
   it('updates fixHistory correctly', () => {
       const now = new Date();
       const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;

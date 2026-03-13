@@ -21,6 +21,7 @@ import { CoPilot } from './components/CoPilot'
 import { GenerationStack } from './components/GenerationStack'
 import { DuplicatesReport } from './components/DuplicatesReport'
 import { AchievementCase } from './components/AchievementCase'
+import { BountyBoard } from './components/BountyBoard'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
@@ -434,6 +435,30 @@ function App() {
       }
   };
 
+  const handleAddBounty = (bountyInput: Omit<Bounty, 'id' | 'currentCount' | 'createdAt'>) => {
+      const newBounty: Bounty = {
+          ...bountyInput,
+          id: `bounty_${Date.now()}`,
+          currentCount: 0,
+          createdAt: new Date().toISOString()
+      };
+      const newState = {
+          ...gamificationState,
+          bounties: [...(gamificationState.bounties || []), newBounty]
+      };
+      setGamificationState(newState);
+      saveGamificationState(newState, auth);
+  };
+
+  const handleDeleteBounty = (id: string) => {
+      const newState = {
+          ...gamificationState,
+          bounties: (gamificationState.bounties || []).filter(b => b.id !== id)
+      };
+      setGamificationState(newState);
+      saveGamificationState(newState, auth);
+  };
+
   const handleSaveStudent = (updatedStudent: Student) => {
     // 1. If there is an existing pending update, flush it immediately
     if (pendingUpdateRef.current) {
@@ -453,11 +478,17 @@ function App() {
     if (!originalStudent) return;
 
     // Determine the type of fix
-    let actionType: 'general' | 'grade' | 'birthdate' = 'general';
+    let actionType: 'general' | 'grade' | 'birthdate' | 'phone' | 'email' | 'address' = 'general';
     if (updatedStudent.pcoGrade !== originalStudent.pcoGrade) {
         actionType = 'grade';
     } else if (updatedStudent.birthdate !== originalStudent.birthdate) {
         actionType = 'birthdate';
+    } else if (updatedStudent.phoneNumber !== originalStudent.phoneNumber) {
+        actionType = 'phone';
+    } else if (updatedStudent.email !== originalStudent.email) {
+        actionType = 'email';
+    } else if (JSON.stringify(updatedStudent.address) !== JSON.stringify(originalStudent.address)) {
+        actionType = 'address';
     }
 
     // Update gamification state optimistically
@@ -779,6 +810,16 @@ function App() {
                              <div className="view-container">
                                 <h2>Achievement Case</h2>
                                 <AchievementCase gamificationState={gamificationState} />
+                            </div>
+                        )}
+
+                        {currentView === 'bounties' && (
+                             <div className="view-container">
+                                <BountyBoard
+                                    gamificationState={gamificationState}
+                                    onAddBounty={handleAddBounty}
+                                    onDeleteBounty={handleDeleteBounty}
+                                />
                             </div>
                         )}
                       </>
