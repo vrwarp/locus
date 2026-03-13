@@ -77,7 +77,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
           street: fixAddress(currentAddress.street)
       });
 
-      setTargetPhone(currentStudent.phoneNumber ? fixPhone(currentStudent.phoneNumber) : '');
+      setTargetPhone(currentStudent.phoneNumber ? fixPhone(currentStudent.phoneNumber, currentStudent.address?.zip) : '');
 
       if (currentStudent.hasNameAnomaly) {
           setMode('name');

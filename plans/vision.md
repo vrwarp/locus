@@ -274,7 +274,7 @@ AI should never be a black box.
 13. **"First Time Giver" Alert:** Slack notification to Pastor when someone gives for the first time.
 14. **"Missing Person" Alert:** Notification if a key volunteer misses 2 weeks. [DONE]
 15. **Address Cleaner:** Auto-format "St." to "Street". [DONE]
-16. **Phone Formatter:** Auto-add area codes based on Zip Code.
+16. **Phone Formatter:** Auto-add area codes based on Zip Code. [DONE]
 17. **Duplicate Merger:** Auto-merge if Name + Email + Phone match 100%. [DONE]
 18. **"College Send-off":** Auto-move 18yo to "College" folder in August. [DONE]
 19. **"Background Check" Expiry:** Auto-email volunteer 30 days before background check expires.
@@ -286,8 +286,8 @@ AI should never be a black box.
 23. **"Zen Mode":** No timers, just satisfying sounds and visuals. [DONE]
 24. **"Campus Cup":** Multi-campus competition.
 25. **"Bounty Board":** Admin posts "Bounties" (e.g., "Fix 50 emails") for volunteers.
-26. **"Achievement Case":** Virtual trophy shelf.
-27. **"Daily Streak":** Fire icon for consecutive days.
+26. **"Achievement Case":** Virtual trophy shelf. [DONE]
+27. **"Daily Streak":** Fire icon for consecutive days. [DONE]
 28. **"Contribution Graph":** GitHub-style green squares for data fixes. [DONE]
 29. **"The Golden Record":** Special animation for the 10,000th fix.
 30. **"Party Mode":** Confetti on every click (toggleable). [DONE]

@@ -1,3 +1,5 @@
+import { getAreaCodeFromZip } from './areaCodes';
+
 export const detectNameAnomaly = (name: string): boolean => {
   if (!name || name.trim().length === 0) return false;
 
@@ -105,10 +107,18 @@ export const detectPhoneAnomaly = (phone: string): boolean => {
     return !validatePhone(phone);
 };
 
-export const fixPhone = (phone: string): string => {
+export const fixPhone = (phone: string, zipCode?: string): string => {
     if (!phone) return '';
     // Strip non-digits
     const digits = phone.replace(/\D/g, '');
+
+    // If 7 digits and we have a zip code, try to prepend the area code
+    if (digits.length === 7 && zipCode) {
+        const areaCode = getAreaCodeFromZip(zipCode);
+        if (areaCode) {
+            return `+1${areaCode}${digits}`;
+        }
+    }
 
     // If 10 digits, prepend +1
     if (digits.length === 10) {

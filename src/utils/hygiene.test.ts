@@ -155,8 +155,18 @@ describe('fixPhone', () => {
         expect(fixPhone('1-555-123-4567')).toBe('+15551234567');
     });
 
+    it('should format 7 digit numbers with area code based on zip', () => {
+        // '902' prefix maps to '310' area code
+        expect(fixPhone('555-1234', '90210')).toBe('+13105551234');
+        expect(fixPhone('5551234', '90210')).toBe('+13105551234');
+
+        // '100' prefix maps to '212' area code
+        expect(fixPhone('555-1234', '10001')).toBe('+12125551234');
+    });
+
     it('should return original if unable to fix standardly', () => {
-        expect(fixPhone('555-1234')).toBe('555-1234'); // 7 digits
+        expect(fixPhone('555-1234')).toBe('555-1234'); // 7 digits, no zip
+        expect(fixPhone('555-1234', '99999')).toBe('555-1234'); // 7 digits, unknown zip prefix
         expect(fixPhone('123')).toBe('123');
     });
 });

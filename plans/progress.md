@@ -186,3 +186,22 @@
 - **Future Ideas:**
     - Explore adding a persistent visual indicator (e.g., a small lotus flower icon) next to the "Review Anomalies" header to clearly signal to the user that Zen Mode is currently active.
     - Allow users to select different ambient sound themes when Zen Mode is enabled (rather than just muting sounds outright).
+
+## Session 49
+- **Implemented:**
+    - **Phone Formatter (Area Code Auto-add):**
+        - Added `src/utils/areaCodes.ts` to map common Zip Code prefixes to Area Codes.
+        - Updated `src/utils/hygiene.ts` so `fixPhone` now accepts an optional `zipCode` string. If the phone is exactly 7 digits and the provided `zipCode` maps to a known area code, it automatically prepends the area code and formats it as E.164.
+        - Updated `src/components/ReviewMode.tsx` to pass the student's `address.zip` (if available) to `fixPhone` when auto-suggesting fixes for phone anomalies.
+    - **Vision Doc Updates:**
+        - Marked "Achievement Case" (Concept #26) and "Daily Streak" (Concept #27) as `[DONE]` in `plans/vision.md` since they were fully implemented in previous sessions.
+        - Marked "Phone Formatter" (Concept #16) as `[DONE]`.
+    - **Test Coverage Improvements:**
+        - Updated `src/utils/hygiene.test.ts` to assert that 7-digit phone numbers are properly prefixed with the correct area code derived from the mock zip code dictionary. Verified that it safely ignores missing zip codes or unknown prefixes.
+- **Tests:**
+    - Test suite run and passed successfully. No regressions found.
+- **Status:** Phone Formatter (Concept #16) fully implemented and verified.
+- **Discovered:**
+    - The actual mapping of all US zip codes to area codes is enormous and often not 1:1, so a mock dictionary based on the first 3 digits of a zip code was used as a lightweight demonstration of the capability.
+- **Future Ideas:**
+    - Connect the area code lookup to a robust, external API or complete open-source dataset if high precision is required across the entire country.
