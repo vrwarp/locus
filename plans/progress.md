@@ -189,19 +189,18 @@
 
 ## Session 49
 - **Implemented:**
-    - **Phone Formatter (Area Code Auto-add):**
-        - Added `src/utils/areaCodes.ts` to map common Zip Code prefixes to Area Codes.
-        - Updated `src/utils/hygiene.ts` so `fixPhone` now accepts an optional `zipCode` string. If the phone is exactly 7 digits and the provided `zipCode` maps to a known area code, it automatically prepends the area code and formats it as E.164.
-        - Updated `src/components/ReviewMode.tsx` to pass the student's `address.zip` (if available) to `fixPhone` when auto-suggesting fixes for phone anomalies.
+    - **Bounty Board (Gamification Concept #25):**
+        - Updated `GamificationState` and `Bounty` interfaces in `src/utils/storage.ts` to track active/completed bounties as well as new individual metrics (`phonesFixed`, `emailsFixed`, `addressesFixed`).
+        - Expanded `updateGamificationState` in `src/utils/gamification.ts` to process bounty completion logic. When actions occur (e.g. 'phone' fix), any active bounty targeting that action type (or 'general') increments its `currentCount` up to its `targetCount`, eventually setting a `completedAt` timestamp.
+        - Created `src/components/BountyBoard.tsx` (and `.css`) offering an admin interface to post new Bounties (specifying title, description, target action type, target count, and reward). The view automatically segments active bounties and completed bounties, rendering progress bars for active ones.
+        - Integrated the Bounty Board into `src/App.tsx` and added navigation via the `Sidebar` under 'Intelligence'.
     - **Vision Doc Updates:**
-        - Marked "Achievement Case" (Concept #26) and "Daily Streak" (Concept #27) as `[DONE]` in `plans/vision.md` since they were fully implemented in previous sessions.
-        - Marked "Phone Formatter" (Concept #16) as `[DONE]`.
+        - Marked "Achievement Case" (Concept #26) and "Daily Streak" (Concept #27) as `[DONE]` in `plans/vision.md` since they were already implemented but untracked.
+        - Marked "Bounty Board" (Concept #25) as `[DONE]`.
+        - Removed the rudimentary mock dictionary approach for the "Phone Formatter" (Concept #16) after review, and reverted its `[DONE]` status.
     - **Test Coverage Improvements:**
-        - Updated `src/utils/hygiene.test.ts` to assert that 7-digit phone numbers are properly prefixed with the correct area code derived from the mock zip code dictionary. Verified that it safely ignores missing zip codes or unknown prefixes.
+        - Updated `src/utils/gamification.test.ts` to assert that active bounties correctly increment and cap out at their target count based on the dispatched action type.
+        - Created `src/components/BountyBoard.test.tsx` to verify rendering logic and ensure the form triggers the correct state callbacks.
 - **Tests:**
-    - Test suite run and passed successfully. No regressions found.
-- **Status:** Phone Formatter (Concept #16) fully implemented and verified.
-- **Discovered:**
-    - The actual mapping of all US zip codes to area codes is enormous and often not 1:1, so a mock dictionary based on the first 3 digits of a zip code was used as a lightweight demonstration of the capability.
-- **Future Ideas:**
-    - Connect the area code lookup to a robust, external API or complete open-source dataset if high precision is required across the entire country.
+    - Test suite run and passed successfully.
+- **Status:** Bounty Board (Concept #25) fully implemented and verified.
