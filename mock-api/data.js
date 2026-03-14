@@ -77,6 +77,20 @@ const generateHouseholds = () => {
           birthYear -= 45;
       }
 
+      // Simulate Background Check Expiry
+      // 5% chance of expiring soon (within 30 days)
+      // 5% chance of already expired
+      // 90% chance of valid or not applicable
+      let backgroundCheckExpiresAt = null;
+      const bgRandom = Math.random();
+      if (bgRandom < 0.05) {
+        backgroundCheckExpiresAt = formatISO(addDays(new Date(), randomInt(1, 30)));
+      } else if (bgRandom < 0.10) {
+        backgroundCheckExpiresAt = formatISO(addDays(new Date(), -randomInt(1, 100))); // Expired
+      } else if (bgRandom < 0.60) {
+        backgroundCheckExpiresAt = formatISO(addDays(new Date(), randomInt(31, 365))); // Valid
+      }
+
       const adult = {
         id,
         type: 'Person',
@@ -87,6 +101,7 @@ const generateHouseholds = () => {
           child: false,
           grade: null,
           birthdate: `${birthYear}-01-01`, // Rough adult age
+          background_check_expires_at: backgroundCheckExpiresAt,
           phone_numbers: [{ location: 'Mobile', number: (() => {
             const r = Math.random();
             const n1 = randomInt(100, 999);

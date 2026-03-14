@@ -204,3 +204,20 @@
 - **Tests:**
     - Test suite run and passed successfully.
 - **Status:** Bounty Board (Concept #25) fully implemented and verified.
+
+## Session 50
+- **Implemented:**
+    - **Background Check Automations (Concepts #19 & #20):**
+        - Updated `mock-api/data.js` to simulate `background_check_expires_at` logic for adult volunteers (with distributions for valid, expiring soon, and already expired).
+        - Updated `src/utils/pco.ts` type definitions and transforms (`transformPerson`) to map and expose `backgroundCheckExpiresAt` onto the internal `Student` representation.
+        - Created `getExpiringBackgroundChecks` and `getExpiredBackgroundChecks` in `src/utils/automations.ts` to identify adults whose checks expire within 30 days or have already expired, respectively.
+        - Updated `src/components/AutomationsReport.tsx` and its styling to introduce two new lanes to the `Locus Automate` dashboard:
+            - **Background Checks (Expiring Soon):** Visualized with a warning icon, offering an "Email Reminder" action.
+            - **Expired Background Checks (Safe Sanctuary):** Visualized with critical alerts/red accents, offering a "Remove from Roster" action.
+    - **Test Coverage Improvements:**
+        - Updated `src/utils/pco.test.ts` to verify parsing of the new `background_check_expires_at` property.
+        - Updated `src/utils/automations.test.ts` to assert that expiration bounds accurately bucket adults into "Expiring" and "Expired" groups, and rank order them appropriately.
+        - Updated `src/components/AutomationsReport.test.tsx` to assert empty states and render behaviors for the newly introduced automation lanes.
+- **Tests:**
+    - Test suite run and passed successfully (59 test files, 358 tests). No regressions found.
+- **Status:** "Background Check Expiry" and "Safe Sanctuary Audit" fully implemented and verified.

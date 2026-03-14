@@ -277,8 +277,8 @@ AI should never be a black box.
 16. **Phone Formatter:** Auto-add area codes based on Zip Code.
 17. **Duplicate Merger:** Auto-merge if Name + Email + Phone match 100%. [DONE]
 18. **"College Send-off":** Auto-move 18yo to "College" folder in August. [DONE]
-19. **"Background Check" Expiry:** Auto-email volunteer 30 days before background check expires.
-20. **"Safe Sanctuary" Audit:** Auto-remove volunteers from roster if background check expires.
+19. **"Background Check" Expiry:** Auto-email volunteer 30 days before background check expires. [DONE]
+20. **"Safe Sanctuary" Audit:** Auto-remove volunteers from roster if background check expires. [DONE]
 
 ### Gamification Concepts
 21. **"The Data Ninja" Avatar:** Customizable avatar that levels up.
