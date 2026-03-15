@@ -11,7 +11,7 @@ vi.mock('./utils/cache', () => ({
     loadFromCache: vi.fn().mockResolvedValue(null)
 }));
 vi.mock('./utils/storage', () => ({
-    loadConfig: vi.fn().mockResolvedValue({ graderOptions: {} }),
+    loadConfig: vi.fn().mockResolvedValue({ graderOptions: {}, readOnlyMode: false }),
     saveConfig: vi.fn(),
     loadHealthHistory: vi.fn().mockResolvedValue([]),
     saveHealthSnapshot: vi.fn(),

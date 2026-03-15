@@ -13,6 +13,13 @@ test('Full flow with simulator: Login, View Data, Smart Fix', async ({ page }) =
   // Wait for loading to finish
   await expect(page.getByText('Loading Data...')).not.toBeVisible({ timeout: 15000 });
 
+  // Disable read-only mode so changes can be made
+  await page.click('text=Settings');
+  await page.waitForSelector('.modal-content');
+  await page.click('text=Read-Only Mode');
+  await page.click('text=Save Settings');
+  await page.waitForSelector('.modal-content', { state: 'hidden' });
+
   // Navigate to Data Health
   await page.click('button:has-text("Data Health")');
 
