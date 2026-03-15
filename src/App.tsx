@@ -272,6 +272,10 @@ function App() {
   };
 
   const handleArchiveGhosts = async (ghostsToArchive: Student[]) => {
+      if (config.readOnlyMode !== false) {
+          alert('Read-Only Mode is active. Changes cannot be saved. Enable Write Mode in Settings.');
+          return;
+      }
       setIsArchiving(true);
       const auth = btoa(`${appId}:${secret}`);
 
@@ -394,6 +398,11 @@ function App() {
   const handleFamilySwap = async (issue: FamilyIssue, type: string) => {
       if (type !== 'Swap') return;
 
+      if (config.readOnlyMode !== false) {
+          alert('Read-Only Mode is active. Changes cannot be saved. Enable Write Mode in Settings.');
+          return;
+      }
+
       const auth = btoa(`${appId}:${secret}`);
 
       const child = students.find(s => s.id === issue.studentId);
@@ -460,6 +469,11 @@ function App() {
   };
 
   const handleSaveStudent = (updatedStudent: Student) => {
+    if (config.readOnlyMode !== false) {
+        alert('Read-Only Mode is active. Changes cannot be saved. Enable Write Mode in Settings.');
+        return;
+    }
+
     // 1. If there is an existing pending update, flush it immediately
     if (pendingUpdateRef.current) {
         clearTimeout(pendingUpdateRef.current.timer);
@@ -586,7 +600,23 @@ function App() {
 
   return (
     <div className="app-container" style={{display: 'flex'}} onClick={handleAppClick}>
-       {config.sandboxMode && (
+       {config.readOnlyMode !== false && (
+          <div style={{
+              backgroundColor: '#2196F3',
+              color: 'white',
+              padding: '10px',
+              textAlign: 'center',
+              fontWeight: 'bold',
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              zIndex: 9999
+          }}>
+              🔒 READ-ONLY MODE ACTIVE - Changes will not be saved. Change in Settings.
+          </div>
+      )}
+       {config.sandboxMode && config.readOnlyMode === false && (
           <div style={{
               backgroundColor: '#ff9800',
               color: 'black',
@@ -614,7 +644,7 @@ function App() {
           marginLeft: '250px',
           width: 'calc(100% - 250px)',
           padding: '2rem',
-          marginTop: config.sandboxMode ? '40px' : '0'
+          marginTop: config.sandboxMode || config.readOnlyMode !== false ? '40px' : '0'
       }}>
           {/* Main Content Area */}
 

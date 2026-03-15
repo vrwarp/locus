@@ -199,6 +199,9 @@ describe('App Integration', () => {
         vi.useRealTimers();
         // Mock alert
         window.alert = vi.fn();
+
+        // Mock readOnlyMode false in tests unless otherwise specified
+        (storage.loadConfig as any).mockResolvedValue({ graderOptions: {}, readOnlyMode: false });
         // Reset checkApiVersion to success by default
         (pco.checkApiVersion as any).mockResolvedValue(true);
         (pco.fetchRecentCheckIns as any).mockResolvedValue([]);

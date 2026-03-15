@@ -19,6 +19,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
   const [cutoffDay, setCutoffDay] = useState(1);
   const [highContrastMode, setHighContrastMode] = useState(false);
   const [sandboxMode, setSandboxMode] = useState(false);
+  const [readOnlyMode, setReadOnlyMode] = useState(true);
   const [colorblindMode, setColorblindMode] = useState(false);
   const [muteSounds, setMuteSounds] = useState(false);
   const [partyMode, setPartyMode] = useState(false);
@@ -31,6 +32,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         setCutoffDay(currentConfig.graderOptions.cutoffDay ?? 1);
         setHighContrastMode(currentConfig.highContrastMode ?? false);
         setSandboxMode(currentConfig.sandboxMode ?? false);
+        setReadOnlyMode(currentConfig.readOnlyMode ?? true);
         setColorblindMode(currentConfig.colorblindMode ?? false);
         setMuteSounds(currentConfig.muteSounds ?? false);
         setPartyMode(currentConfig.partyMode ?? false);
@@ -45,6 +47,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         ...currentConfig,
         highContrastMode,
         sandboxMode,
+        readOnlyMode,
         colorblindMode,
         muteSounds,
         partyMode,
@@ -86,6 +89,20 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
             <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
                 Students born after this date will be placed in the lower grade.
                 (Standard US: September 1st)
+            </p>
+        </div>
+
+        <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input
+                    type="checkbox"
+                    checked={readOnlyMode}
+                    onChange={(e) => setReadOnlyMode(e.target.checked)}
+                />
+                Read-Only Mode
+            </label>
+            <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
+                Prevent modifications to PCO. Disable to enable Read-Write mode.
             </p>
         </div>
 

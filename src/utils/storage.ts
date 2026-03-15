@@ -6,6 +6,7 @@ export interface AppConfig {
   graderOptions: GraderOptions;
   highContrastMode?: boolean;
   sandboxMode?: boolean;
+  readOnlyMode?: boolean;
   colorblindMode?: boolean;
   muteSounds?: boolean;
   partyMode?: boolean;
