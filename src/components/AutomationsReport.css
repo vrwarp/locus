@@ -118,6 +118,22 @@
     background-color: var(--accent-hover);
 }
 
+.btn-approve.critical {
+    background-color: #dc3545; /* Red color for danger */
+}
+
+.btn-approve.critical:hover {
+    background-color: #c82333;
+}
+
+.critical-item {
+    border-left: 4px solid #dc3545;
+}
+
+.count.critical {
+    background-color: #dc3545;
+}
+
 .btn-dismiss {
     background-color: transparent;
     color: var(--text-muted);

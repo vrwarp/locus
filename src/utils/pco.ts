@@ -14,6 +14,7 @@ export interface PcoAttributes {
   last_name?: string;
   child?: boolean;
   household_id?: string;
+  background_check_expires_at?: string | null;
   email_addresses?: { address: string, location: string }[];
   phone_numbers?: { number: string, location: string }[];
   addresses?: Address[];
@@ -59,6 +60,7 @@ export interface Student {
   avatarUrl?: string;
   isChild: boolean;
   householdId: string | null;
+  backgroundCheckExpiresAt?: string | null;
   hasNameAnomaly: boolean;
   email?: string;
   address?: Address;
@@ -93,7 +95,7 @@ export interface PcoCheckIn {
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
   const { id, attributes } = person;
-  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id, email_addresses, addresses, phone_numbers } = attributes;
+  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id, background_check_expires_at, email_addresses, addresses, phone_numbers } = attributes;
 
   if (!birthdate) {
     return null;
@@ -138,6 +140,7 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     avatarUrl: (avatar as string) || undefined,
     isChild: !!child,
     householdId: household_id || null,
+    backgroundCheckExpiresAt: (background_check_expires_at as string) || null,
     hasNameAnomaly,
     email: primaryEmail,
     address: primaryAddress,

@@ -4,9 +4,12 @@ import {
     getUpcomingBirthdays,
     getPendingGradePromotions,
     getCollegeSendOffs,
+    getExpiringBackgroundChecks,
+    getExpiredBackgroundChecks,
     type BirthdayAction,
     type PromotionAction,
-    type CollegeSendOffAction
+    type CollegeSendOffAction,
+    type BackgroundCheckAction
 } from '../utils/automations';
 import './AutomationsReport.css';
 import type { GraderOptions } from '../utils/grader';
@@ -24,6 +27,8 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
     const [dismissedBirthdays, setDismissedBirthdays] = useState<Set<string>>(new Set());
     const [dismissedPromotions, setDismissedPromotions] = useState<Set<string>>(new Set());
     const [dismissedSendOffs, setDismissedSendOffs] = useState<Set<string>>(new Set());
+    const [dismissedExpiringChecks, setDismissedExpiringChecks] = useState<Set<string>>(new Set());
+    const [dismissedExpiredChecks, setDismissedExpiredChecks] = useState<Set<string>>(new Set());
 
     const birthdays = useMemo(() => {
         return getUpcomingBirthdays(students, 7, today).filter(b => !dismissedBirthdays.has(b.person.id));
@@ -37,11 +42,21 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
         return getCollegeSendOffs(students, today).filter(c => !dismissedSendOffs.has(c.person.id));
     }, [students, today, dismissedSendOffs]);
 
-    const totalActions = birthdays.length + promotions.length + sendOffs.length;
+    const expiringChecks = useMemo(() => {
+        return getExpiringBackgroundChecks(students, 30, today).filter(c => !dismissedExpiringChecks.has(c.person.id));
+    }, [students, today, dismissedExpiringChecks]);
+
+    const expiredChecks = useMemo(() => {
+        return getExpiredBackgroundChecks(students, today).filter(c => !dismissedExpiredChecks.has(c.person.id));
+    }, [students, today, dismissedExpiredChecks]);
+
+    const totalActions = birthdays.length + promotions.length + sendOffs.length + expiringChecks.length + expiredChecks.length;
 
     const handleDismissBirthday = (id: string) => setDismissedBirthdays(prev => new Set(prev).add(id));
     const handleDismissPromotion = (id: string) => setDismissedPromotions(prev => new Set(prev).add(id));
     const handleDismissSendOff = (id: string) => setDismissedSendOffs(prev => new Set(prev).add(id));
+    const handleDismissExpiringCheck = (id: string) => setDismissedExpiringChecks(prev => new Set(prev).add(id));
+    const handleDismissExpiredCheck = (id: string) => setDismissedExpiredChecks(prev => new Set(prev).add(id));
 
     // Simulated "Approve" actions
     const handleApprove = (id: string, action: string) => {
@@ -49,6 +64,8 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
         if (action === 'Email Parent') handleDismissBirthday(id);
         if (action === 'Promote Grade') handleDismissPromotion(id);
         if (action === 'Move to College') handleDismissSendOff(id);
+        if (action === 'Email Reminder') handleDismissExpiringCheck(id);
+        if (action === 'Remove from Roster') handleDismissExpiredCheck(id);
     };
 
     return (
@@ -82,6 +99,60 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
                                     <div className="action-buttons">
                                         <button className="btn-approve" onClick={() => handleApprove(person.id, 'Email Parent')}>Draft Email to Parent</button>
                                         <button className="btn-dismiss" onClick={() => handleDismissBirthday(person.id)}>Dismiss</button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+
+                {/* Expiring Background Checks */}
+                <section className="automation-lane">
+                    <h3>
+                        <span className="icon">⚠️</span>
+                        Background Checks (Expiring Soon)
+                        <span className="count">{expiringChecks.length}</span>
+                    </h3>
+                    {expiringChecks.length === 0 ? (
+                        <p className="empty-state">No background checks expiring soon.</p>
+                    ) : (
+                        <ul className="action-list">
+                            {expiringChecks.map(({ person, daysUntilExpiry }) => (
+                                <li key={person.id} className="action-item">
+                                    <div className="action-details">
+                                        <strong>{person.name}</strong>
+                                        <div className="meta">Expires in {daysUntilExpiry} days</div>
+                                    </div>
+                                    <div className="action-buttons">
+                                        <button className="btn-approve" onClick={() => handleApprove(person.id, 'Email Reminder')}>Email Reminder</button>
+                                        <button className="btn-dismiss" onClick={() => handleDismissExpiringCheck(person.id)}>Dismiss</button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+
+                {/* Expired Background Checks */}
+                <section className="automation-lane">
+                    <h3>
+                        <span className="icon">🛑</span>
+                        Expired Background Checks (Safe Sanctuary)
+                        <span className="count critical">{expiredChecks.length}</span>
+                    </h3>
+                    {expiredChecks.length === 0 ? (
+                        <p className="empty-state">No expired background checks.</p>
+                    ) : (
+                        <ul className="action-list">
+                            {expiredChecks.map(({ person, daysUntilExpiry }) => (
+                                <li key={person.id} className="action-item critical-item">
+                                    <div className="action-details">
+                                        <strong>{person.name}</strong>
+                                        <div className="meta">Expired {Math.abs(daysUntilExpiry)} days ago</div>
+                                    </div>
+                                    <div className="action-buttons">
+                                        <button className="btn-approve critical" onClick={() => handleApprove(person.id, 'Remove from Roster')}>Remove from Roster</button>
+                                        <button className="btn-dismiss" onClick={() => handleDismissExpiredCheck(person.id)}>Dismiss</button>
                                     </div>
                                 </li>
                             ))}

@@ -18,6 +18,11 @@ export interface CollegeSendOffAction {
     age: number;
 }
 
+export interface BackgroundCheckAction {
+    person: Student;
+    daysUntilExpiry: number;
+}
+
 /**
  * Identifies students whose birthday is exactly a specified number of days away.
  * Assumes today is the current date if not provided.
@@ -104,4 +109,34 @@ export const getCollegeSendOffs = (
     return students
         .filter(s => s.age === 18 && s.isChild) // Flag 18 year olds who are still marked as children
         .map(person => ({ person, age: person.age }));
+};
+
+/**
+ * Identifies adults whose background checks are expiring within the specified threshold.
+ */
+export const getExpiringBackgroundChecks = (students: Student[], thresholdDays: number = 30, referenceDate: Date = new Date()): BackgroundCheckAction[] => {
+    return students
+        .filter(s => !s.isChild && s.backgroundCheckExpiresAt)
+        .map(person => {
+            const expiryDate = new Date(person.backgroundCheckExpiresAt!);
+            const daysUntilExpiry = differenceInDays(expiryDate, referenceDate);
+            return { person, daysUntilExpiry };
+        })
+        .filter(action => action.daysUntilExpiry > 0 && action.daysUntilExpiry <= thresholdDays)
+        .sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
+};
+
+/**
+ * Identifies adults whose background checks have already expired.
+ */
+export const getExpiredBackgroundChecks = (students: Student[], referenceDate: Date = new Date()): BackgroundCheckAction[] => {
+    return students
+        .filter(s => !s.isChild && s.backgroundCheckExpiresAt)
+        .map(person => {
+            const expiryDate = new Date(person.backgroundCheckExpiresAt!);
+            const daysUntilExpiry = differenceInDays(expiryDate, referenceDate);
+            return { person, daysUntilExpiry };
+        })
+        .filter(action => action.daysUntilExpiry <= 0)
+        .sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry); // Most expired first
 };

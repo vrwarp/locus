@@ -61,6 +61,7 @@ describe('transformPerson', () => {
       avatarUrl: undefined,
       isChild: true,
       householdId: 'hh1',
+      backgroundCheckExpiresAt: null,
       hasNameAnomaly: false,
       email: undefined,
       address: undefined,

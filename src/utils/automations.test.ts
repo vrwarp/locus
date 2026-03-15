@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs } from './automations';
+import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks } from './automations';
 import type { Student } from './pco';
 import { addDays, subDays, parseISO, addYears, setMonth } from 'date-fns';
 
@@ -113,6 +113,62 @@ describe('getPendingGradePromotions', () => {
         ];
         const result = getPendingGradePromotions(students, octDate);
         expect(result).toHaveLength(0);
+    });
+});
+
+describe('Background Check Automations', () => {
+    const mockReferenceDate = new Date('2024-10-15T00:00:00Z');
+
+    const createMockAdult = (id: string, name: string, bgExpiry: string | null): Student => ({
+        id,
+        name,
+        firstName: name.split(' ')[0],
+        lastName: name.split(' ')[1] || '',
+        birthdate: '1980-01-01',
+        age: 44,
+        pcoGrade: null,
+        calculatedGrade: 0,
+        delta: 0,
+        lastCheckInAt: null,
+        checkInCount: 0,
+        groupCount: 0,
+        isChild: false,
+        householdId: 'h1',
+        hasNameAnomaly: false,
+        hasEmailAnomaly: false,
+        hasAddressAnomaly: false,
+        hasPhoneAnomaly: false,
+        backgroundCheckExpiresAt: bgExpiry
+    });
+
+    const students = [
+        createMockAdult('1', 'Valid Check', '2025-01-01T00:00:00Z'), // Far future
+        createMockAdult('2', 'Expiring Soon', '2024-11-04T00:00:00Z'), // 20 days
+        createMockAdult('3', 'Expired Recently', '2024-10-10T00:00:00Z'), // -5 days
+        createMockAdult('4', 'No Check', null), // Null
+        createMockAdult('5', 'Expiring Tomorrow', '2024-10-16T00:00:00Z'), // 1 day
+        createMockAdult('6', 'Expired Long Ago', '2023-01-01T00:00:00Z') // -653 days
+    ];
+
+    describe('getExpiringBackgroundChecks', () => {
+        it('identifies adults whose background checks expire within 30 days', () => {
+            const results = getExpiringBackgroundChecks(students, 30, mockReferenceDate);
+            expect(results).toHaveLength(2);
+            expect(results[0].person.name).toBe('Expiring Tomorrow');
+            expect(results[0].daysUntilExpiry).toBe(1);
+            expect(results[1].person.name).toBe('Expiring Soon');
+            expect(results[1].daysUntilExpiry).toBe(20);
+        });
+    });
+
+    describe('getExpiredBackgroundChecks', () => {
+        it('identifies adults whose background checks have already expired, sorted most expired first', () => {
+            const results = getExpiredBackgroundChecks(students, mockReferenceDate);
+            expect(results).toHaveLength(2);
+            expect(results[0].person.name).toBe('Expired Long Ago');
+            expect(results[1].person.name).toBe('Expired Recently');
+            expect(results[1].daysUntilExpiry).toBeLessThan(0);
+        });
     });
 });
 
