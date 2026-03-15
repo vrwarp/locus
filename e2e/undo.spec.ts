@@ -45,7 +45,7 @@ test('undo flow works as expected', async ({ page }) => {
   await page.fill('input[placeholder="Secret"]', 'test');
 
   // Disable read-only mode so changes can be made
-  await page.click('button:has-text("⚙️ Settings")');
+  await page.click('text=Settings');
   await page.waitForSelector('.modal-content');
   await page.click('text=Read-Only Mode');
   await page.click('text=Save Settings');

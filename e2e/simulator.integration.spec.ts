@@ -14,7 +14,7 @@ test('Full flow with simulator: Login, View Data, Smart Fix', async ({ page }) =
   await expect(page.getByText('Loading Data...')).not.toBeVisible({ timeout: 15000 });
 
   // Disable read-only mode so changes can be made
-  await page.click('button:has-text("⚙️ Settings")');
+  await page.click('text=Settings');
   await page.waitForSelector('.modal-content');
   await page.click('text=Read-Only Mode');
   await page.click('text=Save Settings');
