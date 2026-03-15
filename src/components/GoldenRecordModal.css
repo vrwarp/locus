@@ -1,0 +1,72 @@
+.golden-record-overlay {
+    z-index: 3000;
+    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.golden-record-content {
+    background: linear-gradient(135deg, #2b2b2b, #1a1a1a);
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 50px rgba(255, 215, 0, 0.4);
+    text-align: center;
+    padding: 3rem;
+    animation: golden-glow 2s infinite alternate;
+}
+
+@keyframes golden-glow {
+    from { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
+    to { box-shadow: 0 0 60px rgba(255, 215, 0, 0.7); }
+}
+
+.golden-record-icon {
+    font-size: 6rem;
+    margin-bottom: 1rem;
+    animation: spin 10s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
+.golden-record-title {
+    color: #FFD700;
+    font-size: 2.5rem;
+    font-family: serif;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.golden-record-stats {
+    background: rgba(255, 215, 0, 0.1);
+    color: #FFD700;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-size: 1.5rem;
+    display: inline-block;
+    margin: 1.5rem 0;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.golden-record-message {
+    color: #ccc;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.golden-btn {
+    background: linear-gradient(to right, #DAA520, #FFD700);
+    color: #000;
+    font-weight: bold;
+    font-size: 1.2rem;
+    padding: 0.8rem 2.5rem;
+    border: none;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.golden-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+}

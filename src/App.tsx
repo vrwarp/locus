@@ -1,3 +1,4 @@
+import { GoldenRecordModal } from './components/GoldenRecordModal';
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { GradeScatter } from './components/GradeScatter'
@@ -58,6 +59,7 @@ function App() {
 
   // Modals
   const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [isGoldenRecordOpen, setIsGoldenRecordOpen] = useState(false);
   const [isGhostModalOpen, setIsGhostModalOpen] = useState(false);
   const [isFamilyModalOpen, setIsFamilyModalOpen] = useState(false);
   const [isReviewModeOpen, setIsReviewModeOpen] = useState(false);
@@ -849,6 +851,10 @@ function App() {
         zenMode={config.zenMode}
       />
 
+      <GoldenRecordModal
+        isOpen={isGoldenRecordOpen}
+        onClose={() => setIsGoldenRecordOpen(false)}
+      />
       <ConfigModal
         isOpen={isConfigOpen}
         onClose={() => setIsConfigOpen(false)}

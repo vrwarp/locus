@@ -1,16 +1,19 @@
 import React from 'react';
 import './Sidebar.css';
+import { Avatar } from './Avatar';
 
 interface SidebarProps {
   currentView: string;
   onChangeView: (view: string) => void;
   anomaliesCount: number;
+  totalFixes?: number;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, anomaliesCount }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, anomaliesCount, totalFixes = 0 }) => {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
+        <Avatar totalFixes={totalFixes} />
         <h2>Locus</h2>
         <div className="subtitle">Ministry Intelligence</div>
       </div>
