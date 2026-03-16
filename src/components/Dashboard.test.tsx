@@ -24,23 +24,30 @@ describe('Dashboard Component', () => {
     it('renders metrics grid', async () => {
         render(<Dashboard students={mockStudents} onNavigate={vi.fn()} auth="test" />);
 
-        expect(screen.getByText('Dashboard')).toBeInTheDocument();
-        expect(screen.getByText('Health Score')).toBeInTheDocument();
-        expect(screen.getByText('Anomalies Detected')).toBeInTheDocument();
-        expect(screen.getByText('Burnout Risk')).toBeInTheDocument();
-        expect(screen.getByText('Recruitment Pool')).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByText('Dashboard')).toBeInTheDocument();
+            expect(screen.getByText('Health Score')).toBeInTheDocument();
+            expect(screen.getByText('Anomalies Detected')).toBeInTheDocument();
+            expect(screen.getByText('Burnout Risk')).toBeInTheDocument();
+            expect(screen.getByText('Recruitment Pool')).toBeInTheDocument();
+        });
     });
 
     it('displays correct anomaly count', async () => {
         render(<Dashboard students={mockStudents} onNavigate={vi.fn()} auth="test" />);
         // 1 student has delta != 0
-        expect(screen.getByText('1')).toBeInTheDocument();
+        await waitFor(() => {
+            expect(screen.getByText('1')).toBeInTheDocument();
+        });
     });
 
     it('handles navigation clicks', async () => {
         const onNavigate = vi.fn();
         render(<Dashboard students={mockStudents} onNavigate={onNavigate} auth="test" />);
 
+        await waitFor(() => {
+            expect(screen.getByText('Start Review')).toBeInTheDocument();
+        });
         fireEvent.click(screen.getByText('Start Review'));
         expect(onNavigate).toHaveBeenCalledWith('data-health');
     });

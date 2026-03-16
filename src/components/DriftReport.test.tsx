@@ -14,9 +14,19 @@ const mockStudents: Student[] = [
 ];
 
 describe('DriftReport', () => {
-    it('renders loading state initially', () => {
+    it('renders loading state initially', async () => {
+        let resolveCheckIns: any;
+        vi.mocked(pcoUtils.fetchRecentCheckIns).mockReturnValue(new Promise(resolve => { resolveCheckIns = resolve; }) as any);
+        vi.mocked(driftUtils.calculateDriftRisk).mockReturnValue([]);
+
         render(<DriftReport students={mockStudents} auth="test" />);
         expect(screen.getByText(/Analyzing Attendance Trends/i)).toBeInTheDocument();
+
+        // Resolve to clean up act() warnings
+        resolveCheckIns([]);
+        await waitFor(() => {
+            expect(screen.queryByText(/Analyzing Attendance Trends/i)).not.toBeInTheDocument();
+        });
     });
 
     it('renders empty state when no candidates found', async () => {

@@ -166,7 +166,7 @@ describe('fixPhone', () => {
 
     it('should return original if unable to fix standardly', () => {
         expect(fixPhone('555-1234')).toBe('555-1234'); // 7 digits, no zip
-        expect(fixPhone('555-1234', '99999')).toBe('555-1234'); // 7 digits, unknown zip prefix
+        expect(fixPhone('555-1234', '00000')).toBe('555-1234'); // 7 digits, unknown zip prefix
         expect(fixPhone('123')).toBe('123');
     });
 });

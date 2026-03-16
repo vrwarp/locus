@@ -19,9 +19,18 @@ describe('BurnoutReport', () => {
         vi.clearAllMocks();
     });
 
-    it('renders loading state initially', () => {
+    it('renders loading state initially', async () => {
+        let resolveEvents: any;
+        vi.mocked(pcoUtils.fetchEvents).mockReturnValue(new Promise(resolve => { resolveEvents = resolve; }) as any);
+
         render(<BurnoutReport students={mockStudents} auth="auth-token" />);
         expect(screen.getByText('Analyzing Check-ins...')).toBeInTheDocument();
+
+        // Resolve to clean up act() warnings
+        resolveEvents([]);
+        await waitFor(() => {
+            expect(screen.queryByText('Analyzing Check-ins...')).not.toBeInTheDocument();
+        });
     });
 
     it('renders candidates when found', async () => {
