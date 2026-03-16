@@ -7,7 +7,10 @@ export const getAudioContext = (): AudioContext | null => {
 
   if (!audioContext) {
     // Create new context
-    audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (AudioContextClass) {
+        audioContext = new AudioContextClass();
+    }
   }
   return audioContext;
 };

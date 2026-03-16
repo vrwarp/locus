@@ -74,8 +74,9 @@ describe('Audio Utils', () => {
     });
 
     it('should handle missing AudioContext gracefully', () => {
-        (window as any).AudioContext = undefined;
-        (window as any).webkitAudioContext = undefined;
+        resetAudioContextForTesting();
+        delete (window as any).AudioContext;
+        delete (window as any).webkitAudioContext;
 
         // Should not throw
         expect(() => playTone(440)).not.toThrow();
