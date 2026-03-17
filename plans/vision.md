@@ -90,14 +90,14 @@ The correlation engine that started it all.
 -   **Outputs:** Delta calculation (Green/Yellow/Red).
 -   **Features:**
     -   *Smart Fix:* One-click resolution for Grade or Birthdate errors.
-    -   *The "Magnet" Slider:* UI that snaps to the correct calculated grade.
+    -   *The "Magnet" Slider:* UI that snaps to the correct calculated grade. [DONE]
 
 ### 3.2 The "Family Logic" Validator (Core)
 Data doesn't exist in a vacuum. People exist in families.
--   **Spouse Gap:** Flag if "Married" couple has age gap > 40 years.
--   **Child/Parent Logic:** Flag if "Child" is < 15 years younger than "Parent".
+-   **Spouse Gap:** Flag if "Married" couple has age gap > 40 years. [DONE]
+-   **Child/Parent Logic:** Flag if "Child" is < 15 years younger than "Parent". [DONE]
 -   **Duplicate Detective:** Network graph connecting people by shared email/phone/address. [DONE]
--   **The "Split Household" Finder:** Identify families where kids live in one household record and parents in another (divorce/duplicate scenarios).
+-   **The "Split Household" Finder:** Identify families where kids live in one household record and parents in another (divorce/duplicate scenarios). [DONE]
 
 ### 3.3 The "Ghost" Protocol (Core)
 Identifying the invisible.
@@ -122,6 +122,8 @@ A conversational interface for database queries. [BETA COMPLETE]
 -   **Intents:**
     -   "What is my health score?" (Stats)
     -   "Who is at risk of burnout?" (Burnout Analysis)
+    -   "Find missing volunteers." (Missing Volunteers Analysis)
+    -   "Find split households." (Split Households Analysis)
     -   "Find potential volunteers." (Recruitment Analysis)
     -   "Who is in 5th grade?" (Grade Search)
     -   "Find [Name]" (Person Search)

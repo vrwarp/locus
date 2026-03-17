@@ -59,6 +59,21 @@ describe('CoPilot Logic', () => {
         expect(result.data?.[0].primary).toBe('Alice Wonderland');
     });
 
+
+
+    it('handles split household queries', () => {
+        // Alice and Bob are both in the mock data without a shared householdId but without overlapping address/email/phone.
+        // We expect none for the default context.
+        const result = processQuery('Find split households', context);
+        expect(result.message).toContain("Good news!");
+    });
+
+    it('handles missing volunteers queries', () => {
+        const result = processQuery('Find missing volunteers', context);
+        // It should just return no missing volunteers since context.checkIns is empty
+        expect(result.message).toContain("Good news!");
+    });
+
     it('handles unknown queries gracefully', () => {
         const result = processQuery('What is the meaning of life?', context);
         expect(result.message).toContain("I'm not sure how to help with that");

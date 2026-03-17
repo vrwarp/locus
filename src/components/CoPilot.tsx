@@ -23,7 +23,7 @@ export const CoPilot: React.FC<CoPilotProps> = ({ students, auth }) => {
     {
       id: 'welcome',
       sender: 'bot',
-      text: "Hi! I'm Locus, your Pastoral Co-Pilot. I can help you find health stats, burnout risks, or specific students. Try asking 'What is my health score?' or 'Find high burnout risk'.",
+      text: "Hi! I'm Locus, your Pastoral Co-Pilot. I can help you find health stats, burnout risks, missing volunteers, split households, or specific students. Try asking 'What is my health score?' or 'Find missing volunteers'.",
       timestamp: Date.now()
     }
   ]);
