@@ -251,3 +251,20 @@
 - **Tests:**
     - All tests passing, warnings resolved.
 - **Status:** Phone Formatter fully implemented and test suite stabilized.
+
+## Session 53
+- **Implemented:**
+    - **Pastoral Co-Pilot Intent Expansions (Concept #4.1):**
+        - Added support for "Missing Volunteers" intent by leveraging `calculateMissingVolunteers` in `src/utils/missing.ts`. The Co-Pilot now recognizes queries about "missing volunteers" and returns a list of key volunteers who haven't checked in recently.
+        - Added support for "Split Households" intent by leveraging `analyzeFamilies` in `src/utils/family.ts`. The Co-Pilot now identifies when families are split across multiple household records using shared address/email/phone data.
+        - Updated the default fallback and the welcome message in `src/components/CoPilot.tsx` and `src/utils/copilot.ts` to reflect the new capabilities.
+    - **Vision Doc Updates:**
+        - Marked Family Logic tasks ("Spouse Gap", "Child/Parent Logic", "The 'Split Household' Finder") and The "Magnet" Slider as `[DONE]` in `plans/vision.md` since they were already implemented in previous sessions.
+    - **Test Coverage Improvements:**
+        - Updated `src/utils/copilot.test.ts` to verify the new intents correctly map and query the underlying utilities.
+        - Verified `src/components/CoPilot.test.tsx` handles the updated welcome string correctly.
+- **Tests:**
+    - All tests passing (63 files, 374 tests).
+- **Status:** Expanded the Natural Language capabilities of the Pastoral Co-Pilot.
+- **Future Ideas:**
+    - Continue expanding Co-Pilot intents, perhaps allowing it to run "Smart Fixes" via voice/text commands.

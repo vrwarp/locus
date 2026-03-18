@@ -3,6 +3,8 @@ import type { HealthStats } from './analytics';
 import { calculateBurnoutRisk } from './burnout';
 import { calculateRecruitmentCandidates } from './recruitment';
 import { isGhost } from './ghost';
+import { calculateMissingVolunteers } from './missing';
+import { analyzeFamilies } from './family';
 
 export interface CoPilotContext {
   students: Student[];
@@ -60,6 +62,55 @@ export const processQuery = (query: string, context: CoPilotContext): CoPilotRes
         icon: '🔥'
       }))
     };
+  }
+
+
+
+  // Intent: Split Households
+  if (lowerQuery.includes('split household') || lowerQuery.includes('split family') || lowerQuery.includes('divorced') || lowerQuery.includes('separate household')) {
+      const issues = analyzeFamilies(context.students);
+      const splitIssues = issues.filter(i => i.message.includes('Split Household'));
+
+      if (splitIssues.length === 0) {
+          return {
+              type: 'text',
+              message: "Good news! I don't see any split households (families sharing an address/email/phone across multiple household records)."
+          };
+      }
+
+      return {
+          type: 'list',
+          message: `I found ${splitIssues.length} potential split households.`,
+          data: splitIssues.map(i => ({
+              id: i.householdId, // this might be a string of comma-separated ids
+              primary: `${i.familyName} Family`,
+              secondary: i.message,
+              icon: '👨‍👩‍👧‍👦'
+          }))
+      };
+  }
+
+  // Intent: Missing Volunteers
+  if (lowerQuery.includes('missing volunteer') || lowerQuery.includes('haven\'t seen') || lowerQuery.includes('missing person')) {
+      const missing = calculateMissingVolunteers(context.checkIns, context.events, context.students);
+
+      if (missing.length === 0) {
+          return {
+              type: 'text',
+              message: "Good news! I don't see any key volunteers who have missed 2 or more weeks recently."
+          };
+      }
+
+      return {
+          type: 'list',
+          message: `I found ${missing.length} key volunteers who haven't checked in for at least 2 weeks.`,
+          data: missing.map(m => ({
+              id: m.person.id,
+              primary: m.person.name,
+              secondary: `Missing for ${m.missingWeeks} weeks (Last seen: ${new Date(m.lastSeen).toLocaleDateString()})`,
+              icon: '🚨'
+          }))
+      };
   }
 
   // Intent: Ghosts
@@ -176,6 +227,6 @@ export const processQuery = (query: string, context: CoPilotContext): CoPilotRes
   // Default Fallback
   return {
     type: 'text',
-    message: "I'm not sure how to help with that yet. You can ask me about 'Health Score', 'Burnout Risk', 'Ghosts', 'Recruitment', or search for a grade or person."
+    message: "I'm not sure how to help with that yet. You can ask me about 'Health Score', 'Burnout Risk', 'Ghosts', 'Recruitment', 'Missing Volunteers', 'Split Households', or search for a grade or person."
   };
 };
