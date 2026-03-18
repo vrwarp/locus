@@ -17,6 +17,7 @@ import { BusFactorGraph } from './components/BusFactorGraph'
 import { CheckInVelocity } from './components/CheckInVelocity'
 import { BirthdayHeatmap } from './components/BirthdayHeatmap'
 import { VolunteerWeb } from './components/VolunteerWeb'
+import { SolarSystem } from './components/SolarSystem'
 import { DriftReport } from './components/DriftReport'
 import { CoPilot } from './components/CoPilot'
 import { GenerationStack } from './components/GenerationStack'
@@ -785,6 +786,13 @@ function App() {
                              <div className="view-container">
                                 <h2>The Volunteer Web</h2>
                                 <VolunteerWeb students={students} auth={auth} />
+                            </div>
+                        )}
+
+                        {currentView === 'solar-system' && (
+                             <div className="view-container" style={{height: '800px'}}>
+                                <h2>The Solar System</h2>
+                                <SolarSystem students={students} />
                             </div>
                         )}
 
