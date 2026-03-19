@@ -127,6 +127,7 @@ A conversational interface for database queries. [BETA COMPLETE]
     -   "Find potential volunteers." (Recruitment Analysis)
     -   "Who is in 5th grade?" (Grade Search)
     -   "Find [Name]" (Person Search)
+    -   "What automations are pending?" (Automations Dashboard)
 
 ### 4.2 "Predictive Attrition" (The Retention Engine)
 Using historical data to predict who will leave *before* they leave.
