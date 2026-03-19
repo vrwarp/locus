@@ -74,8 +74,32 @@ describe('CoPilot Logic', () => {
         expect(result.message).toContain("Good news!");
     });
 
+    it('handles automations queries', () => {
+        const result = processQuery('What automations are pending?', context);
+        // By default with the mock data, there are no pending automations
+        expect(result.message).toContain("Good news!");
+
+        // Let's use Vitest's fake timers to ensure absolute predictability for "today"
+        // Since we can't easily do it mid-test without side effects, we will test an expired background check instead
+        // which is easier to spoof without time zone edge cases.
+        const automationsContext: CoPilotContext = {
+            ...context,
+            students: [
+                {
+                    ...mockStudent('99', 'Expired Adult', null, 30, false),
+                    backgroundCheckExpiresAt: '2020-01-01T00:00:00Z'
+                }
+            ]
+        };
+
+        const result2 = processQuery('What actions are pending?', automationsContext);
+        expect(result2.message).toContain("pending automations");
+        expect(result2.data?.[0].primary).toBe('Expired Background Checks');
+    });
+
     it('handles unknown queries gracefully', () => {
         const result = processQuery('What is the meaning of life?', context);
         expect(result.message).toContain("I'm not sure how to help with that");
+        expect(result.message).toContain("'Automations'");
     });
 });

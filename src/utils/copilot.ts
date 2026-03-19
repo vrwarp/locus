@@ -5,6 +5,7 @@ import { calculateRecruitmentCandidates } from './recruitment';
 import { isGhost } from './ghost';
 import { calculateMissingVolunteers } from './missing';
 import { analyzeFamilies } from './family';
+import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks } from './automations';
 
 export interface CoPilotContext {
   students: Student[];
@@ -224,9 +225,41 @@ export const processQuery = (query: string, context: CoPilotContext): CoPilotRes
       };
   }
 
+  // Intent: Automations
+  if (lowerQuery.includes('automation') || lowerQuery.includes('pending') || lowerQuery.includes('upcoming') || lowerQuery.includes('action')) {
+      const today = new Date();
+      const birthdays = getUpcomingBirthdays(context.students, 7, today);
+      const promotions = getPendingGradePromotions(context.students, today);
+      const sendOffs = getCollegeSendOffs(context.students, today);
+      const expiring = getExpiringBackgroundChecks(context.students, 30, today);
+      const expired = getExpiredBackgroundChecks(context.students, today);
+
+      const totalPending = birthdays.length + promotions.length + sendOffs.length + expiring.length + expired.length;
+
+      if (totalPending === 0) {
+          return {
+              type: 'text',
+              message: "Good news! You have 0 pending automations right now. Your data is perfectly up-to-date."
+          };
+      }
+
+      const summaryData = [];
+      if (birthdays.length > 0) summaryData.push({ primary: 'Upcoming Birthdays', secondary: `${birthdays.length} in the next 7 days`, icon: '🎂' });
+      if (promotions.length > 0) summaryData.push({ primary: 'Pending Promotions', secondary: `${promotions.length} students need a grade bump`, icon: '📈' });
+      if (sendOffs.length > 0) summaryData.push({ primary: 'College Send-offs', secondary: `${sendOffs.length} high school grads`, icon: '🎓' });
+      if (expiring.length > 0) summaryData.push({ primary: 'Expiring Background Checks', secondary: `${expiring.length} checks expiring soon`, icon: '⚠️' });
+      if (expired.length > 0) summaryData.push({ primary: 'Expired Background Checks', secondary: `${expired.length} critical safety issues`, icon: '🚨' });
+
+      return {
+          type: 'list',
+          message: `You have ${totalPending} pending automations across ${summaryData.length} categories. Head to the 'Automations' view to process them.`,
+          data: summaryData
+      };
+  }
+
   // Default Fallback
   return {
     type: 'text',
-    message: "I'm not sure how to help with that yet. You can ask me about 'Health Score', 'Burnout Risk', 'Ghosts', 'Recruitment', 'Missing Volunteers', 'Split Households', or search for a grade or person."
+    message: "I'm not sure how to help with that yet. You can ask me about 'Health Score', 'Burnout Risk', 'Ghosts', 'Recruitment', 'Missing Volunteers', 'Split Households', 'Automations', or search for a grade or person."
   };
 };
