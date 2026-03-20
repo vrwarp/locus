@@ -24,6 +24,7 @@ import { GenerationStack } from './components/GenerationStack'
 import { DuplicatesReport } from './components/DuplicatesReport'
 import { AchievementCase } from './components/AchievementCase'
 import { BountyBoard } from './components/BountyBoard'
+import { SmallGroupSorter } from './components/SmallGroupSorter'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
@@ -830,6 +831,11 @@ function App() {
                                     onAddBounty={handleAddBounty}
                                     onDeleteBounty={handleDeleteBounty}
                                 />
+                            </div>
+                        )}
+                        {currentView === 'small-groups' && (
+                            <div className="view-container">
+                                <SmallGroupSorter students={students} />
                             </div>
                         )}
                       </>
