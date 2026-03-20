@@ -55,6 +55,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
         </button>
 
         <button
+          className={`nav-item ${currentView === 'small-groups' ? 'active' : ''}`}
+          onClick={() => onChangeView('small-groups')}
+        >
+          <span className="icon">🧬</span>
+          Small Group Sorter
+        </button>
+
+        <button
           className={`nav-item ${currentView === 'burnout' ? 'active' : ''}`}
           onClick={() => onChangeView('burnout')}
         >
