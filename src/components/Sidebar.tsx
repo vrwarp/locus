@@ -169,6 +169,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
         </button>
 
         <button
+          className={`nav-item ${currentView === 'newsletter' ? 'active' : ''}`}
+          onClick={() => onChangeView('newsletter')}
+        >
+          <span className="icon">📬</span>
+          Newsletter Architect
+        </button>
+
+        <button
           className={`nav-item ${currentView === 'duplicates' ? 'active' : ''}`}
           onClick={() => onChangeView('duplicates')}
         >

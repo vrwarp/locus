@@ -47,7 +47,7 @@ describe('Sidebar Component', () => {
         expect(screen.getByText('12')).toBeInTheDocument();
     });
 
-    it('calls onChangeView when clicked', () => {
+    it('calls onChangeView for all navigation items', () => {
         const onChangeView = vi.fn();
         const props = {
             currentView: 'dashboard',
@@ -57,10 +57,36 @@ describe('Sidebar Component', () => {
 
         render(<Sidebar {...props} />);
 
-        fireEvent.click(screen.getByText('Pastoral Co-Pilot'));
-        expect(onChangeView).toHaveBeenCalledWith('copilot');
+        const navigations = [
+            { text: 'Dashboard', value: 'dashboard' },
+            { text: 'Bounty Board', value: 'bounties' },
+            { text: 'Data Health', value: 'data-health' },
+            { text: 'Pastoral Co-Pilot', value: 'copilot' },
+            { text: 'Small Group Sorter', value: 'small-groups' },
+            { text: 'Burnout Risk', value: 'burnout' },
+            { text: 'Attrition', value: 'attrition' },
+            { text: 'Recruitment', value: 'recruitment' },
+            { text: 'Retention', value: 'retention' },
+            { text: 'Attendance', value: 'attendance' },
+            { text: 'Check-in Velocity', value: 'velocity' },
+            { text: 'Bus Factor', value: 'bus-factor' },
+            { text: 'Volunteer Web', value: 'network' },
+            { text: 'Solar System', value: 'solar-system' },
+            { text: 'Achievement Case', value: 'achievements' },
+            { text: 'Birthdays', value: 'heatmap' },
+            { text: 'Demographics', value: 'demographics' },
+            { text: 'Automations', value: 'automations' },
+            { text: 'Newsletter Architect', value: 'newsletter' },
+            { text: 'Duplicate Detective', value: 'duplicates' },
+            { text: 'Ghost Protocol', value: 'ghosts' },
+            { text: 'Family Audit', value: 'families' },
+            { text: 'Settings', value: 'settings' }
+        ];
 
-        fireEvent.click(screen.getByText('Demographics'));
-        expect(onChangeView).toHaveBeenCalledWith('demographics');
+        navigations.forEach(({ text, value }) => {
+            const el = screen.getByText(text);
+            fireEvent.click(el);
+            expect(onChangeView).toHaveBeenCalledWith(value);
+        });
     });
 });

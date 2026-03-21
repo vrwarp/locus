@@ -113,4 +113,84 @@ describe('AutomationsReport', () => {
         expect(screen.queryByText('Birthday Boy')).toBeNull();
         expect(screen.getByText('0 Pending Actions')).toBeDefined();
     });
+
+    it('approves actions and triggers alerts', () => {
+        // Mock alert
+        const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+        // Set up one of each type
+        vi.setSystemTime(new Date('2024-08-15')); // August to trigger send-off
+
+        // Use a date that definitely requires a promotion under the mock rules.
+        // If today is Aug 15 2024, the current school year start is roughly Sept 1 2024,
+        // Wait, grader rules default to June cutoff. Let's make sure 'Promotion Kid' matches
+        // the criteria. If we use 2024-10-15 like the earlier test, promotion triggers.
+        vi.setSystemTime(new Date('2024-10-15'));
+        const students = [
+            createStudent('1', 'Birthday Boy', '2014-10-17', 4, 9), // Birthday (Oct 17 is 2 days away)
+            createStudent('2', 'Expiring Vol', '1990-01-01', null, 34, false, '2024-10-20T00:00:00Z'), // Expiring check
+            createStudent('3', 'Expired Vol', '1990-01-01', null, 34, false, '2024-10-10T00:00:00Z'), // Expired check
+            createStudent('4', 'Promotion Kid', '2014-01-01', 4, 10), // Promotion (10y/o in 4th grade)
+        ];
+
+        render(<AutomationsReport students={students} graderOptions={{}} />);
+
+        // It will be 3 pending actions: Birthday, Expiring, Expired, Promotion
+        // Wait, "Birthday Boy" has birthday 10-17 and today is 10-15. That is 2 days away.
+        // "Expiring Vol" expires 10-20. 5 days away.
+        // "Expired Vol" expired 10-10. 5 days ago.
+        // "Promotion Kid" triggers promotion.
+        // Let's verify exactly what is in the document if there are counts.
+        expect(screen.getByText((content) => content.includes('Pending Actions'))).toBeDefined();
+
+        // Click approve for each.
+        // From previous error, there are 3 actions: Expiring, Expired, Promotion.
+        fireEvent.click(screen.getByText('Promote'));
+        expect(alertMock).toHaveBeenCalledWith(expect.stringContaining('Promote Grade'));
+
+        fireEvent.click(screen.getByText('Email Reminder'));
+        expect(alertMock).toHaveBeenCalledWith(expect.stringContaining('Email Reminder'));
+
+        fireEvent.click(screen.getByText('Remove from Roster'));
+        expect(alertMock).toHaveBeenCalledWith(expect.stringContaining('Remove from Roster'));
+
+        // Since approval also dismisses them, the pending count should drop to 0
+        expect(screen.getByText('0 Pending Actions')).toBeDefined();
+
+        alertMock.mockRestore();
+    });
+
+    it('approves birthday bot action', () => {
+        const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+        vi.setSystemTime(new Date('2024-05-10'));
+        const students = [
+            createStudent('1', 'Birthday Boy', '2014-05-17', 4, 9),
+        ];
+
+        render(<AutomationsReport students={students} graderOptions={{}} />);
+        expect(screen.getByText('1 Pending Actions')).toBeDefined();
+
+        fireEvent.click(screen.getByText('Draft Email to Parent'));
+        expect(alertMock).toHaveBeenCalledWith(expect.stringContaining('Email Parent'));
+        expect(screen.getByText('0 Pending Actions')).toBeDefined();
+
+        alertMock.mockRestore();
+    });
+
+    it('approves college send-off action in August', () => {
+        const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+        vi.setSystemTime(new Date('2024-08-15'));
+        const students = [
+            createStudent('5', 'College Bound', '2006-01-01', 12, 18), // Send-off
+        ];
+
+        render(<AutomationsReport students={students} graderOptions={{}} />);
+        expect(screen.getByText('1 Pending Actions')).toBeDefined();
+
+        fireEvent.click(screen.getByText('Send-off'));
+        expect(alertMock).toHaveBeenCalledWith(expect.stringContaining('Move to College'));
+        expect(screen.getByText('0 Pending Actions')).toBeDefined();
+
+        alertMock.mockRestore();
+    });
 });

@@ -296,10 +296,10 @@ AI should never be a black box.
 30. **"Party Mode":** Confetti on every click (toggleable). [DONE]
 
 ### "AI Moonshot" Concepts (New)
-31. **"The Newsletter Architect":** AI drafts weekly newsletters based on upcoming calendar events + sermon topics.
+31. **"The Newsletter Architect":** AI drafts weekly newsletters based on upcoming calendar events + sermon topics. [DONE]
 32. **"Small Group Sorter":** Genetic algorithm to create perfectly balanced small groups (mix of ages, life stages, introverts/extroverts). [DONE]
 33. **"Prayer Partner Match":** Matches people with similar life struggles (anonymously at first) for prayer support.
-34. **"Burnout Predictor":** Analyzes serving hours vs. attendance to flag potential volunteer burnout.
+34. **"Burnout Predictor":** Analyzes serving hours vs. attendance to flag potential volunteer burnout. [DONE]
 35. **"Locus Public":** Member-facing portal to update their own data.
 36. **"The Global Pulse":** Anonymized aggregate data of the "Global Church" health.
 37. **"Predictive Planting":** AI suggests where to plant a church based on unchurched density.

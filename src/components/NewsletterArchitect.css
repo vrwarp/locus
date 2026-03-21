@@ -1,0 +1,55 @@
+.newsletter-architect {
+    padding: 1rem;
+    font-family: inherit;
+}
+
+.newsletter-architect .report-header {
+    margin-bottom: 2rem;
+}
+
+.newsletter-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: #2a2a2a;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid #333;
+}
+
+.newsletter-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.settings-btn.primary {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.settings-btn.primary:hover {
+    background-color: #45a049;
+}
+
+.newsletter-preview {
+    flex-grow: 1;
+}
+
+.newsletter-editor {
+    width: 100%;
+    min-height: 400px;
+    background: #1a1a1a;
+    color: #e0e0e0;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 1rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+    resize: vertical;
+}
+
+.newsletter-editor:focus {
+    outline: none;
+    border-color: #888;
+}

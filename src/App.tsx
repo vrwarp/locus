@@ -50,6 +50,7 @@ import './App.css'
 import { Sidebar } from './components/Sidebar'
 import { Dashboard } from './components/Dashboard'
 import { AutomationsReport } from './components/AutomationsReport'
+import { NewsletterArchitect } from './components/NewsletterArchitect'
 
 function App() {
   const [appId, setAppId] = useState('')
@@ -807,6 +808,12 @@ function App() {
                         {currentView === 'automations' && (
                              <div className="view-container">
                                 <AutomationsReport students={students} graderOptions={config.graderOptions} />
+                            </div>
+                        )}
+
+                        {currentView === 'newsletter' && (
+                             <div className="view-container">
+                                <NewsletterArchitect students={students} auth={auth} />
                             </div>
                         )}
 
