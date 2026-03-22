@@ -321,7 +321,7 @@ describe('fetchGroupCount', () => {
         const count = await fetchGroupCount('123', 'token');
         expect(count).toBe(5);
         expect(api.get).toHaveBeenCalledWith(
-            '/groups/v2/people/123/memberships',
+            '/api/groups/v2/people/123/memberships',
             expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Basic token' }) })
         );
     });

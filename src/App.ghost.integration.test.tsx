@@ -150,7 +150,7 @@ describe('Ghost Protocol Integration', () => {
             if (url.includes('/api/check-ins/v2/people/g1')) {
                 return Promise.resolve({ data: { data: { attributes: { check_in_count: 5 } } } });
             }
-            if (url.includes('/groups/v2/people/g1/memberships')) {
+            if (url.includes('/api/groups/v2/people/g1/memberships')) {
                  return Promise.resolve({ data: { meta: { total_count: 1 } } });
             }
             // Fallback for any other calls
