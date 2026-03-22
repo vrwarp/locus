@@ -231,7 +231,7 @@ export const fetchGroupCount = async (id: string, auth: string): Promise<number 
         // PCO Groups API structure for memberships
         // We use the simulator endpoint or real proxy
         const response = await api.get<{ meta: { total_count: number } }>(
-            `/groups/v2/people/${id}/memberships`,
+            `/api/groups/v2/people/${id}/memberships`,
             {
                 headers: {
                     Authorization: `Basic ${auth}`

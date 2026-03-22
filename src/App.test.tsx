@@ -577,7 +577,7 @@ describe('App Integration', () => {
             if (url.includes('/api/check-ins/v2/people/g1')) {
                 return Promise.resolve({ data: { data: { attributes: { check_in_count: 3 } } } });
             }
-            if (url.includes('/groups/v2/people/g1/memberships')) {
+            if (url.includes('/api/groups/v2/people/g1/memberships')) {
                  return Promise.resolve({ data: { meta: { total_count: 0 } } });
             }
             return Promise.resolve({ data: { data: [] } }); // Default for people
@@ -592,7 +592,7 @@ describe('App Integration', () => {
         ));
 
         await waitFor(() => expect(api.get).toHaveBeenCalledWith(
-            expect.stringContaining('/groups/v2/people/g1/memberships'),
+            expect.stringContaining('/api/groups/v2/people/g1/memberships'),
             expect.any(Object)
         ));
 
