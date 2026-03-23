@@ -19,6 +19,18 @@ export interface HealthHistoryEntry {
   totalRecords: number;
 }
 
+export interface Bounty {
+  id: string;
+  title: string;
+  description: string;
+  actionType: 'general' | 'ghost' | 'birthdate' | 'grade' | 'phone' | 'email' | 'address';
+  targetCount: number;
+  currentCount: number;
+  reward: string;
+  createdAt: string; // YYYY-MM-DD
+  completedAt?: string; // YYYY-MM-DD
+}
+
 export interface GamificationState {
   lastActiveDate: string; // YYYY-MM-DD
   currentStreak: number;
@@ -32,7 +44,7 @@ export interface GamificationState {
   addressesFixed?: number;
   unlockedBadges: { id: string, date: string }[];
   fixHistory?: Record<string, number>; // YYYY-MM-DD -> count
-  bounties?: any[]; // To support build
+  bounties?: Bounty[];
 }
 
 const STORAGE_KEY = 'locus_config';
