@@ -109,6 +109,22 @@ app.patch('/people/v2/people/:id', (req, res) => {
 });
 
 // Check-Ins API
+app.get('/check-ins/v2/people/:id', (req, res) => {
+  const person = db.people.find(p => p.id === req.params.id);
+  if (!person) return res.status(404).json({ errors: [{ status: '404', title: 'Not found' }] });
+
+  // Return check_in_count in attributes
+  res.json({
+      data: {
+          id: person.id,
+          type: 'Person',
+          attributes: {
+              check_in_count: 5 // mock value for ghost protocol tests
+          }
+      }
+  });
+});
+
 app.get('/check-ins/v2/check_ins', (req, res) => {
   const { paginated, links } = paginate(req, db.checkIns);
 
