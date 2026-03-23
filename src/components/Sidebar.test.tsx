@@ -19,6 +19,7 @@ describe('Sidebar Component', () => {
         expect(screen.getByText('Burnout Risk')).toBeInTheDocument();
         expect(screen.getByText('Demographics')).toBeInTheDocument();
         expect(screen.getByText('Check-in Velocity')).toBeInTheDocument();
+        expect(screen.getByText('Newsletter Architect')).toBeInTheDocument();
     });
 
     it('highlights current view', () => {
@@ -62,5 +63,8 @@ describe('Sidebar Component', () => {
 
         fireEvent.click(screen.getByText('Demographics'));
         expect(onChangeView).toHaveBeenCalledWith('demographics');
+
+        fireEvent.click(screen.getByText('Newsletter Architect'));
+        expect(onChangeView).toHaveBeenCalledWith('newsletter');
     });
 });

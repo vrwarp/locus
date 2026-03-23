@@ -23,6 +23,7 @@ import { CoPilot } from './components/CoPilot'
 import { GenerationStack } from './components/GenerationStack'
 import { DuplicatesReport } from './components/DuplicatesReport'
 import { AchievementCase } from './components/AchievementCase'
+import { NewsletterArchitect } from './components/NewsletterArchitect'
 import { BountyBoard } from './components/BountyBoard'
 import { SmallGroupSorter } from './components/SmallGroupSorter'
 
@@ -837,6 +838,11 @@ function App() {
                             <div className="view-container">
                                 <SmallGroupSorter students={students} />
                             </div>
+                        )}
+                        {currentView === 'newsletter' && (
+                             <div className="view-container">
+                                 <NewsletterArchitect students={students} auth={auth} />
+                             </div>
                         )}
                       </>
                   )}
