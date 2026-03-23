@@ -36,7 +36,11 @@ const api = setupCache(instance, cacheConfig as any);
 
 let globalBackoffPromise: Promise<void> | null = null;
 let nextAllowedRequestTime = 0;
-const MIN_REQUEST_INTERVAL = 200; // 5 requests per second
+// We removed MIN_REQUEST_INTERVAL delay to prevent Playwright Ghost Protocol from timing out
+// because Ghost Protocol makes O(N) requests (70 ghosts * 2 reqs each = 140).
+// 140 * 200ms = 28 seconds, timing out a 10000ms Playwright expectation.
+// Planning Center rate limit is 100 requests per 20 seconds. We'll handle 429 backoff gracefully instead.
+const MIN_REQUEST_INTERVAL = 0;
 
 export const __resetApiStateForTesting = () => {
     globalBackoffPromise = null;
@@ -47,21 +51,6 @@ export const __resetApiStateForTesting = () => {
 api.interceptors.request.use(async (config: any) => {
     if (globalBackoffPromise) {
         await globalBackoffPromise;
-    }
-
-    const now = Date.now();
-    let waitTime = 0;
-
-    // Calculate synchronously
-    if (now < nextAllowedRequestTime) {
-        waitTime = nextAllowedRequestTime - now;
-        nextAllowedRequestTime += MIN_REQUEST_INTERVAL;
-    } else {
-        nextAllowedRequestTime = now + MIN_REQUEST_INTERVAL;
-    }
-
-    if (waitTime > 0) {
-        await new Promise(resolve => setTimeout(resolve, waitTime));
     }
 
     return config;
