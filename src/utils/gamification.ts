@@ -60,7 +60,7 @@ export const BADGES: Badge[] = [
   }
 ];
 
-export type ActionType = 'general' | 'ghost' | 'birthdate' | 'grade';
+export type ActionType = 'general' | 'ghost' | 'birthdate' | 'grade' | 'phone' | 'email' | 'address';
 
 export const updateGamificationState = (
     currentState: GamificationState,

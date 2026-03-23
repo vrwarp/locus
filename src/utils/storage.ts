@@ -27,8 +27,12 @@ export interface GamificationState {
   ghostsCleared?: number;
   birthdatesFixed?: number;
   gradesFixed?: number;
+  phonesFixed?: number;
+  emailsFixed?: number;
+  addressesFixed?: number;
   unlockedBadges: { id: string, date: string }[];
   fixHistory?: Record<string, number>; // YYYY-MM-DD -> count
+  bounties?: any[]; // To support build
 }
 
 const STORAGE_KEY = 'locus_config';
@@ -149,8 +153,12 @@ export const loadGamificationState = async (appId: string): Promise<Gamification
       if (state.ghostsCleared === undefined) state.ghostsCleared = 0;
       if (state.birthdatesFixed === undefined) state.birthdatesFixed = 0;
       if (state.gradesFixed === undefined) state.gradesFixed = 0;
+      if (state.phonesFixed === undefined) state.phonesFixed = 0;
+      if (state.emailsFixed === undefined) state.emailsFixed = 0;
+      if (state.addressesFixed === undefined) state.addressesFixed = 0;
       if (!state.unlockedBadges) state.unlockedBadges = [];
       if (!state.fixHistory) state.fixHistory = {};
+      if (!state.bounties) state.bounties = [];
 
       return state;
 

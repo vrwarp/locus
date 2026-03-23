@@ -24,6 +24,7 @@ import { GenerationStack } from './components/GenerationStack'
 import { DuplicatesReport } from './components/DuplicatesReport'
 import { AchievementCase } from './components/AchievementCase'
 import { BountyBoard } from './components/BountyBoard'
+import { NewsletterArchitect } from './components/NewsletterArchitect'
 import { SmallGroupSorter } from './components/SmallGroupSorter'
 
 import { GamificationWidget } from './components/GamificationWidget'
@@ -780,6 +781,13 @@ function App() {
                              <div className="view-container">
                                 <h2>Birthday Heatmap</h2>
                                 <BirthdayHeatmap students={students} />
+                            </div>
+                        )}
+
+                        {currentView === 'newsletter' && (
+                             <div className="view-container">
+                                <h2>Newsletter Architect</h2>
+                                <NewsletterArchitect students={students} events={events} />
                             </div>
                         )}
 
