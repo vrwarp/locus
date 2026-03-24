@@ -26,6 +26,7 @@ import { AchievementCase } from './components/AchievementCase'
 import { NewsletterArchitect } from './components/NewsletterArchitect'
 import { BountyBoard } from './components/BountyBoard'
 import { SmallGroupSorter } from './components/SmallGroupSorter'
+import { MapView } from './components/MapView'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
@@ -808,6 +809,13 @@ function App() {
                         {currentView === 'automations' && (
                              <div className="view-container">
                                 <AutomationsReport students={students} graderOptions={config.graderOptions} />
+                            </div>
+                        )}
+
+                        {currentView === 'map' && (
+                             <div className="view-container">
+                                <h2>Map View</h2>
+                                <MapView students={students} />
                             </div>
                         )}
 

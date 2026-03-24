@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculateBurnoutRisk, classifyEvent } from './burnout';
-import { Student, PcoEvent, PcoCheckIn } from './pco';
+import type { Student, PcoEvent, PcoCheckIn } from './pco';
 import { subWeeks, formatISO } from 'date-fns';
 
 describe('Burnout Logic', () => {

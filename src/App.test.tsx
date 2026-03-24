@@ -567,7 +567,8 @@ describe('App Integration', () => {
 
         await waitFor(() => expect(screen.getByTestId('student-g1')).toBeInTheDocument(), { timeout: 2500 });
 
-        fireEvent.click(screen.getByText(/Ghost Protocol/));
+        const ghostButton = screen.getAllByText(/Ghost Protocol/)[0]; // Use first or only button
+        fireEvent.click(ghostButton);
         expect(screen.getByTestId('ghost-modal')).toBeInTheDocument();
         expect(screen.getByText('Found 1 ghosts')).toBeInTheDocument();
 
@@ -637,7 +638,8 @@ describe('App Integration', () => {
 
         await waitFor(() => expect(screen.getByTestId('student-p1')).toBeInTheDocument(), { timeout: 2500 });
 
-        fireEvent.click(screen.getByText(/Family Audit/));
+        const familyButton = screen.getAllByText(/Family Audit/)[0];
+        fireEvent.click(familyButton);
         expect(screen.getByTestId('family-modal')).toBeInTheDocument();
         expect(screen.getByText('Found 1 anomalies')).toBeInTheDocument(); // Child older than parent
 
@@ -722,7 +724,7 @@ describe('App Integration', () => {
         // Wait for Dashboard content
         await waitFor(() => expect(screen.getByText('Health Score')).toBeInTheDocument(), { timeout: 5000 });
 
-        const button = screen.getByText('Check-in Velocity');
+        const button = screen.getByText(/Check-in Velocity/);
         fireEvent.click(button);
 
         expect(screen.getByTestId('check-in-velocity')).toBeInTheDocument();
