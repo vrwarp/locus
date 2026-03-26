@@ -1,4 +1,20 @@
 
+## Session 47
+- **Implemented:**
+    - **"The Map View" (Visualization Concept #6) and "Predictive Planting" (AI Moonshot Concept #37):**
+        - Created `src/utils/geospatial.ts` with `calculateCityClusters` to group members by their city address and `suggestCampusLocations` to suggest cities with a high density of members for potential new campuses. Added corresponding unit tests in `src/utils/geospatial.test.ts`.
+        - Implemented `src/components/MapView.tsx` (and `MapView.css`) to visualize the member distribution across cities using a Recharts `BarChart` and display the predictive planting suggestions. Added tests with mocked Recharts components in `MapView.test.tsx`.
+    - **Integration:**
+        - Integrated the `MapView` component into `App.tsx` and added navigation for it in `Sidebar.tsx`.
+        - Updated `plans/vision.md` to mark Concept #6 ("The Map View") and Concept #37 ("Predictive Planting") as `[DONE]`.
+- **Test Coverage:**
+    - Created `src/utils/geospatial.test.ts` to cover grouping logic, ignoring empty cities, and checking predictive planting threshold limits.
+    - Created `src/components/MapView.test.tsx` to verify empty states, rendering of the chart, and slider logic for predictive planting threshold updates.
+- **Status:** Map View and Predictive Planting fully implemented and verified.
+- **Future Ideas:**
+    - Improve geocoding to integrate lat/long coordinates for an actual MapBox/Google Maps integration instead of just a BarChart visualization.
+    - Cross-reference with unchurched density data from external APIs to make predictive planting even more robust.
+
 ## Session 46
 - **Implemented:**
     - **"The Newsletter Architect" (AI Moonshot Concept #31):**

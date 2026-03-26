@@ -21,6 +21,7 @@ import { SolarSystem } from './components/SolarSystem'
 import { DriftReport } from './components/DriftReport'
 import { CoPilot } from './components/CoPilot'
 import { GenerationStack } from './components/GenerationStack'
+import { MapView } from './components/MapView'
 import { DuplicatesReport } from './components/DuplicatesReport'
 import { AchievementCase } from './components/AchievementCase'
 import { NewsletterArchitect } from './components/NewsletterArchitect'
@@ -802,6 +803,12 @@ function App() {
                              <div className="view-container">
                                 <h2>Demographics</h2>
                                 <GenerationStack students={students} />
+                            </div>
+                        )}
+
+                        {currentView === 'map-view' && (
+                             <div className="view-container">
+                                <MapView students={students} />
                             </div>
                         )}
 
