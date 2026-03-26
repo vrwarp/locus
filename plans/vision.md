@@ -265,7 +265,7 @@ AI should never be a black box.
 3.  **The Volunteer Web:** Force-directed graph of who serves with whom. [DONE]
 4.  **The Giving River:** Sankey diagram of giving flow (General Fund -> Missions -> Building).
 5.  **The Attendance Pulse:** EKG-style chart of weekly attendance. [DONE]
-6.  **The Map View:** Geospatial clusters of members. "Where should we plant the next campus?"
+6.  **The Map View:** Geospatial clusters of members. "Where should we plant the next campus?" [DONE]
 7.  **The "Bus Factor" Graph:** Identify critical volunteers who are single points of failure. [DONE]
 8.  **The "Newcomer Funnel":** 3D funnel visualization of guest retention. [DONE]
 9.  **The "Generation Stack":** Bar chart of Age demographics (Boomers vs Gen Z). [DONE]
@@ -302,7 +302,7 @@ AI should never be a black box.
 34. **"Burnout Predictor":** Analyzes serving hours vs. attendance to flag potential volunteer burnout.
 35. **"Locus Public":** Member-facing portal to update their own data.
 36. **"The Global Pulse":** Anonymized aggregate data of the "Global Church" health.
-37. **"Predictive Planting":** AI suggests where to plant a church based on unchurched density.
+37. **"Predictive Planting":** AI suggests where to plant a church based on unchurched density. [DONE]
 38. **"Sermon Sentiment":** Correlate sermon topics with giving/attendance spikes.
 39. **"Smart Parking":** Camera integration to count cars vs people.
 40. **"The Digital Tithe":** Cryptocurrency integration for giving.

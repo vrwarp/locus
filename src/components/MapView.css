@@ -1,0 +1,151 @@
+.map-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.map-view .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.map-view .empty-state .icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.map-view .empty-state h3 {
+  color: var(--text-color);
+  margin-bottom: 0.5rem;
+}
+
+.map-view .empty-state p {
+  color: var(--text-muted);
+}
+
+.map-view .report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.map-view .report-header .description {
+  color: var(--text-muted);
+  max-width: 60%;
+}
+
+.map-view .controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.map-view .controls label {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.map-view .dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .map-view .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.map-view .dashboard-card {
+  background-color: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.map-view .dashboard-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--text-color);
+  font-size: 1.25rem;
+}
+
+.map-view .chart-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.map-view .legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+.map-view .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.map-view .swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.map-view .swatch.primary {
+  background-color: #3b82f6;
+}
+
+.map-view .swatch.secondary {
+  background-color: #10b981;
+}
+
+.map-view .suggestions-card .suggestion-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.map-view .suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.map-view .suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.map-view .suggestion-city {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  color: var(--text-color);
+}
+
+.map-view .suggestion-stats .badge {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
