@@ -303,7 +303,7 @@ AI should never be a black box.
 35. **"Locus Public":** Member-facing portal to update their own data.
 36. **"The Global Pulse":** Anonymized aggregate data of the "Global Church" health.
 37. **"Predictive Planting":** AI suggests where to plant a church based on unchurched density. [DONE]
-38. **"Sermon Sentiment":** Correlate sermon topics with giving/attendance spikes.
+38. **"Sermon Sentiment":** Correlate sermon topics with giving/attendance spikes. [DONE]
 39. **"Smart Parking":** Camera integration to count cars vs people.
 40. **"The Digital Tithe":** Cryptocurrency integration for giving.
 

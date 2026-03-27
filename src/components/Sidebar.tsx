@@ -172,6 +172,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
           <span className="icon">🗺️</span>
           Map View
         </button>
+        <button
+          className={`nav-item ${currentView === 'sermons' ? 'active' : ''}`}
+          onClick={() => onChangeView('sermons')}
+        >
+          <span className="icon">📖</span>
+          Sermon Sentiment
+        </button>
 
         <div className="nav-section">Tools</div>
 
