@@ -213,4 +213,36 @@ describe('ConfigModal', () => {
    const checkbox = screen.getByLabelText('Zen Mode');
    expect(checkbox).toBeChecked();
  });
+
+  it('changes Campus selection and saves', () => {
+    render(
+      <ConfigModal
+        isOpen={true}
+        currentConfig={mockConfig}
+        onSave={mockOnSave}
+        onClose={mockOnClose}
+      />
+    );
+
+    const dropdown = screen.getByDisplayValue('Main Campus');
+    fireEvent.change(dropdown, { target: { value: 'Online' } });
+
+    fireEvent.click(screen.getByText('Save Settings'));
+
+    expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
+        campus: 'Online'
+    }));
+  });
+
+  it('loads existing Campus setting', () => {
+    render(
+     <ConfigModal
+       isOpen={true}
+       currentConfig={{ ...mockConfig, campus: 'East Campus' }}
+       onSave={mockOnSave}
+       onClose={mockOnClose}
+     />
+   );
+   expect(screen.getByDisplayValue('East Campus')).toBeInTheDocument();
+ });
 });

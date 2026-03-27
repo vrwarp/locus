@@ -16,6 +16,7 @@ describe('Sidebar Component', () => {
         expect(screen.getByText('Dashboard')).toBeInTheDocument();
         expect(screen.getByText('Data Health')).toBeInTheDocument();
         expect(screen.getByText('Pastoral Co-Pilot')).toBeInTheDocument(); // New item
+        expect(screen.getByText('Campus Cup')).toBeInTheDocument();
         expect(screen.getByText('Burnout Risk')).toBeInTheDocument();
         expect(screen.getByText('Demographics')).toBeInTheDocument();
         expect(screen.getByText('Check-in Velocity')).toBeInTheDocument();
@@ -63,6 +64,9 @@ describe('Sidebar Component', () => {
 
         fireEvent.click(screen.getByText('Demographics'));
         expect(onChangeView).toHaveBeenCalledWith('demographics');
+
+        fireEvent.click(screen.getByText('Campus Cup'));
+        expect(onChangeView).toHaveBeenCalledWith('campus-cup');
 
         fireEvent.click(screen.getByText('Newsletter Architect'));
         expect(onChangeView).toHaveBeenCalledWith('newsletter');

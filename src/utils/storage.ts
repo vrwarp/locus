@@ -10,6 +10,7 @@ export interface AppConfig {
   muteSounds?: boolean;
   partyMode?: boolean;
   zenMode?: boolean;
+  campus?: string;
 }
 
 export interface HealthHistoryEntry {
