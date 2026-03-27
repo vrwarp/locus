@@ -316,3 +316,20 @@
 - **Status:** Expanded the Natural Language capabilities of the Pastoral Co-Pilot.
 - **Future Ideas:**
     - Continue expanding Co-Pilot intents, perhaps allowing it to run "Smart Fixes" via voice/text commands.
+
+## Session 55
+- **Implemented:**
+    - **"Sermon Sentiment" (Concept #38):**
+        - Created `src/utils/sermons.ts` with `correlateSermonsAndAttendance` to group unique attendees per week for worship services and correlate them with a mock list of sermon topics.
+        - Implemented `src/components/SermonSentiment.tsx` (and `.css`) to visualize this correlation over time using a Recharts `BarChart`, showing which topics yielded the highest attendance.
+    - **Integration:**
+        - Integrated the `SermonSentiment` component into `App.tsx` and added navigation for it in `Sidebar.tsx`.
+        - Updated `plans/vision.md` to mark Concept #38 ("Sermon Sentiment") as `[DONE]`.
+- **Test Coverage:**
+    - Created `src/utils/sermons.test.ts` to cover grouping logic, ignoring duplicate check-ins for the same person in the same week, and handling empty states.
+    - Created `src/components/SermonSentiment.test.tsx` using `recharts` mocks to verify empty states, loading states, error handling, and successful chart rendering.
+- **Status:** Sermon Sentiment fully implemented and verified.
+- **Future Ideas:**
+    - Integrate a real "Plans" or "Services" endpoint from PCO to fetch actual sermon titles and series rather than relying on a mocked cycler.
+    - Add the ability to filter by demographic (e.g., "Did this sermon topic resonate more with Millennials or Boomers?").
+    - Cross-reference with giving data (Concept #47) to see if specific topics correlate with spikes in generosity.

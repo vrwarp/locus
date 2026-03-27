@@ -1,0 +1,25 @@
+.sermon-sentiment {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+}
+
+.sermon-sentiment h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: #2c3e50;
+    font-size: 1.2rem;
+}
+
+.sermon-sentiment .description {
+    color: #7f8c8d;
+    font-size: 0.95rem;
+    margin-bottom: 20px;
+}
+
+.sermon-sentiment .chart-container {
+    height: 350px;
+    width: 100%;
+}

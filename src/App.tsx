@@ -25,6 +25,7 @@ import { MapView } from './components/MapView'
 import { DuplicatesReport } from './components/DuplicatesReport'
 import { AchievementCase } from './components/AchievementCase'
 import { NewsletterArchitect } from './components/NewsletterArchitect'
+import { SermonSentiment } from './components/SermonSentiment'
 import { BountyBoard } from './components/BountyBoard'
 import { SmallGroupSorter } from './components/SmallGroupSorter'
 
@@ -809,6 +810,12 @@ function App() {
                         {currentView === 'map-view' && (
                              <div className="view-container">
                                 <MapView students={students} />
+                            </div>
+                        )}
+
+                        {currentView === 'sermons' && (
+                             <div className="view-container">
+                                <SermonSentiment auth={auth} />
                             </div>
                         )}
 
