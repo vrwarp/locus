@@ -25,6 +25,7 @@ import { MapView } from './components/MapView'
 import { DuplicatesReport } from './components/DuplicatesReport'
 import { AchievementCase } from './components/AchievementCase'
 import { NewsletterArchitect } from './components/NewsletterArchitect'
+import { CampusCup } from './components/CampusCup'
 import { SermonSentiment } from './components/SermonSentiment'
 import { BountyBoard } from './components/BountyBoard'
 import { SmallGroupSorter } from './components/SmallGroupSorter'
@@ -845,6 +846,14 @@ function App() {
                                     gamificationState={gamificationState}
                                     onAddBounty={handleAddBounty}
                                     onDeleteBounty={handleDeleteBounty}
+                                />
+                            </div>
+                        )}
+                        {currentView === 'campus-cup' && (
+                            <div className="view-container">
+                                <CampusCup
+                                    gamificationState={gamificationState}
+                                    userCampus={config.campus}
                                 />
                             </div>
                         )}

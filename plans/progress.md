@@ -1,4 +1,26 @@
 
+## Session 48
+- **Implemented:**
+    - **"Campus Cup" (Gamification Concept #24):**
+        - Added a multi-campus competition leaderboard visualizing mocked campus scores via Recharts `BarChart` in `src/components/CampusCup.tsx`.
+        - The user's total fixes (from `GamificationState`) are dynamically added to their selected campus's score, highlighting their localized impact on global data health.
+        - Updated `AppConfig` in `src/utils/storage.ts` to include a `campus` property and integrated a campus dropdown selector in `src/components/ConfigModal.tsx`.
+    - **Integration:**
+        - Integrated the `CampusCup` as a Gamification navigation item ("Campus Cup") in the `Sidebar.tsx`.
+        - Configured `App.tsx` routing to show the new UI, passing down `gamificationState` and user configuration.
+- **Test Coverage:**
+    - Created `src/components/CampusCup.test.tsx` verifying component rendering, user impact string parsing, and defaults, while mocking out Recharts `ResponsiveContainer` and `BarChart` to bypass JSDOM measurement issues.
+    - Updated `src/components/ConfigModal.test.tsx` to verify campus selection and saving logic.
+    - Updated `src/components/Sidebar.test.tsx` to verify new navigation items.
+    - Test suite passed successfully (73 suites, 419 tests).
+- **Status:** Campus Cup (Concept #24) fully implemented and verified.
+- **Discovered:**
+    - Playwright UI tests successfully captured interaction with the dropdown selector and the visual verification confirmed Recharts charts correctly color-code the selected campus in the leaderboard.
+- **Future Ideas:**
+    - Move away from static base scores for the leaderboard to a global, aggregated multi-tenant API.
+    - Add real-time updates for "fixes submitted in the last 24 hours" specifically tied to user campuses.
+    - Animate positional shifts in the leaderboard if the user's fixes push their campus past a competitor campus.
+
 ## Session 47
 - **Implemented:**
     - **"The Map View" (Visualization Concept #6) and "Predictive Planting" (AI Moonshot Concept #37):**

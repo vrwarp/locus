@@ -23,6 +23,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
   const [muteSounds, setMuteSounds] = useState(false);
   const [partyMode, setPartyMode] = useState(false);
   const [zenMode, setZenMode] = useState(false);
+  const [campus, setCampus] = useState('Main Campus');
 
   // Load current config when modal opens
   useEffect(() => {
@@ -35,6 +36,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         setMuteSounds(currentConfig.muteSounds ?? false);
         setPartyMode(currentConfig.partyMode ?? false);
         setZenMode(currentConfig.zenMode ?? false);
+        setCampus(currentConfig.campus ?? 'Main Campus');
     }
   }, [isOpen, currentConfig]);
 
@@ -49,6 +51,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         muteSounds,
         partyMode,
         zenMode,
+        campus,
         graderOptions: {
             ...currentConfig.graderOptions,
             cutoffMonth,
@@ -170,6 +173,24 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
             </label>
             <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
                 Disable timers and hide scores for a pressure-free experience.
+            </p>
+        </div>
+
+        <div className="form-group">
+            <label>Campus</label>
+            <select
+                value={campus}
+                onChange={(e) => setCampus(e.target.value)}
+                style={{ width: '100%', padding: '0.5rem', marginTop: '5px', borderRadius: '4px', border: '1px solid #ccc' }}
+            >
+                <option value="Main Campus">Main Campus</option>
+                <option value="North Campus">North Campus</option>
+                <option value="South Campus">South Campus</option>
+                <option value="East Campus">East Campus</option>
+                <option value="Online">Online</option>
+            </select>
+            <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
+                Select your campus to contribute to the Campus Cup leaderboard.
             </p>
         </div>
 

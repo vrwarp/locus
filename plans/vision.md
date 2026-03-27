@@ -287,7 +287,7 @@ AI should never be a black box.
 21. **"The Data Ninja" Avatar:** Customizable avatar that levels up. [DONE]
 22. **"Speed Run" Mode:** How many fixes in 60 seconds? [DONE]
 23. **"Zen Mode":** No timers, just satisfying sounds and visuals. [DONE]
-24. **"Campus Cup":** Multi-campus competition.
+24. **"Campus Cup":** Multi-campus competition. [DONE]
 25. **"Bounty Board":** Admin posts "Bounties" (e.g., "Fix 50 emails") for volunteers. [DONE]
 26. **"Achievement Case":** Virtual trophy shelf. [DONE]
 27. **"Daily Streak":** Fire icon for consecutive days. [DONE]
