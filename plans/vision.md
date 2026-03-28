@@ -298,7 +298,7 @@ AI should never be a black box.
 ### "AI Moonshot" Concepts (New)
 31. **"The Newsletter Architect":** AI drafts weekly newsletters based on upcoming calendar events + sermon topics. [DONE]
 32. **"Small Group Sorter":** Genetic algorithm to create perfectly balanced small groups (mix of ages, life stages, introverts/extroverts). [DONE]
-33. **"Prayer Partner Match":** Matches people with similar life struggles (anonymously at first) for prayer support.
+33. **"Prayer Partner Match":** Matches people with similar life struggles (anonymously at first) for prayer support. [DONE]
 34. **"Burnout Predictor":** Analyzes serving hours vs. attendance to flag potential volunteer burnout.
 35. **"Locus Public":** Member-facing portal to update their own data.
 36. **"The Global Pulse":** Anonymized aggregate data of the "Global Church" health.

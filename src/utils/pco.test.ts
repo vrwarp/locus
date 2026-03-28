@@ -62,6 +62,7 @@ describe('transformPerson', () => {
       isChild: true,
       householdId: 'hh1',
       backgroundCheckExpiresAt: null,
+      prayerTopic: null,
       hasNameAnomaly: false,
       email: undefined,
       address: undefined,

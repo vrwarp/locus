@@ -91,6 +91,13 @@ const generateHouseholds = () => {
         backgroundCheckExpiresAt = formatISO(addDays(new Date(), randomInt(31, 365))); // Valid
       }
 
+      // Simulate Prayer Topic
+      const prayerTopics = ['Financial', 'Health', 'Grief', 'Anxiety', 'Addiction'];
+      let prayerTopic = null;
+      if (Math.random() < 0.3) {
+         prayerTopic = randomItem(prayerTopics);
+      }
+
       const adult = {
         id,
         type: 'Person',
@@ -102,6 +109,7 @@ const generateHouseholds = () => {
           grade: null,
           birthdate: `${birthYear}-01-01`, // Rough adult age
           background_check_expires_at: backgroundCheckExpiresAt,
+          prayer_topic: prayerTopic,
           phone_numbers: [{ location: 'Mobile', number: (() => {
             const r = Math.random();
             const n1 = randomInt(100, 999);
