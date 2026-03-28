@@ -6,6 +6,7 @@ import { isGhost } from './ghost';
 import { calculateMissingVolunteers } from './missing';
 import { analyzeFamilies } from './family';
 import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks } from './automations';
+import { matchPrayerPartners } from './prayer';
 
 export interface CoPilotContext {
   students: Student[];
@@ -257,9 +258,50 @@ export const processQuery = (query: string, context: CoPilotContext): CoPilotRes
       };
   }
 
+  // Intent: Prayer Match
+  if (lowerQuery.includes('prayer') || lowerQuery.includes('partner') || lowerQuery.includes('struggle')) {
+      const matches = matchPrayerPartners(context.students);
+      if (matches.length === 0) {
+          return {
+              type: 'text',
+              message: "I couldn't find anyone with assigned prayer topics to match right now."
+          };
+      }
+
+      // Filter by a specific topic if requested
+      const possibleTopics = ['financial', 'health', 'grief', 'anxiety', 'addiction'];
+      const matchedTopic = possibleTopics.find(t => lowerQuery.includes(t));
+
+      let relevantMatches = matches;
+      if (matchedTopic) {
+          relevantMatches = matches.filter(m => m.topic.toLowerCase() === matchedTopic);
+          if (relevantMatches.length === 0) {
+              return {
+                  type: 'text',
+                  message: `I found prayer partners, but none specifically for '${matchedTopic}'.`
+              };
+          }
+      }
+
+      const listData = relevantMatches.map(m => {
+         const partnerBName = m.personB ? m.personB.name : 'Waiting for partner';
+         return {
+             primary: `Struggle: ${m.topic}`,
+             secondary: `${m.personA.name} 🤝 ${partnerBName}`,
+             icon: '🙏'
+         };
+      });
+
+      return {
+          type: 'list',
+          message: `I found ${relevantMatches.length} prayer partner match${relevantMatches.length === 1 ? '' : 'es'}${matchedTopic ? ` for ${matchedTopic}` : ''}. Head to the 'Prayer Partner Match' view for details.`,
+          data: listData
+      };
+  }
+
   // Default Fallback
   return {
     type: 'text',
-    message: "I'm not sure how to help with that yet. You can ask me about 'Health Score', 'Burnout Risk', 'Ghosts', 'Recruitment', 'Missing Volunteers', 'Split Households', 'Automations', or search for a grade or person."
+    message: "I'm not sure how to help with that yet. You can ask me about 'Health Score', 'Burnout Risk', 'Ghosts', 'Recruitment', 'Missing Volunteers', 'Split Households', 'Automations', 'Prayer Partners', or search for a grade or person."
   };
 };

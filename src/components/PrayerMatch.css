@@ -1,0 +1,153 @@
+.prayer-match-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.prayer-match-empty {
+    text-align: center;
+    padding: 4rem;
+    color: #666;
+}
+
+.prayer-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.prayer-header h2 {
+    color: #2d3748;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.prayer-header p {
+    color: #4a5568;
+    font-size: 1.1rem;
+}
+
+.prayer-topic-section {
+    margin-bottom: 3rem;
+}
+
+.topic-title {
+    color: #2c5282;
+    border-bottom: 2px solid #ebf8ff;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.matches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.match-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    transition: transform 0.2s;
+    border: 1px solid #edf2f7;
+}
+
+.match-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+}
+
+.partner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.avatar-placeholder img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.anonymous-icon {
+    font-size: 1.5rem;
+    color: #a0aec0;
+}
+
+.partner-details h4 {
+    margin: 0;
+    color: #2d3748;
+    font-size: 1.1rem;
+}
+
+.partner-details .contact {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.partner-details.empty h4 {
+    color: #a0aec0;
+    font-style: italic;
+}
+
+.match-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 1rem 0;
+    position: relative;
+}
+
+.connector-line {
+    flex: 1;
+    height: 2px;
+    background: #e2e8f0;
+}
+
+.connector-icon {
+    margin: 0 1rem;
+    font-size: 1.5rem;
+    background: #edf2f7;
+    border-radius: 50%;
+    padding: 0.5rem;
+}
+
+.reveal-action {
+    margin-top: 1.5rem;
+    text-align: center;
+}
+
+.reveal-btn {
+    background: #ebf8ff;
+    color: #3182ce;
+    border: 1px solid #bee3f8;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.reveal-btn:hover {
+    background: #bee3f8;
+    color: #2b6cb0;
+}
