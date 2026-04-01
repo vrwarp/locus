@@ -55,6 +55,7 @@ import './App.css'
 import { Sidebar } from './components/Sidebar'
 import { Dashboard } from './components/Dashboard'
 import { AutomationsReport } from './components/AutomationsReport'
+import { GivingRiver } from './components/GivingRiver'
 
 function App() {
   const [appId, setAppId] = useState('')
@@ -844,6 +845,12 @@ function App() {
                              <div className="view-container">
                                 <h2>Achievement Case</h2>
                                 <AchievementCase gamificationState={gamificationState} />
+                            </div>
+                        )}
+
+                        {currentView === 'giving' && (
+                             <div className="view-container">
+                                <GivingRiver />
                             </div>
                         )}
 

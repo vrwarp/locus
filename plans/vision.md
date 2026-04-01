@@ -263,7 +263,9 @@ AI should never be a black box.
 1.  **The Solar System:** View families as solar systems (Parents = Stars, Kids = Planets). Distance = Age gap. [DONE]
 2.  **The Heatmap of Life:** Calendar view showing "Life Events" (Births, Marriages, Deaths) density. [DONE - Birthdays]
 3.  **The Volunteer Web:** Force-directed graph of who serves with whom. [DONE]
-4.  **The Giving River:** Sankey diagram of giving flow (General Fund -> Missions -> Building).
+4.  **The Giving River:** Sankey diagram of giving flow (General Fund -> Missions -> Building). [DONE]
+    - *Discovered:* Recharts provides a `Sankey` component which is excellent for visualizing flow. The layout can be complex due to text overlaps depending on node names. Mocked data was generated to test the visual representation of flow from Offerings/Tithes down to Funds/Missions.
+    - *Future Ideas:* Pull actual giving data from PCO Giving API instead of mocking. Add filtering by date range (e.g., YTD, Last Year). Add drill-down capabilities to see individual transactions that make up a flow segment.
 5.  **The Attendance Pulse:** EKG-style chart of weekly attendance. [DONE]
 6.  **The Map View:** Geospatial clusters of members. "Where should we plant the next campus?" [DONE]
 7.  **The "Bus Factor" Graph:** Identify critical volunteers who are single points of failure. [DONE]
