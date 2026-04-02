@@ -11,6 +11,7 @@ export interface AppConfig {
   partyMode?: boolean;
   zenMode?: boolean;
   campus?: string;
+  enableSpotify?: boolean;
 }
 
 export interface HealthHistoryEntry {

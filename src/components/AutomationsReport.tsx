@@ -29,6 +29,11 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
     const [dismissedSendOffs, setDismissedSendOffs] = useState<Set<string>>(new Set());
     const [dismissedExpiringChecks, setDismissedExpiringChecks] = useState<Set<string>>(new Set());
     const [dismissedExpiredChecks, setDismissedExpiredChecks] = useState<Set<string>>(new Set());
+    const [dismissedNewBabies, setDismissedNewBabies] = useState<Set<string>>(new Set());
+
+    const newBabies = useMemo(() => {
+        return students.filter(s => s.age === 0 && !dismissedNewBabies.has(s.id));
+    }, [students, dismissedNewBabies]);
 
     const birthdays = useMemo(() => {
         return getUpcomingBirthdays(students, 7, today).filter(b => !dismissedBirthdays.has(b.person.id));
@@ -57,6 +62,7 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
     const handleDismissSendOff = (id: string) => setDismissedSendOffs(prev => new Set(prev).add(id));
     const handleDismissExpiringCheck = (id: string) => setDismissedExpiringChecks(prev => new Set(prev).add(id));
     const handleDismissExpiredCheck = (id: string) => setDismissedExpiredChecks(prev => new Set(prev).add(id));
+    const handleDismissNewBaby = (id: string) => setDismissedNewBabies(prev => new Set(prev).add(id));
 
     // Simulated "Approve" actions
     const handleApprove = (id: string, action: string) => {
@@ -66,6 +72,7 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
         if (action === 'Move to College') handleDismissSendOff(id);
         if (action === 'Email Reminder') handleDismissExpiringCheck(id);
         if (action === 'Remove from Roster') handleDismissExpiredCheck(id);
+        if (action === 'Send DoorDash') handleDismissNewBaby(id);
     };
 
     return (
@@ -79,6 +86,33 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
             </header>
 
             <div className="automation-lanes">
+                {/* New Baby Alert (DoorDash) */}
+                <section className="automation-lane">
+                    <h3>
+                        <span className="icon">🍼</span>
+                        New Baby Alert (DoorDash)
+                        <span className="count">{newBabies.length}</span>
+                    </h3>
+                    {newBabies.length === 0 ? (
+                        <p className="empty-state">No new babies detected.</p>
+                    ) : (
+                        <ul className="action-list">
+                            {newBabies.map((person) => (
+                                <li key={person.id} className="action-item">
+                                    <div className="action-details">
+                                        <strong>{person.name}</strong>
+                                        <div className="meta">Age 0 • Send Meal</div>
+                                    </div>
+                                    <div className="action-buttons">
+                                        <button className="btn-approve" onClick={() => handleApprove(person.id, 'Send DoorDash')}>Send DoorDash Meal</button>
+                                        <button className="btn-dismiss" onClick={() => handleDismissNewBaby(person.id)}>Dismiss</button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+
                 {/* Birthday Bot */}
                 <section className="automation-lane">
                     <h3>

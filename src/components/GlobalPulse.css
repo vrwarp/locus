@@ -1,0 +1,33 @@
+.global-pulse-report {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.global-pulse-report .report-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.global-pulse-report .report-header h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.global-pulse-report .report-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.global-pulse-report .pulse-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.global-pulse-report .chart-container {
+  max-width: 600px;
+  margin: 0 auto;
+}

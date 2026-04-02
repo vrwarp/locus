@@ -28,6 +28,17 @@ describe('AutomationsReport', () => {
         expect(screen.getByText('No pending college send-offs.')).toBeDefined();
         expect(screen.getByText('No background checks expiring soon.')).toBeDefined();
         expect(screen.getByText('No expired background checks.')).toBeDefined();
+        expect(screen.getByText('No new babies detected.')).toBeDefined();
+    });
+
+    it('renders new baby alerts', () => {
+        vi.setSystemTime(new Date('2024-05-10'));
+        const students = [createStudent('1', 'Baby Doe', '2024-01-01', null, 0)];
+
+        render(<AutomationsReport students={students} graderOptions={{}} />);
+
+        expect(screen.getByText('Baby Doe')).toBeDefined();
+        expect(screen.getByText('Send DoorDash Meal')).toBeDefined();
     });
 
     it('renders birthday bot suggestions', () => {
