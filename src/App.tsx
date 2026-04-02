@@ -55,6 +55,8 @@ import './App.css'
 import { Sidebar } from './components/Sidebar'
 import { Dashboard } from './components/Dashboard'
 import { AutomationsReport } from './components/AutomationsReport'
+import { SpotifyWidget } from './components/SpotifyWidget'
+import { GlobalPulse } from './components/GlobalPulse'
 
 function App() {
   const [appId, setAppId] = useState('')
@@ -869,6 +871,11 @@ function App() {
                                 <SmallGroupSorter students={students} />
                             </div>
                         )}
+                        {currentView === 'global-pulse' && (
+                             <div className="view-container">
+                                 <GlobalPulse students={students} />
+                             </div>
+                        )}
                         {currentView === 'newsletter' && (
                              <div className="view-container">
                                  <NewsletterArchitect students={students} auth={auth} />
@@ -948,6 +955,9 @@ function App() {
             duration={5000}
           />
       )}
+
+      {/* Spotify Widget */}
+      <SpotifyWidget config={config} />
     </div>
   )
 }

@@ -24,6 +24,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
   const [partyMode, setPartyMode] = useState(false);
   const [zenMode, setZenMode] = useState(false);
   const [campus, setCampus] = useState('Main Campus');
+  const [enableSpotify, setEnableSpotify] = useState(false);
 
   // Load current config when modal opens
   useEffect(() => {
@@ -37,6 +38,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         setPartyMode(currentConfig.partyMode ?? false);
         setZenMode(currentConfig.zenMode ?? false);
         setCampus(currentConfig.campus ?? 'Main Campus');
+        setEnableSpotify(currentConfig.enableSpotify ?? false);
     }
   }, [isOpen, currentConfig]);
 
@@ -52,6 +54,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         partyMode,
         zenMode,
         campus,
+        enableSpotify,
         graderOptions: {
             ...currentConfig.graderOptions,
             cutoffMonth,
@@ -89,6 +92,20 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
             <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
                 Students born after this date will be placed in the lower grade.
                 (Standard US: September 1st)
+            </p>
+        </div>
+
+        <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input
+                    type="checkbox"
+                    checked={enableSpotify}
+                    onChange={(e) => setEnableSpotify(e.target.checked)}
+                />
+                Spotify Integration
+            </label>
+            <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
+                Play a worship playlist while cleaning data.
             </p>
         </div>
 

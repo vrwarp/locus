@@ -1,0 +1,42 @@
+.spotify-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 320px;
+  background-color: #1a1a1a;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  border: 1px solid #333;
+  z-index: 1000;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.spotify-widget.minimized {
+  width: 200px;
+}
+
+.spotify-widget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: #1db954; /* Spotify Green */
+  color: white;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.spotify-widget-header button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 0.8rem;
+  padding: 4px;
+}
+
+.spotify-widget-content {
+  padding: 8px;
+  background-color: #1a1a1a;
+}
