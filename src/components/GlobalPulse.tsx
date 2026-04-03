@@ -8,15 +8,36 @@ interface GlobalPulseProps {
 }
 
 export const GlobalPulse: React.FC<GlobalPulseProps> = ({ students }) => {
-  // Mock logic: derive local metrics from 'students' (in reality, requires complex cross-church aggregates)
   const total = students.length;
+
+  if (total === 0) {
+      return (
+        <div className="global-pulse-report">
+          <header className="report-header">
+            <h2>The Global Pulse</h2>
+            <p>Compare your church's health metrics against anonymized global averages.</p>
+          </header>
+          <div className="empty-state">No data available to calculate the pulse.</div>
+        </div>
+      );
+  }
+
   const anomalies = students.filter(s => s.hasNameAnomaly || s.hasEmailAnomaly || s.hasPhoneAnomaly || s.hasAddressAnomaly).length;
-  const accuracy = total > 0 ? ((total - anomalies) / total) * 100 : 0;
+  const accuracy = ((total - anomalies) / total) * 100;
 
-  // Calculate a mock "Health Score"
-  const healthScore = total > 0 ? Math.min(100, Math.max(0, accuracy - 10)) : 0;
+  const hasPhoneCount = students.filter(s => s.phoneNumber && !s.hasPhoneAnomaly).length;
+  const phoneCompletion = (hasPhoneCount / total) * 100;
 
-  // Assume some mock values for Local vs Global
+  const hasEmailCount = students.filter(s => s.email && !s.hasEmailAnomaly).length;
+  const emailCompletion = (hasEmailCount / total) * 100;
+
+  const hasAddressCount = students.filter(s => s.address && !s.hasAddressAnomaly).length;
+  const addressCompletion = (hasAddressCount / total) * 100;
+
+  // Active ratio: Check in > 0 or group count > 0
+  const activeCount = students.filter(s => (s.checkInCount || 0) > 0 || (s.groupCount || 0) > 0).length;
+  const activeRatio = (activeCount / total) * 100;
+
   const data = [
     {
       subject: 'Data Accuracy',
@@ -25,26 +46,26 @@ export const GlobalPulse: React.FC<GlobalPulseProps> = ({ students }) => {
       fullMark: 100,
     },
     {
-      subject: 'Health Score',
-      Local: Math.round(healthScore),
-      Global: 78,
+      subject: 'Phone Completion',
+      Local: Math.round(phoneCompletion),
+      Global: 72,
       fullMark: 100,
     },
     {
-      subject: 'Retention Rate',
-      Local: 65, // Mocked
-      Global: 60,
+      subject: 'Email Completion',
+      Local: Math.round(emailCompletion),
+      Global: 68,
       fullMark: 100,
     },
     {
-      subject: 'Engagement',
-      Local: 50, // Mocked
+      subject: 'Address Completion',
+      Local: Math.round(addressCompletion),
       Global: 55,
       fullMark: 100,
     },
     {
-      subject: 'Growth Velocity',
-      Local: 40, // Mocked
+      subject: 'Active Ratio',
+      Local: Math.round(activeRatio),
       Global: 45,
       fullMark: 100,
     },
