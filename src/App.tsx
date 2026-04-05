@@ -25,6 +25,7 @@ import { MapView } from './components/MapView'
 import { DuplicatesReport } from './components/DuplicatesReport'
 import { AchievementCase } from './components/AchievementCase'
 import { NewsletterArchitect } from './components/NewsletterArchitect'
+import { GivingRiver } from './components/GivingRiver'
 import { CampusCup } from './components/CampusCup'
 import { SermonSentiment } from './components/SermonSentiment'
 import { PrayerMatch } from './components/PrayerMatch'
@@ -879,6 +880,11 @@ function App() {
                         {currentView === 'newsletter' && (
                              <div className="view-container">
                                  <NewsletterArchitect students={students} auth={auth} />
+                             </div>
+                        )}
+                        {currentView === 'giving-river' && (
+                             <div className="view-container">
+                                 <GivingRiver />
                              </div>
                         )}
                       </>
