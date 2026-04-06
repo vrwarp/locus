@@ -27,6 +27,7 @@ import { AchievementCase } from './components/AchievementCase'
 import { NewsletterArchitect } from './components/NewsletterArchitect'
 import { CampusCup } from './components/CampusCup'
 import { SermonSentiment } from './components/SermonSentiment'
+import { GivingRiver } from './components/GivingRiver'
 import { PrayerMatch } from './components/PrayerMatch'
 import { BountyBoard } from './components/BountyBoard'
 import { SmallGroupSorter } from './components/SmallGroupSorter'
@@ -820,6 +821,12 @@ function App() {
                         {currentView === 'sermons' && (
                              <div className="view-container">
                                 <SermonSentiment auth={auth} />
+                            </div>
+                        )}
+
+                        {currentView === 'giving-river' && (
+                             <div className="view-container fade-in">
+                                <GivingRiver />
                             </div>
                         )}
 

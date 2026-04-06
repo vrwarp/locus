@@ -1,4 +1,22 @@
 
+## Session (Giving River)
+- **Implemented:**
+    - **"The Giving River" (Visualization Concept #4):**
+        - Created `src/utils/giving.ts` defining `getGivingFlowData()` to generate mock node and link data representing the flow of generosity from General Fund and other income sources down to specific ministries and initiatives.
+        - Implemented `src/components/GivingRiver.tsx` (and `GivingRiver.css`) to visualize this data using a Recharts `Sankey` diagram, including custom rendered nodes for clearer readability of fund categories.
+    - **Integration:**
+        - Integrated the `GivingRiver` component into `App.tsx` and added corresponding navigation for it in `Sidebar.tsx` under the "Intelligence" section (using a wave icon 🌊).
+        - Updated `plans/vision.md` to mark Concept #4 ("The Giving River") as `[DONE]`.
+- **Test Coverage:**
+    - Added unit test `src/utils/giving.test.ts` to verify data generation structure and proper referencing between links and nodes.
+    - Added UI test `src/components/GivingRiver.test.tsx` using mocked Recharts components to bypass JSDOM SVG measurement constraints, successfully asserting rendering of the header and the chart.
+    - Updated `src/components/Sidebar.test.tsx` to verify new navigation items render and route correctly.
+- **Status:** The Giving River feature (Concept #4) fully implemented and verified.
+- **Future Ideas:**
+    - Connect the Giving River directly to a Planning Center Giving API endpoint if available, removing mocked generation and processing live donation metrics.
+    - Allow users to filter the flow based on specific date ranges (e.g. "This Month", "Last Year") to see how giving allocation trends change over time.
+    - Introduce tooltips or drill-downs that show specific top donors for certain allocations without breaking anonymity guidelines.
+
 ## Session 48
 - **Implemented:**
     - **"Campus Cup" (Gamification Concept #24):**
