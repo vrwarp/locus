@@ -63,6 +63,7 @@ describe('transformPerson', () => {
       householdId: 'hh1',
       backgroundCheckExpiresAt: null,
       prayerTopic: null,
+      firstDonationDate: null,
       hasNameAnomaly: false,
       email: undefined,
       address: undefined,
@@ -141,6 +142,21 @@ describe('transformPerson', () => {
         isChild: false,
         householdId: null
     }));
+  });
+
+  it('transforms first_donation_date correctly', () => {
+    const person: PcoPerson = {
+      id: '1',
+      type: 'Person',
+      attributes: {
+        birthdate: birthdate10,
+        name: 'John Giver',
+        first_donation_date: '2024-05-15T12:00:00Z'
+      },
+    };
+
+    const result = transformPerson(person);
+    expect(result?.firstDonationDate).toBe('2024-05-15T12:00:00Z');
   });
 
   it('returns null if birthdate is missing', () => {

@@ -41,6 +41,21 @@ describe('AutomationsReport', () => {
         expect(screen.getByText('Send DoorDash Meal')).toBeDefined();
     });
 
+    it('renders first time giver alerts', () => {
+        vi.setSystemTime(new Date('2024-05-10T12:00:00Z'));
+        const students = [{
+            ...createStudent('1', 'New Giver', '1990-01-01', null, 30),
+            firstDonationDate: '2024-05-08T10:00:00Z'
+        }];
+
+        render(<AutomationsReport students={students} graderOptions={{}} />);
+
+        expect(screen.getByText('First Time Giver Alert')).toBeDefined();
+        expect(screen.getByText('New Giver')).toBeDefined();
+        expect(screen.getByText('First gift 2 days ago')).toBeDefined();
+        expect(screen.getByText('Draft Thank You Note')).toBeDefined();
+    });
+
     it('renders birthday bot suggestions', () => {
         // Today is May 10. Birthday is May 17.
         vi.setSystemTime(new Date('2024-05-10'));

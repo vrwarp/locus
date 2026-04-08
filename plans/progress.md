@@ -392,3 +392,17 @@
     - Updated `src/utils/pco.test.ts` to accommodate the model addition.
     - 100% statement and branch coverage on the new utility and component.
 - **Status:** "Prayer Partner Match" fully implemented and verified.
+
+## Session (First Time Giver Alert)
+- **Implemented:**
+    - **"First Time Giver" Alert (Concept #13):**
+        - Added mock `first_donation_date` generation to `mock-api/data.js` to simulate users who gave their first donation recently.
+        - Extended `PcoPerson`, `PcoAttributes`, and `Student` interfaces in `src/utils/pco.ts` to include `firstDonationDate`.
+        - Created `getFirstTimeGivers` in `src/utils/automations.ts` to identify adults who gave their first donation within the last 7 days.
+        - Updated `src/components/AutomationsReport.tsx` to visualize a new automation lane: "First Time Giver Alert" which prompts the user to "Draft Thank You Note".
+    - **Vision Doc Updates:**
+        - Marked Concept #13 ("First Time Giver" Alert) as `[DONE]` in `plans/vision.md`.
+- **Test Coverage Improvements:**
+    - Added comprehensive unit tests in `src/utils/automations.test.ts` to verify the logic of `getFirstTimeGivers`, checking various edge cases such as exact matching, future dates, and custom thresholds.
+    - Added UI testing in `src/components/AutomationsReport.test.tsx` to verify the new "First Time Giver Alert" lane renders as expected.
+- **Status:** "First Time Giver" Alert fully implemented and verified.

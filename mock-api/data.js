@@ -98,6 +98,17 @@ const generateHouseholds = () => {
          prayerTopic = randomItem(prayerTopics);
       }
 
+      // Simulate First Time Giver (first_donation_date)
+      // 5% chance they gave for the first time in the last 7 days.
+      // 10% chance they gave for the first time a long time ago.
+      let firstDonationDate = null;
+      const fgRandom = Math.random();
+      if (fgRandom < 0.05) {
+        firstDonationDate = formatISO(addDays(new Date(), -randomInt(0, 6))); // Within last 7 days
+      } else if (fgRandom < 0.15) {
+        firstDonationDate = formatISO(addDays(new Date(), -randomInt(10, 365))); // Older than 7 days
+      }
+
       const adult = {
         id,
         type: 'Person',
@@ -110,6 +121,7 @@ const generateHouseholds = () => {
           birthdate: `${birthYear}-01-01`, // Rough adult age
           background_check_expires_at: backgroundCheckExpiresAt,
           prayer_topic: prayerTopic,
+          first_donation_date: firstDonationDate,
           phone_numbers: [{ location: 'Mobile', number: (() => {
             const r = Math.random();
             const n1 = randomInt(100, 999);

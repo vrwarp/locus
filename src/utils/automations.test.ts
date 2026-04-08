@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks } from './automations';
+import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks, getFirstTimeGivers } from './automations';
 import type { Student } from './pco';
 import { addDays, subDays, parseISO, addYears, setMonth } from 'date-fns';
 
@@ -169,6 +169,69 @@ describe('Background Check Automations', () => {
             expect(results[1].person.name).toBe('Expired Recently');
             expect(results[1].daysUntilExpiry).toBeLessThan(0);
         });
+    });
+});
+
+describe('getFirstTimeGivers', () => {
+    const createGiver = (id: string, name: string, firstDonationDate: string | null): Student => ({
+        id, age: 30, pcoGrade: null, name, firstName: name.split(' ')[0], lastName: name.split(' ')[1] || '',
+        birthdate: '1990-01-01', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
+        isChild: false, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
+        firstDonationDate
+    });
+
+    it('returns empty array if no students have a first donation date', () => {
+        const students = [
+            createGiver('1', 'Student A', null),
+            createGiver('2', 'Student B', null)
+        ];
+        const givers = getFirstTimeGivers(students, new Date('2024-05-15T12:00:00Z'));
+        expect(givers).toHaveLength(0);
+    });
+
+    it('identifies recent first-time givers within threshold', () => {
+        const students = [
+            // Donated 2 days ago
+            createGiver('1', 'Student A', '2024-05-13T10:00:00Z'),
+            // Donated exactly 7 days ago
+            createGiver('2', 'Student B', '2024-05-08T10:00:00Z'),
+            // Donated 10 days ago (outside default 7-day threshold)
+            createGiver('3', 'Student C', '2024-05-05T10:00:00Z')
+        ];
+
+        const givers = getFirstTimeGivers(students, new Date('2024-05-15T12:00:00Z'));
+
+        expect(givers).toHaveLength(2);
+
+        // Should be sorted most recent first
+        expect(givers[0].person.name).toBe('Student A');
+        expect(givers[0].daysSinceDonation).toBe(2);
+
+        expect(givers[1].person.name).toBe('Student B');
+        expect(givers[1].daysSinceDonation).toBe(7);
+    });
+
+    it('respects custom threshold', () => {
+        const students = [
+            createGiver('1', 'Student A', '2024-05-05T10:00:00Z')
+        ];
+
+        // Should not be found with 7 day threshold
+        let givers = getFirstTimeGivers(students, new Date('2024-05-15T12:00:00Z'), 7);
+        expect(givers).toHaveLength(0);
+
+        // Should be found with 14 day threshold
+        givers = getFirstTimeGivers(students, new Date('2024-05-15T12:00:00Z'), 14);
+        expect(givers).toHaveLength(1);
+        expect(givers[0].daysSinceDonation).toBe(10);
+    });
+
+    it('ignores future donation dates', () => {
+        const students = [
+            createGiver('1', 'Student A', '2024-05-20T10:00:00Z')
+        ];
+        const givers = getFirstTimeGivers(students, new Date('2024-05-15T12:00:00Z'));
+        expect(givers).toHaveLength(0);
     });
 });
 
