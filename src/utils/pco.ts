@@ -16,6 +16,8 @@ export interface PcoAttributes {
   household_id?: string;
   background_check_expires_at?: string | null;
   prayer_topic?: string | null;
+  first_time_giver?: boolean;
+  first_gift_date?: string | null;
   email_addresses?: { address: string, location: string }[];
   phone_numbers?: { number: string, location: string }[];
   addresses?: Address[];
@@ -70,6 +72,8 @@ export interface Student {
   hasEmailAnomaly: boolean;
   hasAddressAnomaly: boolean;
   hasPhoneAnomaly: boolean;
+  firstTimeGiver: boolean;
+  firstGiftDate: string | null;
 }
 
 export interface PcoEvent {
@@ -97,7 +101,7 @@ export interface PcoCheckIn {
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
   const { id, attributes } = person;
-  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id, background_check_expires_at, prayer_topic, email_addresses, addresses, phone_numbers } = attributes;
+  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id, background_check_expires_at, prayer_topic, first_time_giver, first_gift_date, email_addresses, addresses, phone_numbers } = attributes;
 
   if (!birthdate) {
     return null;
@@ -151,6 +155,8 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     hasEmailAnomaly,
     hasAddressAnomaly,
     hasPhoneAnomaly,
+    firstTimeGiver: !!first_time_giver,
+    firstGiftDate: first_gift_date || null
   };
 };
 

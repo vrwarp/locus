@@ -98,6 +98,14 @@ const generateHouseholds = () => {
          prayerTopic = randomItem(prayerTopics);
       }
 
+      // Simulate First Time Giver (recent)
+      let first_time_giver = false;
+      let first_gift_date = null;
+      if (Math.random() < 0.1) { // 10% of adults
+        first_time_giver = true;
+        first_gift_date = formatISO(addDays(new Date(), -randomInt(1, 5))); // 1 to 5 days ago
+      }
+
       const adult = {
         id,
         type: 'Person',
@@ -110,6 +118,8 @@ const generateHouseholds = () => {
           birthdate: `${birthYear}-01-01`, // Rough adult age
           background_check_expires_at: backgroundCheckExpiresAt,
           prayer_topic: prayerTopic,
+          first_time_giver,
+          first_gift_date,
           phone_numbers: [{ location: 'Mobile', number: (() => {
             const r = Math.random();
             const n1 = randomInt(100, 999);

@@ -274,7 +274,7 @@ AI should never be a black box.
 ### Automation Concepts
 11. **Birthday Bot:** Auto-email parents 1 week before kid's birthday. [DONE]
 12. **Grade Promotion Script:** Auto-promote grades on June 1st. [DONE]
-13. **"First Time Giver" Alert:** Slack notification to Pastor when someone gives for the first time.
+13. **"First Time Giver" Alert:** Slack notification to Pastor when someone gives for the first time. [DONE]
 14. **"Missing Person" Alert:** Notification if a key volunteer misses 2 weeks. [DONE]
 15. **Address Cleaner:** Auto-format "St." to "Street". [DONE]
 16. **Phone Formatter:** Auto-add area codes based on Zip Code. [DONE]

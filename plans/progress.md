@@ -1,4 +1,21 @@
 
+## Session (First Time Giver Alert)
+- **Implemented:**
+    - **"First Time Giver" Alert (Automation Concept #13):**
+        - Updated `PcoAttributes` and `Student` interfaces in `src/utils/pco.ts` to include `first_time_giver` (boolean) and `first_gift_date` (string).
+        - Modified the mock backend `mock-api/data.js` to randomly generate recent first-time giving data for a 10% subset of adult records.
+        - Implemented the `getFirstTimeGivers` logic in `src/utils/automations.ts` to filter students who are marked as first-time givers within a customizable recent threshold (default 7 days).
+        - Integrated the alert into `src/components/AutomationsReport.tsx`, rendering a new lane for "First Time Giver Alert" with a mocked "Notify Pastor in Slack" action.
+- **Test Coverage:**
+    - Added unit test `getFirstTimeGivers` to `src/utils/automations.test.ts` to ensure correct date logic and filtering.
+    - Updated UI tests in `src/components/AutomationsReport.test.tsx` to verify rendering and interaction of the First Time Giver alert and its dismiss mechanism.
+    - All tests passing with improved coverage.
+- **Status:** First Time Giver Alert (Concept #13) fully implemented and verified.
+- **Future Ideas:**
+    - Connect the giving data accurately via Planning Center's actual Giving API.
+    - Hook the "Notify Pastor in Slack" button to an actual Slack webhook via an edge function instead of a local mocked action.
+    - Allow users to configure the threshold days or specific notification targets per automation.
+
 ## Session (Giving River)
 - **Implemented:**
     - **"The Giving River" (Visualization Concept #4):**
