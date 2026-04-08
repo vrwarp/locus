@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks } from './automations';
+import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks, getFirstTimeGivers } from './automations';
 import type { Student } from './pco';
 import { addDays, subDays, parseISO, addYears, setMonth } from 'date-fns';
 
@@ -9,7 +9,8 @@ describe('getUpcomingBirthdays', () => {
     const createStudent = (id: string, birthdate: string): Student => ({
         id, age: 10, pcoGrade: 5, name: `Student ${id}`, firstName: 'Student', lastName: id,
         birthdate, calculatedGrade: 5, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
-        isChild: true, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false
+        isChild: true, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
+        firstTimeGiver: false, firstGiftDate: null
     });
 
     it('identifies birthdays exactly 7 days away', () => {
@@ -160,6 +161,35 @@ describe('Background Check Automations', () => {
             expect(results[1].daysUntilExpiry).toBe(20);
         });
     });
+
+describe('getFirstTimeGivers', () => {
+    const today = new Date('2024-05-10');
+
+    const createStudent = (id: string, isChild: boolean, firstTimeGiver: boolean, firstGiftDate: string | null): Student => ({
+        id, age: isChild ? 10 : 35, pcoGrade: null, name: `Person ${id}`, firstName: 'Person', lastName: id,
+        birthdate: '1990-01-01', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
+        isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
+        firstTimeGiver, firstGiftDate
+    });
+
+    it('identifies first time givers within the last 7 days', () => {
+        const students = [
+            createStudent('1', false, true, '2024-05-09'), // 1 day ago
+            createStudent('2', false, true, '2024-05-05'), // 5 days ago
+            createStudent('3', false, true, '2024-05-01'), // 9 days ago (too old)
+            createStudent('4', false, false, null), // Not a first time giver
+            createStudent('5', true, true, '2024-05-08') // Child who gave
+        ];
+
+        const result = getFirstTimeGivers(students, 7, today);
+        expect(result).toHaveLength(3);
+        // Most recent first
+        expect(result[0].person.id).toBe('1');
+        expect(result[1].person.id).toBe('5'); // children can be included if flagged
+        expect(result[2].person.id).toBe('2');
+        expect(result[0].daysSinceFirstGift).toBe(1);
+    });
+});
 
     describe('getExpiredBackgroundChecks', () => {
         it('identifies adults whose background checks have already expired, sorted most expired first', () => {

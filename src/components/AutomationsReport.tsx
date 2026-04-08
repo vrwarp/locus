@@ -6,10 +6,12 @@ import {
     getCollegeSendOffs,
     getExpiringBackgroundChecks,
     getExpiredBackgroundChecks,
+    getFirstTimeGivers,
     type BirthdayAction,
     type PromotionAction,
     type CollegeSendOffAction,
-    type BackgroundCheckAction
+    type BackgroundCheckAction,
+    type FirstTimeGiverAction
 } from '../utils/automations';
 import './AutomationsReport.css';
 import type { GraderOptions } from '../utils/grader';
@@ -30,6 +32,7 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
     const [dismissedExpiringChecks, setDismissedExpiringChecks] = useState<Set<string>>(new Set());
     const [dismissedExpiredChecks, setDismissedExpiredChecks] = useState<Set<string>>(new Set());
     const [dismissedNewBabies, setDismissedNewBabies] = useState<Set<string>>(new Set());
+    const [dismissedFirstTimeGivers, setDismissedFirstTimeGivers] = useState<Set<string>>(new Set());
 
     const newBabies = useMemo(() => {
         return students.filter(s => s.age === 0 && !dismissedNewBabies.has(s.id));
@@ -55,7 +58,11 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
         return getExpiredBackgroundChecks(students, today).filter(c => !dismissedExpiredChecks.has(c.person.id));
     }, [students, today, dismissedExpiredChecks]);
 
-    const totalActions = birthdays.length + promotions.length + sendOffs.length + expiringChecks.length + expiredChecks.length;
+    const firstTimeGivers = useMemo(() => {
+        return getFirstTimeGivers(students, 7, today).filter(g => !dismissedFirstTimeGivers.has(g.person.id));
+    }, [students, today, dismissedFirstTimeGivers]);
+
+    const totalActions = birthdays.length + promotions.length + sendOffs.length + expiringChecks.length + expiredChecks.length + firstTimeGivers.length;
 
     const handleDismissBirthday = (id: string) => setDismissedBirthdays(prev => new Set(prev).add(id));
     const handleDismissPromotion = (id: string) => setDismissedPromotions(prev => new Set(prev).add(id));
@@ -63,6 +70,7 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
     const handleDismissExpiringCheck = (id: string) => setDismissedExpiringChecks(prev => new Set(prev).add(id));
     const handleDismissExpiredCheck = (id: string) => setDismissedExpiredChecks(prev => new Set(prev).add(id));
     const handleDismissNewBaby = (id: string) => setDismissedNewBabies(prev => new Set(prev).add(id));
+    const handleDismissFirstTimeGiver = (id: string) => setDismissedFirstTimeGivers(prev => new Set(prev).add(id));
 
     // Simulated "Approve" actions
     const handleApprove = (id: string, action: string) => {
@@ -73,6 +81,7 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
         if (action === 'Email Reminder') handleDismissExpiringCheck(id);
         if (action === 'Remove from Roster') handleDismissExpiredCheck(id);
         if (action === 'Send DoorDash') handleDismissNewBaby(id);
+        if (action === 'Send Slack Alert') handleDismissFirstTimeGiver(id);
     };
 
     return (
@@ -86,6 +95,33 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
             </header>
 
             <div className="automation-lanes">
+                {/* First Time Giver Alert */}
+                <section className="automation-lane">
+                    <h3>
+                        <span className="icon">🎉</span>
+                        First Time Giver Alert
+                        <span className="count">{firstTimeGivers.length}</span>
+                    </h3>
+                    {firstTimeGivers.length === 0 ? (
+                        <p className="empty-state">No new first time givers this week.</p>
+                    ) : (
+                        <ul className="action-list">
+                            {firstTimeGivers.map(({ person, daysSinceFirstGift }) => (
+                                <li key={person.id} className="action-item">
+                                    <div className="action-details">
+                                        <strong>{person.name}</strong>
+                                        <div className="meta">Gave {daysSinceFirstGift === 0 ? 'today' : `${daysSinceFirstGift} days ago`}</div>
+                                    </div>
+                                    <div className="action-buttons">
+                                        <button className="btn-approve" onClick={() => handleApprove(person.id, 'Send Slack Alert')}>Notify Pastor in Slack</button>
+                                        <button className="btn-dismiss" onClick={() => handleDismissFirstTimeGiver(person.id)}>Dismiss</button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+
                 {/* New Baby Alert (DoorDash) */}
                 <section className="automation-lane">
                     <h3>

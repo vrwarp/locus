@@ -23,6 +23,11 @@ export interface BackgroundCheckAction {
     daysUntilExpiry: number;
 }
 
+export interface FirstTimeGiverAction {
+    person: Student;
+    daysSinceFirstGift: number;
+}
+
 /**
  * Identifies students whose birthday is exactly a specified number of days away.
  * Assumes today is the current date if not provided.
@@ -139,4 +144,19 @@ export const getExpiredBackgroundChecks = (students: Student[], referenceDate: D
         })
         .filter(action => action.daysUntilExpiry <= 0)
         .sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry); // Most expired first
+};
+
+/**
+ * Identifies people who gave for the first time within a recent threshold.
+ */
+export const getFirstTimeGivers = (students: Student[], thresholdDays: number = 7, referenceDate: Date = new Date()): FirstTimeGiverAction[] => {
+    return students
+        .filter(s => s.firstTimeGiver && s.firstGiftDate)
+        .map(person => {
+            const giftDate = new Date(person.firstGiftDate!);
+            const daysSinceFirstGift = differenceInDays(referenceDate, giftDate);
+            return { person, daysSinceFirstGift };
+        })
+        .filter(action => action.daysSinceFirstGift >= 0 && action.daysSinceFirstGift <= thresholdDays)
+        .sort((a, b) => a.daysSinceFirstGift - b.daysSinceFirstGift); // Most recent first
 };

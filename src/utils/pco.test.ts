@@ -69,7 +69,9 @@ describe('transformPerson', () => {
       hasEmailAnomaly: false,
       hasAddressAnomaly: false,
       hasPhoneAnomaly: false,
-      phoneNumber: undefined
+      phoneNumber: undefined,
+      firstTimeGiver: false,
+      firstGiftDate: null
     });
   });
 
@@ -470,6 +472,8 @@ describe('prepareUpdateAttributes', () => {
         hasEmailAnomaly: false,
         hasAddressAnomaly: false,
         hasPhoneAnomaly: false,
+        firstTimeGiver: false,
+        firstGiftDate: null,
         ...overrides
     });
 

@@ -4,10 +4,11 @@ import { AutomationsReport } from './AutomationsReport';
 import type { Student } from '../utils/pco';
 
 describe('AutomationsReport', () => {
-    const createStudent = (id: string, name: string, birthdate: string, pcoGrade: number | null, age: number, isChild: boolean = true, bgExpiry: string | null = null): Student => ({
+    const createStudent = (id: string, name: string, birthdate: string, pcoGrade: number | null, age: number, isChild: boolean = true, bgExpiry: string | null = null, firstTimeGiver = false, firstGiftDate: string | null = null): Student => ({
         id, age, pcoGrade, name, firstName: name.split(' ')[0], lastName: name.split(' ')[1] || '',
         birthdate, calculatedGrade: 5, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
-        isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false, backgroundCheckExpiresAt: bgExpiry
+        isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false, backgroundCheckExpiresAt: bgExpiry,
+        firstTimeGiver, firstGiftDate
     });
 
     beforeEach(() => {
@@ -29,6 +30,32 @@ describe('AutomationsReport', () => {
         expect(screen.getByText('No background checks expiring soon.')).toBeDefined();
         expect(screen.getByText('No expired background checks.')).toBeDefined();
         expect(screen.getByText('No new babies detected.')).toBeDefined();
+        expect(screen.getByText('No new first time givers this week.')).toBeDefined();
+    });
+
+    it('renders first time giver alerts and allows actions', () => {
+        vi.setSystemTime(new Date('2024-05-10'));
+        const students = [
+            createStudent('1', 'Generous Giver', '1990-01-01', null, 34, false, null, true, '2024-05-09')
+        ];
+
+        render(<AutomationsReport students={students} graderOptions={{}} />);
+
+        expect(screen.getByText('Generous Giver')).toBeDefined();
+        expect(screen.getByText('Gave 1 days ago')).toBeDefined();
+
+        // Mock alert
+        const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+        const approveBtn = screen.getByText('Notify Pastor in Slack');
+        fireEvent.click(approveBtn);
+
+        expect(alertMock).toHaveBeenCalledWith('Action "Send Slack Alert" approved for student 1. (Mocked action)');
+
+        // Alert should be dismissed
+        expect(screen.queryByText('Generous Giver')).toBeNull();
+
+        alertMock.mockRestore();
     });
 
     it('renders new baby alerts', () => {
