@@ -22,4 +22,14 @@ describe('giving utils', () => {
             expect(link.value).toBeGreaterThan(0);
         });
     });
+
+    it('multiplies values based on date range', () => {
+        const allTimeData = getGivingFlowData('all-time');
+        const thisYearData = getGivingFlowData('this-year');
+        const thisMonthData = getGivingFlowData('this-month');
+
+        expect(allTimeData.links[0].value).toBe(500000);
+        expect(thisYearData.links[0].value).toBe(150000); // 500000 * 0.3
+        expect(thisMonthData.links[0].value).toBe(25000); // 500000 * 0.05
+    });
 });

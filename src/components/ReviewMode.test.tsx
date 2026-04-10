@@ -334,7 +334,7 @@ describe('ReviewMode', () => {
             vi.useRealTimers();
         });
 
-        it('displays timer and score when in Speed Run mode', () => {
+        it('suppresses the timer string and score display in Zen Mode, and shows the visual indicator', () => {
             render(
                 <ReviewMode
                     isOpen={true}
@@ -426,6 +426,24 @@ describe('ReviewMode', () => {
             expect(screen.queryByText(/Speed Run ⏱️/)).not.toBeInTheDocument();
             expect(screen.getByText('Review Anomalies')).toBeInTheDocument();
             expect(screen.queryByText(/Score:/)).not.toBeInTheDocument();
+
+            // Assert the visual indicator is present
+            expect(screen.getByTitle('Zen Mode Active')).toBeInTheDocument();
+        });
+
+        it('does not show the Zen Mode indicator when zenMode is false', () => {
+            render(
+                <ReviewMode
+                    isOpen={true}
+                    students={[mockStudent]}
+                    onClose={vi.fn()}
+                    onSave={vi.fn()}
+                    isSpeedRun={true}
+                    zenMode={false}
+                />
+            );
+
+            expect(screen.queryByTitle('Zen Mode Active')).not.toBeInTheDocument();
         });
 
         it('shows Zen Mode specific completion screen', () => {

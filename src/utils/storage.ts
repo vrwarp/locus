@@ -9,6 +9,7 @@ export interface AppConfig {
   colorblindMode?: boolean;
   muteSounds?: boolean;
   partyMode?: boolean;
+  confettiTheme?: string;
   zenMode?: boolean;
   campus?: string;
   enableSpotify?: boolean;

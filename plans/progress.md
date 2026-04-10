@@ -409,3 +409,24 @@
     - Updated `src/utils/pco.test.ts` to accommodate the model addition.
     - 100% statement and branch coverage on the new utility and component.
 - **Status:** "Prayer Partner Match" fully implemented and verified.
+
+## Session (Feature Enhancements)
+- **Implemented:**
+    - **Party Mode: Confetti Themes:** Added a new `confettiTheme` property to `AppConfig`, allowing users to select between 'default', 'pastel', 'neon', and 'monochrome' themes for the celebratory click feedback.
+    - **Zen Mode: Visual Indicator:** Added a persistent visual indicator (🪷) to the header of `ReviewMode.tsx` when Zen Mode is active, clearly signaling the mode to the user.
+    - **Giving River: Date Filtering:** Added a new `<select>` dropdown to `GivingRiver.tsx` to allow filtering the generative flow data by 'All Time', 'This Year', and 'This Month'.
+- **Integration:**
+    - Updated `src/components/ConfigModal.tsx` to conditionally render the Confetti Theme dropdown.
+    - Updated `src/components/Confetti.tsx` to accept the new theme and apply specific color palettes.
+    - Modified `src/utils/giving.ts` to accept the date range and return adjusted mock flow data.
+- **Test Coverage:**
+    - Added unit tests for the Confetti Theme selector and rendering (`ConfigModal.test.tsx`, `Confetti.test.tsx`).
+    - Added UI tests for the Zen Mode indicator (`ReviewMode.test.tsx`).
+    - Added unit tests for the Giving River date filter logic and UI rendering (`giving.test.ts`, `GivingRiver.test.tsx`).
+- **Status:** Enhancements fully implemented and verified.
+- **Discovered:**
+    - Testing Recharts and Canvas elements in Vitest/JSDOM requires robust mocking to avoid deep SVG measurement failures and ensure reliable assertions on DOM hierarchy.
+- **Future Ideas:**
+    - Connect the Giving River date filter to actual transaction history via the PCO API.
+    - Add ambient, relaxing background audio tracks to Zen Mode.
+    - Integrate achievement-based unlocks for new Confetti Themes.

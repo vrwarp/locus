@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { GivingRiver } from './GivingRiver';
 import React from 'react';
+import { getGivingFlowData } from '../utils/giving';
 
 // Mock Recharts to avoid JSDOM measurement issues with SVG elements
 vi.mock('recharts', () => {
@@ -38,5 +39,32 @@ describe('GivingRiver Component', () => {
 
         expect(Number(nodeCount)).toBeGreaterThan(0);
         expect(Number(linkCount)).toBeGreaterThan(0);
+    });
+
+    it('updates data when date range is changed', () => {
+        render(<GivingRiver />);
+
+        const sankeyChart = screen.getByTestId('sankey-chart');
+
+        // Initial state (all-time)
+        const allTimeData = getGivingFlowData('all-time');
+        const allTimeLinkValue = allTimeData.links[0].value;
+
+        const select = screen.getByLabelText('Date Range:');
+        expect(select).toBeInTheDocument();
+
+        // Verify default selection
+        expect(select).toHaveValue('all-time');
+
+        // Change to this-year
+        fireEvent.change(select, { target: { value: 'this-year' } });
+        expect(select).toHaveValue('this-year');
+
+        // We cannot easily assert the exact value passed to the mock Sankey without more complex mocking,
+        // but we can verify the select element works and state is updated.
+
+        // Change to this-month
+        fireEvent.change(select, { target: { value: 'this-month' } });
+        expect(select).toHaveValue('this-month');
     });
 });

@@ -223,7 +223,10 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
     <div className="review-mode-overlay">
       <div className={`review-card ${isSuccess ? 'success-glow' : ''}`}>
         <div className="review-header">
-            <h2>{isSpeedRun && !zenMode ? `Speed Run ⏱️ ${timeLeft}s` : 'Review Anomalies'}</h2>
+            <h2>
+                {isSpeedRun && !zenMode ? `Speed Run ⏱️ ${timeLeft}s` : 'Review Anomalies'}
+                {zenMode && <span style={{ marginLeft: '10px' }} title="Zen Mode Active">🪷</span>}
+            </h2>
             {isSpeedRun && !zenMode && (
                 <div className="score-indicator">
                     Score: {score}
