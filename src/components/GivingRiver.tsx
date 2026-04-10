@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Sankey, Tooltip, ResponsiveContainer, Layer, Rectangle } from 'recharts';
-import { getGivingFlowData } from '../utils/giving';
+import { getGivingFlowData, type DateRange } from '../utils/giving';
 import './GivingRiver.css';
 
 // Recharts Sankey requires custom node/link components or relies on defaults.
@@ -32,13 +32,24 @@ const CustomNode = ({ x, y, width, height, index, payload, containerWidth }: any
 };
 
 export const GivingRiver: React.FC = () => {
-  const data = useMemo(() => getGivingFlowData(), []);
+  const [dateRange, setDateRange] = useState<DateRange>('all-time');
+  const data = useMemo(() => getGivingFlowData(dateRange), [dateRange]);
 
   return (
     <div className="giving-river-container">
       <div className="giving-river-header">
         <h2>The Giving River</h2>
         <p className="subtitle">Visualizing the flow of generosity</p>
+        <div className="date-range-selector">
+          <label>
+            Date Range:
+            <select value={dateRange} onChange={(e) => setDateRange(e.target.value as DateRange)}>
+              <option value="all-time">All Time</option>
+              <option value="this-year">This Year</option>
+              <option value="this-month">This Month</option>
+            </select>
+          </label>
+        </div>
       </div>
 
       <div className="giving-river-chart">

@@ -22,6 +22,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
   const [colorblindMode, setColorblindMode] = useState(false);
   const [muteSounds, setMuteSounds] = useState(false);
   const [partyMode, setPartyMode] = useState(false);
+  const [confettiTheme, setConfettiTheme] = useState('default');
   const [zenMode, setZenMode] = useState(false);
   const [campus, setCampus] = useState('Main Campus');
   const [enableSpotify, setEnableSpotify] = useState(false);
@@ -36,6 +37,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         setColorblindMode(currentConfig.colorblindMode ?? false);
         setMuteSounds(currentConfig.muteSounds ?? false);
         setPartyMode(currentConfig.partyMode ?? false);
+        setConfettiTheme(currentConfig.confettiTheme ?? 'default');
         setZenMode(currentConfig.zenMode ?? false);
         setCampus(currentConfig.campus ?? 'Main Campus');
         setEnableSpotify(currentConfig.enableSpotify ?? false);
@@ -52,6 +54,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         colorblindMode,
         muteSounds,
         partyMode,
+        confettiTheme,
         zenMode,
         campus,
         enableSpotify,
@@ -177,6 +180,23 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
             <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
                 Enable confetti on every click.
             </p>
+            {partyMode && (
+                <div style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                    <label style={{ fontSize: '0.9rem', color: '#333' }}>
+                        Confetti Theme:
+                        <select
+                            value={confettiTheme}
+                            onChange={(e) => setConfettiTheme(e.target.value)}
+                            style={{ marginLeft: '0.5rem', padding: '0.2rem', borderRadius: '4px', border: '1px solid #ccc' }}
+                        >
+                            <option value="default">Default</option>
+                            <option value="pastel">Pastel</option>
+                            <option value="neon">Neon</option>
+                            <option value="monochrome">Monochrome (Silver/Gold)</option>
+                        </select>
+                    </label>
+                </div>
+            )}
         </div>
 
         <div className="form-group">

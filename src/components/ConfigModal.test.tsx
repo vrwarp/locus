@@ -178,6 +178,39 @@ describe('ConfigModal', () => {
    expect(checkbox).toBeChecked();
  });
 
+  it('selects Confetti Theme and saves', () => {
+    render(
+      <ConfigModal
+        isOpen={true}
+        currentConfig={{ ...mockConfig, partyMode: true }}
+        onSave={mockOnSave}
+        onClose={mockOnClose}
+      />
+    );
+
+    const themeSelect = screen.getByLabelText('Confetti Theme:');
+    fireEvent.change(themeSelect, { target: { value: 'neon' } });
+
+    fireEvent.click(screen.getByText('Save Settings'));
+
+    expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
+        confettiTheme: 'neon'
+    }));
+  });
+
+  it('loads existing Confetti Theme setting', () => {
+    render(
+     <ConfigModal
+       isOpen={true}
+       currentConfig={{ ...mockConfig, partyMode: true, confettiTheme: 'pastel' }}
+       onSave={mockOnSave}
+       onClose={mockOnClose}
+     />
+   );
+   const themeSelect = screen.getByLabelText('Confetti Theme:');
+   expect(themeSelect).toHaveValue('pastel');
+ });
+
   it('toggles Zen Mode and saves', () => {
     render(
       <ConfigModal

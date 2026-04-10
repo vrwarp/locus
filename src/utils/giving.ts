@@ -13,7 +13,17 @@ export interface GivingFlowData {
   links: GivingLink[];
 }
 
-export const getGivingFlowData = (): GivingFlowData => {
+export type DateRange = 'all-time' | 'this-year' | 'this-month';
+
+export const getGivingFlowData = (range: DateRange = 'all-time'): GivingFlowData => {
+  const multipliers: Record<DateRange, number> = {
+    'all-time': 1,
+    'this-year': 0.3,
+    'this-month': 0.05
+  };
+
+  const multiplier = multipliers[range];
+
   return {
     nodes: [
       { name: 'General Fund' },      // 0
@@ -28,15 +38,15 @@ export const getGivingFlowData = (): GivingFlowData => {
       { name: 'Disaster Relief' }    // 9
     ],
     links: [
-      { source: 1, target: 0, value: 500000 },
-      { source: 2, target: 0, value: 200000 },
-      { source: 0, target: 3, value: 150000 },
-      { source: 0, target: 4, value: 100000 },
-      { source: 0, target: 5, value: 50000 },
-      { source: 0, target: 6, value: 75000 },
-      { source: 0, target: 7, value: 125000 },
-      { source: 3, target: 8, value: 100000 },
-      { source: 3, target: 9, value: 50000 }
+      { source: 1, target: 0, value: Math.round(500000 * multiplier) },
+      { source: 2, target: 0, value: Math.round(200000 * multiplier) },
+      { source: 0, target: 3, value: Math.round(150000 * multiplier) },
+      { source: 0, target: 4, value: Math.round(100000 * multiplier) },
+      { source: 0, target: 5, value: Math.round(50000 * multiplier) },
+      { source: 0, target: 6, value: Math.round(75000 * multiplier) },
+      { source: 0, target: 7, value: Math.round(125000 * multiplier) },
+      { source: 3, target: 8, value: Math.round(100000 * multiplier) },
+      { source: 3, target: 9, value: Math.round(50000 * multiplier) }
     ]
   };
 };

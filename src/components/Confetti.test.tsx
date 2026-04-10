@@ -14,4 +14,15 @@ describe('Confetti Component', () => {
     const canvas = container.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
   });
+
+  it('renders without error with different themes', () => {
+    const { container: container1 } = render(<Confetti theme="neon" />);
+    expect(container1.querySelector('canvas')).toBeInTheDocument();
+
+    const { container: container2 } = render(<Confetti theme="monochrome" />);
+    expect(container2.querySelector('canvas')).toBeInTheDocument();
+
+    const { container: container3 } = render(<Confetti theme="pastel" />);
+    expect(container3.querySelector('canvas')).toBeInTheDocument();
+  });
 });

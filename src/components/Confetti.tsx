@@ -3,9 +3,10 @@ import React, { useEffect, useRef } from 'react';
 interface ConfettiProps {
     origin?: { x: number, y: number };
     duration?: number;
+    theme?: string;
 }
 
-export const Confetti: React.FC<ConfettiProps> = ({ origin, duration }) => {
+export const Confetti: React.FC<ConfettiProps> = ({ origin, duration, theme = 'default' }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -22,7 +23,22 @@ export const Confetti: React.FC<ConfettiProps> = ({ origin, duration }) => {
     };
     setSize();
 
-    const colors = ['#FFD700', '#FF4500', '#32CD32', '#00CED1', '#9370DB'];
+    let colors: string[];
+    switch (theme) {
+        case 'pastel':
+            colors = ['#ffB3ba', '#ffdfba', '#ffffba', '#baffc9', '#bae1ff'];
+            break;
+        case 'neon':
+            colors = ['#ff00ff', '#00ffff', '#00ff00', '#ffff00', '#ff0000'];
+            break;
+        case 'monochrome':
+            colors = ['#D4AF37', '#C0C0C0', '#E5E4E2', '#FFDF00', '#F5F5DC']; // Golds and silvers
+            break;
+        case 'default':
+        default:
+            colors = ['#FFD700', '#FF4500', '#32CD32', '#00CED1', '#9370DB'];
+            break;
+    }
 
     class Particle {
       x: number;

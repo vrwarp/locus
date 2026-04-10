@@ -942,10 +942,10 @@ function App() {
         onFix={handleFamilySwap}
       />
 
-      {showConfetti && <Confetti />}
+      {showConfetti && <Confetti theme={config.confettiTheme} />}
 
       {partyClickOrigin && (
-          <Confetti key={partyClickOrigin.id} origin={{ x: partyClickOrigin.x, y: partyClickOrigin.y }} duration={500} />
+          <Confetti key={partyClickOrigin.id} origin={{ x: partyClickOrigin.x, y: partyClickOrigin.y }} duration={500} theme={config.confettiTheme} />
       )}
 
       {latestBadge && (
