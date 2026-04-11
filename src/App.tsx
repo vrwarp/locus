@@ -28,6 +28,7 @@ import { NewsletterArchitect } from './components/NewsletterArchitect'
 import { CampusCup } from './components/CampusCup'
 import { SermonSentiment } from './components/SermonSentiment'
 import { GivingRiver } from './components/GivingRiver'
+import { EmergencyAlerts } from './components/EmergencyAlerts'
 import { PrayerMatch } from './components/PrayerMatch'
 import { BountyBoard } from './components/BountyBoard'
 import { SmallGroupSorter } from './components/SmallGroupSorter'
@@ -839,6 +840,12 @@ function App() {
                         {currentView === 'automations' && (
                              <div className="view-container">
                                 <AutomationsReport students={students} graderOptions={config.graderOptions} />
+                            </div>
+                        )}
+
+                        {currentView === 'emergency' && (
+                             <div className="view-container fade-in">
+                                <EmergencyAlerts students={students} />
                             </div>
                         )}
 
