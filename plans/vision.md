@@ -310,7 +310,7 @@ AI should never be a black box.
 ### Integration Concepts
 41. **Spotify:** "Play worship playlist" while cleaning data.
 42. **Uber:** "Ride to Church" integration for elderly members. [DONE]
-43. **DoorDash:** "Send Meal" button for families with new babies.
+43. **DoorDash:** "Send Meal" button for families with new babies. [DONE]
 44. **Twilio:** SMS blasts for emergency alerts. [DONE]
 45. **Canva:** Auto-generate "Birthday Cards" with member photos. [DONE]
 46. **Mailchimp:** Two-way sync of tags.

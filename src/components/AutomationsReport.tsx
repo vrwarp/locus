@@ -7,6 +7,7 @@ import {
     getExpiringBackgroundChecks,
     getExpiredBackgroundChecks,
     getFirstTimeGivers,
+    getNewBabies,
     type BirthdayAction,
     type PromotionAction,
     type CollegeSendOffAction,
@@ -35,7 +36,7 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
     const [dismissedFirstTimeGivers, setDismissedFirstTimeGivers] = useState<Set<string>>(new Set());
 
     const newBabies = useMemo(() => {
-        return students.filter(s => s.age === 0 && !dismissedNewBabies.has(s.id));
+        return getNewBabies(students).filter(s => !dismissedNewBabies.has(s.id));
     }, [students, dismissedNewBabies]);
 
     const birthdays = useMemo(() => {

@@ -1,4 +1,18 @@
 
+## Session (New Baby DoorDash Alert)
+- **Implemented:**
+    - **"DoorDash Send Meal" Button (Automation Concept #43):**
+        - Refactored `src/components/AutomationsReport.tsx` to use a dedicated `getNewBabies` utility instead of inline array filtering.
+        - Created `getNewBabies` in `src/utils/automations.ts` to cleanly identify families with new babies (children with age 0) for the DoorDash automation lane.
+- **Test Coverage:**
+    - Added `getNewBabies` unit tests in `src/utils/automations.test.ts` to verify correct filtering of age 0 children while excluding adults.
+    - Maintained existing component testing in `AutomationsReport.test.tsx` verifying the presence of the mock DoorDash button.
+- **Status:** New Baby Alert / DoorDash integration (Concept #43) fully implemented and verified.
+- **Future Ideas:**
+    - Integrate directly with a DoorDash API or a local equivalent meal-train webhook to trigger actual gift card sends rather than just local mocking.
+    - Add a configuration modal allowing admins to set an exact dollar amount for the meal per church policy.
+    - Cross-reference with the `householdId` and previous births to adjust the type of gift sent based on whether it is a first child vs subsequent child.
+
 ## Session (First Time Giver Alert)
 - **Implemented:**
     - **"First Time Giver" Alert (Automation Concept #13):**

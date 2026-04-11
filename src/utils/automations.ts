@@ -160,3 +160,11 @@ export const getFirstTimeGivers = (students: Student[], thresholdDays: number = 
         .filter(action => action.daysSinceFirstGift >= 0 && action.daysSinceFirstGift <= thresholdDays)
         .sort((a, b) => a.daysSinceFirstGift - b.daysSinceFirstGift); // Most recent first
 };
+
+/**
+ * Identifies families with new babies (age 0).
+ * Used for sending care packages (e.g., DoorDash meals).
+ */
+export const getNewBabies = (students: Student[]): Student[] => {
+    return students.filter(s => s.age === 0 && s.isChild);
+};
