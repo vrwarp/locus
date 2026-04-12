@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks, getFirstTimeGivers } from './automations';
+import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks, getFirstTimeGivers, getNewBabies } from './automations';
 import type { Student } from './pco';
 import { addDays, subDays, parseISO, addYears, setMonth } from 'date-fns';
 
@@ -230,6 +230,37 @@ describe('getCollegeSendOffs', () => {
         ];
 
         const result = getCollegeSendOffs(students, julyDate);
+        expect(result).toHaveLength(0);
+    });
+});
+
+describe('getNewBabies', () => {
+    const createStudent = (id: string, age: number, isChild: boolean): Student => ({
+        id, age, pcoGrade: null, name: `Student ${id}`, firstName: 'Student', lastName: id,
+        birthdate: '', calculatedGrade: -1, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
+        isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
+        firstTimeGiver: false, firstGiftDate: null
+    });
+
+    it('identifies new babies (age 0 and isChild)', () => {
+        const students = [
+            createStudent('1', 0, true), // New baby
+            createStudent('2', 1, true), // Not a new baby
+            createStudent('3', 0, false) // Somehow age 0 but not child
+        ];
+
+        const result = getNewBabies(students);
+        expect(result).toHaveLength(1);
+        expect(result[0].id).toBe('1');
+    });
+
+    it('returns empty array if no new babies', () => {
+        const students = [
+            createStudent('1', 2, true),
+            createStudent('2', 30, false)
+        ];
+
+        const result = getNewBabies(students);
         expect(result).toHaveLength(0);
     });
 });
