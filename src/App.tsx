@@ -28,6 +28,7 @@ import { NewsletterArchitect } from './components/NewsletterArchitect'
 import { CampusCup } from './components/CampusCup'
 import { SermonSentiment } from './components/SermonSentiment'
 import { GivingRiver } from './components/GivingRiver'
+import { GivingTrends } from './components/GivingTrends'
 import { EmergencyAlerts } from './components/EmergencyAlerts'
 import { PrayerMatch } from './components/PrayerMatch'
 import { BountyBoard } from './components/BountyBoard'
@@ -828,6 +829,12 @@ function App() {
                         {currentView === 'giving-river' && (
                              <div className="view-container fade-in">
                                 <GivingRiver />
+                            </div>
+                        )}
+
+                        {currentView === 'giving-trends' && (
+                            <div className="view-container fade-in">
+                                <GivingTrends checkIns={checkIns} events={events} />
                             </div>
                         )}
 
