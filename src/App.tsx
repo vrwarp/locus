@@ -18,6 +18,7 @@ import { CheckInVelocity } from './components/CheckInVelocity'
 import { BirthdayHeatmap } from './components/BirthdayHeatmap'
 import { VolunteerWeb } from './components/VolunteerWeb'
 import { SolarSystem } from './components/SolarSystem'
+import { MissingVolunteersReport } from './components/MissingVolunteersReport'
 import { DriftReport } from './components/DriftReport'
 import { CoPilot } from './components/CoPilot'
 import { GenerationStack } from './components/GenerationStack'
@@ -747,6 +748,12 @@ function App() {
                             <div className="view-container">
                                 <h2>Predictive Attrition</h2>
                                 <DriftReport students={students} auth={auth} />
+                            </div>
+                        )}
+                        {currentView === 'missing' && (
+                            <div className="view-container">
+                                <h2>Missing Volunteers</h2>
+                                <MissingVolunteersReport students={students} auth={auth} />
                             </div>
                         )}
 
