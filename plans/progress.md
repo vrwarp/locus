@@ -444,3 +444,16 @@
     - Connect the Giving River date filter to actual transaction history via the PCO API.
     - Add ambient, relaxing background audio tracks to Zen Mode.
     - Integrate achievement-based unlocks for new Confetti Themes.
+
+## Session (Stripe Giving Trends)
+- **Implemented:**
+    - **"Stripe Trends" (Concept #47):**
+        - Added `src/utils/givingTrends.ts` with `correlateGivingAndAttendance` to mock deterministic giving volume calculations dynamically based on worship check-in counts by week.
+        - Created `src/components/GivingTrends.tsx` displaying a dual-axis `ComposedChart` from Recharts, mapping weekly dates to bar charts (attendance) and a line graph (giving volume in dollars).
+    - **Integration:**
+        - Integrated the `GivingTrends` view into `App.tsx`.
+        - Added navigation support for 'Stripe Trends' in `Sidebar.tsx`.
+- **Test Coverage:**
+    - Created unit tests in `src/utils/givingTrends.test.ts` to assert correct groupings and deterministic mathematical calculation of simulated giving.
+    - Implemented UI tests in `src/components/GivingTrends.test.tsx` employing Recharts mocking to bypass JSDOM SVG limits and verify state rendering (loading, error, empty, and chart views).
+- **Status:** Stripe Giving Trends fully implemented and verified.
