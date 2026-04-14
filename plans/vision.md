@@ -314,7 +314,7 @@ AI should never be a black box.
 44. **Twilio:** SMS blasts for emergency alerts. [DONE]
 45. **Canva:** Auto-generate "Birthday Cards" with member photos. [DONE]
 46. **Mailchimp:** Two-way sync of tags.
-47. **Stripe:** Visualizing giving trends alongside attendance.
+47. **Stripe:** Visualizing giving trends alongside attendance. [DONE]
 48. **Zoom:** Auto-track attendance for online small groups.
 49. **Eventbrite:** Sync ticket sales to profiles.
 50. **Typeform:** Sync survey responses to profile custom fields.

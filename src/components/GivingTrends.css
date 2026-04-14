@@ -1,0 +1,47 @@
+.giving-trends {
+  background: white;
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  margin-bottom: 24px;
+}
+
+.giving-trends h3 {
+  margin: 0 0 8px 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+}
+
+.giving-trends .description {
+  color: #7f8c8d;
+  margin: 0 0 24px 0;
+  font-size: 0.95rem;
+}
+
+.giving-trends .chart-container {
+  height: 400px;
+  width: 100%;
+}
+
+.giving-trends .empty-state,
+.giving-trends .loading-spinner,
+.giving-trends .error-message {
+  padding: 40px;
+  text-align: center;
+  color: #7f8c8d;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
+}
+
+.giving-trends .empty-state .icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.giving-trends .error-message {
+  color: #e74c3c;
+  background: #fdf0ed;
+  border-color: #f5b7b1;
+}
