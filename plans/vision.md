@@ -301,22 +301,22 @@ AI should never be a black box.
 33. **"Prayer Partner Match":** Matches people with similar life struggles (anonymously at first) for prayer support. [DONE]
 34. **"Burnout Predictor":** Analyzes serving hours vs. attendance to flag potential volunteer burnout. [DONE]
 35. **"Locus Public":** Member-facing portal to update their own data.
-36. **"The Global Pulse":** Anonymized aggregate data of the "Global Church" health.
+36. **"The Global Pulse":** Anonymized aggregate data of the "Global Church" health. [DONE]
 37. **"Predictive Planting":** AI suggests where to plant a church based on unchurched density. [DONE]
 38. **"Sermon Sentiment":** Correlate sermon topics with giving/attendance spikes. [DONE]
 39. **"Smart Parking":** Camera integration to count cars vs people.
 40. **"The Digital Tithe":** Cryptocurrency integration for giving.
 
 ### Integration Concepts
-41. **Spotify:** "Play worship playlist" while cleaning data.
+41. **Spotify:** "Play worship playlist" while cleaning data. [DONE]
 42. **Uber:** "Ride to Church" integration for elderly members. [DONE]
 43. **DoorDash:** "Send Meal" button for families with new babies. [DONE]
 44. **Twilio:** SMS blasts for emergency alerts. [DONE]
 45. **Canva:** Auto-generate "Birthday Cards" with member photos. [DONE]
-46. **Mailchimp:** Two-way sync of tags.
-47. **Stripe:** Visualizing giving trends alongside attendance.
-48. **Zoom:** Auto-track attendance for online small groups.
-49. **Eventbrite:** Sync ticket sales to profiles.
-50. **Typeform:** Sync survey responses to profile custom fields.
+46. **Mailchimp:** Two-way sync of tags. [DONE]
+47. **Stripe:** Visualizing giving trends alongside attendance. [DONE]
+48. **Zoom:** Auto-track attendance for online small groups. [DONE]
+49. **Eventbrite:** Sync ticket sales to profiles. [DONE]
+50. **Typeform:** Sync survey responses to profile custom fields. [DONE]
 
 ... and 50 more in the backlog.

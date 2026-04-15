@@ -2,6 +2,13 @@ import type { GraderOptions } from './grader';
 import type { HealthStats } from './analytics';
 import { encryptData, decryptData } from './crypto';
 
+export interface IntegrationConfig {
+  mailchimp?: boolean;
+  zoom?: boolean;
+  eventbrite?: boolean;
+  typeform?: boolean;
+}
+
 export interface AppConfig {
   graderOptions: GraderOptions;
   highContrastMode?: boolean;
@@ -13,6 +20,7 @@ export interface AppConfig {
   zenMode?: boolean;
   campus?: string;
   enableSpotify?: boolean;
+  integrations?: IntegrationConfig;
 }
 
 export interface HealthHistoryEntry {
@@ -44,11 +52,13 @@ export const loadConfig = async (appId: string): Promise<AppConfig> => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) {
-       return { graderOptions: {} };
+       return { graderOptions: {}, integrations: {} };
     }
     // Try to decrypt
     try {
-      return await decryptData(stored, appId);
+      const config = await decryptData(stored, appId);
+      if (!config.integrations) config.integrations = {};
+      return config;
     } catch (e) {
        // If decryption fails, it might be old unencrypted data or wrong key.
        // Check if it looks like JSON?
@@ -56,15 +66,17 @@ export const loadConfig = async (appId: string): Promise<AppConfig> => {
        // But wait, during migration, users might have unencrypted data.
        // We could try JSON.parse(stored) as fallback?
        try {
-           return JSON.parse(stored) as AppConfig;
+           const config = JSON.parse(stored) as AppConfig;
+           if (!config.integrations) config.integrations = {};
+           return config;
        } catch (jsonErr) {
            console.error("Failed to decrypt config and not valid JSON", e);
-           return { graderOptions: {} };
+           return { graderOptions: {}, integrations: {} };
        }
     }
   } catch (e) {
     console.error("Failed to load config", e);
-    return { graderOptions: {} };
+    return { graderOptions: {}, integrations: {} };
   }
 };
 
