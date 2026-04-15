@@ -53,13 +53,23 @@ describe('Storage Utils', () => {
   it('returns default config if localStorage is empty', async () => {
     mockGetItem.mockReturnValue(null);
     const loaded = await loadConfig(appId);
-    expect(loaded).toEqual({ graderOptions: {} });
+    expect(loaded).toEqual({ graderOptions: {}, integrations: {} });
   });
 
   it('returns default config if appId is missing', async () => {
     // @ts-ignore
     const loaded = await loadConfig(undefined);
     expect(loaded).toEqual({ graderOptions: {} });
+  });
+
+  it('initializes integrations config if missing in stored data', async () => {
+    const config: AppConfig = { graderOptions: { cutoffMonth: 5, cutoffDay: 15 } };
+    const encryptedData = 'encrypted-blob';
+    mockGetItem.mockReturnValue(encryptedData);
+    vi.mocked(cryptoUtils.decryptData).mockResolvedValue(config);
+
+    const loaded = await loadConfig(appId);
+    expect(loaded.integrations).toEqual({});
   });
 
   it('falls back to JSON parse if decryption fails (migration support)', async () => {
@@ -70,7 +80,7 @@ describe('Storage Utils', () => {
     vi.mocked(cryptoUtils.decryptData).mockRejectedValue(new Error('Decrypt failed'));
 
     const loaded = await loadConfig(appId);
-    expect(loaded).toEqual(config);
+    expect(loaded).toEqual({ ...config, integrations: {} });
   });
 
   it('saves and loads highContrastMode', async () => {

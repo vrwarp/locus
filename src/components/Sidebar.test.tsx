@@ -22,6 +22,7 @@ describe('Sidebar Component', () => {
         expect(screen.getByText('Check-in Velocity')).toBeInTheDocument();
         expect(screen.getByText('Newsletter Architect')).toBeInTheDocument();
         expect(screen.getByText('Giving River')).toBeInTheDocument();
+        expect(screen.getByText('Integrations')).toBeInTheDocument();
     });
 
     it('highlights current view', () => {
@@ -74,5 +75,8 @@ describe('Sidebar Component', () => {
 
         fireEvent.click(screen.getByText('Giving River'));
         expect(onChangeView).toHaveBeenCalledWith('giving-river');
+
+        fireEvent.click(screen.getByText('Integrations'));
+        expect(onChangeView).toHaveBeenCalledWith('integrations');
     });
 });

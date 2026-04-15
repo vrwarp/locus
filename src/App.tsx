@@ -59,6 +59,7 @@ import './App.css'
 import { Sidebar } from './components/Sidebar'
 import { Dashboard } from './components/Dashboard'
 import { AutomationsReport } from './components/AutomationsReport'
+import { IntegrationsHub } from './components/IntegrationsHub'
 import { SpotifyWidget } from './components/SpotifyWidget'
 import { GlobalPulse } from './components/GlobalPulse'
 
@@ -854,6 +855,12 @@ function App() {
                         {currentView === 'automations' && (
                              <div className="view-container">
                                 <AutomationsReport students={students} graderOptions={config.graderOptions} />
+                            </div>
+                        )}
+
+                        {currentView === 'integrations' && (
+                             <div className="view-container fade-in">
+                                <IntegrationsHub config={config} onSaveConfig={handleSaveConfig} />
                             </div>
                         )}
 
