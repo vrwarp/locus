@@ -305,7 +305,7 @@ AI should never be a black box.
 37. **"Predictive Planting":** AI suggests where to plant a church based on unchurched density. [DONE]
 38. **"Sermon Sentiment":** Correlate sermon topics with giving/attendance spikes. [DONE]
 39. **"Smart Parking":** Camera integration to count cars vs people.
-40. **"The Digital Tithe":** Cryptocurrency integration for giving.
+40. **"The Digital Tithe":** Cryptocurrency integration for giving. [DONE]
 
 ### Integration Concepts
 41. **Spotify:** "Play worship playlist" while cleaning data. [DONE]

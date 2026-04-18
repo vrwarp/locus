@@ -1,4 +1,22 @@
 
+## Session (Digital Tithe)
+- **Implemented:**
+    - **"The Digital Tithe" (Concept #40):**
+        - Created `src/components/DigitalTithe.tsx` and `src/components/DigitalTithe.css`.
+        - Built a mock crypto donation portal where users can enter an ETH amount, see a USD preview, and generate a mock QR code for wallet scanning.
+        - Implemented a simulated scan & send flow using a 1.5-second timer (`setTimeout`) to mimic network delay.
+        - Kept a running log of completed transactions and a total USD converted summary within the component state.
+    - **Integration:**
+        - Integrated the component into `src/App.tsx`.
+        - Added navigation under "Giving" in `src/components/Sidebar.tsx`.
+- **Test Coverage:**
+    - Written full unit and integration tests in `src/components/DigitalTithe.test.tsx` utilizing `vi.useFakeTimers()` and `vi.advanceTimersByTime()` inside `act()` blocks to cleanly assert loading states and final outcomes. Coverage on this file is 100%.
+- **Status:** Concept #40 ("The Digital Tithe") is fully implemented.
+- **Future Ideas:**
+    - Dynamically fetch the real ETH to USD conversion rate via a public API rather than a static mock rate.
+    - Build an actual Web3 hook (e.g. via `ethers.js`) so that tests could potentially mock real on-chain transaction flows.
+    - Hook the successfully processed transactions into the global giving metrics, updating the charts in `GivingTrends` or `GivingRiver`.
+
 ## Session (Locus Public Member Portal)
 - **Implemented:**
     - **"Locus Public" (Concept #35):**

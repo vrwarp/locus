@@ -30,6 +30,7 @@ import { CampusCup } from './components/CampusCup'
 import { SermonSentiment } from './components/SermonSentiment'
 import { GivingRiver } from './components/GivingRiver'
 import { GivingTrends } from './components/GivingTrends'
+import { DigitalTithe } from './components/DigitalTithe';
 import { EmergencyAlerts } from './components/EmergencyAlerts'
 import { PrayerMatch } from './components/PrayerMatch'
 import { BountyBoard } from './components/BountyBoard'
@@ -844,6 +845,12 @@ function App() {
                         {currentView === 'giving-trends' && (
                             <div className="view-container fade-in">
                                 <GivingTrends checkIns={checkIns} events={events} />
+                            </div>
+                        )}
+
+                        {currentView === 'digital-tithe' && (
+                            <div className="view-container fade-in">
+                                <DigitalTithe />
                             </div>
                         )}
 
