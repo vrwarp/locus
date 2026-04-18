@@ -238,6 +238,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
         <div className="nav-section">Tools</div>
 
         <button
+          className={`nav-item ${currentView === 'locus-public' ? 'active' : ''}`}
+          onClick={() => onChangeView('locus-public')}
+        >
+          <span className="icon">👤</span>
+          Locus Public
+        </button>
+
+        <button
           className={`nav-item ${currentView === 'automations' ? 'active' : ''}`}
           onClick={() => onChangeView('automations')}
         >

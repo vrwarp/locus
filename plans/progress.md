@@ -1,4 +1,20 @@
 
+## Session (Locus Public Member Portal)
+- **Implemented:**
+    - **"Locus Public" (Concept #35):**
+        - Created `src/components/LocusPublic.tsx` and `LocusPublic.css` to act as a simulated member-facing portal.
+        - Implemented a dropdown to select a specific member (simulating login).
+        - Populated form fields dynamically based on the selected member, properly breaking out the nested `Address` object into `street`, `city`, `state`, and `zip` inputs.
+        - Connected `fixPhone` and `fixAddress` utility methods to input submission to enforce data hygiene.
+        - Configured `App.tsx` and `Sidebar.tsx` to mount and manage the `locus-public` view state.
+- **Test Coverage:**
+    - Added comprehensive integration tests in `src/components/LocusPublic.test.tsx` verifying user selection, input tracking, and mock `onSave` invocation. All 3 test cases passed.
+    - The overall test suite remains stable (460 tests passed).
+- **Status:** Concept #35 ("Locus Public") is fully implemented.
+- **Future Ideas:**
+    - Add support for changing household logic directly from the member portal (e.g. moving a child out when they turn 18 or adding a spouse).
+    - Link points earned here to the global gamification leaderboard.
+
 ## Session (New Baby DoorDash Alert)
 - **Implemented:**
     - **"DoorDash Send Meal" Button (Automation Concept #43):**
