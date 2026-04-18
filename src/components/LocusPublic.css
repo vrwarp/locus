@@ -1,0 +1,117 @@
+.locus-public-container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+  color: #e0e0e0;
+}
+
+.locus-public-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 1rem;
+}
+
+.locus-public-header h2 {
+  margin: 0 0 0.5rem 0;
+  color: #fff;
+}
+
+.locus-public-header p {
+  color: #888;
+  margin: 0;
+}
+
+.locus-public-login {
+  background: #1a1a1a;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid #333;
+}
+
+.locus-public-login label {
+  font-weight: 500;
+  color: #aaa;
+}
+
+.locus-public-login select {
+  padding: 0.5rem;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #fff;
+  border: 1px solid #444;
+  flex: 1;
+  max-width: 300px;
+}
+
+.locus-public-profile {
+  background: #1a1a1a;
+  padding: 2rem;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+.locus-public-profile h3 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  color: #fff;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #bbb;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 4px;
+  background: #2a2a2a;
+  color: #fff;
+  border: 1px solid #444;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+.update-btn {
+  background: #646cff;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.update-btn:hover {
+  background: #535bf2;
+}
+
+.success-msg {
+  color: #4caf50;
+  margin-left: 1rem;
+  font-size: 0.9rem;
+  animation: fadeInOut 3s forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
+}

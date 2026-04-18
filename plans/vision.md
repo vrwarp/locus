@@ -300,7 +300,7 @@ AI should never be a black box.
 32. **"Small Group Sorter":** Genetic algorithm to create perfectly balanced small groups (mix of ages, life stages, introverts/extroverts). [DONE]
 33. **"Prayer Partner Match":** Matches people with similar life struggles (anonymously at first) for prayer support. [DONE]
 34. **"Burnout Predictor":** Analyzes serving hours vs. attendance to flag potential volunteer burnout. [DONE]
-35. **"Locus Public":** Member-facing portal to update their own data.
+35. **"Locus Public":** Member-facing portal to update their own data. [DONE]
 36. **"The Global Pulse":** Anonymized aggregate data of the "Global Church" health. [DONE]
 37. **"Predictive Planting":** AI suggests where to plant a church based on unchurched density. [DONE]
 38. **"Sermon Sentiment":** Correlate sermon topics with giving/attendance spikes. [DONE]

@@ -62,6 +62,7 @@ import { AutomationsReport } from './components/AutomationsReport'
 import { IntegrationsHub } from './components/IntegrationsHub'
 import { SpotifyWidget } from './components/SpotifyWidget'
 import { GlobalPulse } from './components/GlobalPulse'
+import { LocusPublic } from './components/LocusPublic'
 
 function App() {
   const [appId, setAppId] = useState('')
@@ -914,6 +915,11 @@ function App() {
                         {currentView === 'newsletter' && (
                              <div className="view-container">
                                  <NewsletterArchitect students={students} auth={auth} />
+                             </div>
+                        )}
+                        {currentView === 'locus-public' && (
+                             <div className="view-container">
+                                 <LocusPublic students={students} onSave={handleSaveStudent} />
                              </div>
                         )}
                       </>
