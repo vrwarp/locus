@@ -1,0 +1,94 @@
+.smart-parking-container {
+  padding: 2rem;
+  background-color: #f8fafc;
+  min-height: 100%;
+}
+
+.smart-parking-header {
+  margin-bottom: 2rem;
+}
+
+.smart-parking-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.smart-parking-header p {
+  color: #64748b;
+}
+
+.smart-parking-metrics {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  flex: 1;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.metric-card h3 {
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.metric-card .metric-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.metric-card .metric-value.red { color: #ef4444; }
+.metric-card .metric-value.yellow { color: #eab308; }
+.metric-card .metric-value.green { color: #10b981; }
+
+.metric-card .metric-label {
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.smart-parking-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.smart-parking-controls button {
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  color: #475569;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.smart-parking-controls button:hover {
+  background: #f1f5f9;
+}
+
+.smart-parking-controls button.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.smart-parking-chart-wrapper {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  width: 100%;
+}

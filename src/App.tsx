@@ -64,6 +64,7 @@ import { IntegrationsHub } from './components/IntegrationsHub'
 import { SpotifyWidget } from './components/SpotifyWidget'
 import { GlobalPulse } from './components/GlobalPulse'
 import { LocusPublic } from './components/LocusPublic'
+import { SmartParking } from './components/SmartParking'
 
 function App() {
   const [appId, setAppId] = useState('')
@@ -927,6 +928,11 @@ function App() {
                         {currentView === 'locus-public' && (
                              <div className="view-container">
                                  <LocusPublic students={students} onSave={handleSaveStudent} />
+                             </div>
+                        )}
+                        {currentView === 'smart-parking' && (
+                             <div className="view-container">
+                                 <SmartParking />
                              </div>
                         )}
                       </>

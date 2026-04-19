@@ -1,4 +1,21 @@
 
+## Session (Smart Parking)
+- **Implemented:**
+    - **"Smart Parking" (Concept #39):**
+        - Created `src/components/SmartParking.tsx` and `src/components/SmartParking.css` to visualize metrics.
+        - Rendered overarching metrics cards covering "Total Capacity", "Current Occupancy", and "Avg People / Car".
+        - Leveraged a Recharts `ComposedChart` with toggles for two primary views: Lot Occupancy and Cars vs People Ratio.
+    - **Integration:**
+        - Placed the tool navigation under the "Intelligence" segment of `src/components/Sidebar.tsx`.
+        - Integrated the rendering loop logic via `src/App.tsx`.
+- **Test Coverage:**
+    - Authored unit and integration tests under `src/components/SmartParking.test.tsx`, achieving full verification of metric rendering and mocked Recharts manipulation.
+- **Status:** Concept #39 ("Smart Parking") is fully implemented.
+- **Future Ideas:**
+    - **Hardware Integration:** Replace mock data with actual polling from computer vision/IoT hardware endpoints or an API like Meraki.
+    - **Predictive Metrics:** Use historic attendance and capacity data to alert staff preemptively about parking overflow scenarios before Sunday service begins.
+    - **Interactive Drill-downs:** Allow users to click on specific service times to view localized snapshots of specific parking zones/lots.
+
 ## Session (Digital Tithe)
 - **Implemented:**
     - **"The Digital Tithe" (Concept #40):**
