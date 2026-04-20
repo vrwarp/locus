@@ -28,6 +28,7 @@ import { AchievementCase } from './components/AchievementCase'
 import { NewsletterArchitect } from './components/NewsletterArchitect'
 import { CampusCup } from './components/CampusCup'
 import { SermonSentiment } from './components/SermonSentiment'
+import { SentimentPulse } from './components/SentimentPulse'
 import { GivingRiver } from './components/GivingRiver'
 import { GivingTrends } from './components/GivingTrends'
 import { DigitalTithe } from './components/DigitalTithe';
@@ -834,6 +835,11 @@ function App() {
                         {currentView === 'sermons' && (
                              <div className="view-container">
                                 <SermonSentiment auth={auth} />
+                            </div>
+                        )}
+                        {currentView === 'sentiment-pulse' && (
+                            <div className="view-container">
+                                <SentimentPulse students={students} />
                             </div>
                         )}
 

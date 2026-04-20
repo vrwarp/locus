@@ -20,6 +20,7 @@ describe('Sidebar Component', () => {
         expect(screen.getByText('Burnout Risk')).toBeInTheDocument();
         expect(screen.getByText('Demographics')).toBeInTheDocument();
         expect(screen.getByText('Check-in Velocity')).toBeInTheDocument();
+    expect(screen.getByText(/Sentiment Pulse/i)).toBeInTheDocument();
         expect(screen.getByText('Newsletter Architect')).toBeInTheDocument();
         expect(screen.getByText('Giving River')).toBeInTheDocument();
         expect(screen.getByText('Integrations')).toBeInTheDocument();
