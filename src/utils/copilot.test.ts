@@ -97,6 +97,33 @@ describe('CoPilot Logic', () => {
         expect(result2.data?.[0].primary).toBe('Expired Background Checks');
     });
 
+    it('identifies sentiment intent', () => {
+        const contextWithSentiment = {
+            ...context,
+            students: [
+                { ...context.students[0], prayerTopic: 'anxiety' },
+                { ...context.students[1], prayerTopic: 'anxiety' }
+            ]
+        };
+        const response = processQuery('what is the spiritual climate?', contextWithSentiment);
+        expect(response.type).toBe('list');
+        expect(response.message).toContain("top spiritual climate theme is currently 'Anxiety'");
+        expect(response.data).toBeDefined();
+        expect(response.data![0].primary).toBe('Anxiety');
+    });
+
+    it('handles sentiment intent empty state', () => {
+        const contextWithoutSentiment = {
+             ...context,
+             students: [
+                 { ...context.students[0], prayerTopic: undefined }
+             ]
+        };
+        const response = processQuery('what is the spiritual climate?', contextWithoutSentiment);
+        expect(response.type).toBe('text');
+        expect(response.message).toContain("couldn't find any sentiment data");
+    });
+
     it('handles unknown queries gracefully', () => {
         const result = processQuery('What is the meaning of life?', context);
         expect(result.message).toContain("I'm not sure how to help with that");

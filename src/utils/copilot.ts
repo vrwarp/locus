@@ -7,6 +7,7 @@ import { calculateMissingVolunteers } from './missing';
 import { analyzeFamilies } from './family';
 import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks } from './automations';
 import { matchPrayerPartners } from './prayer';
+import { calculateSentimentPulse } from './sentiment';
 
 export interface CoPilotContext {
   students: Student[];
@@ -299,9 +300,37 @@ export const processQuery = (query: string, context: CoPilotContext): CoPilotRes
       };
   }
 
+  // Intent: Sentiment / Spiritual Climate
+  if (lowerQuery.includes('sentiment') || lowerQuery.includes('spiritual climate') || lowerQuery.includes('word cloud')) {
+      const sentimentData = calculateSentimentPulse(context.students);
+      if (sentimentData.length === 0) {
+          return {
+              type: 'text',
+              message: "I couldn't find any sentiment data. Ensure your students have 'prayerTopic' set."
+          };
+      }
+
+      const topTheme = sentimentData[0];
+      const topThemesList = sentimentData.slice(0, 3).map(item => ({
+          primary: item.text,
+          secondary: `${item.value} occurrences`,
+          icon: '💭'
+      }));
+
+      return {
+          type: 'list',
+          message: `Based on prayer requests and comments, the top spiritual climate theme is currently '${topTheme.text}'. Head to 'Sentiment Pulse' for the full word cloud.`,
+          data: topThemesList,
+          action: {
+              label: "View Sentiment Pulse",
+              view: "sentiment-pulse"
+          }
+      };
+  }
+
   // Default Fallback
   return {
     type: 'text',
-    message: "I'm not sure how to help with that yet. You can ask me about 'Health Score', 'Burnout Risk', 'Ghosts', 'Recruitment', 'Missing Volunteers', 'Split Households', 'Automations', 'Prayer Partners', or search for a grade or person."
+    message: "I'm not sure how to help with that yet. You can ask me about 'Health Score', 'Burnout Risk', 'Ghosts', 'Recruitment', 'Missing Volunteers', 'Split Households', 'Automations', 'Prayer Partners', 'Spiritual Climate', or search for a grade or person."
   };
 };
