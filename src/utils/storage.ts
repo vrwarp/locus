@@ -18,6 +18,7 @@ export interface AppConfig {
   partyMode?: boolean;
   confettiTheme?: string;
   zenMode?: boolean;
+  zenAudioTheme?: string;
   campus?: string;
   enableSpotify?: boolean;
   integrations?: IntegrationConfig;
