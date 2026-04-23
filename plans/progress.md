@@ -1,4 +1,16 @@
 
+## Session (Genealogy Project)
+- **Implemented:**
+    - **"Genealogy Project" (Concept #44 / Moonshot 3.5):**
+        - Added `src/utils/genealogy.ts` featuring a custom force-directed layout implementation for generating network graphs based on `householdId`. Computes forces specifically to draw family members together while keeping distinct households separate.
+        - Built `src/components/GenealogyGraph.tsx` to visualize the relationship graph via raw SVG, displaying household nodes dynamically with differentiated sizes for parents versus children, and unique link aesthetics based on relationship type (spouses, parent-child, siblings).
+    - **Integration:**
+        - Incorporated the feature as a native tab called "Genealogy" within `src/components/RobertReport.tsx`.
+- **Test Coverage:**
+    - Established rendering and empty-state handling tests in `src/components/GenealogyGraph.test.tsx`.
+    - Extended `src/components/RobertReport.test.tsx` to verify the rendering hookup and routing for the new tab.
+- **Status:** Concept #44 ("Genealogy Project") is fully implemented.
+
 ## Session (Smart Parking)
 - **Implemented:**
     - **"Smart Parking" (Concept #39):**
