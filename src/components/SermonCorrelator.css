@@ -1,0 +1,82 @@
+.sermon-correlator {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+}
+
+.sermon-correlator .header-section h3 {
+    margin: 0 0 8px 0;
+    color: #2c3e50;
+    font-size: 1.25rem;
+}
+
+.sermon-correlator .header-section .description {
+    margin: 0;
+    color: #7f8c8d;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.sermon-correlator .chart-container {
+    flex: 1;
+    min-height: 400px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.sermon-correlator .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    text-align: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #e2e8f0;
+    flex: 1;
+}
+
+.sermon-correlator .empty-state .icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.sermon-correlator .empty-state p {
+    color: #7f8c8d;
+    margin: 0;
+}
+
+.sermon-correlator .insights-panel {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    border-left: 4px solid #9b59b6;
+}
+
+.sermon-correlator .insights-panel h4 {
+    margin: 0 0 12px 0;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.sermon-correlator .insights-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sermon-correlator .insights-list li {
+    font-size: 0.95rem;
+    color: #34495e;
+    line-height: 1.4;
+}
