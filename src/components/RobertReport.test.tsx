@@ -193,6 +193,20 @@ describe('RobertReport', () => {
     expect(screen.getByTestId('volunteer-web')).toBeInTheDocument();
   });
 
+  it('switches to genealogy tab', () => {
+    render(
+      <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />
+    );
+
+    const genealogyTab = screen.getByText('Genealogy');
+    fireEvent.click(genealogyTab);
+
+    // mockStudents has one child with householdId = '123'
+    // So the graph will render at least one node, not the empty state
+    // Let's assert the svg exists
+    expect(screen.getByRole('dialog').querySelector('svg')).toBeInTheDocument();
+  });
+
   it('switches to attrition tab', () => {
     render(
       <RobertReport isOpen={true} onClose={() => {}} stats={mockStats} history={mockHistory} students={mockStudents} auth="token" />

@@ -283,6 +283,8 @@ AI should never be a black box.
 19. **"Background Check" Expiry:** Auto-email volunteer 30 days before background check expires. [DONE]
 20. **"Safe Sanctuary" Audit:** Auto-remove volunteers from roster if background check expires. [DONE]
 
+20.5. **Genealogy Project:** Network graph of relationships. [DONE]
+
 ### Gamification Concepts
 21. **"The Data Ninja" Avatar:** Customizable avatar that levels up. [DONE]
 22. **"Speed Run" Mode:** How many fixes in 60 seconds? [DONE]

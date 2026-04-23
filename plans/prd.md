@@ -41,7 +41,7 @@ While visualization (seeing the problem) remains a core capability, the product 
 ### 2.3 Could Have (V2.0)
 *   **Gamification:** Progress bars, streaks, "Combo" sounds (with Mute toggle). [DONE]
 *   **Family Logic:** Validator for Spouse/Child age gaps. [DONE]
-*   **Genealogy Project:** Network graph of relationships.
+*   **Genealogy Project:** Network graph of relationships. [DONE]
 
 ### 2.4 Won't Have (Next 12 Months)
 *   **VR War Room:** This is a conceptual "Moonshot" only. No engineering resources allocated.
