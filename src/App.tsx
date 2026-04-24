@@ -972,6 +972,7 @@ function App() {
         muteSounds={config.muteSounds}
         isSpeedRun={isReviewModeSpeedRun}
         zenMode={config.zenMode}
+        zenAudioTheme={config.zenAudioTheme}
       />
 
       <GoldenRecordModal

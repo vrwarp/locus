@@ -538,3 +538,12 @@
 - **Status:** Integrations Hub prototype fully implemented and test suite verified.
 - **Future Ideas:**
     - Connect the mock toggles to real OAuth flows or API key inputs and build out the true synchronization logic for the Locus pipeline.
+
+## Session (Zen Audio)
+- **Implemented:**
+    - **Zen Audio Themes:** Added ambient audio features to Zen Mode.
+    - Added `zenAudioTheme` to `AppConfig` and updated `ConfigModal` to include a dropdown to select ambient sounds ('none', 'rainfall', 'soft-synths').
+    - Updated `ReviewMode` to accept the theme prop and call `playAmbientAudio` when opened in Zen Mode, and `stopAmbientAudio` on unmount.
+- **Test Coverage:**
+    - Updated `ConfigModal.test.tsx` and `ReviewMode.test.tsx` to verify state updates and the correct interactions with the audio utility layer.
+- **Status:** Zen Audio feature fully implemented and verified.

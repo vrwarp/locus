@@ -7,7 +7,11 @@ import * as audioUtils from '../utils/audio';
 // Mock audio utils
 vi.mock('../utils/audio', () => ({
     playTone: vi.fn(),
+    playAmbientAudio: vi.fn(),
+    stopAmbientAudio: vi.fn(),
 }));
+
+import { playAmbientAudio, stopAmbientAudio } from '../utils/audio';
 
 const mockStudent: Student = {
     id: '1',
@@ -429,6 +433,42 @@ describe('ReviewMode', () => {
 
             // Assert the visual indicator is present
             expect(screen.getByTitle('Zen Mode Active')).toBeInTheDocument();
+        });
+
+        it('plays ambient audio when zenMode is true and a theme is provided, and stops on unmount', () => {
+            const { unmount } = render(
+                <ReviewMode
+                    isOpen={true}
+                    students={mockStudents}
+                    onClose={vi.fn()}
+                    onSave={vi.fn()}
+                    isSpeedRun={true}
+                    zenMode={true}
+                    zenAudioTheme="rainfall"
+                />
+            );
+
+            expect(playAmbientAudio).toHaveBeenCalledWith('rainfall');
+
+            unmount();
+
+            expect(stopAmbientAudio).toHaveBeenCalled();
+        });
+
+        it('does not play ambient audio when zenMode is true but theme is "none"', () => {
+            render(
+                <ReviewMode
+                    isOpen={true}
+                    students={mockStudents}
+                    onClose={vi.fn()}
+                    onSave={vi.fn()}
+                    isSpeedRun={true}
+                    zenMode={true}
+                    zenAudioTheme="none"
+                />
+            );
+
+            expect(playAmbientAudio).not.toHaveBeenCalled();
         });
 
         it('does not show the Zen Mode indicator when zenMode is false', () => {

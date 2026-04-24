@@ -3,7 +3,7 @@ import type { Student } from '../utils/pco';
 import { calculateExpectedGrade } from '../utils/grader';
 import type { GraderOptions } from '../utils/grader';
 import { differenceInYears } from 'date-fns';
-import { playTone } from '../utils/audio';
+import { playTone, playAmbientAudio, stopAmbientAudio } from '../utils/audio';
 import { fixName, fixPhone, fixAddress } from '../utils/hygiene';
 import type { Address } from '../utils/hygiene';
 import './ReviewMode.css';
@@ -17,9 +17,10 @@ interface ReviewModeProps {
   muteSounds?: boolean;
   isSpeedRun?: boolean;
   zenMode?: boolean;
+  zenAudioTheme?: string;
 }
 
-export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, graderOptions, muteSounds, isSpeedRun = false, zenMode = false }) => {
+export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, graderOptions, muteSounds, isSpeedRun = false, zenMode = false, zenAudioTheme = 'none' }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mode, setMode] = useState<'grade' | 'birthdate' | 'name' | 'email' | 'address' | 'phone'>('grade');
   const [targetGrade, setTargetGrade] = useState<number>(0);
@@ -43,6 +44,16 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
         }
     }
   }, [isOpen, isSpeedRun]);
+
+  useEffect(() => {
+      if (isOpen && zenMode && zenAudioTheme !== 'none' && !muteSounds) {
+          playAmbientAudio(zenAudioTheme);
+      }
+
+      return () => {
+          stopAmbientAudio();
+      };
+  }, [isOpen, zenMode, zenAudioTheme, muteSounds]);
 
   useEffect(() => {
       let timer: number;
