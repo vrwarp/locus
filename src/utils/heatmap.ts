@@ -8,7 +8,7 @@ export interface HeatmapCell {
   students: Student[]; // Store students for potential tooltip details
 }
 
-export const calculateBirthdayHeatmap = (students: Student[]): HeatmapCell[] => {
+export const calculateEventHeatmap = (students: Student[], dateExtractor: (student: Student) => string | null | undefined): HeatmapCell[] => {
   // Initialize grid (12 months x 31 days max)
   const heatmap: HeatmapCell[] = [];
 
@@ -36,8 +36,9 @@ export const calculateBirthdayHeatmap = (students: Student[]): HeatmapCell[] => 
   }
 
   students.forEach(student => {
-    if (!student.birthdate) return;
-    const date = parseISO(student.birthdate);
+    const rawDate = dateExtractor(student);
+    if (!rawDate) return;
+    const date = parseISO(rawDate);
     if (!isValid(date)) return;
 
     const m = getMonth(date);
@@ -51,4 +52,16 @@ export const calculateBirthdayHeatmap = (students: Student[]): HeatmapCell[] => 
   });
 
   return heatmap;
+};
+
+export const calculateBirthdayHeatmap = (students: Student[]): HeatmapCell[] => {
+    return calculateEventHeatmap(students, s => s.birthdate);
+};
+
+export const calculateAnniversaryHeatmap = (students: Student[]): HeatmapCell[] => {
+    return calculateEventHeatmap(students, s => s.anniversary);
+};
+
+export const calculateDeathHeatmap = (students: Student[]): HeatmapCell[] => {
+    return calculateEventHeatmap(students, s => s.deathDate);
 };

@@ -179,7 +179,7 @@ describe('RobertReport', () => {
     const heatmapTab = screen.getByText('Heatmap');
     fireEvent.click(heatmapTab);
 
-    expect(screen.getByTestId('birthday-heatmap')).toBeInTheDocument();
+    expect(screen.getByText('The Heatmap of Life: Birthdays')).toBeInTheDocument();
   });
 
   it('switches to network tab', () => {

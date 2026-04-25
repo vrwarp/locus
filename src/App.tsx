@@ -15,7 +15,7 @@ import { NewcomerFunnel } from './components/NewcomerFunnel'
 import { AttendancePulse } from './components/AttendancePulse'
 import { BusFactorGraph } from './components/BusFactorGraph'
 import { CheckInVelocity } from './components/CheckInVelocity'
-import { BirthdayHeatmap } from './components/BirthdayHeatmap'
+import { LifeEventsHeatmap } from './components/LifeEventsHeatmap'
 import { VolunteerWeb } from './components/VolunteerWeb'
 import { SolarSystem } from './components/SolarSystem'
 import { MissingVolunteersReport } from './components/MissingVolunteersReport'
@@ -801,8 +801,7 @@ function App() {
 
                         {currentView === 'heatmap' && (
                              <div className="view-container">
-                                <h2>Birthday Heatmap</h2>
-                                <BirthdayHeatmap students={students} />
+                                <LifeEventsHeatmap students={students} />
                             </div>
                         )}
 
