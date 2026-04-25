@@ -247,6 +247,39 @@ describe('ConfigModal', () => {
    expect(checkbox).toBeChecked();
  });
 
+  it('selects Ambient Audio Theme when Zen Mode is enabled and saves', () => {
+    render(
+      <ConfigModal
+        isOpen={true}
+        currentConfig={{ ...mockConfig, zenMode: true }}
+        onSave={mockOnSave}
+        onClose={mockOnClose}
+      />
+    );
+
+    const themeSelect = screen.getByLabelText('Ambient Audio:');
+    fireEvent.change(themeSelect, { target: { value: 'rainfall' } });
+
+    fireEvent.click(screen.getByText('Save Settings'));
+
+    expect(mockOnSave).toHaveBeenCalledWith(expect.objectContaining({
+        zenAudioTheme: 'rainfall'
+    }));
+  });
+
+  it('loads existing Ambient Audio Theme setting', () => {
+    render(
+     <ConfigModal
+       isOpen={true}
+       currentConfig={{ ...mockConfig, zenMode: true, zenAudioTheme: 'soft-synths' }}
+       onSave={mockOnSave}
+       onClose={mockOnClose}
+     />
+   );
+   const themeSelect = screen.getByLabelText('Ambient Audio:');
+   expect(themeSelect).toHaveValue('soft-synths');
+  });
+
   it('changes Campus selection and saves', () => {
     render(
       <ConfigModal

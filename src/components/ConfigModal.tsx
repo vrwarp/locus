@@ -24,6 +24,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
   const [partyMode, setPartyMode] = useState(false);
   const [confettiTheme, setConfettiTheme] = useState('default');
   const [zenMode, setZenMode] = useState(false);
+  const [zenAudioTheme, setZenAudioTheme] = useState('none');
   const [campus, setCampus] = useState('Main Campus');
   const [enableSpotify, setEnableSpotify] = useState(false);
 
@@ -39,6 +40,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         setPartyMode(currentConfig.partyMode ?? false);
         setConfettiTheme(currentConfig.confettiTheme ?? 'default');
         setZenMode(currentConfig.zenMode ?? false);
+        setZenAudioTheme(currentConfig.zenAudioTheme ?? 'none');
         setCampus(currentConfig.campus ?? 'Main Campus');
         setEnableSpotify(currentConfig.enableSpotify ?? false);
     }
@@ -56,6 +58,7 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
         partyMode,
         confettiTheme,
         zenMode,
+        zenAudioTheme,
         campus,
         enableSpotify,
         graderOptions: {
@@ -211,6 +214,22 @@ export const ConfigModal: React.FC<ConfigModalProps> = ({ isOpen, onClose, curre
             <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>
                 Disable timers and hide scores for a pressure-free experience.
             </p>
+            {zenMode && (
+                <div style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                    <label style={{ fontSize: '0.9rem', color: '#333' }}>
+                        Ambient Audio:
+                        <select
+                            value={zenAudioTheme}
+                            onChange={(e) => setZenAudioTheme(e.target.value)}
+                            style={{ marginLeft: '0.5rem', padding: '0.2rem', borderRadius: '4px', border: '1px solid #ccc' }}
+                        >
+                            <option value="none">None</option>
+                            <option value="rainfall">Rainfall</option>
+                            <option value="soft-synths">Soft Synths</option>
+                        </select>
+                    </label>
+                </div>
+            )}
         </div>
 
         <div className="form-group">
