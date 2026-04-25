@@ -202,7 +202,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
           onClick={() => onChangeView('heatmap')}
         >
           <span className="icon">🎂</span>
-          Birthdays
+          Heatmap of Life
         </button>
 
         <button

@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { calculateBirthdayHeatmap } from './heatmap';
+import { calculateBirthdayHeatmap, calculateAnniversaryHeatmap, calculateDeathHeatmap } from './heatmap';
 import type { Student } from './pco';
 
-const mockStudent = (birthdate: string): Student => ({
+const mockStudent = (birthdate: string, anniversary?: string, deathDate?: string): Student => ({
     id: '1',
     age: 10,
     pcoGrade: 5,
@@ -10,6 +10,8 @@ const mockStudent = (birthdate: string): Student => ({
     firstName: 'Test',
     lastName: 'Student',
     birthdate: birthdate,
+    anniversary: anniversary || null,
+    deathDate: deathDate || null,
     calculatedGrade: 5,
     delta: 0,
     lastCheckInAt: null,
@@ -69,5 +71,37 @@ describe('calculateBirthdayHeatmap', () => {
         ];
         const result = calculateBirthdayHeatmap(students);
         expect(result.every(c => c.count === 0)).toBe(true);
+    });
+});
+
+describe('calculateAnniversaryHeatmap', () => {
+    it('correctly counts anniversaries', () => {
+        const students = [
+            mockStudent('2010-01-01', '2020-05-15'),
+            mockStudent('2015-01-01', '2020-05-15'),
+            mockStudent('2012-12-31') // no anniversary
+        ];
+        const result = calculateAnniversaryHeatmap(students);
+
+        const may15 = result.find(c => c.monthIndex === 4 && c.day === 15);
+        expect(may15?.count).toBe(2);
+
+        // Check a random day has 0
+        const may16 = result.find(c => c.monthIndex === 4 && c.day === 16);
+        expect(may16?.count).toBe(0);
+    });
+});
+
+describe('calculateDeathHeatmap', () => {
+    it('correctly counts deaths', () => {
+        const students = [
+            mockStudent('2010-01-01', undefined, '2021-11-01'),
+            mockStudent('2015-01-01', undefined, '2021-11-01'),
+            mockStudent('2012-12-31') // no death date
+        ];
+        const result = calculateDeathHeatmap(students);
+
+        const nov1 = result.find(c => c.monthIndex === 10 && c.day === 1);
+        expect(nov1?.count).toBe(2);
     });
 });

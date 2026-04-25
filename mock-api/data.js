@@ -60,6 +60,9 @@ const generateHouseholds = () => {
     // Child Older Than Parent Generator (5% chance)
     const hasChildOlderThanParent = adultCount > 0 && Math.random() < 0.05;
 
+    // Anniversary Generator for couples (only if 2 adults)
+    const sharedAnniversary = adultCount === 2 ? `${randomInt(2000, 2023)}-${String(randomInt(1, 12)).padStart(2, '0')}-${String(randomInt(1, 28)).padStart(2, '0')}` : null;
+
     for (let a = 0; a < adultCount; a++) {
       const isFemale = Math.random() > 0.5;
       const firstName = randomItem(isFemale ? femaleNames : maleNames);
@@ -106,6 +109,13 @@ const generateHouseholds = () => {
         first_gift_date = formatISO(addDays(new Date(), -randomInt(1, 5))); // 1 to 5 days ago
       }
 
+      // Simulate death date (2% chance for adults)
+      const isDeceased = Math.random() < 0.02;
+      let deathDate = null;
+      if (isDeceased) {
+        deathDate = formatISO(addDays(new Date(), -randomInt(1, 365))); // Died sometime in the last year
+      }
+
       const adult = {
         id,
         type: 'Person',
@@ -120,6 +130,8 @@ const generateHouseholds = () => {
           prayer_topic: prayerTopic,
           first_time_giver,
           first_gift_date,
+          anniversary: sharedAnniversary,
+          death_date: deathDate,
           phone_numbers: [{ location: 'Mobile', number: (() => {
             const r = Math.random();
             const n1 = randomInt(100, 999);

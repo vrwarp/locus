@@ -71,7 +71,9 @@ describe('transformPerson', () => {
       hasPhoneAnomaly: false,
       phoneNumber: undefined,
       firstTimeGiver: false,
-      firstGiftDate: null
+      firstGiftDate: null,
+      anniversary: null,
+      deathDate: null
     });
   });
 

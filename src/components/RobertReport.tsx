@@ -10,7 +10,7 @@ import { AttendancePulse } from './AttendancePulse';
 import { NewcomerFunnel } from './NewcomerFunnel';
 import { BusFactorGraph } from './BusFactorGraph';
 import { CheckInVelocity } from './CheckInVelocity';
-import { BirthdayHeatmap } from './BirthdayHeatmap';
+import { LifeEventsHeatmap } from "./LifeEventsHeatmap";
 import { VolunteerWeb } from './VolunteerWeb';
 import { DriftReport } from './DriftReport';
 import { GenealogyGraph } from './GenealogyGraph';
@@ -323,7 +323,7 @@ export const RobertReport: React.FC<RobertReportProps> = ({ isOpen, onClose, sta
         )}
 
         {activeTab === 'heatmap' && (
-            <BirthdayHeatmap students={students} />
+            <LifeEventsHeatmap students={students} />
         )}
 
         {activeTab === 'network' && (

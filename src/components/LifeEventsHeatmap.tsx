@@ -1,13 +1,22 @@
-import React, { useMemo } from 'react';
-import { calculateBirthdayHeatmap } from '../utils/heatmap';
+import React, { useMemo, useState } from 'react';
+import { calculateBirthdayHeatmap, calculateAnniversaryHeatmap, calculateDeathHeatmap } from '../utils/heatmap';
 import type { Student } from '../utils/pco';
 
-interface BirthdayHeatmapProps {
+interface LifeEventsHeatmapProps {
   students: Student[];
 }
 
-export const BirthdayHeatmap: React.FC<BirthdayHeatmapProps> = ({ students }) => {
-  const data = useMemo(() => calculateBirthdayHeatmap(students), [students]);
+export const LifeEventsHeatmap: React.FC<LifeEventsHeatmapProps> = ({ students }) => {
+  const [eventType, setEventType] = useState<'birthdays' | 'anniversaries' | 'deaths'>('birthdays');
+
+  const data = useMemo(() => {
+      switch(eventType) {
+          case 'birthdays': return calculateBirthdayHeatmap(students);
+          case 'anniversaries': return calculateAnniversaryHeatmap(students);
+          case 'deaths': return calculateDeathHeatmap(students);
+          default: return calculateBirthdayHeatmap(students);
+      }
+  }, [students, eventType]);
 
   const maxCount = useMemo(() => {
     return Math.max(...data.map(c => c.count), 1);
@@ -28,7 +37,18 @@ export const BirthdayHeatmap: React.FC<BirthdayHeatmapProps> = ({ students }) =>
 
   return (
     <div className="birthday-heatmap" style={{ padding: '1rem' }}>
-        <h3 style={{ marginBottom: '1rem' }}>The Heatmap of Life: Birthdays</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3>The Heatmap of Life: {eventType.charAt(0).toUpperCase() + eventType.slice(1)}</h3>
+            <select
+              value={eventType}
+              onChange={(e) => setEventType(e.target.value as any)}
+              style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid #ddd' }}
+            >
+                <option value="birthdays">Birthdays</option>
+                <option value="anniversaries">Anniversaries</option>
+                <option value="deaths">Deaths</option>
+            </select>
+        </div>
       <div style={{ display: 'grid', gridTemplateColumns: '40px repeat(12, 1fr)', gap: '4px' }}>
         {/* Header Row: Month Names */}
         <div className="header-cell"></div> {/* Corner */}
@@ -57,7 +77,7 @@ export const BirthdayHeatmap: React.FC<BirthdayHeatmapProps> = ({ students }) =>
               return (
                 <div
                   key={`${monthIndex}-${day}`}
-                  title={`${months[monthIndex]} ${day}: ${cell.count} birthdays`}
+                  title={`${months[monthIndex]} ${day}: ${cell.count} ${eventType}`}
                   style={{
                     backgroundColor: getColor(cell.count),
                     borderRadius: '2px',
@@ -66,7 +86,7 @@ export const BirthdayHeatmap: React.FC<BirthdayHeatmapProps> = ({ students }) =>
                     position: 'relative'
                   }}
                   role="gridcell"
-                  aria-label={`${months[monthIndex]} ${day}: ${cell.count} birthdays`}
+                  aria-label={`${months[monthIndex]} ${day}: ${cell.count} ${eventType}`}
                 />
               );
             })}
