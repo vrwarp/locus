@@ -209,7 +209,17 @@ describe('App Integration', () => {
         vi.useRealTimers();
     });
 
+
+    const loginToIntelligence = async () => {
+        fireEvent.click(screen.getByText('Locus Intelligence'));
+        fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-app' } });
+        fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
+                // Wait for connection
+        await waitFor(() => expect(screen.queryByText('Ministry Intelligence Platform')).not.toBeInTheDocument(), { timeout: 5000 });
+    };
+
     const loginAndNavigateToDashboard = async () => {
+        fireEvent.click(screen.getByText('Locus Core'));
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
         // Wait for GamificationWidget to confirm login
@@ -697,10 +707,10 @@ describe('App Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
-        await loginAndNavigateToDashboard();
+        await loginToIntelligence();
 
         // Wait for Dashboard content
-        await waitFor(() => expect(screen.getByText('Health Score')).toBeInTheDocument(), { timeout: 5000 });
+        await waitFor(() => expect(screen.getByText('Pastoral Co-Pilot')).toBeInTheDocument(), { timeout: 5000 });
 
         // Click sidebar button (first one found if dupes, or better yet be specific)
         const buttons = screen.getAllByText(/Burnout Risk/);
@@ -717,12 +727,9 @@ describe('App Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
-        await loginAndNavigateToDashboard();
+        await loginToIntelligence();
 
-        // Wait for Dashboard content
-        await waitFor(() => expect(screen.getByText('Health Score')).toBeInTheDocument(), { timeout: 5000 });
-
-        const button = screen.getByText('Check-in Velocity');
+        const button = screen.getByText(/Check-in Velocity/i);
         fireEvent.click(button);
 
         expect(screen.getByTestId('check-in-velocity')).toBeInTheDocument();
@@ -998,6 +1005,7 @@ describe('App Integration', () => {
 
         render(<Wrapper><App /></Wrapper>);
 
+        fireEvent.click(screen.getByText('Locus Core'));
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 

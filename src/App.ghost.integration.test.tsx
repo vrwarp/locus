@@ -128,6 +128,7 @@ describe('Ghost Protocol Integration', () => {
 
         render(<Wrapper><App /></Wrapper>);
 
+        fireEvent.click(screen.getByText('Locus Core'));
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 

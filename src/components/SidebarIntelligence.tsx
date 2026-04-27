@@ -1,57 +1,20 @@
 import React from 'react';
 import './Sidebar.css';
-import { Avatar } from './Avatar';
 
 interface SidebarProps {
   currentView: string;
   onChangeView: (view: string) => void;
-  anomaliesCount: number;
-  totalFixes?: number;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, anomaliesCount, totalFixes = 0 }) => {
+export const SidebarIntelligence: React.FC<SidebarProps> = ({ currentView, onChangeView }) => {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <Avatar totalFixes={totalFixes} />
-        <h2>Locus</h2>
-        <div className="subtitle">Ministry Intelligence</div>
+        <div className="logo">Locus Intelligence</div>
+        <div className="subtitle">Executive Dashboard</div>
       </div>
 
       <nav className="sidebar-nav">
-        <button
-          className={`nav-item ${currentView === 'dashboard' ? 'active' : ''}`}
-          onClick={() => onChangeView('dashboard')}
-        >
-          <span className="icon">📊</span>
-          Dashboard
-        </button>
-
-        <button
-          className={`nav-item ${currentView === 'bounties' ? 'active' : ''}`}
-          onClick={() => onChangeView('bounties')}
-        >
-          <span className="icon">💰</span>
-          Bounty Board
-        </button>
-
-        <button
-          className={`nav-item ${currentView === 'campus-cup' ? 'active' : ''}`}
-          onClick={() => onChangeView('campus-cup')}
-        >
-          <span className="icon">🏆</span>
-          Campus Cup
-        </button>
-
-        <button
-          className={`nav-item ${currentView === 'data-health' ? 'active' : ''}`}
-          onClick={() => onChangeView('data-health')}
-        >
-          <span className="icon">🏥</span>
-          Data Health
-          {anomaliesCount > 0 && <span className="badge">{anomaliesCount}</span>}
-        </button>
-
         <div className="nav-section">Intelligence</div>
 
         <button
@@ -61,16 +24,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
           <span className="icon">🤖</span>
           Pastoral Co-Pilot
         </button>
-
-        <button
-          className={`nav-item ${currentView === 'small-groups' ? 'active' : ''}`}
-          onClick={() => onChangeView('small-groups')}
-        >
-          <span className="icon">🧬</span>
-          Small Group Sorter
-        </button>
-
-
 
         <button
           className={`nav-item ${currentView === 'global-pulse' ? 'active' : ''}`}
@@ -106,10 +59,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
 
         <button
           className={`nav-item ${currentView === 'attrition' ? 'active' : ''}`}
-          onClick={() => onChangeView('attrition')}>
-        <span className="icon">📉</span>
-        Attrition
-      </button>
+          onClick={() => onChangeView('attrition')}
+        >
+          <span className="icon">📉</span>
+          Attrition
+        </button>
 
         <button
           className={`nav-item ${currentView === 'missing' ? 'active' : ''}`}
@@ -117,14 +71,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
         >
           <span className="icon">🚨</span>
           Missing Volunteers
-        </button>
-
-        <button
-          className={`nav-item ${currentView === 'attrition' ? 'active' : ''}`}
-          onClick={() => onChangeView('attrition')}
-        >
-          <span className="icon">📉</span>
-          Attrition
         </button>
 
         <button
@@ -184,14 +130,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
         </button>
 
         <button
-          className={`nav-item ${currentView === 'achievements' ? 'active' : ''}`}
-          onClick={() => onChangeView('achievements')}
-        >
-          <span className="icon">🏆</span>
-          Achievement Case
-        </button>
-
-        <button
           className={`nav-item ${currentView === 'heatmap' ? 'active' : ''}`}
           onClick={() => onChangeView('heatmap')}
         >
@@ -206,6 +144,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
           <span className="icon">📊</span>
           Demographics
         </button>
+
         <button
           className={`nav-item ${currentView === 'map-view' ? 'active' : ''}`}
           onClick={() => onChangeView('map-view')}
@@ -213,6 +152,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
           <span className="icon">🗺️</span>
           Map View
         </button>
+
         <button
           className={`nav-item ${currentView === 'sermons' ? 'active' : ''}`}
           onClick={() => onChangeView('sermons')}
@@ -245,8 +185,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
           Stripe Trends
         </button>
 
-
-
         <button
           className={`nav-item ${currentView === 'prayer' ? 'active' : ''}`}
           onClick={() => onChangeView('prayer')}
@@ -255,8 +193,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
           Prayer Partner Match
         </button>
 
-        <div className="nav-section">Tools</div>
+        <button
+          className={`nav-item ${currentView === 'small-groups' ? 'active' : ''}`}
+          onClick={() => onChangeView('small-groups')}
+        >
+          <span className="icon">🧬</span>
+          Small Group Sorter
+        </button>
 
+        <div className="nav-section">Tools</div>
         <button
           className={`nav-item ${currentView === 'locus-public' ? 'active' : ''}`}
           onClick={() => onChangeView('locus-public')}
@@ -281,45 +226,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onChangeView, ano
           Emergency Alerts
         </button>
 
-        <button
-          className={`nav-item ${currentView === 'duplicates' ? 'active' : ''}`}
-          onClick={() => onChangeView('duplicates')}
-        >
-          <span className="icon">👯</span>
-          Duplicate Detective
-        </button>
-
-        <button
-          className={`nav-item ${currentView === 'ghosts' ? 'active' : ''}`}
-          onClick={() => onChangeView('ghosts')}
-        >
-          <span className="icon">👻</span>
-          Ghost Protocol
-        </button>
-
-        <button
-          className={`nav-item ${currentView === 'families' ? 'active' : ''}`}
-          onClick={() => onChangeView('families')}
-        >
-          <span className="icon">👨‍👩‍👧‍👦</span>
-          Family Audit
-        </button>
-
-        <button
-          className={`nav-item ${currentView === 'integrations' ? 'active' : ''}`}
-          onClick={() => onChangeView('integrations')}
-        >
-          <span className="icon">🔌</span>
-          Integrations
-        </button>
-
-        <button
-          className={`nav-item ${currentView === 'settings' ? 'active' : ''}`}
-          onClick={() => onChangeView('settings')}
-        >
-          <span className="icon">⚙️</span>
-          Settings
-        </button>
       </nav>
 
       <div className="sidebar-footer">
