@@ -27,3 +27,7 @@ We must implement strict role-based routing to decouple the UI into distinct lay
 ### 4. Cleaning the Monolith
 - The single `App.tsx` file must be refactored to act only as a router.
 - All "distraction" widgets (Spotify, Smart Parking, Digital Tithe) must be removed from the active routing and navigation immediately.
+
+## Implementation Status
+- **Completed:** Role-based routing is fully implemented. The monolithic `App.tsx` has been refactored into a router that directs users to either `CoreLayout` (Data Custodian Workspace) or `IntelligenceLayout` (Executive Dashboard) after a persona selection step on `LandingPage`.
+- **Completed:** The distraction widgets (`SpotifyWidget`, `SmartParking`, `DigitalTithe`) have been completely removed from the codebase and active navigation.

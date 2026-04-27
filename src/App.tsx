@@ -32,7 +32,6 @@ import { SermonCorrelator } from './components/SermonCorrelator'
 import { SentimentPulse } from './components/SentimentPulse'
 import { GivingRiver } from './components/GivingRiver'
 import { GivingTrends } from './components/GivingTrends'
-import { DigitalTithe } from './components/DigitalTithe';
 import { EmergencyAlerts } from './components/EmergencyAlerts'
 import { PrayerMatch } from './components/PrayerMatch'
 import { BountyBoard } from './components/BountyBoard'
@@ -59,22 +58,33 @@ import type { Badge } from './utils/gamification'
 import './App.css'
 
 // New Components
-import { Sidebar } from './components/Sidebar'
+
+import { LandingPage } from './components/LandingPage';
+import { CoreLayout } from './layouts/CoreLayout';
+import { IntelligenceLayout } from './layouts/IntelligenceLayout';
+
 import { Dashboard } from './components/Dashboard'
 import { AutomationsReport } from './components/AutomationsReport'
 import { IntegrationsHub } from './components/IntegrationsHub'
-import { SpotifyWidget } from './components/SpotifyWidget'
 import { GlobalPulse } from './components/GlobalPulse'
 import { LocusPublic } from './components/LocusPublic'
-import { SmartParking } from './components/SmartParking'
 
 function App() {
   const [appId, setAppId] = useState('')
   const [secret, setSecret] = useState('')
   const [config, setConfig] = useState<AppConfig>({ graderOptions: {} });
 
-  // View State
+
+  // Role State
+  const [userRole, setUserRole] = useState<'core' | 'intelligence' | null>(null);
+
+  const handleSelectRole = (role: 'core' | 'intelligence') => {
+      setUserRole(role);
+      setCurrentView(role === 'core' ? 'dashboard' : 'copilot');
+  };
+
   const [currentView, setCurrentView] = useState('dashboard');
+
 
   // Modals
   const [isConfigOpen, setIsConfigOpen] = useState(false);
@@ -605,8 +615,14 @@ function App() {
       }
   };
 
+  if (!userRole) {
+      return <LandingPage onSelectRole={handleSelectRole} />;
+  }
+
+  const Layout = userRole === 'core' ? CoreLayout : IntelligenceLayout;
+
   return (
-    <div className="app-container" style={{display: 'flex'}} onClick={handleAppClick}>
+    <div className="app-container" style={{display: 'flex', width: '100vw', height: '100vh', margin: 0, padding: 0}} onClick={handleAppClick}>
        {config.sandboxMode && (
           <div style={{
               backgroundColor: '#ff9800',
@@ -624,20 +640,10 @@ function App() {
           </div>
       )}
 
-      {/* Sidebar Navigation */}
-      <Sidebar
-        currentView={currentView}
-        onChangeView={handleNavigation}
-        anomaliesCount={anomalies.length}
-      />
+      <Layout currentView={currentView} onChangeView={handleNavigation} anomaliesCount={anomalies.length}>
 
-      <div className="main-content" style={{
-          marginLeft: '250px',
-          width: 'calc(100% - 250px)',
-          padding: '2rem',
-          marginTop: config.sandboxMode ? '40px' : '0'
-      }}>
-          {/* Main Content Area */}
+
+
 
           {/* Auth Screen (Overlay if not authed) */}
           {!appId || !secret || apiStatus === 'idle' || apiStatus === 'error' ? (
@@ -856,15 +862,11 @@ function App() {
 
                         {currentView === 'giving-trends' && (
                             <div className="view-container fade-in">
-                                <GivingTrends checkIns={checkIns} events={events} />
+                                <GivingTrends checkIns={[]} events={[]} />
                             </div>
                         )}
 
-                        {currentView === 'digital-tithe' && (
-                            <div className="view-container fade-in">
-                                <DigitalTithe />
-                            </div>
-                        )}
+
 
                         {currentView === 'prayer' && (
                             <div className="view-container fade-in">
@@ -941,19 +943,16 @@ function App() {
                                  <LocusPublic students={students} onSave={handleSaveStudent} />
                              </div>
                         )}
-                        {currentView === 'smart-parking' && (
-                             <div className="view-container">
-                                 <SmartParking />
-                             </div>
-                        )}
+
                       </>
                   )}
               </>
           )}
 
-      </div>
+            </Layout>
 
       {/* Modals & Toasts */}
+      {userRole === 'core' && (<>
       <SmartFixModal
         isOpen={!!selectedStudent}
         student={selectedStudent}
@@ -978,6 +977,8 @@ function App() {
         isOpen={isGoldenRecordOpen}
         onClose={() => setIsGoldenRecordOpen(false)}
       />
+      </>)}
+
       <ConfigModal
         isOpen={isConfigOpen}
         onClose={() => setIsConfigOpen(false)}
@@ -1022,8 +1023,7 @@ function App() {
           />
       )}
 
-      {/* Spotify Widget */}
-      <SpotifyWidget config={config} />
+
     </div>
   )
 }

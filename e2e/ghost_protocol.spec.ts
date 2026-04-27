@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 test('Ghost Protocol: Analyze and Archive', async ({ page }) => {
   // 1. Navigate and Login
   await page.goto('/');
+  await page.getByText('Locus Core').click();
   await page.getByPlaceholder('Application ID').fill('test_app_id');
   await page.getByPlaceholder('Secret').fill('test_secret');
   await page.keyboard.press('Enter');

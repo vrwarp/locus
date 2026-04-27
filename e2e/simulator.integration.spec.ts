@@ -3,6 +3,7 @@ import { test, expect } from '@playwright/test';
 test('Full flow with simulator: Login, View Data, Smart Fix', async ({ page }) => {
   // 1. Navigate
   await page.goto('/');
+  await page.getByText('Locus Core').click();
 
   // 2. Login
   // Fills in dummy credentials. The app debounces input and then triggers the query.
