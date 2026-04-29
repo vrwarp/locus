@@ -54,7 +54,7 @@ export const CheckInVelocity: React.FC<CheckInVelocityProps> = ({ auth }) => {
   }
 
   return (
-    <div className="velocity-container">
+    <div className="velocity-container" data-testid="check-in-velocity">
       <h3>The "Check-in Velocity"</h3>
       <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
         Real-time gauge of check-ins per minute on Sunday morning.
