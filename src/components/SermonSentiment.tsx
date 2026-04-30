@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { fetchEvents, fetchRecentCheckIns } from '../utils/pco';
+import type { Student } from '../utils/pco';
 import { correlateSermonsAndAttendance } from '../utils/sermons';
 import type { SermonData } from '../utils/sermons';
 import './SermonSentiment.css';
 
 interface SermonSentimentProps {
   auth: string;
+  students: Student[];
 }
 
-export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth }) => {
+export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth, students }) => {
   const [data, setData] = useState<SermonData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [demographic, setDemographic] = useState<string>('All');
 
   useEffect(() => {
     const loadData = async () => {
@@ -23,7 +26,7 @@ export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth }) => {
           fetchRecentCheckIns(auth, 20) // Fetch enough pages to get historical data
         ]);
 
-        const correlatedData = correlateSermonsAndAttendance(checkIns, events);
+        const correlatedData = correlateSermonsAndAttendance(checkIns, events, students, demographic);
         setData(correlatedData);
       } catch (err) {
         setError('Failed to load sermon and attendance data.');
@@ -36,17 +39,36 @@ export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth }) => {
     if (auth) {
         loadData();
     }
-  }, [auth]);
+  }, [auth, students, demographic]);
 
   if (loading) return <div className="loading-spinner">Analyzing Sermons...</div>;
   if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="sermon-sentiment">
-      <h3>Sermon Sentiment</h3>
-      <p className="description">
-        Correlating historical sermon topics with worship attendance spikes.
-      </p>
+      <div className="header-actions">
+        <div>
+          <h3>Sermon Sentiment</h3>
+          <p className="description">
+            Correlating historical sermon topics with worship attendance spikes.
+          </p>
+        </div>
+        <select
+          value={demographic}
+          onChange={(e) => setDemographic(e.target.value)}
+          aria-label="Filter by demographic"
+          className="demographic-select"
+        >
+          <option value="All">All Generations</option>
+          <option value="Gen Alpha">Gen Alpha</option>
+          <option value="Gen Z">Gen Z</option>
+          <option value="Millennials">Millennials</option>
+          <option value="Gen X">Gen X</option>
+          <option value="Boomers">Boomers</option>
+          <option value="Silent">Silent</option>
+          <option value="Greatest">Greatest</option>
+        </select>
+      </div>
 
       {data.length === 0 ? (
         <div className="empty-state">

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { SermonSentiment } from './SermonSentiment';
 import * as pcoUtils from '../utils/pco';
@@ -38,7 +38,7 @@ describe('SermonSentiment', () => {
         (pcoUtils.fetchEvents as any).mockImplementation(() => new Promise(res => resolveEvents = res));
         (pcoUtils.fetchRecentCheckIns as any).mockResolvedValue([]);
 
-        render(<SermonSentiment auth="test" />);
+        render(<SermonSentiment auth="test" students={[]} />);
         expect(screen.getByText('Analyzing Sermons...')).toBeInTheDocument();
 
         // Resolve to clean up and prevent warning
@@ -52,7 +52,7 @@ describe('SermonSentiment', () => {
         (pcoUtils.fetchEvents as any).mockResolvedValue([]);
         (pcoUtils.fetchRecentCheckIns as any).mockResolvedValue([]);
 
-        render(<SermonSentiment auth="test" />);
+        render(<SermonSentiment auth="test" students={[]} />);
 
         await waitFor(() => {
             expect(screen.getByText('Not enough attendance data to correlate.')).toBeInTheDocument();
@@ -69,7 +69,7 @@ describe('SermonSentiment', () => {
             { weekStarting: '2023-10-08', topic: 'Hope', attendance: 150 }
         ]);
 
-        render(<SermonSentiment auth="test" />);
+        render(<SermonSentiment auth="test" students={[]} />);
 
         await waitFor(() => {
             expect(screen.getByText('Sermon Sentiment')).toBeInTheDocument();
@@ -89,11 +89,42 @@ describe('SermonSentiment', () => {
         const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
         (pcoUtils.fetchEvents as any).mockRejectedValue(new Error('Network error'));
 
-        render(<SermonSentiment auth="test" />);
+        render(<SermonSentiment auth="test" students={[]} />);
 
         await waitFor(() => {
             expect(screen.getByText('Failed to load sermon and attendance data.')).toBeInTheDocument();
         });
         spy.mockRestore();
+    });
+
+    it('should refetch data when demographic filter is changed', async () => {
+        (pcoUtils.fetchEvents as any).mockResolvedValue([{ id: '1', attributes: { name: 'Sunday Worship' } }]);
+        (pcoUtils.fetchRecentCheckIns as any).mockResolvedValue([{ id: '1', relationships: { event: { data: { id: '1' } } } }]);
+
+        const correlateSpy = vi.spyOn(sermonUtils, 'correlateSermonsAndAttendance').mockReturnValue([
+            { weekStarting: '2023-10-01', topic: 'Grace', attendance: 120 }
+        ]);
+
+        const mockStudents: any[] = [{ id: 'p1', birthdate: '1990-01-01' }];
+
+        render(<SermonSentiment auth="test" students={mockStudents} />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Sermon Sentiment')).toBeInTheDocument();
+        });
+
+        // Initial call check
+        expect(correlateSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), mockStudents, 'All');
+
+        // Change select
+        const select = screen.getByRole('combobox', { name: 'Filter by demographic' });
+
+        // Use fireEvent.change
+        fireEvent.change(select, { target: { value: 'Millennials' } });
+
+        await waitFor(() => {
+            // Check that it was called again with the new demographic
+            expect(correlateSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), mockStudents, 'Millennials');
+        });
     });
 });

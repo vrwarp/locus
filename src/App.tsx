@@ -840,7 +840,7 @@ function App() {
 
                         {currentView === 'sermons' && (
                              <div className="view-container">
-                                <SermonSentiment auth={auth} />
+                                <SermonSentiment auth={auth} students={students} />
                             </div>
                         )}
                         {currentView === 'sermon-correlator' && (
