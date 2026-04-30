@@ -47,6 +47,35 @@ describe('sermons', () => {
     expect(result[1].topic).toBe(SERMON_TOPICS[1]);
   });
 
+  it('should filter attendance by demographic when specified', () => {
+    const events: PcoEvent[] = [{ id: '1', type: 'Event', attributes: { name: 'Sunday Worship Service' } }];
+
+    // One Millennial (born 1990), one Gen Z (born 2005)
+    const mockStudents: any[] = [
+      { id: 'p1', birthdate: '1990-01-01' },
+      { id: 'p2', birthdate: '2005-01-01' }
+    ];
+
+    const checkIns: Partial<PcoCheckIn>[] = [
+      {
+        id: '1',
+        attributes: { created_at: '2023-10-01T10:00:00Z', kind: 'Regular' },
+        relationships: { event: { data: { type: 'Event', id: '1' } }, person: { data: { type: 'Person', id: 'p1' } } }
+      },
+      {
+        id: '2',
+        attributes: { created_at: '2023-10-01T10:00:00Z', kind: 'Regular' },
+        relationships: { event: { data: { type: 'Event', id: '1' } }, person: { data: { type: 'Person', id: 'p2' } } }
+      }
+    ];
+
+    // Filter by Millennials
+    const result = correlateSermonsAndAttendance(checkIns as PcoCheckIn[], events as PcoEvent[], mockStudents, 'Millennials');
+
+    expect(result.length).toBe(1);
+    expect(result[0].attendance).toBe(1); // Only p1 (Millennial) counted
+  });
+
   it('should ignore duplicate check-ins for the same person in the same week', () => {
     const events: PcoEvent[] = [{ id: '1', type: 'Event', attributes: { name: 'Sunday Worship Service' } }];
 

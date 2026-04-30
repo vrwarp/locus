@@ -547,3 +547,20 @@
 - **Test Coverage:**
     - Updated `ConfigModal.test.tsx` and `ReviewMode.test.tsx` to verify state updates and the correct interactions with the audio utility layer.
 - **Status:** Zen Audio feature fully implemented and verified.
+
+## Session (Sermon Demographic Filtering)
+- **Implemented:**
+    - **Sermon Sentiment Demographic Filtering:**
+        - Updated `src/utils/sermons.ts` (`correlateSermonsAndAttendance` and `correlateSermonsWithEngagement`) to accept a `students` array and a `demographic` string parameter.
+        - Implemented logic to filter worship check-ins by looking up the student's birth year and mapping it to a generation via `src/utils/demographics.ts`.
+        - Updated `src/components/SermonSentiment.tsx` to include a dropdown allowing the user to filter the attendance spikes by specific generations (e.g., Millennials, Gen Z).
+- **Integration:**
+    - Updated `App.tsx` to pass the `students` prop to the `SermonSentiment` component.
+- **Test Coverage:**
+    - Added unit test in `src/utils/sermons.test.ts` to verify that check-ins are accurately filtered by the requested demographic.
+    - Updated `src/components/SermonSentiment.test.tsx` to simulate selecting a demographic filter and asserting the utility function is re-called with the correct arguments.
+- **Status:** Sermon Sentiment Demographic Filtering fully implemented and verified.
+- **Discoveries:**
+    - Adding demographic filtering introduced a slight inefficiency because the component was refetching all PCO data on every filter change. This can be resolved by memoizing the fetched data.
+- **Future Ideas:**
+    - Refactor `SermonSentiment.tsx` to fetch `events` and `checkIns` only when `auth` changes, storing them in state, and use `useMemo` to recalculate the filtered chart data when `demographic` changes, preventing unnecessary network calls.

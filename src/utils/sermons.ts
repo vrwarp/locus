@@ -1,5 +1,6 @@
 import { parseISO, startOfWeek, format } from 'date-fns';
-import type { PcoCheckIn, PcoEvent } from './pco';
+import type { PcoCheckIn, PcoEvent, Student } from './pco';
+import { GENERATIONS } from './demographics';
 
 export interface SermonData {
   weekStarting: string;
@@ -21,7 +22,9 @@ export const SERMON_TOPICS = [
 
 export const correlateSermonsAndAttendance = (
   checkIns: PcoCheckIn[],
-  events: PcoEvent[]
+  events: PcoEvent[],
+  students: Student[] = [],
+  demographic: string = 'All'
 ): SermonData[] => {
   // Identify the primary Worship Service event ID
   const worshipEvent = events.find(e =>
@@ -34,9 +37,23 @@ export const correlateSermonsAndAttendance = (
   const worshipEventId = worshipEvent.id;
 
   // Filter check-ins to just the worship service
-  const worshipCheckIns = checkIns.filter(
+  let worshipCheckIns = checkIns.filter(
     c => c.relationships.event.data.id === worshipEventId && c.attributes.kind === 'Regular'
   );
+
+  if (demographic !== 'All') {
+    worshipCheckIns = worshipCheckIns.filter(c => {
+      const personId = c.relationships.person.data.id;
+      const student = students.find(s => s.id === personId);
+      if (!student || !student.birthdate) return false;
+
+      const birthYear = new Date(student.birthdate).getFullYear();
+      if (isNaN(birthYear)) return false;
+
+      const generation = GENERATIONS.find(gen => birthYear >= gen.start && birthYear <= gen.end);
+      return generation && generation.name === demographic;
+    });
+  }
 
   // Group check-ins by week
   const weeklyAttendance = new Map<string, Set<string>>(); // week string -> set of person IDs (unique attendees)
@@ -84,7 +101,9 @@ export interface SermonEngagementData {
 
 export const correlateSermonsWithEngagement = (
   checkIns: PcoCheckIn[],
-  events: PcoEvent[]
+  events: PcoEvent[],
+  students: Student[] = [],
+  demographic: string = 'All'
 ): SermonEngagementData[] => {
   // To simulate this without a real "forms" or "signups" endpoint,
   // we will derive a deterministic number of signups based on the topic.
@@ -92,7 +111,7 @@ export const correlateSermonsWithEngagement = (
   // "Week 3 (The 'Serve One Another' sermon) resulted in a 400% spike in volunteer applications."
 
   // First, calculate attendance to establish a baseline size
-  const attendanceData = correlateSermonsAndAttendance(checkIns, events);
+  const attendanceData = correlateSermonsAndAttendance(checkIns, events, students, demographic);
 
   return attendanceData.map(data => {
     let smallGroupSignups = Math.round(data.attendance * 0.05); // Base rate: 5% of attendance
