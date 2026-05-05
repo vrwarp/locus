@@ -4,13 +4,13 @@ import { SidebarCore } from './SidebarCore';
 
 describe('SidebarCore', () => {
   it('renders title and subtitle', () => {
-    render(<SidebarCore currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={0} />);
+    render(<SidebarCore currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={0} totalFixes={0} />);
     expect(screen.getByText('Locus Core')).toBeInTheDocument();
     expect(screen.getByText('Data Custodian Workspace')).toBeInTheDocument();
   });
 
   it('renders navigation items and active class', () => {
-    render(<SidebarCore currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={0} />);
+    render(<SidebarCore currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={0} totalFixes={0} />);
     const dashboardBtn = screen.getByRole('button', { name: /Dashboard/i });
     expect(dashboardBtn).toBeInTheDocument();
     expect(dashboardBtn).toHaveClass('active');
@@ -22,7 +22,7 @@ describe('SidebarCore', () => {
 
   it('handles onChangeView click', () => {
     const onChangeViewMock = vi.fn();
-    render(<SidebarCore currentView="dashboard" onChangeView={onChangeViewMock} anomaliesCount={0} />);
+    render(<SidebarCore currentView="dashboard" onChangeView={onChangeViewMock} anomaliesCount={0} totalFixes={0} />);
 
     const bountiesBtn = screen.getByRole('button', { name: /Bounty Board/i });
     fireEvent.click(bountiesBtn);
@@ -30,7 +30,7 @@ describe('SidebarCore', () => {
   });
 
   it('renders anomalies badge when anomaliesCount > 0', () => {
-    render(<SidebarCore currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={5} />);
+    render(<SidebarCore currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={5} totalFixes={0} />);
 
     const badge = screen.getByText('5');
     expect(badge).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe('SidebarCore', () => {
   });
 
   it('does not render anomalies badge when anomaliesCount is 0', () => {
-    render(<SidebarCore currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={0} />);
+    render(<SidebarCore currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={0} totalFixes={0} />);
 
     const dataHealthBtn = screen.getByRole('button', { name: /Data Health/i });
     expect(dataHealthBtn).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe('SidebarCore', () => {
   });
 
   it('renders all core specific items', () => {
-    render(<SidebarCore currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={0} />);
+    render(<SidebarCore currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={0} totalFixes={0} />);
 
     expect(screen.getByRole('button', { name: /Achievement Case/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Campus Cup/i })).toBeInTheDocument();
@@ -58,5 +58,10 @@ describe('SidebarCore', () => {
     expect(screen.getByRole('button', { name: /Family Audit/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Integrations/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Settings/i })).toBeInTheDocument();
+  });
+
+  it('renders Avatar with total fixes', () => {
+    render(<SidebarCore currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={0} totalFixes={42} />);
+    expect(screen.getByTitle('42 Total Fixes')).toBeInTheDocument();
   });
 });

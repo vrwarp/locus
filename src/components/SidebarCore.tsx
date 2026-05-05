@@ -1,13 +1,15 @@
 import React from 'react';
 import './Sidebar.css';
+import { Avatar } from './Avatar';
 
 interface SidebarProps {
   currentView: string;
   onChangeView: (view: string) => void;
   anomaliesCount: number;
+  totalFixes: number;
 }
 
-export const SidebarCore: React.FC<SidebarProps> = ({ currentView, onChangeView, anomaliesCount }) => {
+export const SidebarCore: React.FC<SidebarProps> = ({ currentView, onChangeView, anomaliesCount, totalFixes }) => {
   return (
     <div className="sidebar">
       <div className="sidebar-header">
@@ -103,6 +105,7 @@ export const SidebarCore: React.FC<SidebarProps> = ({ currentView, onChangeView,
       </nav>
 
       <div className="sidebar-footer">
+        <Avatar totalFixes={totalFixes} />
         v6.1 - Symbiotic Intelligence
       </div>
     </div>

@@ -5,7 +5,7 @@ import { CoreLayout } from './CoreLayout';
 describe('CoreLayout', () => {
   it('renders children content', () => {
     render(
-      <CoreLayout currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={0}>
+      <CoreLayout currentView="dashboard" onChangeView={vi.fn()} anomaliesCount={0} totalFixes={0}>
         <div data-testid="child-content">Test Content</div>
       </CoreLayout>
     );
@@ -16,7 +16,7 @@ describe('CoreLayout', () => {
   it('renders SidebarCore with correct props', () => {
       const onChangeViewMock = vi.fn();
       render(
-        <CoreLayout currentView="dashboard" onChangeView={onChangeViewMock} anomaliesCount={3}>
+        <CoreLayout currentView="dashboard" onChangeView={onChangeViewMock} anomaliesCount={3} totalFixes={0}>
           <div>Child</div>
         </CoreLayout>
       );
