@@ -116,6 +116,12 @@ describe('SermonSentiment', () => {
         // Initial call check
         expect(correlateSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), mockStudents, 'All');
 
+        const fetchEventsSpy = pcoUtils.fetchEvents;
+        const fetchRecentCheckInsSpy = pcoUtils.fetchRecentCheckIns;
+
+        expect(fetchEventsSpy).toHaveBeenCalledTimes(1);
+        expect(fetchRecentCheckInsSpy).toHaveBeenCalledTimes(1);
+
         // Change select
         const select = screen.getByRole('combobox', { name: 'Filter by demographic' });
 
@@ -126,5 +132,9 @@ describe('SermonSentiment', () => {
             // Check that it was called again with the new demographic
             expect(correlateSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), mockStudents, 'Millennials');
         });
+
+        // Ensure that fetching data is not called again
+        expect(fetchEventsSpy).toHaveBeenCalledTimes(1);
+        expect(fetchRecentCheckInsSpy).toHaveBeenCalledTimes(1);
     });
 });

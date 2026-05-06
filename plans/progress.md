@@ -562,6 +562,9 @@
     - Updated `src/components/SermonSentiment.test.tsx` to simulate selecting a demographic filter and asserting the utility function is re-called with the correct arguments.
 - **Status:** Sermon Sentiment Demographic Filtering fully implemented and verified.
 - **Discoveries:**
-    - Adding demographic filtering introduced a slight inefficiency because the component was refetching all PCO data on every filter change. This can be resolved by memoizing the fetched data.
+    - Adding demographic filtering introduced a slight inefficiency because the component was refetching all PCO data on every filter change. This was resolved by memoizing the fetched data.
+- **Refactored:**
+    - Refactored `SermonSentiment.tsx` to fetch `events` and `checkIns` only when `auth` changes, storing them in state, and use `useMemo` to recalculate the filtered chart data when `demographic` changes, successfully preventing unnecessary network calls.
 - **Future Ideas:**
-    - Refactor `SermonSentiment.tsx` to fetch `events` and `checkIns` only when `auth` changes, storing them in state, and use `useMemo` to recalculate the filtered chart data when `demographic` changes, preventing unnecessary network calls.
+    - Integrate a real "Plans" or "Services" endpoint from PCO to fetch actual sermon titles and series rather than relying on a mocked cycler.
+    - Add the ability to multi-select demographic filters (e.g., viewing Millennials and Gen Z together).
