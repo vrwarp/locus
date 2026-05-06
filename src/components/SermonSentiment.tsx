@@ -12,10 +12,12 @@ interface SermonSentimentProps {
 }
 
 export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth, students }) => {
-  const [data, setData] = useState<SermonData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [demographic, setDemographic] = useState<string>('All');
+
+  const [rawEvents, setRawEvents] = useState<any[]>([]);
+  const [rawCheckIns, setRawCheckIns] = useState<any[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -26,8 +28,8 @@ export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth, students
           fetchRecentCheckIns(auth, 20) // Fetch enough pages to get historical data
         ]);
 
-        const correlatedData = correlateSermonsAndAttendance(checkIns, events, students, demographic);
-        setData(correlatedData);
+        setRawEvents(events);
+        setRawCheckIns(checkIns);
       } catch (err) {
         setError('Failed to load sermon and attendance data.');
         console.error(err);
@@ -39,7 +41,12 @@ export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth, students
     if (auth) {
         loadData();
     }
-  }, [auth, students, demographic]);
+  }, [auth]);
+
+  const data = React.useMemo(() => {
+    if (!rawEvents.length && !rawCheckIns.length) return [];
+    return correlateSermonsAndAttendance(rawCheckIns, rawEvents, students, demographic);
+  }, [rawEvents, rawCheckIns, students, demographic]);
 
   if (loading) return <div className="loading-spinner">Analyzing Sermons...</div>;
   if (error) return <div className="error-message">{error}</div>;
