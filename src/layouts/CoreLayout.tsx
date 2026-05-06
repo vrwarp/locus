@@ -5,6 +5,7 @@ interface CoreLayoutProps {
   currentView: string;
   onChangeView: (view: string) => void;
   anomaliesCount: number;
+  totalFixes: number;
   children: React.ReactNode;
 }
 
@@ -12,6 +13,7 @@ export const CoreLayout: React.FC<CoreLayoutProps> = ({
   currentView,
   onChangeView,
   anomaliesCount,
+  totalFixes,
   children
 }) => {
   return (
@@ -20,6 +22,7 @@ export const CoreLayout: React.FC<CoreLayoutProps> = ({
         currentView={currentView}
         onChangeView={onChangeView}
         anomaliesCount={anomaliesCount}
+        totalFixes={totalFixes}
       />
       <div className="main-content" style={{
         marginLeft: '250px',

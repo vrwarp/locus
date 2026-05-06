@@ -640,7 +640,7 @@ function App() {
           </div>
       )}
 
-      <Layout currentView={currentView} onChangeView={handleNavigation} anomaliesCount={anomalies.length}>
+      <Layout currentView={currentView} onChangeView={handleNavigation} anomaliesCount={anomalies.length} totalFixes={gamificationState.totalFixes || 0}>
 
 
 

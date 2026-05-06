@@ -398,6 +398,7 @@
     - **"The Data Ninja" Avatar (Concept #21):**
         - Added `src/utils/avatar.ts` to calculate user titles and levels based on `totalFixes`.
         - Created `Avatar.tsx` and embedded it into the `Sidebar.tsx` for persistent visual gamification.
+        - Fixed a regression where the Avatar component wasn't rendering in the new routing system by explicitly passing the `totalFixes` prop from `App.tsx` down through `CoreLayout` to `SidebarCore.tsx` and correctly integrating it into the `.sidebar-footer` element.
     - **"The Golden Record" (Concept #29):**
         - Implemented a specialized modal (`GoldenRecordModal.tsx`) triggering automatically upon reaching 10,000 total fixes, featuring a massive rotating gold disc and a custom 5-second burst of golden confetti.
         - Wired into `App.tsx` state transitions.

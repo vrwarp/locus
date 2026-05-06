@@ -4,6 +4,7 @@ import { SidebarIntelligence } from '../components/SidebarIntelligence';
 interface IntelligenceLayoutProps {
   currentView: string;
   onChangeView: (view: string) => void;
+  totalFixes?: number;
   children: React.ReactNode;
 }
 
