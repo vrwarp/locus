@@ -729,10 +729,14 @@ describe('App Integration', () => {
         render(<Wrapper><App /></Wrapper>);
         await loginToIntelligence();
 
-        const button = screen.getByText(/Check-in Velocity/i);
-        fireEvent.click(button);
+        await waitFor(() => expect(screen.getByText('Pastoral Co-Pilot')).toBeInTheDocument(), { timeout: 5000 });
 
-        expect(screen.getByTestId('check-in-velocity')).toBeInTheDocument();
+        const buttons = screen.getAllByText(/Check-in Velocity/i);
+        fireEvent.click(buttons[0]);
+
+        await waitFor(() => {
+            expect(screen.getByTestId('check-in-velocity')).toBeInTheDocument();
+        });
     });
 
     it('allows fixing a phone anomaly via Review Mode', async () => {

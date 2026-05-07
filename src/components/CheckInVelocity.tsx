@@ -46,7 +46,7 @@ export const CheckInVelocity: React.FC<CheckInVelocityProps> = ({ auth }) => {
 
   if (data.length === 0) {
       return (
-        <div style={{padding: '2rem', textAlign: 'center', color: '#666'}}>
+        <div style={{padding: '2rem', textAlign: 'center', color: '#666'}} data-testid="check-in-velocity">
             <h3>No Data</h3>
             <p>Not enough check-in history to calculate velocity.</p>
         </div>
@@ -54,7 +54,7 @@ export const CheckInVelocity: React.FC<CheckInVelocityProps> = ({ auth }) => {
   }
 
   return (
-    <div className="velocity-container">
+    <div className="velocity-container" data-testid="check-in-velocity">
       <h3>The "Check-in Velocity"</h3>
       <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
         Real-time gauge of check-ins per minute on Sunday morning.
