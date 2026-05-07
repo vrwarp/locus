@@ -14,7 +14,7 @@ interface SermonSentimentProps {
 export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth, students }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [demographic, setDemographic] = useState<string>('All');
+  const [demographics, setDemographics] = useState<string[]>(['All']);
 
   const [rawEvents, setRawEvents] = useState<any[]>([]);
   const [rawCheckIns, setRawCheckIns] = useState<any[]>([]);
@@ -45,8 +45,8 @@ export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth, students
 
   const data = React.useMemo(() => {
     if (!rawEvents.length && !rawCheckIns.length) return [];
-    return correlateSermonsAndAttendance(rawCheckIns, rawEvents, students, demographic);
-  }, [rawEvents, rawCheckIns, students, demographic]);
+    return correlateSermonsAndAttendance(rawCheckIns, rawEvents, students, demographics);
+  }, [rawEvents, rawCheckIns, students, demographics]);
 
   if (loading) return <div className="loading-spinner">Analyzing Sermons...</div>;
   if (error) return <div className="error-message">{error}</div>;
@@ -61,8 +61,9 @@ export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth, students
           </p>
         </div>
         <select
-          value={demographic}
-          onChange={(e) => setDemographic(e.target.value)}
+          multiple
+          value={demographics}
+          onChange={(e) => setDemographics(Array.from(e.target.selectedOptions, option => option.value))}
           aria-label="Filter by demographic"
           className="demographic-select"
         >

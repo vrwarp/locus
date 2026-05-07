@@ -26,6 +26,13 @@ Implemented several enhancements to existing "AI Moonshot" and Gamification conc
     - Updated `GivingRiver.tsx` (and `.css`) to include a `<select>` input in the header, bound to local component state, which re-calculates the Sankey diagram memoization on change.
 - **Testing:** Added unit tests in `giving.test.ts` verifying multiplier math, and UI tests in `GivingRiver.test.tsx` asserting the dropdown renders and handles change events properly.
 
+### 4. Sermon Sentiment: Multi-select Demographics
+- **Goal:** Add the ability to multi-select demographic filters (e.g., viewing Millennials and Gen Z together).
+- **Implementation:**
+    - Modified `src/utils/sermons.ts`'s `correlateSermonsAndAttendance` and `correlateSermonsWithEngagement` to accept an array of strings for `demographics` instead of a single string.
+    - Updated `src/components/SermonSentiment.tsx` state to an array and the select component to `multiple=true`.
+- **Testing:** Updated `src/components/SermonSentiment.test.tsx` to simulate multiple option selections and verified the mock functions are correctly called with array representations.
+
 ## Technical Discoveries
 - **Recharts and SVG Testing:** The transition to test Recharts with UI interactions highlighted the need to mock components like `ResponsiveContainer` and `Sankey` to avoid deep JSDOM SVG measurement failures, allowing us to safely assert on the DOM element hierarchy instead of inner canvas/SVG parsing.
 - **Playwright Reliability:** Locating elements precisely in UI tests, particularly dynamically rendered Recharts or Canvas elements, requires a mix of explicit waits (`time.sleep` or `.wait_for`) and robust user-facing locators (`get_by_role`, `.locator('label').filter(...)`) to ensure the DOM has settled post-React state updates.

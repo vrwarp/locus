@@ -114,7 +114,7 @@ describe('SermonSentiment', () => {
         });
 
         // Initial call check
-        expect(correlateSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), mockStudents, 'All');
+        expect(correlateSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), mockStudents, ['All']);
 
         const fetchEventsSpy = pcoUtils.fetchEvents;
         const fetchRecentCheckInsSpy = pcoUtils.fetchRecentCheckIns;
@@ -123,14 +123,18 @@ describe('SermonSentiment', () => {
         expect(fetchRecentCheckInsSpy).toHaveBeenCalledTimes(1);
 
         // Change select
-        const select = screen.getByRole('combobox', { name: 'Filter by demographic' });
+        const select = screen.getByRole('listbox', { name: 'Filter by demographic' });
 
-        // Use fireEvent.change
-        fireEvent.change(select, { target: { value: 'Millennials' } });
+        // Select multiple options directly to avoid target set traps in JSDOM
+        const options = Array.from(select.querySelectorAll('option'));
+        options.forEach(opt => {
+            opt.selected = opt.value === 'Millennials' || opt.value === 'Gen Z';
+        });
+        fireEvent.change(select);
 
         await waitFor(() => {
-            // Check that it was called again with the new demographic
-            expect(correlateSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), mockStudents, 'Millennials');
+            // Check that it was called again with the new demographics
+            expect(correlateSpy).toHaveBeenCalledWith(expect.anything(), expect.anything(), mockStudents, expect.arrayContaining(['Gen Z', 'Millennials']));
         });
 
         // Ensure that fetching data is not called again

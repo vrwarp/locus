@@ -24,7 +24,7 @@ export const correlateSermonsAndAttendance = (
   checkIns: PcoCheckIn[],
   events: PcoEvent[],
   students: Student[] = [],
-  demographic: string = 'All'
+  demographics: string[] = ['All']
 ): SermonData[] => {
   // Identify the primary Worship Service event ID
   const worshipEvent = events.find(e =>
@@ -41,7 +41,7 @@ export const correlateSermonsAndAttendance = (
     c => c.relationships.event.data.id === worshipEventId && c.attributes.kind === 'Regular'
   );
 
-  if (demographic !== 'All') {
+  if (demographics && !demographics.includes('All')) {
     worshipCheckIns = worshipCheckIns.filter(c => {
       const personId = c.relationships.person.data.id;
       const student = students.find(s => s.id === personId);
@@ -51,7 +51,7 @@ export const correlateSermonsAndAttendance = (
       if (isNaN(birthYear)) return false;
 
       const generation = GENERATIONS.find(gen => birthYear >= gen.start && birthYear <= gen.end);
-      return generation && generation.name === demographic;
+      return generation && demographics.includes(generation.name);
     });
   }
 
@@ -103,7 +103,7 @@ export const correlateSermonsWithEngagement = (
   checkIns: PcoCheckIn[],
   events: PcoEvent[],
   students: Student[] = [],
-  demographic: string = 'All'
+  demographics: string[] = ['All']
 ): SermonEngagementData[] => {
   // To simulate this without a real "forms" or "signups" endpoint,
   // we will derive a deterministic number of signups based on the topic.
@@ -111,7 +111,7 @@ export const correlateSermonsWithEngagement = (
   // "Week 3 (The 'Serve One Another' sermon) resulted in a 400% spike in volunteer applications."
 
   // First, calculate attendance to establish a baseline size
-  const attendanceData = correlateSermonsAndAttendance(checkIns, events, students, demographic);
+  const attendanceData = correlateSermonsAndAttendance(checkIns, events, students, demographics);
 
   return attendanceData.map(data => {
     let smallGroupSignups = Math.round(data.attendance * 0.05); // Base rate: 5% of attendance
