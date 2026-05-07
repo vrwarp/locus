@@ -70,7 +70,7 @@ describe('sermons', () => {
     ];
 
     // Filter by Millennials
-    const result = correlateSermonsAndAttendance(checkIns as PcoCheckIn[], events as PcoEvent[], mockStudents, 'Millennials');
+    const result = correlateSermonsAndAttendance(checkIns as PcoCheckIn[], events as PcoEvent[], mockStudents, ['Millennials']);
 
     expect(result.length).toBe(1);
     expect(result[0].attendance).toBe(1); // Only p1 (Millennial) counted
