@@ -73,4 +73,14 @@ describe('BurnoutReport', () => {
              expect(screen.getByText('All Clear!')).toBeInTheDocument();
         });
     });
+
+    it('renders error state if API fails', async () => {
+        vi.mocked(pcoUtils.fetchEvents).mockRejectedValue(new Error('Network Error'));
+
+        render(<BurnoutReport students={mockStudents} auth="auth-token" />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Failed to load check-in data.')).toBeInTheDocument();
+        });
+    });
 });

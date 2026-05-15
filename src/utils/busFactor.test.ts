@@ -103,4 +103,49 @@ describe('calculateBusFactor', () => {
     expect(bob).toBeDefined();
     expect(bob?.soloCount).toBe(1);
   });
+
+  it('handles unknown event types and unknown people gracefully', () => {
+    const unknownEvents = []; // No events mapped
+
+    const checkIns = [
+      {
+        id: 'c1',
+        type: 'CheckIn',
+        attributes: { created_at: '2023-01-01T09:00:00Z', kind: 'Volunteer' },
+        relationships: { event: { data: { id: 'e99' } }, person: { data: { id: '999' } } }
+      }
+    ] as PcoCheckIn[];
+
+    const result = calculateBusFactor(checkIns, unknownEvents, students);
+    expect(result).toHaveLength(0); // 999 is not in students array, should be ignored
+  });
+
+  it('sorts correctly based on totalServing when solo counts match', () => {
+      // Both solo twice. Alice serves 3 times total. Bob serves 2 times total.
+      const checkIns = [
+          // Alice solo 1
+          { attributes: { created_at: '2023-01-01T09:00:00Z', kind: 'Volunteer' }, relationships: { event: { data: { id: 'e1' } }, person: { data: { id: '1' } } } },
+          // Alice solo 2
+          { attributes: { created_at: '2023-01-08T09:00:00Z', kind: 'Volunteer' }, relationships: { event: { data: { id: 'e1' } }, person: { data: { id: '1' } } } },
+          // Alice not solo (serves with Charlie)
+          { attributes: { created_at: '2023-01-15T09:00:00Z', kind: 'Volunteer' }, relationships: { event: { data: { id: 'e1' } }, person: { data: { id: '1' } } } },
+          { attributes: { created_at: '2023-01-15T09:15:00Z', kind: 'Volunteer' }, relationships: { event: { data: { id: 'e1' } }, person: { data: { id: '3' } } } },
+
+          // Bob solo 1
+          { attributes: { created_at: '2023-01-22T09:00:00Z', kind: 'Volunteer' }, relationships: { event: { data: { id: 'e1' } }, person: { data: { id: '2' } } } },
+          // Bob solo 2
+          { attributes: { created_at: '2023-01-29T09:00:00Z', kind: 'Volunteer' }, relationships: { event: { data: { id: 'e1' } }, person: { data: { id: '2' } } } },
+      ] as PcoCheckIn[];
+
+      const result = calculateBusFactor(checkIns, events, students);
+      expect(result).toHaveLength(2); // Charlie was never solo so he isn't here
+      // Bob and Alice both have soloCount = 2.
+      // Alice total = 3, Bob total = 2. Bob should sort before Alice.
+      expect(result[0].person.name).toBe('Alice'); // Wait, b.total - a.total means bigger total serves first?
+      // Ah: return b.totalServing - a.totalServing
+      // 3 - 2 = 1 (Alice is a, Bob is b. b-a is negative, a comes first)
+      // So Alice comes first.
+      expect(result[0].person.name).toBe('Alice');
+      expect(result[1].person.name).toBe('Bob');
+  });
 });

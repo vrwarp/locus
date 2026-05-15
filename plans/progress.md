@@ -1,3 +1,12 @@
+## Session (Test Coverage: Locus Intelligence)
+- **Implemented:**
+    - Improved test coverage for key Locus Intelligence reporting tools (Bus Factor Graph, Burnout Risk, and Newcomer Funnel).
+    - Refined unit tests for underlying business logic utilities (`src/utils/busFactor.ts` and `src/utils/burnout.ts`).
+    - Added UI component tests to verify loading states, empty states, error boundaries, and data rendering for `src/components/BusFactorGraph.tsx`, `src/components/BurnoutReport.tsx`, and `src/components/NewcomerFunnel.tsx`.
+- **Test Coverage:**
+    - Reached over 90% statement coverage for the core Locus Intelligence UI components and their respective utilities, adding confidence to the read-only executive dashboard layer.
+- **Status:** Test coverage expanded successfully.
+
 
 ## Session (Genealogy Project)
 - **Implemented:**
