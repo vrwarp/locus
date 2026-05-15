@@ -68,6 +68,30 @@ describe('Burnout Logic', () => {
         expect(candidates[0].worshipCount).toBe(0);
     });
 
+    it('ignores unknown people and handles unknown event types', () => {
+        const events = [{ id: '1', attributes: { name: 'Random Event' } } as PcoEvent]; // Unknown type
+        const mockPeople = [{ id: 'p1', name: 'Linda' } as any];
+
+        const checkIns = Array(6).fill(null).map((_, i) => ({
+            attributes: { created_at: new Date().toISOString(), kind: 'Regular' },
+            relationships: {
+                person: { data: { id: '999' } }, // Person not in list
+                event: { data: { id: '1' } }
+            }
+        })) as unknown as PcoCheckIn[];
+
+        const result = calculateBurnoutRisk(checkIns, events, mockPeople);
+
+        // Should find no candidates
+        expect(result).toHaveLength(0);
+    });
+
+    it('classifies event types correctly', () => {
+        expect(classifyEvent({ attributes: { name: 'Youth Group' } } as PcoEvent)).toBe('Unknown');
+        expect(classifyEvent({ attributes: { name: 'Welcome Team' } } as PcoEvent)).toBe('Serving');
+        expect(classifyEvent({ attributes: { name: 'Sunday Worship' } } as PcoEvent)).toBe('Worship');
+    });
+
     it('identifies medium risk', () => {
          // Setup Date: 2024-03-01
         const baseDate = new Date('2024-03-01T10:00:00Z');
