@@ -33,6 +33,16 @@ Implemented several enhancements to existing "AI Moonshot" and Gamification conc
     - Updated `src/components/SermonSentiment.tsx` state to an array and the select component to `multiple=true`.
 - **Testing:** Updated `src/components/SermonSentiment.test.tsx` to simulate multiple option selections and verified the mock functions are correctly called with array representations.
 
+### 5. Gamification System Expansion
+- **Goal:** Expand the gamification engine to track and reward users for fixing specific types of anomalies beyond just dates and grades.
+- **Implementation:**
+    - Expanded the `ActionType` type in `src/utils/gamification.ts` to include `'name'`, `'email'`, `'phone'`, and `'address'`.
+    - Updated `GamificationState` in `src/utils/storage.ts` to include corresponding tracker properties (`namesFixed`, `emailsFixed`, `phonesFixed`, `addressesFixed`), adding them to the initialization and migration block routines.
+    - Updated `updateGamificationState` to increment these new trackers based on the incoming action type.
+    - Updated `handleSaveStudent` in `src/App.tsx` to map changes in a student's name, email, phone, or address fields to the correct `ActionType` before triggering the gamification update.
+    - Added 4 new badges to the `BADGES` configuration: *The Detail Sweeper* (100 addresses), *The Telecommunicator* (100 phones), *The Postmaster* (100 emails), and *The Grammarian* (100 names).
+- **Testing:** Added robust unit test cases in `gamification.test.ts` to ensure that specific actions trigger specific state increments and award the newly created badges correctly when their respective thresholds are met.
+
 ## Technical Discoveries
 - **Recharts and SVG Testing:** The transition to test Recharts with UI interactions highlighted the need to mock components like `ResponsiveContainer` and `Sankey` to avoid deep JSDOM SVG measurement failures, allowing us to safely assert on the DOM element hierarchy instead of inner canvas/SVG parsing.
 - **Playwright Reliability:** Locating elements precisely in UI tests, particularly dynamically rendered Recharts or Canvas elements, requires a mix of explicit waits (`time.sleep` or `.wait_for`) and robust user-facing locators (`get_by_role`, `.locator('label').filter(...)`) to ensure the DOM has settled post-React state updates.

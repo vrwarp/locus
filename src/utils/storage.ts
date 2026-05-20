@@ -39,6 +39,10 @@ export interface GamificationState {
   ghostsCleared?: number;
   birthdatesFixed?: number;
   gradesFixed?: number;
+  namesFixed?: number;
+  emailsFixed?: number;
+  addressesFixed?: number;
+  phonesFixed?: number;
   unlockedBadges: { id: string, date: string }[];
   fixHistory?: Record<string, number>; // YYYY-MM-DD -> count
 }
@@ -140,6 +144,10 @@ const getDefaultGamificationState = (): GamificationState => ({
   ghostsCleared: 0,
   birthdatesFixed: 0,
   gradesFixed: 0,
+  namesFixed: 0,
+  emailsFixed: 0,
+  addressesFixed: 0,
+  phonesFixed: 0,
   unlockedBadges: [],
   fixHistory: {}
 });
@@ -165,6 +173,10 @@ export const loadGamificationState = async (appId: string): Promise<Gamification
       if (state.ghostsCleared === undefined) state.ghostsCleared = 0;
       if (state.birthdatesFixed === undefined) state.birthdatesFixed = 0;
       if (state.gradesFixed === undefined) state.gradesFixed = 0;
+      if (state.namesFixed === undefined) state.namesFixed = 0;
+      if (state.emailsFixed === undefined) state.emailsFixed = 0;
+      if (state.addressesFixed === undefined) state.addressesFixed = 0;
+      if (state.phonesFixed === undefined) state.phonesFixed = 0;
       if (!state.unlockedBadges) state.unlockedBadges = [];
       if (!state.fixHistory) state.fixHistory = {};
 

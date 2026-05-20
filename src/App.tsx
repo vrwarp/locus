@@ -509,7 +509,7 @@ function App() {
     if (!originalStudent) return;
 
     // Determine the type of fix
-    let actionType: 'general' | 'grade' | 'birthdate' | 'phone' | 'email' | 'address' = 'general';
+    let actionType: 'general' | 'ghost' | 'grade' | 'birthdate' | 'name' | 'phone' | 'email' | 'address' = 'general';
     if (updatedStudent.pcoGrade !== originalStudent.pcoGrade) {
         actionType = 'grade';
     } else if (updatedStudent.birthdate !== originalStudent.birthdate) {
@@ -520,6 +520,8 @@ function App() {
         actionType = 'email';
     } else if (JSON.stringify(updatedStudent.address) !== JSON.stringify(originalStudent.address)) {
         actionType = 'address';
+    } else if (updatedStudent.name !== originalStudent.name) {
+        actionType = 'name';
     }
 
     // Update gamification state optimistically
