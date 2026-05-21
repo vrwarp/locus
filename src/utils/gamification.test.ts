@@ -32,6 +32,48 @@ describe('Gamification Logic', () => {
     const { newState: bdayState } = updateGamificationState(gradeState, 'birthdate', 3);
     expect(bdayState.birthdatesFixed).toBe(3);
     expect(bdayState.totalFixes).toBe(10);
+
+    const { newState: nameState } = updateGamificationState(bdayState, 'name', 4);
+    expect(nameState.namesFixed).toBe(4);
+    expect(nameState.totalFixes).toBe(14);
+
+    const { newState: phoneState } = updateGamificationState(nameState, 'phone', 5);
+    expect(phoneState.phonesFixed).toBe(5);
+    expect(phoneState.totalFixes).toBe(19);
+
+    const { newState: emailState } = updateGamificationState(phoneState, 'email', 6);
+    expect(emailState.emailsFixed).toBe(6);
+    expect(emailState.totalFixes).toBe(25);
+
+    const { newState: addressState } = updateGamificationState(emailState, 'address', 7);
+    expect(addressState.addressesFixed).toBe(7);
+    expect(addressState.totalFixes).toBe(32);
+  });
+
+  it('awards new detailed fix badges', () => {
+      // Test The Detail Sweeper
+      const addressState = { ...baseState, addressesFixed: 99, totalFixes: 99 };
+      const { newState: res1, newBadges: badges1 } = updateGamificationState(addressState, 'address', 1);
+      expect(res1.addressesFixed).toBe(100);
+      expect(badges1.find(b => b.id === 'detail-sweeper')).toBeDefined();
+
+      // Test The Telecommunicator
+      const phoneState = { ...baseState, phonesFixed: 99, totalFixes: 99 };
+      const { newState: res2, newBadges: badges2 } = updateGamificationState(phoneState, 'phone', 1);
+      expect(res2.phonesFixed).toBe(100);
+      expect(badges2.find(b => b.id === 'telecommunicator')).toBeDefined();
+
+      // Test The Postmaster
+      const emailState = { ...baseState, emailsFixed: 99, totalFixes: 99 };
+      const { newState: res3, newBadges: badges3 } = updateGamificationState(emailState, 'email', 1);
+      expect(res3.emailsFixed).toBe(100);
+      expect(badges3.find(b => b.id === 'postmaster')).toBeDefined();
+
+      // Test The Grammarian
+      const nameState = { ...baseState, namesFixed: 99, totalFixes: 99 };
+      const { newState: res4, newBadges: badges4 } = updateGamificationState(nameState, 'name', 1);
+      expect(res4.namesFixed).toBe(100);
+      expect(badges4.find(b => b.id === 'grammarian')).toBeDefined();
   });
 
   it('awards The Exorcist badge', () => {

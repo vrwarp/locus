@@ -57,10 +57,38 @@ export const BADGES: Badge[] = [
       description: 'You made your 10,000th fix!',
       icon: '📀',
       condition: (state) => state.totalFixes >= 10000
+  },
+  {
+      id: 'detail-sweeper',
+      name: 'The Detail Sweeper',
+      description: 'You fixed 100 Addresses!',
+      icon: '🧹',
+      condition: (state) => (state.addressesFixed || 0) >= 100
+  },
+  {
+      id: 'telecommunicator',
+      name: 'The Telecommunicator',
+      description: 'You fixed 100 Phone Numbers!',
+      icon: '📞',
+      condition: (state) => (state.phonesFixed || 0) >= 100
+  },
+  {
+      id: 'postmaster',
+      name: 'The Postmaster',
+      description: 'You fixed 100 Emails!',
+      icon: '📬',
+      condition: (state) => (state.emailsFixed || 0) >= 100
+  },
+  {
+      id: 'grammarian',
+      name: 'The Grammarian',
+      description: 'You fixed 100 Names!',
+      icon: '✍️',
+      condition: (state) => (state.namesFixed || 0) >= 100
   }
 ];
 
-export type ActionType = 'general' | 'ghost' | 'birthdate' | 'grade';
+export type ActionType = 'general' | 'ghost' | 'birthdate' | 'grade' | 'name' | 'email' | 'phone' | 'address';
 
 export const updateGamificationState = (
     currentState: GamificationState,
@@ -134,6 +162,8 @@ export const updateGamificationState = (
         nextState.birthdatesFixed = (currentState.birthdatesFixed || 0) + count;
     } else if (actionType === 'grade') {
         nextState.gradesFixed = (currentState.gradesFixed || 0) + count;
+    } else if (actionType === 'name') {
+        nextState.namesFixed = (currentState.namesFixed || 0) + count;
     } else if (actionType === 'phone') {
         nextState.phonesFixed = (currentState.phonesFixed || 0) + count;
     } else if (actionType === 'email') {
