@@ -196,8 +196,8 @@ export const computeForceLayout = (
       const source = nodes.find(n => n.id === link.source)!;
       const target = nodes.find(n => n.id === link.target)!;
 
-      let dx = target.x - source.x;
-      let dy = target.y - source.y;
+      const dx = target.x - source.x;
+      const dy = target.y - source.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
 
       // Force proportional to distance (Spring)

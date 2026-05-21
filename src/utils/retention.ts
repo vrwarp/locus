@@ -30,7 +30,7 @@ export const calculateNewcomerFunnel = (checkIns: PcoCheckIn[]): FunnelStep[] =>
   // 2. Identify Newcomers (First check-in within last 12 months)
   const oneYearAgo = subMonths(new Date(), 12);
 
-  let newcomers: string[] = [];
+  const newcomers: string[] = [];
 
   Object.keys(checkInsByPerson).forEach(personId => {
     const dates = checkInsByPerson[personId];
