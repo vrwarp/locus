@@ -3,6 +3,7 @@ import { fetchEvents, fetchRecentCheckIns } from '../utils/pco';
 import type { Student } from '../utils/pco';
 import { calculateBurnoutRisk } from '../utils/burnout';
 import type { BurnoutCandidate } from '../utils/burnout';
+import { downloadCSV } from '../utils/export';
 import './BurnoutReport.css';
 
 interface BurnoutReportProps {
@@ -42,12 +43,32 @@ export const BurnoutReport: React.FC<BurnoutReportProps> = ({ students, auth }) 
   if (loading) return <div className="loading-spinner">Analyzing Check-ins...</div>;
   if (error) return <div className="error-message">{error}</div>;
 
+  const handleExport = () => {
+    const exportData = candidates.map(c => ({
+      ID: c.person.id,
+      Name: c.person.name,
+      'Risk Level': c.riskLevel,
+      'Serving Count': c.servingCount,
+      'Worship Count': c.worshipCount
+    }));
+    downloadCSV(exportData, 'burnout_report.csv');
+  };
+
   return (
     <div className="burnout-report">
-        <h3>Volunteer Burnout Risk (Last 8 Weeks)</h3>
-        <p className="description">
-            People who are serving frequently (≥6 times) but not attending worship (≤2 times).
-        </p>
+        <div className="report-header">
+            <div>
+                <h3>Volunteer Burnout Risk (Last 8 Weeks)</h3>
+                <p className="description">
+                    People who are serving frequently (≥6 times) but not attending worship (≤2 times).
+                </p>
+            </div>
+            {candidates.length > 0 && (
+                <button className="btn-export" onClick={handleExport}>
+                    Export to CSV
+                </button>
+            )}
+        </div>
 
         {candidates.length === 0 ? (
             <div className="empty-state">

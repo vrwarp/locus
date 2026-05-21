@@ -3,6 +3,7 @@ import { fetchRecentCheckIns } from '../utils/pco';
 import type { Student } from '../utils/pco';
 import { calculateDriftRisk } from '../utils/drift';
 import type { DriftCandidate } from '../utils/drift';
+import { downloadCSV } from '../utils/export';
 import './DriftReport.css';
 
 interface DriftReportProps {
@@ -42,12 +43,34 @@ export const DriftReport: React.FC<DriftReportProps> = ({ students, auth }) => {
   if (loading) return <div className="loading-spinner">Analyzing Attendance Trends...</div>;
   if (error) return <div className="error-message">{error}</div>;
 
+  const handleExport = () => {
+    const exportData = candidates.map(c => ({
+      ID: c.person.id,
+      Name: c.person.name,
+      Status: c.status,
+      'Baseline Rate (per wk)': c.baselineRate.toFixed(2),
+      'Recent Rate (per wk)': c.recentRate.toFixed(2),
+      'Drop Percentage': `${Math.round(c.dropPercentage)}%`,
+      'Tenure (Months)': c.tenureMonths
+    }));
+    downloadCSV(exportData, 'drift_report.csv');
+  };
+
   return (
     <div className="drift-report">
-        <h3>Predictive Attrition</h3>
-        <p className="description">
-            People who have been consistent for 6+ months but have dropped their attendance significantly in the last 6 weeks.
-        </p>
+        <div className="report-header">
+            <div>
+                <h3>Predictive Attrition</h3>
+                <p className="description">
+                    People who have been consistent for 6+ months but have dropped their attendance significantly in the last 6 weeks.
+                </p>
+            </div>
+            {candidates.length > 0 && (
+                <button className="btn-export" onClick={handleExport}>
+                    Export to CSV
+                </button>
+            )}
+        </div>
 
         {candidates.length === 0 ? (
             <div className="empty-state">

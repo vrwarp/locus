@@ -12,6 +12,26 @@
   color: #333;
 }
 
+.report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.btn-export {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.btn-export:hover {
+  background: #e0e0e0;
+}
+
 .drift-report .description {
   color: #666;
   font-size: 0.95rem;
