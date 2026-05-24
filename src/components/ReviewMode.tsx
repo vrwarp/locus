@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Student } from '../utils/pco';
 import { calculateExpectedGrade } from '../utils/grader';
+import { enrichZipCode } from '../utils/zipCodes';
 import type { GraderOptions } from '../utils/grader';
 import { differenceInYears } from 'date-fns';
 import { playTone, playAmbientAudio, stopAmbientAudio } from '../utils/audio';
@@ -378,7 +379,20 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
                                 id="review-zip"
                                 type="text"
                                 value={targetAddress.zip}
-                                onChange={(e) => setTargetAddress({...targetAddress, zip: e.target.value})}
+                                onChange={(e) => {
+                                    const newZip = e.target.value;
+                                    setTargetAddress(prev => {
+                                        const updated = { ...prev, zip: newZip };
+                                        if (newZip.length >= 3) {
+                                            const enriched = enrichZipCode(newZip);
+                                            if (enriched) {
+                                                if (!updated.city) updated.city = enriched.city;
+                                                if (!updated.state) updated.state = enriched.state;
+                                            }
+                                        }
+                                        return updated;
+                                    });
+                                }}
                                 className="text-input"
                             />
                         </div>

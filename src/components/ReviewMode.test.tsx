@@ -249,10 +249,10 @@ describe('ReviewMode', () => {
         }));
     });
 
-    it('allows fixing address anomalies', () => {
+    it('allows fixing address anomalies and enriches zip codes', async () => {
         const studentWithAddressAnomaly: Student = {
             ...mockStudent,
-            address: { street: '123 Main St.', city: 'City', state: 'CA', zip: '123' },
+            address: { street: '123 Main St.', city: '', state: '', zip: '123' },
             hasAddressAnomaly: true
         };
         const onSave = vi.fn();
@@ -275,7 +275,10 @@ describe('ReviewMode', () => {
         expect(screen.getByLabelText('Zip:')).toHaveValue('123');
 
         // Allow editing
-        fireEvent.change(screen.getByLabelText('Zip:'), { target: { value: '90210' } });
+        const zipInput = screen.getByLabelText('Zip:');
+        fireEvent.change(zipInput, { target: { value: '90021' } });
+        // wait for state
+        await new Promise(r => setTimeout(r, 0));
 
         // Find the fix button
         const fixButton = screen.getAllByText('Fix Address').find(btn => btn.classList.contains('btn-fix'));
@@ -285,7 +288,7 @@ describe('ReviewMode', () => {
 
         expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
             id: '1',
-            address: expect.objectContaining({ street: '123 Main Street', zip: '90210' }),
+            address: expect.objectContaining({ street: '123 Main Street', city: 'Los Angeles', state: 'CA', zip: '90021' }),
             hasAddressAnomaly: false,
         hasPhoneAnomaly: false
         }));
