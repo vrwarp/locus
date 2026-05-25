@@ -106,4 +106,52 @@ describe('NewsletterArchitect Component', () => {
     expect(navigator.clipboard.writeText).toHaveBeenCalled();
     expect(screen.getByText('Copied!')).toBeInTheDocument();
   });
+
+  it('filters students by target audience demographic', async () => {
+    const studentsWithBirthdays = [
+      {
+        id: '1',
+        name: 'Gen Z Student',
+        birthdate: '2005-01-02',
+        pcoGrade: null,
+        isChild: true,
+        gender: 'M',
+        school: null,
+        contactMethod: null,
+        createdAt: '2020-01-01'
+      },
+      {
+        id: '2',
+        name: 'Millennial Student',
+        birthdate: '1990-01-02',
+        pcoGrade: null,
+        isChild: false,
+        gender: 'F',
+        school: null,
+        contactMethod: null,
+        createdAt: '2020-01-01'
+      }
+    ];
+
+
+    vi.setSystemTime(new Date(2023, 0, 1)); // Jan 1, 2023
+
+    render(<NewsletterArchitect students={studentsWithBirthdays} auth="test-auth" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Newsletter Architect')).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/Gen Z Student/)).toBeInTheDocument();
+    expect(screen.getByText(/Millennial Student/)).toBeInTheDocument();
+
+    const audienceSelect = screen.getByLabelText('Target Audience');
+    fireEvent.change(audienceSelect, { target: { value: 'Gen Z' } });
+
+    expect(screen.getByText(/Gen Z Student/)).toBeInTheDocument();
+    expect(screen.queryByText(/Millennial Student/)).not.toBeInTheDocument();
+
+
+  });
+
 });

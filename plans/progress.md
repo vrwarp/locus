@@ -178,6 +178,7 @@
     - **"The Newsletter Architect" (AI Moonshot Concept #31):**
         - Created `src/utils/newsletter.ts` containing the `generateNewsletter` utility to draft weekly newsletters based on upcoming calendar events and student birthdays.
         - Implemented `src/components/NewsletterArchitect.tsx` (and `.css`), a UI tool allowing users to add an optional Sermon Topic and Pastor's Notes, preview the generated markdown, and copy it to their clipboard.
+        - **Targeted Newsletters:** Added demographic filtering to `NewsletterArchitect`, allowing users to select a specific target audience (e.g., 'Gen Z', 'Millennials') which dynamically filters the included birthdays based on birth year.
     - **Integration:**
         - Integrated the `NewsletterArchitect` as a "Tools" navigation item ("Newsletter Architect") in the `Sidebar.tsx`.
         - Configured `App.tsx` routing to show the new UI.
@@ -191,7 +192,6 @@
     - Playwright UI testing confirmed the layout looks solid and the copy functionality works as expected.
 - **Future Ideas:**
     - Connect this directly to an LLM (like OpenAI) to have it generate more natural, conversational prose around the events rather than just a bulleted list.
-    - Add the ability to select specific groups or tags to generate targeted newsletters (e.g., a "Youth Group Newsletter" that only pulls events and birthdays for high schoolers).
     - Direct integration with Mailchimp to push the drafted newsletter straight to an email campaign.
 
 ## Session 45

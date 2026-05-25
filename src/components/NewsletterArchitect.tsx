@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { fetchEvents } from '../utils/pco';
 import type { Student, PcoEvent } from '../utils/pco';
 import { generateNewsletter } from '../utils/newsletter';
+import { GENERATIONS } from '../utils/demographics';
 import './NewsletterArchitect.css';
 
 interface NewsletterArchitectProps {
@@ -14,8 +15,9 @@ export const NewsletterArchitect: React.FC<NewsletterArchitectProps> = ({ studen
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [sermonTopic, setSermonTopic] = useState('');
+const [sermonTopic, setSermonTopic] = useState('');
     const [pastorNotes, setPastorNotes] = useState('');
+    const [targetAudience, setTargetAudience] = useState('All');
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
@@ -38,11 +40,22 @@ export const NewsletterArchitect: React.FC<NewsletterArchitectProps> = ({ studen
     }, [auth]);
 
     const generatedMarkdown = useMemo(() => {
-        return generateNewsletter(events, students, {
+        let filteredStudents = students;
+        if (targetAudience !== 'All') {
+            const gen = GENERATIONS.find(g => g.name === targetAudience);
+            if (gen) {
+                filteredStudents = students.filter(s => {
+                    if (!s.birthdate) return false;
+                    const birthYear = new Date(s.birthdate).getFullYear();
+                    return birthYear >= gen.start && birthYear <= gen.end;
+                });
+            }
+        }
+        return generateNewsletter(events, filteredStudents, {
             sermonTopic: sermonTopic.trim(),
             pastorNotes: pastorNotes.trim()
         });
-    }, [events, students, sermonTopic, pastorNotes]);
+    }, [events, students, sermonTopic, pastorNotes, targetAudience]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(generatedMarkdown);
@@ -86,6 +99,24 @@ export const NewsletterArchitect: React.FC<NewsletterArchitectProps> = ({ studen
                             value={pastorNotes}
                             onChange={(e) => setPastorNotes(e.target.value)}
                         />
+                    </div>
+
+                    <div className="control-group">
+                        <label htmlFor="targetAudience">Target Audience</label>
+                        <select
+                            id="targetAudience"
+                            value={targetAudience}
+                            onChange={(e) => setTargetAudience(e.target.value)}
+                        >
+                            <option value="All">All</option>
+                            <option value="Gen Alpha">Gen Alpha</option>
+                            <option value="Gen Z">Gen Z</option>
+                            <option value="Millennials">Millennials</option>
+                            <option value="Gen X">Gen X</option>
+                            <option value="Boomers">Boomers</option>
+                            <option value="Silent">Silent</option>
+                            <option value="Greatest">Greatest</option>
+                        </select>
                     </div>
                 </div>
 
