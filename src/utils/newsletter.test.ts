@@ -95,4 +95,32 @@ describe('Newsletter Architect Utilities', () => {
         const md = generateNewsletter([], [leapStudent], {});
         expect(md).toContain('Leapling (Feb 29)');
     });
+
+    it('filters birthdays by target audience demographic', () => {
+        // Charlie is Gen Z (2008), Alice is Gen Z (2010), Bob is Gen Z (2012)
+        // Let's add a Millennial with a birthday tomorrow
+        const millennialStudent: Student = {
+            id: '4',
+            name: 'David (Millennial)',
+            birthdate: '1990-03-25', // Millennial (1981-1996)
+            pcoGrade: null,
+            isChild: false,
+            gender: 'M',
+            school: null,
+            contactMethod: null,
+            createdAt: '2020-01-01'
+        };
+
+        const students = [...mockStudents, millennialStudent];
+
+        const mdGenZ = generateNewsletter([], students, { targetAudience: 'Gen Z' });
+        expect(mdGenZ).toContain('Charlie');
+        expect(mdGenZ).toContain('Alice');
+        expect(mdGenZ).not.toContain('David');
+
+        const mdMillennials = generateNewsletter([], students, { targetAudience: 'Millennials' });
+        expect(mdMillennials).toContain('David');
+        expect(mdMillennials).not.toContain('Charlie');
+        expect(mdMillennials).not.toContain('Alice');
+    });
 });

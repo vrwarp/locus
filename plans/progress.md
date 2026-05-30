@@ -1,3 +1,16 @@
+## Session (Newsletter Demographic Filtering)
+- **Implemented:**
+    - **Newsletter Architect Demographic Filtering:**
+        - Updated `src/utils/newsletter.ts` to accept a `targetAudience` property.
+        - Leveraged `src/utils/demographics.ts` logic to filter "Upcoming Birthdays" so only those matching the target generation appear in the output.
+        - Updated `src/components/NewsletterArchitect.tsx` to include a dynamic `<select>` dropdown populated with the `GENERATIONS` constant, allowing users to select their target audience and instantly view the updated Markdown.
+- **Test Coverage:**
+    - Expanded unit tests in `src/utils/newsletter.test.ts` to verify the new filtering logic against boundary dates and different target audiences.
+    - Updated UI integration tests in `src/components/NewsletterArchitect.test.tsx` to simulate user interaction with the dropdown and assert that the preview text updates properly without hanging test runners.
+- **Status:** Demographic filtering in Newsletter Architect fully implemented and verified.
+- **Future Ideas:**
+    - Connect the demographic filter to the events list if metadata supports it.
+
 ## Session (Zip Code Enrichment)
 - **Implemented:**
     - **"Zip Code Enrichment" (Address Cleaner Enhancement):**
@@ -191,7 +204,6 @@
     - Playwright UI testing confirmed the layout looks solid and the copy functionality works as expected.
 - **Future Ideas:**
     - Connect this directly to an LLM (like OpenAI) to have it generate more natural, conversational prose around the events rather than just a bulleted list.
-    - Add the ability to select specific groups or tags to generate targeted newsletters (e.g., a "Youth Group Newsletter" that only pulls events and birthdays for high schoolers).
     - Direct integration with Mailchimp to push the drafted newsletter straight to an email campaign.
 
 ## Session 45

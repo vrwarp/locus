@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { fetchEvents } from '../utils/pco';
 import type { Student, PcoEvent } from '../utils/pco';
 import { generateNewsletter } from '../utils/newsletter';
+import { GENERATIONS } from '../utils/demographics';
 import './NewsletterArchitect.css';
 
 interface NewsletterArchitectProps {
@@ -16,6 +17,7 @@ export const NewsletterArchitect: React.FC<NewsletterArchitectProps> = ({ studen
 
     const [sermonTopic, setSermonTopic] = useState('');
     const [pastorNotes, setPastorNotes] = useState('');
+    const [targetAudience, setTargetAudience] = useState('All');
     const [copied, setCopied] = useState(false);
 
     useEffect(() => {
@@ -40,9 +42,10 @@ export const NewsletterArchitect: React.FC<NewsletterArchitectProps> = ({ studen
     const generatedMarkdown = useMemo(() => {
         return generateNewsletter(events, students, {
             sermonTopic: sermonTopic.trim(),
-            pastorNotes: pastorNotes.trim()
+            pastorNotes: pastorNotes.trim(),
+            targetAudience: targetAudience
         });
-    }, [events, students, sermonTopic, pastorNotes]);
+    }, [events, students, sermonTopic, pastorNotes, targetAudience]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(generatedMarkdown);
@@ -67,6 +70,20 @@ export const NewsletterArchitect: React.FC<NewsletterArchitectProps> = ({ studen
 
             <div className="newsletter-content">
                 <div className="newsletter-controls">
+                    <div className="control-group">
+                        <label htmlFor="targetAudience">Target Audience</label>
+                        <select
+                            id="targetAudience"
+                            value={targetAudience}
+                            onChange={(e) => setTargetAudience(e.target.value)}
+                        >
+                            <option value="All">All Generations</option>
+                            {GENERATIONS.map(gen => (
+                                <option key={gen.name} value={gen.name}>{gen.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
                     <div className="control-group">
                         <label htmlFor="sermonTopic">Sermon Topic (Optional)</label>
                         <input

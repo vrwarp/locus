@@ -1,9 +1,11 @@
 import { isAfter, differenceInDays, parseISO, getDate, startOfDay } from 'date-fns';
 import type { Student, PcoEvent } from './pco';
+import { GENERATIONS } from './demographics';
 
 export interface NewsletterOptions {
     sermonTopic?: string;
     pastorNotes?: string;
+    targetAudience?: string;
 }
 
 export const generateNewsletter = (
@@ -18,7 +20,17 @@ export const generateNewsletter = (
 
     // 2. Find upcoming birthdays (next 7 days)
     const upcomingBirthdays = students
-        .filter(s => s.birthdate)
+        .filter(s => {
+            if (!s.birthdate) return false;
+            if (options?.targetAudience && options.targetAudience !== 'All') {
+                const birthYear = new Date(s.birthdate).getFullYear();
+                const gen = GENERATIONS.find(g => birthYear >= g.start && birthYear <= g.end);
+                if (!gen || gen.name !== options.targetAudience) {
+                    return false;
+                }
+            }
+            return true;
+        })
         .map(person => {
             const birthdate = parseISO(person.birthdate);
             const birthdayThisYear = new Date(
