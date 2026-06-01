@@ -5,13 +5,13 @@
         - Created the `enrichZipCode` utility to perform prefix lookups.
         - Integrated `enrichZipCode` directly into the `onChange` handler for the Zip Code input in `ReviewMode.tsx` when fixing Address anomalies.
         - Entering a recognized Zip Code prefix now auto-fills the City and State inputs if they are currently blank, significantly speeding up data entry for volunteers.
+        - Implemented a fallback to the Zippopotam.us API via `enrichZipCodeAsync` to fetch more precise 5-digit city and state resolution. Integrated this asynchronous call into `ReviewMode.tsx`.
 - **Test Coverage:**
-    - Added unit test `src/utils/zipCodes.test.ts` verifying prefix matching, handling of empty/short inputs, and null returns for unknown prefixes.
+    - Added unit test `src/utils/zipCodes.test.ts` verifying prefix matching, handling of empty/short inputs, and null returns for unknown prefixes. Also added tests to cover `enrichZipCodeAsync` and its network interactions using mocked fetch.
     - Updated `ReviewMode.test.tsx` to cover the new state-updating logic during address edits.
 - **Status:** Zip Code Enrichment fully implemented and verified.
 - **Future Ideas:**
     - Expand the static map to a comprehensive USPS SCF 3-digit list.
-    - Add a secondary fallback to a live Zip Code API (like Zippopotam.us) for more precise 5-digit city resolution when the 3-digit prefix covers too broad an area.
 
 ## Session (Test Coverage: Locus Intelligence)
 - **Implemented:**

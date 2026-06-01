@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.90.19",
-    "axios": "^1.13.2",
+    "axios": "^1.16.1",
     "axios-cache-interceptor": "^1.12.0",
     "date-fns": "^4.1.0",
     "idb": "^8.0.3",
