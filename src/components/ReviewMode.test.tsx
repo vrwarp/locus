@@ -276,9 +276,23 @@ describe('ReviewMode', () => {
 
         // Allow editing
         const zipInput = screen.getByLabelText('Zip:');
-        fireEvent.change(zipInput, { target: { value: '90021' } });
-        // wait for state
-        await new Promise(r => setTimeout(r, 0));
+
+        // Mock fetch for async enrichment
+        global.fetch = vi.fn().mockResolvedValue({
+            ok: true,
+            json: async () => ({
+                places: [{
+                    'place name': 'Beverly Hills',
+                    'state abbreviation': 'CA'
+                }]
+            })
+        });
+
+        fireEvent.change(zipInput, { target: { value: '90210' } });
+        // wait for state and async fetch
+        await act(async () => {
+            await new Promise(r => setTimeout(r, 50));
+        });
 
         // Find the fix button
         const fixButton = screen.getAllByText('Fix Address').find(btn => btn.classList.contains('btn-fix'));
@@ -288,10 +302,12 @@ describe('ReviewMode', () => {
 
         expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
             id: '1',
-            address: expect.objectContaining({ street: '123 Main Street', city: 'Los Angeles', state: 'CA', zip: '90021' }),
+            address: expect.objectContaining({ street: '123 Main Street', city: 'Beverly Hills', state: 'CA', zip: '90210' }),
             hasAddressAnomaly: false,
         hasPhoneAnomaly: false
         }));
+
+        delete (global as any).fetch;
     });
 
     it('allows fixing phone anomalies', () => {

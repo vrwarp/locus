@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Student } from '../utils/pco';
 import { calculateExpectedGrade } from '../utils/grader';
-import { enrichZipCode } from '../utils/zipCodes';
+import { enrichZipCode, enrichZipCodeAsync } from '../utils/zipCodes';
 import type { GraderOptions } from '../utils/grader';
 import { differenceInYears } from 'date-fns';
 import { playTone, playAmbientAudio, stopAmbientAudio } from '../utils/audio';
@@ -392,6 +392,27 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
                                         }
                                         return updated;
                                     });
+
+                                    if (newZip.length >= 5) {
+                                        enrichZipCodeAsync(newZip).then(enrichedAsync => {
+                                            if (enrichedAsync) {
+                                                setTargetAddress(prev => {
+                                                    const updated = { ...prev };
+                                                    // Only overwrite if it's empty OR if it matches the 3-digit fallback which might be less precise
+                                                    const prefix = newZip.substring(0, 3);
+                                                    const fallback = enrichZipCode(prefix);
+
+                                                    if (!updated.city || (fallback && updated.city === fallback.city)) {
+                                                        updated.city = enrichedAsync.city;
+                                                    }
+                                                    if (!updated.state || (fallback && updated.state === fallback.state)) {
+                                                        updated.state = enrichedAsync.state;
+                                                    }
+                                                    return updated;
+                                                });
+                                            }
+                                        });
+                                    }
                                 }}
                                 className="text-input"
                             />

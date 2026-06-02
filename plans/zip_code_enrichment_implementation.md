@@ -21,4 +21,6 @@ Integrated the `enrichZipCode` utility into the interactive Review Mode during A
 
 ## Discoveries & Future Ideas
 - **Comprehensive Mapping:** The current `ZIP_PREFIX_MAP` contains a subset of major cities. In the future, this mapping should be expanded to a complete USPS 3-digit SCF (Sectional Center Facility) dataset to provide value for all locations.
-- **API Fallback:** If the static mapping fails or provides an outdated/incorrect city name for a specific 5-digit zip code (since some 3-digit prefixes span multiple distinct cities), a lightweight API call to a service like Zippopotam.us could be used as a secondary, more precise enrichment step.
+
+## API Fallback Implemented
+- An asynchronous fallback to `api.zippopotam.us` has been implemented via `enrichZipCodeAsync`. If a 5-digit zip code is entered, it reaches out to the API to pull an exact city and state match, augmenting the static 3-digit prefix mapping and automatically populating the `ReviewMode` UI if the current values are empty or match the less-precise prefix defaults.

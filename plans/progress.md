@@ -8,10 +8,10 @@
 - **Test Coverage:**
     - Added unit test `src/utils/zipCodes.test.ts` verifying prefix matching, handling of empty/short inputs, and null returns for unknown prefixes.
     - Updated `ReviewMode.test.tsx` to cover the new state-updating logic during address edits.
-- **Status:** Zip Code Enrichment fully implemented and verified.
+    - Added async unit tests for `enrichZipCodeAsync` testing Zippopotam.us API fetching.
+- **Status:** Zip Code Enrichment fully implemented and verified, including async live API fallback.
 - **Future Ideas:**
     - Expand the static map to a comprehensive USPS SCF 3-digit list.
-    - Add a secondary fallback to a live Zip Code API (like Zippopotam.us) for more precise 5-digit city resolution when the 3-digit prefix covers too broad an area.
 
 ## Session (Test Coverage: Locus Intelligence)
 - **Implemented:**

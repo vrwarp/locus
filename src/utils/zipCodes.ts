@@ -46,3 +46,30 @@ export const enrichZipCode = (zip: string): LocationData | null => {
   const prefix = zip.substring(0, 3);
   return ZIP_PREFIX_MAP[prefix] || null;
 };
+
+export const enrichZipCodeAsync = async (zip: string): Promise<LocationData | null> => {
+  if (!zip || zip.length < 5) return null;
+
+  // Extract the first 5 digits
+  const cleanZip = zip.replace(/\D/g, '').substring(0, 5);
+  if (cleanZip.length < 5) return null;
+
+  try {
+    const response = await fetch(`https://api.zippopotam.us/us/${cleanZip}`);
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    if (data && data.places && data.places.length > 0) {
+      return {
+        city: data.places[0]['place name'],
+        state: data.places[0]['state abbreviation']
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to fetch zip code data:', error);
+    return null;
+  }
+};
