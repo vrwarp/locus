@@ -490,6 +490,64 @@ function App() {
       saveGamificationState(newState, auth);
   };
 
+  const handleSaveStudentBulk = async (updates: { original: Student, updated: Student }[]) => {
+      const auth = btoa(`${appId}:${secret}`);
+
+      let currentState = gamificationState;
+      const allNewBadges: Badge[] = [];
+
+      // Calculate gamification and optimistic UI for all
+      for (const update of updates) {
+          let actionType: 'general' | 'ghost' | 'grade' | 'birthdate' | 'name' | 'phone' | 'email' | 'address' = 'general';
+          if (update.updated.name !== update.original.name) actionType = 'name';
+          else if (update.updated.phoneNumber !== update.original.phoneNumber) actionType = 'phone';
+          else if (update.updated.email !== update.original.email) actionType = 'email';
+          else if (JSON.stringify(update.updated.address) !== JSON.stringify(update.original.address)) actionType = 'address';
+
+          const { newState: newGamificationState, newBadges } = updateGamificationState(currentState, actionType);
+          currentState = newGamificationState;
+          if (newBadges.length > 0) {
+              allNewBadges.push(...newBadges);
+          }
+      }
+
+      setGamificationState(currentState);
+      saveGamificationState(currentState, auth);
+
+      if (allNewBadges.length > 0) {
+          setLatestBadge(allNewBadges[0]); // Show the first one achieved
+      }
+
+      const onStateChange = (student: Student) => {
+          queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+             if (!oldData) return oldData;
+             const newStudents = oldData.students.map((s: Student) => s.id === student.id ? student : s);
+             return { ...oldData, students: newStudents };
+         });
+      };
+
+      try {
+          const command = new BatchUpdateCommand(
+              updates,
+              auth,
+              config.sandboxMode || false,
+              onStateChange
+          );
+
+          await command.execute();
+          commandManagerRef.current.execute(command);
+          setCanUndo(commandManagerRef.current.canUndo);
+          setCanRedo(commandManagerRef.current.canRedo);
+      } catch (error) {
+          console.error('Failed to execute bulk update', error);
+          alert('Failed to execute bulk update. The changes have been reverted.');
+          // Revert optimistically
+          for (const update of updates) {
+              onStateChange(update.original);
+          }
+      }
+  };
+
   const handleSaveStudent = (updatedStudent: Student) => {
     // 1. If there is an existing pending update, flush it immediately
     if (pendingUpdateRef.current) {
@@ -968,6 +1026,7 @@ function App() {
         onClose={() => setIsReviewModeOpen(false)}
         students={anomalies}
         onSave={handleSaveStudent}
+        onSaveBulk={handleSaveStudentBulk}
         graderOptions={config.graderOptions}
         muteSounds={config.muteSounds}
         isSpeedRun={isReviewModeSpeedRun}

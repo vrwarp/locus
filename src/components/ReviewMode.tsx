@@ -14,6 +14,7 @@ interface ReviewModeProps {
   onClose: () => void;
   students: Student[];
   onSave: (student: Student) => void;
+  onSaveBulk?: (updates: { original: Student, updated: Student }[]) => void;
   graderOptions?: GraderOptions;
   muteSounds?: boolean;
   isSpeedRun?: boolean;
@@ -21,7 +22,7 @@ interface ReviewModeProps {
   zenAudioTheme?: string;
 }
 
-export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, graderOptions, muteSounds, isSpeedRun = false, zenMode = false, zenAudioTheme = 'none' }) => {
+export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, students, onSave, onSaveBulk, graderOptions, muteSounds, isSpeedRun = false, zenMode = false, zenAudioTheme = 'none' }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mode, setMode] = useState<'grade' | 'birthdate' | 'name' | 'email' | 'address' | 'phone'>('grade');
   const [targetGrade, setTargetGrade] = useState<number>(0);
@@ -117,6 +118,50 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
               onClose(); // Finished all
           }
       }
+  };
+
+  const handleFixAll = () => {
+      const updates: { original: Student, updated: Student }[] = [];
+      let totalScore = 0;
+
+      for (const student of students) {
+          let updatedStudent = { ...student };
+          let changed = false;
+
+          if (student.hasNameAnomaly) {
+              updatedStudent.name = fixName(student.name);
+              updatedStudent.firstName = updatedStudent.name.split(' ')[0];
+              updatedStudent.lastName = updatedStudent.name.split(' ').slice(1).join(' ');
+              updatedStudent.hasNameAnomaly = false;
+              changed = true;
+          }
+          if (student.hasAddressAnomaly && student.address) {
+              updatedStudent.address = {
+                  ...student.address,
+                  street: fixAddress(student.address.street)
+              };
+              updatedStudent.hasAddressAnomaly = false;
+              changed = true;
+          }
+          if (student.hasPhoneAnomaly && student.phoneNumber) {
+              updatedStudent.phoneNumber = fixPhone(student.phoneNumber, student.address?.zip);
+              updatedStudent.hasPhoneAnomaly = false;
+              changed = true;
+          }
+
+          if (changed) {
+              updates.push({ original: student, updated: updatedStudent });
+              totalScore++;
+          }
+      }
+
+      if (updates.length > 0 && onSaveBulk) {
+          if (isSpeedRun) {
+              setScore(prev => prev + totalScore);
+          }
+          onSaveBulk(updates);
+      }
+      onClose();
   };
 
   const handleFix = () => {
@@ -431,6 +476,11 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
 
         <div className="review-actions">
             <button onClick={handleNext} className="btn-skip">Skip</button>
+            {!isSpeedRun && onSaveBulk && (
+                <button onClick={handleFixAll} className="btn-fix-all" title="Auto-fix all safe formatting anomalies (Name, Phone, Address)">
+                    Smart Fix All
+                </button>
+            )}
             <button onClick={handleFix} className="btn-fix">
                 {mode === 'grade' ? `Fix Grade` : mode === 'birthdate' ? `Fix Birthdate` : mode === 'name' ? `Fix Name` : mode === 'email' ? 'Fix Email' : mode === 'address' ? 'Fix Address' : 'Fix Phone'}
             </button>

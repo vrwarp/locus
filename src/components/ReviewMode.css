@@ -139,6 +139,22 @@
     color: #666;
 }
 
+.btn-fix-all {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #28a745;
+    background: transparent;
+    color: #28a745;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.btn-fix-all:hover {
+    background: #28a745;
+    color: white;
+}
+
 .btn-fix {
     flex: 2;
     padding: 12px;
