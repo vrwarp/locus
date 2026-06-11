@@ -5,14 +5,20 @@ import { correlateSermonsWithEngagement } from '../utils/sermons';
 import type { SermonEngagementData } from '../utils/sermons';
 import './SermonCorrelator.css';
 
+import type { Student } from '../utils/pco';
+
 interface SermonCorrelatorProps {
   auth: string;
+  students: Student[];
 }
 
-export const SermonCorrelator: React.FC<SermonCorrelatorProps> = ({ auth }) => {
-  const [data, setData] = useState<SermonEngagementData[]>([]);
+export const SermonCorrelator: React.FC<SermonCorrelatorProps> = ({ auth, students }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [demographics, setDemographics] = useState<string[]>(['All']);
+
+  const [rawEvents, setRawEvents] = useState<any[]>([]);
+  const [rawCheckIns, setRawCheckIns] = useState<any[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -23,8 +29,8 @@ export const SermonCorrelator: React.FC<SermonCorrelatorProps> = ({ auth }) => {
           fetchRecentCheckIns(auth, 20)
         ]);
 
-        const correlatedData = correlateSermonsWithEngagement(checkIns, events);
-        setData(correlatedData);
+        setRawEvents(events);
+        setRawCheckIns(checkIns);
       } catch (err) {
         setError('Failed to load sermon engagement data.');
         console.error(err);
@@ -38,16 +44,39 @@ export const SermonCorrelator: React.FC<SermonCorrelatorProps> = ({ auth }) => {
     }
   }, [auth]);
 
+  const data = React.useMemo(() => {
+    if (!rawEvents.length && !rawCheckIns.length) return [];
+    return correlateSermonsWithEngagement(rawCheckIns, rawEvents, students, demographics);
+  }, [rawEvents, rawCheckIns, students, demographics]);
+
   if (loading) return <div className="loading-spinner">Analyzing Sermon Impact...</div>;
   if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="sermon-correlator">
-      <div className="header-section">
-        <h3>The Sermon Correlator</h3>
-        <p className="description">
-          Connecting content to behavior: See how specific sermon topics correlate with subsequent signups and applications.
-        </p>
+      <div className="header-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h3>The Sermon Correlator</h3>
+          <p className="description">
+            Connecting content to behavior: See how specific sermon topics correlate with subsequent signups and applications.
+          </p>
+        </div>
+        <select
+          multiple
+          value={demographics}
+          onChange={(e) => setDemographics(Array.from(e.target.selectedOptions, option => option.value))}
+          aria-label="Filter by demographic"
+          className="demographic-select"
+        >
+          <option value="All">All Generations</option>
+          <option value="Gen Alpha">Gen Alpha</option>
+          <option value="Gen Z">Gen Z</option>
+          <option value="Millennials">Millennials</option>
+          <option value="Gen X">Gen X</option>
+          <option value="Boomers">Boomers</option>
+          <option value="Silent">Silent</option>
+          <option value="Greatest">Greatest</option>
+        </select>
       </div>
 
       {data.length === 0 ? (
