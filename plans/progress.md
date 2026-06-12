@@ -493,6 +493,16 @@
     - Add the ability to filter by demographic (e.g., "Did this sermon topic resonate more with Millennials or Boomers?").
     - Cross-reference with giving data (Concept #47) to see if specific topics correlate with spikes in generosity.
 
+## Session (Sermon Correlator Demographic Filtering)
+- **Implemented:**
+    - **Demographic Filtering:** Added demographic filtering to `SermonCorrelator`.
+    - Modified `SermonCorrelator` to accept a `students` array and a `demographic` string parameter.
+    - Updated `App.tsx` to pass the `students` prop to the `SermonCorrelator` component.
+- **Refactored:**
+    - Refactored `SermonCorrelator.tsx` to fetch `events` and `checkIns` only when `auth` changes, storing them in state, and use `useMemo` to recalculate the filtered chart data when `demographic` changes, successfully preventing unnecessary network calls.
+- **Test Coverage:**
+    - Updated `src/components/SermonCorrelator.test.tsx` to add a test case verifying the demographic dropdown renders correctly, and another test asserting that selecting a new demographic updates the UI without re-triggering the `fetchEvents` mock.
+
 ## Session 56
 - **Implemented:**
     - **"Prayer Partner Match" (Concept #33):**
