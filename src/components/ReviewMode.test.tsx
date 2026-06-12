@@ -120,6 +120,56 @@ describe('ReviewMode', () => {
         expect(screen.getByText('Second Student')).toBeInTheDocument();
     });
 
+    it('allows bulk fixing of smart fixes', () => {
+        const studentWithNameAnomaly: Student = {
+            ...mockStudent,
+            name: 'JOHN DOE',
+            hasNameAnomaly: true
+        };
+        const studentWithAddressAnomaly: Student = {
+            ...mockStudent,
+            id: '2',
+            name: 'Jane Doe',
+            address: { street: '123 Main St.', city: '', state: '', zip: '123' },
+            hasAddressAnomaly: true
+        };
+        const studentWithPhoneAnomaly: Student = {
+            ...mockStudent,
+            id: '3',
+            phoneNumber: '555-1234',
+            hasPhoneAnomaly: true
+        };
+        const onSaveBulk = vi.fn();
+
+        render(
+            <ReviewMode
+                isOpen={true}
+                students={[studentWithNameAnomaly, studentWithAddressAnomaly, studentWithPhoneAnomaly]}
+                onClose={vi.fn()}
+                onSave={vi.fn()}
+                onSaveBulk={onSaveBulk}
+            />
+        );
+
+        const fixAllButton = screen.getByText('Smart Fix All');
+        fireEvent.click(fixAllButton);
+
+        expect(onSaveBulk).toHaveBeenCalledWith([
+            {
+                original: studentWithNameAnomaly,
+                updated: expect.objectContaining({ name: 'John Doe', firstName: 'John', lastName: 'Doe', hasNameAnomaly: false })
+            },
+            {
+                original: studentWithAddressAnomaly,
+                updated: expect.objectContaining({ address: { street: '123 Main Street', city: '', state: '', zip: '123' }, hasAddressAnomaly: false })
+            },
+            {
+                original: studentWithPhoneAnomaly,
+                updated: expect.objectContaining({ phoneNumber: '555-1234', hasPhoneAnomaly: false })
+            }
+        ]);
+    });
+
     it('does NOT play sound if muted', () => {
         const onSave = vi.fn();
         render(
