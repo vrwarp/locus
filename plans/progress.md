@@ -3,15 +3,15 @@
     - **"Zip Code Enrichment" (Address Cleaner Enhancement):**
         - Added `src/utils/zipCodes.ts` featuring a fast mapping structure (`ZIP_PREFIX_MAP`) mapping 3-digit Zip Code prefixes to major City/State pairs.
         - Created the `enrichZipCode` utility to perform prefix lookups.
-        - Integrated `enrichZipCode` directly into the `onChange` handler for the Zip Code input in `ReviewMode.tsx` when fixing Address anomalies.
-        - Entering a recognized Zip Code prefix now auto-fills the City and State inputs if they are currently blank, significantly speeding up data entry for volunteers.
+        - Implemented an asynchronous fallback `enrichZipCodeAsync` using the Zippopotam.us API for full 5-digit zip code resolution.
+        - Integrated `enrichZipCode` and `enrichZipCodeAsync` directly into the `onChange` handler for the Zip Code input in `ReviewMode.tsx` when fixing Address anomalies.
+        - Entering a recognized Zip Code prefix now auto-fills the City and State inputs if they are currently blank, significantly speeding up data entry for volunteers. Entering a full 5-digit zip code attempts an API lookup for precision.
 - **Test Coverage:**
-    - Added unit test `src/utils/zipCodes.test.ts` verifying prefix matching, handling of empty/short inputs, and null returns for unknown prefixes.
-    - Updated `ReviewMode.test.tsx` to cover the new state-updating logic during address edits.
-- **Status:** Zip Code Enrichment fully implemented and verified.
+    - Added unit test `src/utils/zipCodes.test.ts` verifying prefix matching, handling of empty/short inputs, null returns for unknown prefixes, and the `fetch` API fallback behavior.
+    - Updated `ReviewMode.test.tsx` to cover the new asynchronous state-updating logic during address edits.
+- **Status:** Zip Code Enrichment (including API fallback) fully implemented and verified.
 - **Future Ideas:**
     - Expand the static map to a comprehensive USPS SCF 3-digit list.
-    - Add a secondary fallback to a live Zip Code API (like Zippopotam.us) for more precise 5-digit city resolution when the 3-digit prefix covers too broad an area.
 
 ## Session (Test Coverage: Locus Intelligence)
 - **Implemented:**
