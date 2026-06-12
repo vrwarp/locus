@@ -1,3 +1,13 @@
+## Session (Missing Volunteers Export)
+- **Implemented:**
+    - **Missing Volunteers Export:** Added an "Export to CSV" button to `src/components/MissingVolunteersReport.tsx`.
+    - Integrated with the `downloadCSV` utility to allow exporting a list of missing key volunteers to CSV format for executive review.
+- **Test Coverage:**
+    - Updated `src/components/MissingVolunteersReport.test.tsx` to include UI interaction tests that verify the button renders correctly and passes the mapped data to `downloadCSV`.
+- **Status:** Missing Volunteers Export feature fully implemented and verified.
+- **Future Ideas:**
+    - Consolidate all Locus Intelligence CSV exports into a single "Master Export" action.
+
 ## Session (Zip Code Enrichment)
 - **Implemented:**
     - **"Zip Code Enrichment" (Address Cleaner Enhancement):**

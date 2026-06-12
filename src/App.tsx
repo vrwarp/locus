@@ -214,7 +214,7 @@ function App() {
       const cacheKey = `people_v2_${appId}`;
       const auth = btoa(`${appId}:${secret}`)
 
-      let cached = await loadFromCache<{ people: PcoPerson[], nextUrl: string | undefined } | PcoPerson[]>(cacheKey, appId, 5 * 60 * 1000); // 5 mins TTL
+      const cached = await loadFromCache<{ people: PcoPerson[], nextUrl: string | undefined } | PcoPerson[]>(cacheKey, appId, 5 * 60 * 1000); // 5 mins TTL
 
       let people: PcoPerson[] = [];
       let nextUrl: string | undefined = undefined;

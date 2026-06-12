@@ -23,6 +23,11 @@ Implemented the "Boardroom Ready" export capability as dictated by the `04_prd_l
 - **Implementation:** Added an "Export to CSV" button to the report header. It maps the data into columns such as 'Baseline Rate', 'Recent Rate', and 'Drop Percentage', providing a clear numerical narrative for the downloaded report.
 - **Testing:** Updated `DriftReport.test.tsx` to assert the integration between the UI and the new export utility.
 
+### 4. Missing Volunteers Export (`src/components/MissingVolunteersReport.tsx`)
+- **Goal:** Allow executives to export the list of key volunteers who have been completely absent recently.
+- **Implementation:** Added an "Export to CSV" button to the report header alongside the alert details. When clicked, it exports the 'Name', 'Weeks Missing', and 'Last Seen' data to a CSV file named `missing_volunteers_report.csv`.
+- **Testing:** Updated `MissingVolunteersReport.test.tsx` to assert the export functionality calls the `downloadCSV` mock utility properly when data is present.
+
 ## Technical Discoveries
 - **JSDOM Constraints:** Simulating file downloads in JSDOM (Vitest) is impossible natively since it lacks a real filesystem and navigation context. I resolved this by mocking `URL.createObjectURL` and intercepting DOM calls (`document.createElement('a')`, `.click()`) to verify the *intent* of the function without causing test runtime errors.
 - **Reusability:** By using generics (`<T extends Record<string, any>>`), the `downloadCSV` utility is highly adaptable and can be easily applied to any future report (e.g., Duplicates, Missing Volunteers) without modification.

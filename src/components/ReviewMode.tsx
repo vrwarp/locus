@@ -125,7 +125,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
       let totalScore = 0;
 
       for (const student of students) {
-          let updatedStudent = { ...student };
+          const updatedStudent = { ...student };
           let changed = false;
 
           if (student.hasNameAnomaly) {
