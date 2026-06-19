@@ -1,8 +1,13 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { DuplicatesReport } from './DuplicatesReport';
 import type { Student } from '../utils/pco';
+import * as exportUtils from '../utils/export';
 import '@testing-library/jest-dom';
+
+vi.mock('../utils/export', () => ({
+  downloadCSV: vi.fn(),
+}));
 
 describe('DuplicatesReport', () => {
     const createMockStudent = (id: string, name: string, email?: string, phone?: string): Student => ({
@@ -94,5 +99,40 @@ describe('DuplicatesReport', () => {
         fireEvent.click(button);
         expect(screen.queryByText('How to Merge in Planning Center')).not.toBeInTheDocument();
         expect(button).toHaveTextContent('Merge Instructions');
+    });
+
+    it('handles export functionality when candidates exist', async () => {
+        const students = [
+            createMockStudent('1', 'John Doe', 'john@example.com'),
+            createMockStudent('2', 'John Doe', 'john@example.com'),
+        ];
+
+        render(<DuplicatesReport students={students} />);
+
+        const exportBtn = screen.getByRole('button', { name: /Export to CSV/i });
+        fireEvent.click(exportBtn);
+
+        expect(exportUtils.downloadCSV).toHaveBeenCalledTimes(1);
+        expect(exportUtils.downloadCSV).toHaveBeenCalledWith(
+            [
+                {
+                    'Group ID': 'dup_1,2',
+                    'Match Criteria': 'Name & Email Match',
+                    'Person ID': '1',
+                    'Name': 'John Doe',
+                    'Email': 'john@example.com',
+                    'Phone': 'N/A'
+                },
+                {
+                    'Group ID': 'dup_1,2',
+                    'Match Criteria': 'Name & Email Match',
+                    'Person ID': '2',
+                    'Name': 'John Doe',
+                    'Email': 'john@example.com',
+                    'Phone': 'N/A'
+                }
+            ],
+            'duplicates_report.csv'
+        );
     });
 });

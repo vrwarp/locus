@@ -1,10 +1,15 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MissingVolunteersReport } from './MissingVolunteersReport';
 import * as pcoModule from '../utils/pco';
 import * as missingModule from '../utils/missing';
 import type { Student } from '../utils/pco';
+import * as exportUtils from '../utils/export';
+
+vi.mock('../utils/export', () => ({
+  downloadCSV: vi.fn(),
+}));
 
 describe('MissingVolunteersReport', () => {
   const mockStudents: Student[] = [
@@ -73,5 +78,37 @@ describe('MissingVolunteersReport', () => {
       await waitFor(() => {
         expect(screen.getByText('Failed to load check-in data.')).toBeInTheDocument();
       });
+  });
+
+  it('handles export functionality when missing volunteers exist', async () => {
+    vi.spyOn(missingModule, 'calculateMissingVolunteers').mockReturnValue([
+      {
+        person: mockStudents[0],
+        lastSeen: '2023-01-01T12:00:00Z',
+        missingWeeks: 3
+      }
+    ]);
+
+    render(<MissingVolunteersReport students={mockStudents} auth="auth" />);
+
+    await waitFor(() => {
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+    });
+
+    const exportBtn = screen.getByRole('button', { name: /Export to CSV/i });
+    fireEvent.click(exportBtn);
+
+    expect(exportUtils.downloadCSV).toHaveBeenCalledTimes(1);
+    expect(exportUtils.downloadCSV).toHaveBeenCalledWith(
+        [
+            {
+                'Person ID': '1',
+                'Name': 'John Doe',
+                'Missing Weeks': 3,
+                'Last Seen': new Date('2023-01-01T12:00:00Z').toLocaleDateString()
+            }
+        ],
+        'missing_volunteers.csv'
+    );
   });
 });

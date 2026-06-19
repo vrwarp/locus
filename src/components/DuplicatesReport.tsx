@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import type { Student } from '../utils/pco';
 import { detectDuplicates } from '../utils/duplicates';
 import type { DuplicateGroup } from '../utils/duplicates';
+import { downloadCSV } from '../utils/export';
 import './DuplicatesReport.css';
 
 interface DuplicatesReportProps {
@@ -14,6 +15,20 @@ export const DuplicatesReport: React.FC<DuplicatesReportProps> = ({ students }) 
 
   const toggleInstructions = (groupId: string) => {
       setExpandedGroup(prev => prev === groupId ? null : groupId);
+  };
+
+  const handleExport = () => {
+    const exportData = duplicates.flatMap(group =>
+      group.students.map(student => ({
+        'Group ID': group.id,
+        'Match Criteria': group.criteria,
+        'Person ID': student.id,
+        'Name': student.name,
+        'Email': student.email || 'N/A',
+        'Phone': student.phoneNumber || 'N/A'
+      }))
+    );
+    downloadCSV(exportData, 'duplicates_report.csv');
   };
 
   if (duplicates.length === 0) {
@@ -30,8 +45,13 @@ export const DuplicatesReport: React.FC<DuplicatesReportProps> = ({ students }) 
   return (
     <div className="duplicates-report">
       <div className="report-header">
-        <h2>Duplicate Detective</h2>
-        <p>Found {duplicates.length} potential duplicate {duplicates.length === 1 ? 'group' : 'groups'} based on matching names and contact information.</p>
+        <div className="report-header-content">
+          <h2>Duplicate Detective</h2>
+          <p>Found {duplicates.length} potential duplicate {duplicates.length === 1 ? 'group' : 'groups'} based on matching names and contact information.</p>
+        </div>
+        <button className="btn-export" onClick={handleExport}>
+            <span className="icon">📥</span> Export to CSV
+        </button>
       </div>
 
       <div className="duplicates-list">

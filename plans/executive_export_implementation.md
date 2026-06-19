@@ -23,6 +23,16 @@ Implemented the "Boardroom Ready" export capability as dictated by the `04_prd_l
 - **Implementation:** Added an "Export to CSV" button to the report header. It maps the data into columns such as 'Baseline Rate', 'Recent Rate', and 'Drop Percentage', providing a clear numerical narrative for the downloaded report.
 - **Testing:** Updated `DriftReport.test.tsx` to assert the integration between the UI and the new export utility.
 
+### 4. Duplicate Detective Export (`src/components/DuplicatesReport.tsx`)
+- **Goal:** Allow admins to export potential duplicate groupings to a spreadsheet for offline review or batch merging tasks.
+- **Implementation:** Added an "Export to CSV" button to the `DuplicatesReport` component header. The function maps the nested `DuplicateGroup` structures into a flattened format outlining the 'Match Criteria', 'Person ID', 'Name', 'Email', and 'Phone' per row.
+- **Testing:** Updated `DuplicatesReport.test.tsx` to ensure the export correctly intercepts the dynamically grouped objects and maps them to the `downloadCSV` utility.
+
+### 5. Missing Volunteers Export (`src/components/MissingVolunteersReport.tsx`)
+- **Goal:** Enable users to export the list of key volunteers who have recently missed consecutive weeks, making it easy to create action lists for pastoral outreach.
+- **Implementation:** Integrated the `downloadCSV` utility within the `MissingVolunteersReport` and added an export button to the header. Extracted relevant fields including 'Person ID', 'Name', 'Missing Weeks', and 'Last Seen'.
+- **Testing:** Updated `MissingVolunteersReport.test.tsx` to cover the new functionality.
+
 ## Technical Discoveries
 - **JSDOM Constraints:** Simulating file downloads in JSDOM (Vitest) is impossible natively since it lacks a real filesystem and navigation context. I resolved this by mocking `URL.createObjectURL` and intercepting DOM calls (`document.createElement('a')`, `.click()`) to verify the *intent* of the function without causing test runtime errors.
 - **Reusability:** By using generics (`<T extends Record<string, any>>`), the `downloadCSV` utility is highly adaptable and can be easily applied to any future report (e.g., Duplicates, Missing Volunteers) without modification.
