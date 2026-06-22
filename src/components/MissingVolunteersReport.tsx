@@ -3,6 +3,7 @@ import { fetchRecentCheckIns, fetchEvents } from '../utils/pco';
 import type { Student, PcoCheckIn, PcoEvent } from '../utils/pco';
 import { calculateMissingVolunteers } from '../utils/missing';
 import type { MissingVolunteer } from '../utils/missing';
+import { downloadCSV } from '../utils/export';
 import './MissingVolunteersReport.css';
 
 interface MissingVolunteersReportProps {
@@ -39,14 +40,31 @@ export const MissingVolunteersReport: React.FC<MissingVolunteersReportProps> = (
     }
   }, [auth, students]);
 
+  const handleExport = () => {
+    const exportData = missing.map(m => ({
+        'Person ID': m.person.id,
+        'Name': m.person.name,
+        'Missing Weeks': m.missingWeeks,
+        'Last Seen': new Date(m.lastSeen).toLocaleDateString()
+    }));
+    downloadCSV(exportData, 'missing_volunteers.csv');
+  };
+
   if (loading) return <div className="loading-spinner">Locating Missing Volunteers...</div>;
   if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="missing-volunteers-report">
         <header className="report-header">
-            <h2>Missing Person Alert</h2>
-            <p>Key volunteers (served 2+ times recently) who have completely missed the last 2+ weeks.</p>
+            <div className="report-header-content">
+                <h2>Missing Person Alert</h2>
+                <p>Key volunteers (served 2+ times recently) who have completely missed the last 2+ weeks.</p>
+            </div>
+            {missing.length > 0 && (
+                <button className="btn-export" onClick={handleExport}>
+                    <span className="icon">📥</span> Export to CSV
+                </button>
+            )}
         </header>
 
         {missing.length === 0 ? (
