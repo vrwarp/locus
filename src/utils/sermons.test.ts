@@ -45,6 +45,44 @@ describe('sermons', () => {
     expect(result[1].weekStarting).toBe('2023-10-08');
     expect(result[1].attendance).toBe(1);
     expect(result[1].topic).toBe(SERMON_TOPICS[1]);
+
+    // Check giving volume is generated
+    expect(result[0].givingVolume).toBeDefined();
+    expect(result[0].givingVolume).toBeGreaterThan(0);
+    expect(result[1].givingVolume).toBeDefined();
+    expect(result[1].givingVolume).toBeGreaterThan(0);
+  });
+
+  it('should spike giving volume for generous topics', () => {
+    const events: PcoEvent[] = [{ id: '1', type: 'Event', attributes: { name: 'Sunday Worship Service' } }];
+
+    // Add a check in for Week 5, index 4 (Living Generously)
+    const checkIns: Partial<PcoCheckIn>[] = [];
+    for (let i = 0; i < 5; i++) {
+        // Distribute across 5 distinct weeks to push the index to 4
+        // Adding 7 days per increment so they end up in different weeks
+        const dateDay = 1 + (i * 7);
+        const dateStr = dateDay < 10 ? `0${dateDay}` : `${dateDay}`;
+        checkIns.push({
+            id: `c${i}`,
+            attributes: { created_at: `2023-10-${dateStr}T10:00:00Z`, kind: 'Regular' },
+            relationships: { event: { data: { type: 'Event', id: '1' } }, person: { data: { type: 'Person', id: `p${i}` } } }
+        });
+    }
+
+    const result = correlateSermonsAndAttendance(checkIns as PcoCheckIn[], events as PcoEvent[]);
+
+    // index 4 is 'Living Generously'
+    const generousWeek = result.find(r => r.topic === 'Living Generously');
+    expect(generousWeek).toBeDefined();
+
+    // Manual calculation of base giving for attendance 1 at index 4
+    const baseGiving = 1 * 25;
+    const varianceMultiplier = 1 + (Math.sin(4 * 1.5) * 0.15);
+    const regularGiving = Math.round(baseGiving * varianceMultiplier);
+
+    // The generous logic multiplies it by 1.5
+    expect(generousWeek!.givingVolume).toBe(Math.round(regularGiving * 1.5));
   });
 
   it('should filter attendance by demographic when specified', () => {

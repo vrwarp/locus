@@ -6,6 +6,7 @@ export interface SermonData {
   weekStarting: string;
   topic: string;
   attendance: number;
+  givingVolume?: number;
 }
 
 // Mock mapping of dates to sermon topics since we don't have a real endpoint for this
@@ -82,10 +83,22 @@ export const correlateSermonsAndAttendance = (
     const topicIndex = index % SERMON_TOPICS.length;
     const topic = SERMON_TOPICS[topicIndex];
 
+    const attendance = weeklyAttendance.get(weekStr)!.size;
+
+    // Giving simulation
+    const baseGiving = attendance * 25;
+    const varianceMultiplier = 1 + (Math.sin(index * 1.5) * 0.15);
+    let givingVolume = Math.round(baseGiving * varianceMultiplier);
+
+    if (topic.toLowerCase().includes('generous') || topic.toLowerCase().includes('giving')) {
+        givingVolume = Math.round(givingVolume * 1.5);
+    }
+
     results.push({
       weekStarting: weekStr,
       topic: topic,
-      attendance: weeklyAttendance.get(weekStr)!.size
+      attendance: attendance,
+      givingVolume: givingVolume
     });
   });
 

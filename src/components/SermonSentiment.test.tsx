@@ -17,7 +17,16 @@ vi.mock('recharts', async () => {
               <div key={i} data-testid={`chart-bar-${i}`} data-topic={d.topic} data-attendance={d.attendance}></div>
             ))}
         </div>
-    )
+    ),
+    ComposedChart: ({ children, data }: any) => (
+        <div data-testid="mock-composed-chart" data-count={data ? data.length : 0}>
+            {children}
+            {data && data.map((d: any, i: number) => (
+              <div key={i} data-testid={`composed-chart-item-${i}`} data-topic={d.topic} data-attendance={d.attendance} data-giving={d.givingVolume}></div>
+            ))}
+        </div>
+    ),
+    Line: () => <div data-testid="mock-line" />
   };
 });
 
@@ -140,5 +149,38 @@ describe('SermonSentiment', () => {
         // Ensure that fetching data is not called again
         expect(fetchEventsSpy).toHaveBeenCalledTimes(1);
         expect(fetchRecentCheckInsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should toggle giving volume overlay and render ComposedChart', async () => {
+        (pcoUtils.fetchEvents as any).mockResolvedValue([{ id: '1', attributes: { name: 'Sunday Worship' } }]);
+        (pcoUtils.fetchRecentCheckIns as any).mockResolvedValue([{ id: '1', relationships: { event: { data: { id: '1' } } } }]);
+
+        vi.spyOn(sermonUtils, 'correlateSermonsAndAttendance').mockReturnValue([
+            { weekStarting: '2023-10-01', topic: 'Grace', attendance: 120, givingVolume: 3000 }
+        ]);
+
+        render(<SermonSentiment auth="test" students={[]} />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Sermon Sentiment')).toBeInTheDocument();
+        });
+
+        // Initially uses BarChart
+        expect(screen.getByTestId('mock-bar-chart')).toBeInTheDocument();
+        expect(screen.queryByTestId('mock-composed-chart')).not.toBeInTheDocument();
+
+        // Toggle overlay
+        const checkbox = screen.getByLabelText('Overlay Giving Volume');
+        expect(checkbox).not.toBeChecked();
+        fireEvent.click(checkbox);
+
+        // Now it should use ComposedChart
+        expect(checkbox).toBeChecked();
+        expect(screen.queryByTestId('mock-bar-chart')).not.toBeInTheDocument();
+        expect(screen.getByTestId('mock-composed-chart')).toBeInTheDocument();
+        expect(screen.getByTestId('mock-line')).toBeInTheDocument();
+
+        // Data passed correctly
+        expect(screen.getByTestId('composed-chart-item-0')).toHaveAttribute('data-giving', '3000');
     });
 });
