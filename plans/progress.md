@@ -602,3 +602,13 @@
 - **Future Ideas:**
     - Integrate a real "Plans" or "Services" endpoint from PCO to fetch actual sermon titles and series rather than relying on a mocked cycler.
     - Add the ability to multi-select demographic filters (e.g., viewing Millennials and Gen Z together).
+
+## Session (Sermon Giving Correlation)
+- **Implemented:**
+    - **Sermon Sentiment Giving Overlay:** Added the ability to cross-reference sermon sentiment with giving data (Concept #47).
+    - Updated `src/utils/sermons.ts` (`correlateSermonsAndAttendance`) to deterministically calculate a `givingVolume` value based on attendance. Topics containing "generous" or "giving" result in a positive 50% simulated spike in generosity.
+    - Updated `src/components/SermonSentiment.tsx` to conditionally render this new `givingVolume` as a `Line` inside a `ComposedChart` when the user enables the "Overlay Giving Volume" toggle.
+- **Test Coverage:**
+    - Modified `src/utils/sermons.test.ts` to assert that `givingVolume` is generated and that the "Living Generously" topic triggers the expected spike.
+    - Modified `src/components/SermonSentiment.test.tsx` to handle `ComposedChart` and `Line` mocking. Added a UI test that checks toggling the checkbox transitions the chart to a ComposedChart with the correct data.
+- **Status:** Sermon Sentiment giving correlation fully implemented and verified.
