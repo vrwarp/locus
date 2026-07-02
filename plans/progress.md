@@ -602,3 +602,13 @@
 - **Future Ideas:**
     - Integrate a real "Plans" or "Services" endpoint from PCO to fetch actual sermon titles and series rather than relying on a mocked cycler.
     - Add the ability to multi-select demographic filters (e.g., viewing Millennials and Gen Z together).
+
+## Session (Campus Cup Real-Time Animation)
+- **Implemented:**
+    - **Animated Real-Time Leaderboard:** Updated `CampusCup.tsx` to simulate a live competitive environment (a requested "Future Idea").
+    - Added `setInterval` logic to periodically inject random background fix counts into competitor campuses.
+    - Tracked and rendered a "recent activity" counter indicating fixes submitted by the user's campus in the last 24 hours.
+    - Explicitly enabled `isAnimationActive` on the Recharts `BarChart` so positional shifts and score increments animate smoothly.
+- **Test Coverage:**
+    - Updated `src/components/CampusCup.test.tsx` to utilize `vi.useFakeTimers()` to accurately assert state progression caused by the background simulated intervals.
+- **Status:** Campus Cup real-time animation enhancement implemented and verified.

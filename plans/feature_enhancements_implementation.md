@@ -51,3 +51,11 @@ Implemented several enhancements to existing "AI Moonshot" and Gamification conc
 - **Giving River:** Connect the date filter directly to actual transaction history via the Planning Center API, rendering a true real-time Sankey diagram of fund allocations over time.
 - **Zen Mode:** Add ambient, relaxing background audio tracks (e.g., rainfall, soft synths) that play while Review Mode is open under Zen Mode constraints.
 - **Party Mode:** Integrate achievement-based unlocks for new Confetti Themes (e.g., unlocking the "Monochrome Gold" theme only after earning the Golden Record badge).
+
+### 6. Campus Cup: Real-time Leaderboard Animation
+- **Goal:** Simulate real-time progress and animate leaderboard shifts to create a more engaging Gamification element (a previously noted "Future Idea").
+- **Implementation:**
+    - Modified `src/components/CampusCup.tsx` with a `useEffect` interval that periodically boosts competitor campus scores randomly.
+    - Added a counter specifically tracking the recent background points generated for the user's selected campus.
+    - Added the `isAnimationActive` property to the Recharts `BarChart` to allow fluid sliding animations as scores change.
+- **Testing:** Implemented `vi.useFakeTimers()` in `CampusCup.test.tsx` to deterministically advance the `setInterval` clock and test the recent activity labels incrementing over time.
