@@ -26,6 +26,19 @@
     margin: 0;
 }
 
+.giving-toggle {
+    margin-top: 12px;
+}
+
+.giving-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: #2c3e50;
+    cursor: pointer;
+}
+
 .demographic-select {
     padding: 8px 12px;
     border-radius: 6px;

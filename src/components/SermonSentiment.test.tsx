@@ -10,14 +10,15 @@ vi.mock('recharts', async () => {
   return {
     ...OriginalRecharts,
     ResponsiveContainer: ({ children }: any) => <div>{children}</div>,
-    BarChart: ({ children, data }: any) => (
-        <div data-testid="mock-bar-chart" data-count={data ? data.length : 0}>
+    ComposedChart: ({ children, data }: any) => (
+        <div data-testid="mock-composed-chart" data-count={data ? data.length : 0}>
             {children}
             {data && data.map((d: any, i: number) => (
-              <div key={i} data-testid={`chart-bar-${i}`} data-topic={d.topic} data-attendance={d.attendance}></div>
+              <div key={i} data-testid={`chart-bar-${i}`} data-topic={d.topic} data-attendance={d.attendance} data-giving={d.givingVolume}></div>
             ))}
         </div>
-    )
+    ),
+    Line: () => <div data-testid="mock-line-chart"></div>
   };
 });
 
@@ -75,7 +76,7 @@ describe('SermonSentiment', () => {
             expect(screen.getByText('Sermon Sentiment')).toBeInTheDocument();
         });
 
-        expect(screen.getByTestId('mock-bar-chart')).toBeInTheDocument();
+        expect(screen.getByTestId('mock-composed-chart')).toBeInTheDocument();
 
         // Check if data was passed down
         expect(screen.getByTestId('chart-bar-0')).toHaveAttribute('data-topic', 'Grace');
@@ -95,6 +96,35 @@ describe('SermonSentiment', () => {
             expect(screen.getByText('Failed to load sermon and attendance data.')).toBeInTheDocument();
         });
         spy.mockRestore();
+    });
+
+    it('should render and toggle giving volume overlay', async () => {
+        (pcoUtils.fetchEvents as any).mockResolvedValue([{ id: '1', attributes: { name: 'Sunday Worship' } }]);
+        (pcoUtils.fetchRecentCheckIns as any).mockResolvedValue([{ id: '1', relationships: { event: { data: { id: '1' } } } }]);
+
+        vi.spyOn(sermonUtils, 'correlateSermonsAndAttendance').mockReturnValue([
+            { weekStarting: '2023-10-01', topic: 'Grace', attendance: 120, givingVolume: 120 * 25 }
+        ]);
+
+        render(<SermonSentiment auth="test" students={[]} />);
+
+        await waitFor(() => {
+            expect(screen.getByText('Sermon Sentiment')).toBeInTheDocument();
+        });
+
+        // Initially line should not be there (as it's conditionally rendered inside ComposedChart based on showGivingVolume)
+        expect(screen.queryByTestId('mock-line-chart')).not.toBeInTheDocument();
+
+        const toggle = screen.getByLabelText('Overlay Giving Volume');
+        expect(toggle).not.toBeChecked();
+
+        fireEvent.click(toggle);
+
+        expect(toggle).toBeChecked();
+
+        await waitFor(() => {
+             expect(screen.getByTestId('mock-line-chart')).toBeInTheDocument();
+        });
     });
 
     it('should refetch data when demographic filter is changed', async () => {
