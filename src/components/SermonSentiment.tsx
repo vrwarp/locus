@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { fetchEvents, fetchRecentCheckIns } from '../utils/pco';
 import type { Student } from '../utils/pco';
 import { correlateSermonsAndAttendance } from '../utils/sermons';
@@ -15,6 +15,7 @@ export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth, students
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [demographics, setDemographics] = useState<string[]>(['All']);
+  const [showGivingVolume, setShowGivingVolume] = useState(false);
 
   const [rawEvents, setRawEvents] = useState<any[]>([]);
   const [rawCheckIns, setRawCheckIns] = useState<any[]>([]);
@@ -59,6 +60,16 @@ export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth, students
           <p className="description">
             Correlating historical sermon topics with worship attendance spikes.
           </p>
+          <div className="giving-toggle">
+            <label>
+              <input
+                type="checkbox"
+                checked={showGivingVolume}
+                onChange={(e) => setShowGivingVolume(e.target.checked)}
+              />
+              Overlay Giving Volume
+            </label>
+          </div>
         </div>
         <select
           multiple
@@ -86,7 +97,7 @@ export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth, students
       ) : (
         <div className="chart-container">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+            <ComposedChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
               <XAxis
                 dataKey="topic"
@@ -96,17 +107,29 @@ export const SermonSentiment: React.FC<SermonSentimentProps> = ({ auth, students
                 tick={{ fontSize: 12, fill: '#7f8c8d' }}
               />
               <YAxis
+                yAxisId="left"
                 allowDecimals={false}
                 tick={{ fontSize: 12, fill: '#7f8c8d' }}
                 label={{ value: 'Attendance', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#7f8c8d' } }}
               />
+              {showGivingVolume && (
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tick={{ fontSize: 12, fill: '#27ae60' }}
+                  label={{ value: 'Giving Volume ($)', angle: 90, position: 'insideRight', style: { textAnchor: 'middle', fill: '#27ae60' } }}
+                />
+              )}
               <Tooltip
                 cursor={{ fill: 'rgba(0,0,0,0.05)' }}
                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                 labelStyle={{ fontWeight: 'bold', color: '#2c3e50', marginBottom: '8px' }}
               />
-              <Bar dataKey="attendance" fill="#9b59b6" radius={[4, 4, 0, 0]} name="Worship Attendance" />
-            </BarChart>
+              <Bar yAxisId="left" dataKey="attendance" fill="#9b59b6" radius={[4, 4, 0, 0]} name="Worship Attendance" />
+              {showGivingVolume && (
+                <Line yAxisId="right" type="monotone" dataKey="givingVolume" stroke="#27ae60" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} name="Giving Volume" />
+              )}
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       )}

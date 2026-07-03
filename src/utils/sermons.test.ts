@@ -47,6 +47,51 @@ describe('sermons', () => {
     expect(result[1].topic).toBe(SERMON_TOPICS[1]);
   });
 
+  it('should generate giving volume correctly with spikes for generous topics', () => {
+    const events: PcoEvent[] = [{ id: '1', type: 'Event', attributes: { name: 'Sunday Worship Service' } }];
+
+    // Index 4 is "Living Generously"
+    const checkIns: Partial<PcoCheckIn>[] = [];
+    for (let i = 0; i < 5; i++) {
+        // We add check-ins for 5 consecutive weeks so the 5th week (index 4) maps to "Living Generously"
+        checkIns.push({
+            id: `c0-${i}`,
+            attributes: { created_at: '2023-10-01T10:00:00Z', kind: 'Regular' }, // index 0 (The Prodigal Son)
+            relationships: { event: { data: { type: 'Event', id: '1' } }, person: { data: { type: 'Person', id: `p${i}` } } }
+        });
+        checkIns.push({
+            id: `c1-${i}`,
+            attributes: { created_at: '2023-10-08T10:00:00Z', kind: 'Regular' }, // index 1 (Faith Over Fear)
+            relationships: { event: { data: { type: 'Event', id: '1' } }, person: { data: { type: 'Person', id: `p${i}` } } }
+        });
+        checkIns.push({
+            id: `c2-${i}`,
+            attributes: { created_at: '2023-10-15T10:00:00Z', kind: 'Regular' }, // index 2 (Community Matters)
+            relationships: { event: { data: { type: 'Event', id: '1' } }, person: { data: { type: 'Person', id: `p${i}` } } }
+        });
+        checkIns.push({
+            id: `c3-${i}`,
+            attributes: { created_at: '2023-10-22T10:00:00Z', kind: 'Regular' }, // index 3 (The Power of Prayer)
+            relationships: { event: { data: { type: 'Event', id: '1' } }, person: { data: { type: 'Person', id: `p${i}` } } }
+        });
+        checkIns.push({
+            id: `c4-${i}`,
+            attributes: { created_at: '2023-10-29T10:00:00Z', kind: 'Regular' }, // index 4 (Living Generously)
+            relationships: { event: { data: { type: 'Event', id: '1' } }, person: { data: { type: 'Person', id: `p${i}` } } }
+        });
+    }
+
+    const result = correlateSermonsAndAttendance(checkIns as PcoCheckIn[], events as PcoEvent[]);
+
+    // Week 1 -> 5 attendance, base giving = 5 * 25 = 125
+    expect(result[0].givingVolume).toBe(125);
+    expect(result[0].topic).toBe('The Prodigal Son');
+
+    // Week 5 -> 5 attendance, base giving = 125, generous multiplier = 2.5 => 313
+    expect(result[4].givingVolume).toBe(313);
+    expect(result[4].topic).toBe('Living Generously');
+  });
+
   it('should filter attendance by demographic when specified', () => {
     const events: PcoEvent[] = [{ id: '1', type: 'Event', attributes: { name: 'Sunday Worship Service' } }];
 

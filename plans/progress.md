@@ -583,6 +583,18 @@
     - Updated `ConfigModal.test.tsx` and `ReviewMode.test.tsx` to verify state updates and the correct interactions with the audio utility layer.
 - **Status:** Zen Audio feature fully implemented and verified.
 
+## Session (Sermon Giving Overlay)
+- **Implemented:**
+    - **Sermon Sentiment Giving Overlay:** Added toggleable "Overlay Giving Volume" to `SermonSentiment`.
+    - Modified `src/utils/sermons.ts` (`correlateSermonsAndAttendance`) to return simulated giving volume. Spikes are generated for topics containing "generous" or "giving".
+    - Updated `src/components/SermonSentiment.tsx` to render a `ComposedChart` using a secondary right Y-axis for the giving volume data.
+- **Test Coverage:**
+    - Added unit test in `src/utils/sermons.test.ts` to verify giving volume generation and correct spike logic for generous topics.
+    - Added UI test in `src/components/SermonSentiment.test.tsx` checking that the "Overlay Giving Volume" toggle toggles the simulated giving line overlay appropriately.
+- **Status:** Sermon Sentiment Giving Overlay fully implemented and verified.
+- **Future Ideas:**
+    - Combine this with live Stripe integration for accurate correlation of sermon topics with giving spikes.
+
 ## Session (Sermon Demographic Filtering)
 - **Implemented:**
     - **Sermon Sentiment Demographic Filtering:**
