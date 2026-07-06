@@ -5,7 +5,7 @@ import { enrichZipCode, enrichZipCodeAsync } from '../utils/zipCodes';
 import type { GraderOptions } from '../utils/grader';
 import { differenceInYears } from 'date-fns';
 import { playTone, playAmbientAudio, stopAmbientAudio } from '../utils/audio';
-import { fixName, fixPhone, fixAddress } from '../utils/hygiene';
+import { fixName, fixPhone, fixAddress, fixEmail, validateEmail } from '../utils/hygiene';
 import type { Address } from '../utils/hygiene';
 import './ReviewMode.css';
 
@@ -134,6 +134,14 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
               updatedStudent.lastName = updatedStudent.name.split(' ').slice(1).join(' ');
               updatedStudent.hasNameAnomaly = false;
               changed = true;
+          }
+          if (student.hasEmailAnomaly && student.email) {
+              const fixedEmail = fixEmail(student.email);
+              if (validateEmail(fixedEmail)) {
+                  updatedStudent.email = fixedEmail;
+                  updatedStudent.hasEmailAnomaly = false;
+                  changed = true;
+              }
           }
           if (student.hasAddressAnomaly && student.address) {
               updatedStudent.address = {

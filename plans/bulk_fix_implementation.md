@@ -19,5 +19,6 @@ Implemented the "Bulk Fixing" concept as an enhancement to the Locus Core Data C
 - Appended robust unit testing inside the vitest test suite. Confirmed the generated `updates` payload accurately contains the fully processed attributes.
 
 ## Discoveries & Future Ideas
-- **Email Validation Enhancement:** Currently `email` string formats are not completely safely 'fixable' automatically without a third-party intelligence provider or basic typo auto-correct rules. An AI/ML approach could be integrated in the future.
+- **Email Validation Enhancement:** [DONE] Extended `handleFixAll` with `fixEmail` using a dictionary approach to automatically correct common domain typos (e.g., `gmial.com` to `gmail.com`) and basic missing TLD periods (`gmailcom` to `gmail.com`). Included robust unit and integration testing.
 - **Granular Category Selection:** Future iterations could allow the user to only batch process a specific subset of anomalies (e.g., clicking "Smart Fix All Phones" instead of all safe fields).
+- **Advanced Email Heuristics:** The current `fixEmail` relies on a static dictionary. A future idea is to use string-distance algorithms (like Levenshtein distance) against a larger list of known valid MX domains to catch more esoteric typos dynamically.
