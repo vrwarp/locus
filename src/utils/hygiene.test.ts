@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectNameAnomaly, fixName, validateEmail, detectEmailAnomaly, validateAddress, detectAddressAnomaly, fixAddress, validatePhone, detectPhoneAnomaly, fixPhone } from './hygiene';
+import { detectNameAnomaly, fixName, validateEmail, detectEmailAnomaly, validateAddress, detectAddressAnomaly, fixAddress, validatePhone, detectPhoneAnomaly, fixPhone, fixEmail } from './hygiene';
 
 describe('detectNameAnomaly', () => {
   it('should detect all uppercase names', () => {
@@ -58,6 +58,38 @@ describe('Email Validation', () => {
         expect(detectEmailAnomaly('testexample.com')).toBe(true);
         expect(detectEmailAnomaly('test@example.com')).toBe(false);
         expect(detectEmailAnomaly('')).toBe(false); // Empty is not anomaly
+    });
+});
+
+describe('fixEmail', () => {
+    it('should return empty string for empty input', () => {
+        expect(fixEmail('')).toBe('');
+    });
+
+    it('should strip whitespaces and convert to lowercase', () => {
+        expect(fixEmail(' Test@Example.com ')).toBe('test@example.com');
+        expect(fixEmail('  test @ example.com ')).toBe('test@example.com');
+        expect(fixEmail('TEST@EXAMPLE.COM')).toBe('test@example.com');
+    });
+
+    it('should fix common domain typos', () => {
+        expect(fixEmail('user@gmial.com')).toBe('user@gmail.com');
+        expect(fixEmail('user@yaho.com')).toBe('user@yahoo.com');
+        expect(fixEmail('user@hotmial.com')).toBe('user@hotmail.com');
+        expect(fixEmail('user@aol.con')).toBe('user@aol.com');
+        expect(fixEmail('user@gmailcom')).toBe('user@gmail.com');
+        expect(fixEmail('user@yahoo.con')).toBe('user@yahoo.com');
+    });
+
+    it('should fix missing periods before common TLDs', () => {
+        expect(fixEmail('user@examplecom')).toBe('user@example.com');
+        expect(fixEmail('user@examplenet')).toBe('user@example.net');
+        expect(fixEmail('user@exampleorg')).toBe('user@example.org');
+    });
+
+    it('should not alter valid emails', () => {
+        expect(fixEmail('user@example.com')).toBe('user@example.com');
+        expect(fixEmail('john.doe+test@gmail.com')).toBe('john.doe+test@gmail.com');
     });
 });
 

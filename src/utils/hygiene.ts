@@ -45,6 +45,52 @@ export const detectEmailAnomaly = (email: string): boolean => {
     return !validateEmail(email);
 }
 
+export const fixEmail = (email: string): string => {
+    if (!email) return '';
+
+    // Strip whitespaces and convert to lowercase
+    let fixed = email.trim().replace(/\s+/g, '').toLowerCase();
+
+    // Fix common domain typos
+    const domainReplacements: Record<string, string> = {
+        'gmial.com': 'gmail.com',
+        'gmal.com': 'gmail.com',
+        'gmail.con': 'gmail.com',
+        'gmailcom': 'gmail.com',
+        'yaho.com': 'yahoo.com',
+        'yahoo.con': 'yahoo.com',
+        'yahoocom': 'yahoo.com',
+        'hotmial.com': 'hotmail.com',
+        'hotmail.con': 'hotmail.com',
+        'hotmailcom': 'hotmail.com',
+        'aol.con': 'aol.com',
+        'aolcom': 'aol.com',
+        'outlook.con': 'outlook.com',
+        'outlookcom': 'outlook.com',
+        'icloud.con': 'icloud.com',
+        'icloudcom': 'icloud.com'
+    };
+
+    const parts = fixed.split('@');
+    if (parts.length === 2) {
+        let domain = parts[1];
+        if (domainReplacements[domain]) {
+            domain = domainReplacements[domain];
+        } else if (domain.endsWith('com') && !domain.endsWith('.com')) {
+             // Basic fallback for missing period before com
+             domain = domain.slice(0, -3) + '.com';
+        } else if (domain.endsWith('net') && !domain.endsWith('.net')) {
+             domain = domain.slice(0, -3) + '.net';
+        } else if (domain.endsWith('org') && !domain.endsWith('.org')) {
+             domain = domain.slice(0, -3) + '.org';
+        }
+        fixed = `${parts[0]}@${domain}`;
+    }
+
+    return fixed;
+}
+
+
 export const validateAddress = (address: Address): boolean => {
     if (!address) return false;
     // Check required fields

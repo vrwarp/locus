@@ -139,12 +139,18 @@ describe('ReviewMode', () => {
             phoneNumber: '555-1234',
             hasPhoneAnomaly: true
         };
+        const studentWithEmailAnomaly: Student = {
+            ...mockStudent,
+            id: '4',
+            email: 'test@gmial.com',
+            hasEmailAnomaly: true
+        };
         const onSaveBulk = vi.fn();
 
         render(
             <ReviewMode
                 isOpen={true}
-                students={[studentWithNameAnomaly, studentWithAddressAnomaly, studentWithPhoneAnomaly]}
+                students={[studentWithNameAnomaly, studentWithAddressAnomaly, studentWithPhoneAnomaly, studentWithEmailAnomaly]}
                 onClose={vi.fn()}
                 onSave={vi.fn()}
                 onSaveBulk={onSaveBulk}
@@ -166,6 +172,10 @@ describe('ReviewMode', () => {
             {
                 original: studentWithPhoneAnomaly,
                 updated: expect.objectContaining({ phoneNumber: '555-1234', hasPhoneAnomaly: false })
+            },
+            {
+                original: studentWithEmailAnomaly,
+                updated: expect.objectContaining({ email: 'test@gmail.com', hasEmailAnomaly: false })
             }
         ]);
     });
