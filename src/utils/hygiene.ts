@@ -1,4 +1,5 @@
 import { getAreaCodeFromZip } from './areaCodes';
+import { distance } from 'fastest-levenshtein';
 
 export const detectNameAnomaly = (name: string): boolean => {
   if (!name || name.trim().length === 0) return false;
@@ -45,45 +46,84 @@ export const detectEmailAnomaly = (email: string): boolean => {
     return !validateEmail(email);
 }
 
+const KNOWN_DOMAINS = [
+    'gmail.com',
+    'yahoo.com',
+    'hotmail.com',
+    'aol.com',
+    'outlook.com',
+    'icloud.com',
+    'msn.com',
+    'live.com',
+    'me.com',
+    'mac.com'
+];
+
 export const fixEmail = (email: string): string => {
     if (!email) return '';
 
     // Strip whitespaces and convert to lowercase
     let fixed = email.trim().replace(/\s+/g, '').toLowerCase();
 
-    // Fix common domain typos
-    const domainReplacements: Record<string, string> = {
-        'gmial.com': 'gmail.com',
-        'gmal.com': 'gmail.com',
-        'gmail.con': 'gmail.com',
-        'gmailcom': 'gmail.com',
-        'yaho.com': 'yahoo.com',
-        'yahoo.con': 'yahoo.com',
-        'yahoocom': 'yahoo.com',
-        'hotmial.com': 'hotmail.com',
-        'hotmail.con': 'hotmail.com',
-        'hotmailcom': 'hotmail.com',
-        'aol.con': 'aol.com',
-        'aolcom': 'aol.com',
-        'outlook.con': 'outlook.com',
-        'outlookcom': 'outlook.com',
-        'icloud.con': 'icloud.com',
-        'icloudcom': 'icloud.com'
-    };
-
     const parts = fixed.split('@');
     if (parts.length === 2) {
         let domain = parts[1];
-        if (domainReplacements[domain]) {
-            domain = domainReplacements[domain];
-        } else if (domain.endsWith('com') && !domain.endsWith('.com')) {
-             // Basic fallback for missing period before com
-             domain = domain.slice(0, -3) + '.com';
-        } else if (domain.endsWith('net') && !domain.endsWith('.net')) {
-             domain = domain.slice(0, -3) + '.net';
-        } else if (domain.endsWith('org') && !domain.endsWith('.org')) {
-             domain = domain.slice(0, -3) + '.org';
+
+        // 1. Exact match bypass
+        if (KNOWN_DOMAINS.includes(domain)) {
+            return fixed;
         }
+
+        // 2. Advanced Heuristics: Levenshtein distance
+        // Only trigger heuristic if the length of the domain is greater than 4
+        // to avoid clashing with short, valid domains.
+        // Additionally, we want to ensure we don't accidentally overwrite common valid domains.
+        const commonValidButNotListed = ['mail.com', 'ymail.com', 'email.com', 'protonmail.com', 'pm.me', 'hey.com'];
+
+        if (commonValidButNotListed.includes(domain)) {
+            fixed = `${parts[0]}@${domain}`;
+            return fixed;
+        }
+
+        let bestMatch = '';
+        let lowestDistance = Infinity;
+
+        for (const knownDomain of KNOWN_DOMAINS) {
+            const dist = distance(domain, knownDomain);
+            if (dist < lowestDistance) {
+                lowestDistance = dist;
+                bestMatch = knownDomain;
+            }
+        }
+
+        // Only correct it if the distance is exactly 1 or 2, and the domain isn't extremely short
+        // (to prevent 'me.com' turning into something else entirely)
+        if (lowestDistance <= 2 && domain.length > 4 && !commonValidButNotListed.includes(domain)) {
+            // Add a safeguard check: if distance is 2, it should only be allowed if the domain is fairly long
+            // e.g. distance of 2 is fine for 'outlook.cmo' -> 'outlook.com', but dangerous for 'mac.com'
+            if (lowestDistance === 1 || (lowestDistance === 2 && domain.length >= 7)) {
+                 domain = bestMatch;
+            } else {
+                 // basic fallback
+                 if (domain.endsWith('com') && !domain.endsWith('.com')) {
+                     domain = domain.slice(0, -3) + '.com';
+                 } else if (domain.endsWith('net') && !domain.endsWith('.net')) {
+                     domain = domain.slice(0, -3) + '.net';
+                 } else if (domain.endsWith('org') && !domain.endsWith('.org')) {
+                     domain = domain.slice(0, -3) + '.org';
+                 }
+            }
+        } else {
+            // 3. Basic fallback for missing period before TLD if heuristic didn't match
+            if (domain.endsWith('com') && !domain.endsWith('.com')) {
+                 domain = domain.slice(0, -3) + '.com';
+            } else if (domain.endsWith('net') && !domain.endsWith('.net')) {
+                 domain = domain.slice(0, -3) + '.net';
+            } else if (domain.endsWith('org') && !domain.endsWith('.org')) {
+                 domain = domain.slice(0, -3) + '.org';
+            }
+        }
+
         fixed = `${parts[0]}@${domain}`;
     }
 

@@ -624,3 +624,13 @@
 - **Test Coverage:**
     - Updated `src/components/CampusCup.test.tsx` to utilize `vi.useFakeTimers()` to accurately assert state progression caused by the background simulated intervals.
 - **Status:** Campus Cup real-time animation enhancement implemented and verified.
+
+## Session (Advanced Email Heuristics)
+- **Implemented:**
+    - **Advanced Email Typo Correction:** Enhanced `fixEmail` in `src/utils/hygiene.ts` to use string-distance algorithms (`fastest-levenshtein`).
+    - Rather than relying on a static dictionary of known typos, it dynamically compares the domain against a known list (e.g. `gmail.com`, `yahoo.com`, `outlook.com`) and automatically corrects esoteric typos (e.g. `gmaiil.con`) with a Levenshtein distance <= 2.
+- **Integration:**
+    - Added `fastest-levenshtein` to `package.json` dependencies.
+- **Test Coverage:**
+    - Added unit tests in `src/utils/hygiene.test.ts` to verify that esoteric typos like `gmaiil.con` and `outlook.cmo` are correctly snapped back to their valid counterparts.
+- **Status:** "Advanced Email Heuristics" (Future Idea from Bulk Fix) implemented and verified.

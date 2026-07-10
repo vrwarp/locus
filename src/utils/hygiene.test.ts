@@ -87,6 +87,12 @@ describe('fixEmail', () => {
         expect(fixEmail('user@exampleorg')).toBe('user@example.org');
     });
 
+    it('should use advanced heuristics to fix esoteric typos', () => {
+        expect(fixEmail('user@gmaiil.con')).toBe('user@gmail.com');
+        expect(fixEmail('user@outlook.cmo')).toBe('user@outlook.com');
+        expect(fixEmail('user@yahooo.com')).toBe('user@yahoo.com');
+    });
+
     it('should not alter valid emails', () => {
         expect(fixEmail('user@example.com')).toBe('user@example.com');
         expect(fixEmail('john.doe+test@gmail.com')).toBe('john.doe+test@gmail.com');
