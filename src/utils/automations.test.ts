@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks, getFirstTimeGivers, getNewBabies } from './automations';
+import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks, getFirstTimeGivers, getNewBabies, getElderlyCare } from './automations';
 import type { Student } from './pco';
 import { addDays, subDays, parseISO, addYears, setMonth } from 'date-fns';
 
@@ -113,6 +113,39 @@ describe('getPendingGradePromotions', () => {
             createStudent('1', '2014-01-01', 4, false) // isChild = false
         ];
         const result = getPendingGradePromotions(students, octDate);
+        expect(result).toHaveLength(0);
+    });
+});
+
+describe('getElderlyCare', () => {
+    const createStudent = (id: string, age: number, isChild: boolean): Student => ({
+        id, age, pcoGrade: null, name: `Student ${id}`, firstName: 'Student', lastName: id,
+        birthdate: '', calculatedGrade: -1, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
+        isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
+        firstTimeGiver: false, firstGiftDate: null
+    });
+
+    it('identifies elderly congregants (age >= 75) who are not marked as children', () => {
+        const students = [
+            createStudent('1', 75, false), // Elderly adult
+            createStudent('2', 80, false), // Elderly adult
+            createStudent('3', 70, false), // Adult but under 75
+            createStudent('4', 76, true), // Marked incorrectly as child, should not be flagged
+            createStudent('5', 30, false), // Adult
+        ];
+
+        const result = getElderlyCare(students);
+        expect(result).toHaveLength(2);
+        expect(result.map(s => s.id)).toEqual(['1', '2']);
+    });
+
+    it('returns empty array when no elderly congregants are present', () => {
+        const students = [
+            createStudent('1', 30, false),
+            createStudent('2', 74, false)
+        ];
+
+        const result = getElderlyCare(students);
         expect(result).toHaveLength(0);
     });
 });

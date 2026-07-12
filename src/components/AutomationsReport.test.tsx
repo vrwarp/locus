@@ -68,6 +68,19 @@ describe('AutomationsReport', () => {
         expect(screen.getByText('Send DoorDash Meal')).toBeDefined();
     });
 
+    it('renders elderly care alerts', () => {
+        vi.setSystemTime(new Date('2024-05-10'));
+        const students = [createStudent('1', 'Elderly Person', '1940-01-01', null, 84)];
+        // make sure they are not a child
+        students[0].isChild = false;
+
+        render(<AutomationsReport students={students} graderOptions={{}} />);
+
+        expect(screen.getByText('Elderly Care (Uber Rides)')).toBeDefined();
+        expect(screen.getByText('Elderly Person')).toBeDefined();
+        expect(screen.getByText('Age 84 • Needs Sunday Ride')).toBeDefined();
+    });
+
     it('renders birthday bot suggestions', () => {
         // Today is May 10. Birthday is May 17.
         vi.setSystemTime(new Date('2024-05-10'));

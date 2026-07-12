@@ -168,3 +168,10 @@ export const getFirstTimeGivers = (students: Student[], thresholdDays: number = 
 export const getNewBabies = (students: Student[]): Student[] => {
     return students.filter(s => s.age === 0 && s.isChild);
 };
+
+/**
+ * Identifies elderly congregants (age >= 75) who may need assistance (e.g., Uber rides).
+ */
+export const getElderlyCare = (students: Student[]): Student[] => {
+    return students.filter(s => !s.isChild && s.age >= 75);
+};
