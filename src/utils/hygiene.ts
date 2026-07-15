@@ -1,3 +1,4 @@
+import { distance } from 'fastest-levenshtein';
 import { getAreaCodeFromZip } from './areaCodes';
 
 export const detectNameAnomaly = (name: string): boolean => {
@@ -51,39 +52,54 @@ export const fixEmail = (email: string): string => {
     // Strip whitespaces and convert to lowercase
     let fixed = email.trim().replace(/\s+/g, '').toLowerCase();
 
-    // Fix common domain typos
-    const domainReplacements: Record<string, string> = {
-        'gmial.com': 'gmail.com',
-        'gmal.com': 'gmail.com',
-        'gmail.con': 'gmail.com',
-        'gmailcom': 'gmail.com',
-        'yaho.com': 'yahoo.com',
-        'yahoo.con': 'yahoo.com',
-        'yahoocom': 'yahoo.com',
-        'hotmial.com': 'hotmail.com',
-        'hotmail.con': 'hotmail.com',
-        'hotmailcom': 'hotmail.com',
-        'aol.con': 'aol.com',
-        'aolcom': 'aol.com',
-        'outlook.con': 'outlook.com',
-        'outlookcom': 'outlook.com',
-        'icloud.con': 'icloud.com',
-        'icloudcom': 'icloud.com'
-    };
+    const knownDomains = [
+        'gmail.com', 'yahoo.com', 'hotmail.com', 'aol.com',
+        'outlook.com', 'icloud.com', 'msn.com', 'live.com',
+        'me.com', 'mac.com', 'comcast.net', 'sbcglobal.net'
+    ];
 
     const parts = fixed.split('@');
     if (parts.length === 2) {
         let domain = parts[1];
-        if (domainReplacements[domain]) {
-            domain = domainReplacements[domain];
-        } else if (domain.endsWith('com') && !domain.endsWith('.com')) {
-             // Basic fallback for missing period before com
+
+        // Basic fallback for missing period before com/net/org
+        if (domain.endsWith('com') && !domain.endsWith('.com')) {
              domain = domain.slice(0, -3) + '.com';
         } else if (domain.endsWith('net') && !domain.endsWith('.net')) {
              domain = domain.slice(0, -3) + '.net';
         } else if (domain.endsWith('org') && !domain.endsWith('.org')) {
              domain = domain.slice(0, -3) + '.org';
         }
+
+        // Fuzzy matching for domain typos if domain > 4 chars (to prevent aol.com false positives)
+        if (domain.length > 4) {
+            let bestMatch = domain;
+            let minDistance = Infinity;
+
+            // List of valid known domains that are close to our knownDomains but should be left alone
+            const validProvidersToIgnore = ['mail.com', 'ymail.com', 'mac.com', 'me.com'];
+
+            // Skip fuzzy matching if the domain is a known valid domain that shouldn't be touched, or if it is a regional TLD (has more than 1 dot)
+            const isRegionalTLD = domain.split('.').length > 2;
+            if (!validProvidersToIgnore.includes(domain) && !isRegionalTLD) {
+                for (const validDomain of knownDomains) {
+                    const dist = distance(domain, validDomain);
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        bestMatch = validDomain;
+                    }
+                }
+
+                // For short domains (e.g. box.com length 7), a distance of 2 is too big (e.g. box.com -> aol.com is dist 2).
+                // So if domain length <= 8, only allow distance of 1. If > 8, allow 2.
+                const threshold = domain.length <= 8 ? 1 : 2;
+
+                if (minDistance <= threshold) {
+                    domain = bestMatch;
+                }
+            }
+        }
+
         fixed = `${parts[0]}@${domain}`;
     }
 
