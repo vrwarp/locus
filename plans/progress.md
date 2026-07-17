@@ -1,3 +1,12 @@
+
+## Session (Levenshtein Email Heuristics)
+- **Implemented:**
+    - Refactored `fixEmail` in `src/utils/hygiene.ts` to use `fastest-levenshtein` to dynamically calculate the string distance between provided email domains and a curated list of valid MX domains.
+    - Improved anomaly correction by allowing typo fixes (distance 1 or 2) on domains over 4 characters long.
+- **Test Coverage:**
+    - Expanded `src/utils/hygiene.test.ts` to verify that esoteric typos (e.g., `user@gamil.com`, `user@outlok.com`) are corrected to `gmail.com` and `outlook.com` while valid, short domains like `mac.com` remain un-altered.
+- **Status:** Bulk Fix Implementation (Email Heuristics) enhanced successfully.
+
 ## Session (Zip Code Enrichment)
 - **Implemented:**
     - **"Zip Code Enrichment" (Address Cleaner Enhancement):**

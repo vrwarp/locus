@@ -72,13 +72,33 @@ describe('fixEmail', () => {
         expect(fixEmail('TEST@EXAMPLE.COM')).toBe('test@example.com');
     });
 
-    it('should fix common domain typos', () => {
+    it('should fix common domain typos using Levenshtein distance', () => {
         expect(fixEmail('user@gmial.com')).toBe('user@gmail.com');
         expect(fixEmail('user@yaho.com')).toBe('user@yahoo.com');
         expect(fixEmail('user@hotmial.com')).toBe('user@hotmail.com');
+        // aol.con distance from aol.com is 1, aol.com is 7 chars long
         expect(fixEmail('user@aol.con')).toBe('user@aol.com');
-        expect(fixEmail('user@gmailcom')).toBe('user@gmail.com');
+        expect(fixEmail('user@gmailcom')).toBe('user@gmail.com'); // This is tested by the missing period fix
         expect(fixEmail('user@yahoo.con')).toBe('user@yahoo.com');
+        expect(fixEmail('user@gamil.com')).toBe('user@gmail.com');
+        expect(fixEmail('user@mail.com')).toBe('user@mail.com');
+        expect(fixEmail('user@outlok.com')).toBe('user@outlook.com');
+        expect(fixEmail('user@iclud.com')).toBe('user@icloud.com');
+    });
+
+    it('should not alter short domains or regional TLDs to prevent false positives', () => {
+        expect(fixEmail('user@mac.com')).toBe('user@mac.com');
+        expect(fixEmail('user@aol.com')).toBe('user@aol.com');
+        expect(fixEmail('user@box.com')).toBe('user@box.com');
+        expect(fixEmail('user@att.net')).toBe('user@att.net');
+        expect(fixEmail('user@app.com')).toBe('user@app.com');
+        expect(fixEmail('user@yahoo.co.uk')).toBe('user@yahoo.co.uk');
+        expect(fixEmail('user@ymail.com')).toBe('user@ymail.com');
+    });
+
+    it('should not alter domains that are not close to known domains', () => {
+        expect(fixEmail('user@example.com')).toBe('user@example.com');
+        expect(fixEmail('user@company.org')).toBe('user@company.org');
     });
 
     it('should fix missing periods before common TLDs', () => {
