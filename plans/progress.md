@@ -109,6 +109,19 @@
     - Add a configuration modal allowing admins to set an exact dollar amount for the meal per church policy.
     - Cross-reference with the `householdId` and previous births to adjust the type of gift sent based on whether it is a first child vs subsequent child.
 
+## Session (Elderly Care Uber Rides)
+- **Implemented:**
+    - **"Elderly Care (Uber Rides)" Automation:**
+        - Created `getElderlyCare` utility in `src/utils/automations.ts` to identify adult congregants aged 75 and older who might need assistance such as Sunday Uber rides.
+        - Integrated the logic into `src/components/AutomationsReport.tsx`, rendering a dedicated lane for this cohort with actionable mocked buttons like "Send Uber Ride".
+- **Test Coverage:**
+    - Added unit tests for `getElderlyCare` in `src/utils/automations.test.ts`.
+    - Expanded component UI testing in `src/components/AutomationsReport.test.tsx` to verify rendering and interaction for the elderly care lane.
+- **Status:** Elderly Care Automation fully implemented and verified.
+- **Future Ideas:**
+    - Link the "Send Uber Ride" action to an actual Uber for Business API or a local volunteer transport dispatch system.
+    - Provide a configuration modal to adjust the target age threshold (currently set to 75).
+
 ## Session (First Time Giver Alert)
 - **Implemented:**
     - **"First Time Giver" Alert (Automation Concept #13):**

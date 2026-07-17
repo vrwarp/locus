@@ -8,6 +8,7 @@ import {
     getExpiredBackgroundChecks,
     getFirstTimeGivers,
     getNewBabies,
+    getElderlyCare,
     type BirthdayAction,
     type PromotionAction,
     type CollegeSendOffAction,
@@ -34,6 +35,7 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
     const [dismissedExpiredChecks, setDismissedExpiredChecks] = useState<Set<string>>(new Set());
     const [dismissedNewBabies, setDismissedNewBabies] = useState<Set<string>>(new Set());
     const [dismissedFirstTimeGivers, setDismissedFirstTimeGivers] = useState<Set<string>>(new Set());
+    const [dismissedElderlyCare, setDismissedElderlyCare] = useState<Set<string>>(new Set());
 
     const newBabies = useMemo(() => {
         return getNewBabies(students).filter(s => !dismissedNewBabies.has(s.id));
@@ -63,7 +65,11 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
         return getFirstTimeGivers(students, 7, today).filter(g => !dismissedFirstTimeGivers.has(g.person.id));
     }, [students, today, dismissedFirstTimeGivers]);
 
-    const totalActions = birthdays.length + promotions.length + sendOffs.length + expiringChecks.length + expiredChecks.length + firstTimeGivers.length;
+    const elderlyCare = useMemo(() => {
+        return getElderlyCare(students).filter(s => !dismissedElderlyCare.has(s.id));
+    }, [students, dismissedElderlyCare]);
+
+    const totalActions = birthdays.length + promotions.length + sendOffs.length + expiringChecks.length + expiredChecks.length + firstTimeGivers.length + elderlyCare.length;
 
     const handleDismissBirthday = (id: string) => setDismissedBirthdays(prev => new Set(prev).add(id));
     const handleDismissPromotion = (id: string) => setDismissedPromotions(prev => new Set(prev).add(id));
@@ -72,6 +78,7 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
     const handleDismissExpiredCheck = (id: string) => setDismissedExpiredChecks(prev => new Set(prev).add(id));
     const handleDismissNewBaby = (id: string) => setDismissedNewBabies(prev => new Set(prev).add(id));
     const handleDismissFirstTimeGiver = (id: string) => setDismissedFirstTimeGivers(prev => new Set(prev).add(id));
+    const handleDismissElderlyCare = (id: string) => setDismissedElderlyCare(prev => new Set(prev).add(id));
 
     // Simulated "Approve" actions
     const handleApprove = (id: string, action: string) => {
@@ -83,6 +90,7 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
         if (action === 'Remove from Roster') handleDismissExpiredCheck(id);
         if (action === 'Send DoorDash') handleDismissNewBaby(id);
         if (action === 'Send Slack Alert') handleDismissFirstTimeGiver(id);
+        if (action === 'Send Uber Ride') handleDismissElderlyCare(id);
     };
 
     return (
@@ -143,6 +151,33 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
                                     <div className="action-buttons">
                                         <button className="btn-approve" onClick={() => handleApprove(person.id, 'Send DoorDash')}>Send DoorDash Meal</button>
                                         <button className="btn-dismiss" onClick={() => handleDismissNewBaby(person.id)}>Dismiss</button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </section>
+
+                {/* Elderly Care (Uber Rides) */}
+                <section className="automation-lane">
+                    <h3>
+                        <span className="icon">🚗</span>
+                        Elderly Care (Uber Rides)
+                        <span className="count">{elderlyCare.length}</span>
+                    </h3>
+                    {elderlyCare.length === 0 ? (
+                        <p className="empty-state">No elderly care actions needed.</p>
+                    ) : (
+                        <ul className="action-list">
+                            {elderlyCare.map((person) => (
+                                <li key={person.id} className="action-item">
+                                    <div className="action-details">
+                                        <strong>{person.name}</strong>
+                                        <div className="meta">Age {person.age} • Needs Sunday Ride</div>
+                                    </div>
+                                    <div className="action-buttons">
+                                        <button className="btn-approve" onClick={() => handleApprove(person.id, 'Send Uber Ride')}>Send Uber Ride</button>
+                                        <button className="btn-dismiss" onClick={() => handleDismissElderlyCare(person.id)}>Dismiss</button>
                                     </div>
                                 </li>
                             ))}
