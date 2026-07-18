@@ -646,3 +646,11 @@
 - **Test Coverage:**
     - Updated `src/components/CampusCup.test.tsx` to utilize `vi.useFakeTimers()` to accurately assert state progression caused by the background simulated intervals.
 - **Status:** Campus Cup real-time animation enhancement implemented and verified.
+
+## Session (Granular Bulk Fix)
+- **Implemented:**
+    - Modified `ReviewMode.tsx` to allow users to select a specific category of anomalies (Names, Emails, Addresses, Phones) to batch process.
+    - Added a dropdown menu and updated `handleFixAll` to conditionally apply fixes based on the selected `bulkCategory`.
+- **Test Coverage:**
+    - Added `ReviewMode.test.tsx` case verifying that selecting a specific category properly restricts fixes to only that type.
+- **Status:** Granular Bulk Fix functionality fully implemented and tested.

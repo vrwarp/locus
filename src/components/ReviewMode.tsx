@@ -31,6 +31,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
   const [targetEmail, setTargetEmail] = useState<string>('');
   const [targetAddress, setTargetAddress] = useState<Address>({ street: '', city: '', state: '', zip: '' });
   const [targetPhone, setTargetPhone] = useState<string>('');
+  const [bulkCategory, setBulkCategory] = useState<'all' | 'name' | 'email' | 'address' | 'phone'>('all');
   const [isSuccess, setIsSuccess] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [score, setScore] = useState(0);
@@ -128,14 +129,14 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
           let updatedStudent = { ...student };
           let changed = false;
 
-          if (student.hasNameAnomaly) {
+          if (student.hasNameAnomaly && (bulkCategory === 'all' || bulkCategory === 'name')) {
               updatedStudent.name = fixName(student.name);
               updatedStudent.firstName = updatedStudent.name.split(' ')[0];
               updatedStudent.lastName = updatedStudent.name.split(' ').slice(1).join(' ');
               updatedStudent.hasNameAnomaly = false;
               changed = true;
           }
-          if (student.hasEmailAnomaly && student.email) {
+          if (student.hasEmailAnomaly && student.email && (bulkCategory === 'all' || bulkCategory === 'email')) {
               const fixedEmail = fixEmail(student.email);
               if (validateEmail(fixedEmail)) {
                   updatedStudent.email = fixedEmail;
@@ -143,7 +144,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
                   changed = true;
               }
           }
-          if (student.hasAddressAnomaly && student.address) {
+          if (student.hasAddressAnomaly && student.address && (bulkCategory === 'all' || bulkCategory === 'address')) {
               updatedStudent.address = {
                   ...student.address,
                   street: fixAddress(student.address.street)
@@ -151,7 +152,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
               updatedStudent.hasAddressAnomaly = false;
               changed = true;
           }
-          if (student.hasPhoneAnomaly && student.phoneNumber) {
+          if (student.hasPhoneAnomaly && student.phoneNumber && (bulkCategory === 'all' || bulkCategory === 'phone')) {
               updatedStudent.phoneNumber = fixPhone(student.phoneNumber, student.address?.zip);
               updatedStudent.hasPhoneAnomaly = false;
               changed = true;
@@ -495,9 +496,23 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
         <div className="review-actions">
             <button onClick={handleNext} className="btn-skip">Skip</button>
             {!isSpeedRun && onSaveBulk && (
-                <button onClick={handleFixAll} className="btn-fix-all" title="Auto-fix all safe formatting anomalies (Name, Phone, Address)">
-                    Smart Fix All
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <select
+                        value={bulkCategory}
+                        onChange={(e) => setBulkCategory(e.target.value as any)}
+                        style={{ padding: '8px', borderRadius: '4px', background: 'var(--bg-color)', color: 'var(--text-color)', border: '1px solid var(--border-color)' }}
+                        aria-label="Bulk Fix Category"
+                    >
+                        <option value="all">All Safe Anomalies</option>
+                        <option value="name">Names Only</option>
+                        <option value="email">Emails Only</option>
+                        <option value="address">Addresses Only</option>
+                        <option value="phone">Phones Only</option>
+                    </select>
+                    <button onClick={handleFixAll} className="btn-fix-all" title="Auto-fix formatting anomalies based on selection">
+                        Smart Fix
+                    </button>
+                </div>
             )}
             <button onClick={handleFix} className="btn-fix">
                 {mode === 'grade' ? `Fix Grade` : mode === 'birthdate' ? `Fix Birthdate` : mode === 'name' ? `Fix Name` : mode === 'email' ? 'Fix Email' : mode === 'address' ? 'Fix Address' : 'Fix Phone'}

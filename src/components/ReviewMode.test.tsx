@@ -157,7 +157,7 @@ describe('ReviewMode', () => {
             />
         );
 
-        const fixAllButton = screen.getByText('Smart Fix All');
+        const fixAllButton = screen.getByText('Smart Fix');
         fireEvent.click(fixAllButton);
 
         expect(onSaveBulk).toHaveBeenCalledWith([
@@ -407,6 +407,43 @@ describe('ReviewMode', () => {
             phoneNumber: '+15551234567',
             hasPhoneAnomaly: false
         }));
+    });
+
+
+    it('allows granular bulk fixing of specific anomaly types', () => {
+        const studentWithMultipleAnomalies: Student = {
+            ...mockStudent,
+            hasNameAnomaly: true,
+            hasPhoneAnomaly: true,
+            phoneNumber: '5551234'
+        };
+        const onSave = vi.fn();
+        render(
+            <ReviewMode
+                isOpen={true}
+                students={[studentWithMultipleAnomalies]}
+                onClose={vi.fn()}
+                onSave={vi.fn()}
+                onSaveBulk={onSave}
+            />
+        );
+
+        // Change select to 'phone'
+        const select = screen.getByLabelText('Bulk Fix Category');
+        fireEvent.change(select, { target: { value: 'phone' } });
+
+        const fixAllButton = screen.getByText('Smart Fix');
+        fireEvent.click(fixAllButton);
+
+        // Only phone should be fixed, name should still have anomaly
+        expect(onSave).toHaveBeenCalledWith([
+            expect.objectContaining({
+                updated: expect.objectContaining({
+                    hasPhoneAnomaly: false,
+                    hasNameAnomaly: true
+                })
+            })
+        ]);
     });
 
     describe('Speed Run Mode', () => {
