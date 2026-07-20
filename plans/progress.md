@@ -646,3 +646,14 @@
 - **Test Coverage:**
     - Updated `src/components/CampusCup.test.tsx` to utilize `vi.useFakeTimers()` to accurately assert state progression caused by the background simulated intervals.
 - **Status:** Campus Cup real-time animation enhancement implemented and verified.
+
+## Session (GradeScatter Test Coverage)
+- **Implemented:**
+    - Improved test coverage for `src/components/GradeScatter.tsx` ("Diagonal of Truth" visualization).
+    - Added unit tests to `src/components/GradeScatter.test.tsx` verifying the empty states and fallback returns for `CustomTooltip`.
+    - Added tests to cover boundary conditions in `CustomShape` and `Scatter` interactions, particularly when `pcoGrade` is undefined during `onMouseEnter` or focus events.
+    - Verified logic for formatting zero, positive, and negative deltas in the tooltip.
+    - Verified behavior when optional props like `onPointClick` are omitted.
+- **Test Coverage:**
+    - Reached 100% statement, branch, function, and line coverage for `src/components/GradeScatter.tsx`.
+- **Status:** Test coverage expanded successfully for the GradeScatter component.
