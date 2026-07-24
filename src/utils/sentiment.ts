@@ -1,15 +1,32 @@
 import type { Student } from './pco';
+import { GENERATIONS } from './demographics';
 
 export interface SentimentData {
   text: string;
   value: number;
 }
 
-export const calculateSentimentPulse = (students: Student[]): SentimentData[] => {
+export const calculateSentimentPulse = (
+  students: Student[],
+  demographic: string = 'All'
+): SentimentData[] => {
   const themes = new Map<string, number>();
 
+  let filteredStudents = students;
+
+  if (demographic && demographic !== 'All') {
+    filteredStudents = students.filter(student => {
+      if (!student.birthdate) return false;
+      const birthYear = new Date(student.birthdate).getFullYear();
+      if (isNaN(birthYear)) return false;
+
+      const generation = GENERATIONS.find(gen => birthYear >= gen.start && birthYear <= gen.end);
+      return generation && generation.name === demographic;
+    });
+  }
+
   // Use prayerTopic as the source of "Sentiment"
-  students.forEach(student => {
+  filteredStudents.forEach(student => {
     if (student.prayerTopic) {
       // Clean up the topic string slightly to make it look like a theme
       // By capitalizing it properly
