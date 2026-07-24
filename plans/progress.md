@@ -646,3 +646,14 @@
 - **Test Coverage:**
     - Updated `src/components/CampusCup.test.tsx` to utilize `vi.useFakeTimers()` to accurately assert state progression caused by the background simulated intervals.
 - **Status:** Campus Cup real-time animation enhancement implemented and verified.
+
+## Session (Sentiment Pulse Demographic Filtering)
+- **Implemented:**
+    - **Demographic Filtering:** Added the ability to filter the Sentiment Pulse word cloud by generation (a requested "Future Enhancement").
+    - Updated `src/utils/sentiment.ts` (`calculateSentimentPulse`) to accept an optional `demographic` string parameter.
+    - Utilized the `GENERATIONS` constant from `src/utils/demographics.ts` to map and filter students by birth year.
+    - Updated `src/components/SentimentPulse.tsx` to include a dropdown allowing the user to filter the word cloud by specific generations (e.g., Millennials, Gen Z).
+- **Test Coverage:**
+    - Updated `src/utils/sentiment.test.ts` to verify that students are correctly filtered when a demographic is specified.
+    - Updated `src/components/SentimentPulse.test.tsx` to simulate selecting a demographic filter and asserting the word cloud and summary update correctly based on the filtered data.
+- **Status:** Sentiment Pulse Demographic Filtering enhancement implemented and verified.

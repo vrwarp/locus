@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, it, expect, vi } from 'vitest';
 import { SentimentPulse } from './SentimentPulse';
@@ -68,5 +68,35 @@ describe('SentimentPulse', () => {
     // When maxFreq === minFreq, it should return '2rem'
     const anxietyEl = screen.getByText('Anxiety', { selector: '.word-cloud-item' });
     expect(anxietyEl).toHaveStyle('font-size: 2rem');
+  });
+
+  it('updates word cloud when a different demographic is selected', () => {
+    const students: Partial<Student>[] = [
+      { id: '1', birthdate: '1990-05-15', prayerTopic: 'family' }, // Millennial
+      { id: '2', birthdate: '1992-08-20', prayerTopic: 'career' }, // Millennial
+      { id: '3', birthdate: '2005-01-10', prayerTopic: 'school' }, // Gen Z
+    ];
+
+    render(<SentimentPulse students={students as Student[]} />);
+
+    // Initially "All" is selected, both topics should be present
+    // Use getAllByText because it might appear in the word cloud AND the summary
+    expect(screen.getAllByText('Family').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('School').length).toBeGreaterThan(0);
+
+    // Select Millennials
+    const select = screen.getByRole('combobox', { name: /Target Audience/i });
+    fireEvent.change(select, { target: { value: 'Millennials' } });
+
+    // "School" should disappear as it's a Gen Z topic
+    expect(screen.getAllByText('Family').length).toBeGreaterThan(0);
+    expect(screen.queryByText('School')).not.toBeInTheDocument();
+
+    // Select Gen Z
+    fireEvent.change(select, { target: { value: 'Gen Z' } });
+
+    // Now only "School" should be present
+    expect(screen.getAllByText('School').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Family')).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import './SentimentPulse.css';
 import { calculateSentimentPulse } from '../utils/sentiment';
+import { GENERATIONS } from '../utils/demographics';
 import type { Student } from '../utils/pco';
 
 interface SentimentPulseProps {
@@ -8,7 +9,9 @@ interface SentimentPulseProps {
 }
 
 export const SentimentPulse: React.FC<SentimentPulseProps> = ({ students }) => {
-  const data = useMemo(() => calculateSentimentPulse(students), [students]);
+  const [selectedDemographic, setSelectedDemographic] = useState<string>('All');
+
+  const data = useMemo(() => calculateSentimentPulse(students, selectedDemographic), [students, selectedDemographic]);
 
   // Determine relative sizing
   const maxFreq = data.length > 0 ? data[0].value : 1;
@@ -39,7 +42,22 @@ export const SentimentPulse: React.FC<SentimentPulseProps> = ({ students }) => {
         <div className="sentiment-container">
             <div className="sentiment-header">
                 <h2>Spiritual Climate</h2>
-                <p>No themes detected. Ensure students have 'prayerTopic' set.</p>
+                <div className="header-controls">
+                    <p>No themes detected for the selected criteria.</p>
+                    <div className="filter-group">
+                        <label htmlFor="demographic-filter">Target Audience:</label>
+                        <select
+                            id="demographic-filter"
+                            value={selectedDemographic}
+                            onChange={(e) => setSelectedDemographic(e.target.value)}
+                        >
+                            <option value="All">All Generations</option>
+                            {GENERATIONS.map(gen => (
+                                <option key={gen.name} value={gen.name}>{gen.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
             </div>
             <div className="empty-state">No Data Available</div>
         </div>
@@ -50,7 +68,22 @@ export const SentimentPulse: React.FC<SentimentPulseProps> = ({ students }) => {
     <div className="sentiment-container">
       <div className="sentiment-header">
         <h2>Spiritual Climate</h2>
-        <p>A word cloud derived from anonymized prayer requests and comment themes.</p>
+        <div className="header-controls">
+            <p>A word cloud derived from anonymized prayer requests and comment themes.</p>
+            <div className="filter-group">
+                <label htmlFor="demographic-filter">Target Audience:</label>
+                <select
+                    id="demographic-filter"
+                    value={selectedDemographic}
+                    onChange={(e) => setSelectedDemographic(e.target.value)}
+                >
+                    <option value="All">All Generations</option>
+                    {GENERATIONS.map(gen => (
+                        <option key={gen.name} value={gen.name}>{gen.name}</option>
+                    ))}
+                </select>
+            </div>
+        </div>
       </div>
 
       <div className="word-cloud-canvas">
