@@ -1,4 +1,15 @@
 
+## Session (Granular Category Selection for Smart Fix All)
+- **Implemented:**
+    - Granular Category Selection for the "Smart Fix All" feature.
+    - Added a dropdown next to the "Smart Fix All" button in `ReviewMode.tsx` to allow selecting specific anomaly categories (All, Names, Phones, Emails, Addresses).
+    - Updated `handleFixAll` to process bulk fixes only for the selected category.
+- **Vision Doc Updates:**
+    - Updated `plans/bulk_fix_implementation.md` to mark Granular Category Selection as `[DONE]`.
+- **Test Coverage:**
+    - Added a new unit test in `src/components/ReviewMode.test.tsx` verifying the dropdown selection correctly filters the updates sent via `onSaveBulk`.
+- **Status:** Granular Category Selection fully implemented and verified.
+
 ## Session (Levenshtein Email Heuristics)
 - **Implemented:**
     - Refactored `fixEmail` in `src/utils/hygiene.ts` to use `fastest-levenshtein` to dynamically calculate the string distance between provided email domains and a curated list of valid MX domains.

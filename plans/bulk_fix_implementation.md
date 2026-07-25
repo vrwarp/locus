@@ -20,5 +20,5 @@ Implemented the "Bulk Fixing" concept as an enhancement to the Locus Core Data C
 
 ## Discoveries & Future Ideas
 - **Email Validation Enhancement:** [DONE] Extended `handleFixAll` with `fixEmail` using a dictionary approach to automatically correct common domain typos (e.g., `gmial.com` to `gmail.com`) and basic missing TLD periods (`gmailcom` to `gmail.com`). Included robust unit and integration testing.
-- **Granular Category Selection:** Future iterations could allow the user to only batch process a specific subset of anomalies (e.g., clicking "Smart Fix All Phones" instead of all safe fields).
+- **Granular Category Selection:** [DONE] Added a dropdown next to the "Smart Fix All" button, allowing users to selectively run batch updates for a specific category (Names, Emails, Addresses, Phones, or All).
 - **Advanced Email Heuristics:** [DONE] Implemented Levenshtein distance string-matching in `fixEmail` using `fastest-levenshtein` to dynamically correct typos in email domains by comparing them against a known list of valid MX domains.
