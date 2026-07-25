@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-globals */
+
 // Service Worker for Sandbox Mode
 // Intercepts PATCH/DELETE requests when X-Locus-Sandbox header is present
 

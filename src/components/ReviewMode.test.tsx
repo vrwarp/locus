@@ -180,6 +180,37 @@ describe('ReviewMode', () => {
         ]);
     });
 
+    it('respects Granular Category Selection when using Smart Fix All', () => {
+        const studentWithNameAnomaly = { ...mockStudent, id: '1', name: 'john doe', hasNameAnomaly: true };
+        const studentWithEmailAnomaly = { ...mockStudent, id: '2', email: 'test@gmial.com', hasEmailAnomaly: true };
+
+        const onSaveBulk = vi.fn();
+        render(
+            <ReviewMode
+                isOpen={true}
+                students={[studentWithNameAnomaly, studentWithEmailAnomaly]}
+                onClose={vi.fn()}
+                onSave={vi.fn()}
+                onSaveBulk={onSaveBulk}
+            />
+        );
+
+        // Change select dropdown to 'email'
+        const categorySelect = screen.getByRole('combobox', { name: 'Smart Fix Category' });
+        fireEvent.change(categorySelect, { target: { value: 'email' } });
+
+        const fixAllButton = screen.getByText('Smart Fix All');
+        fireEvent.click(fixAllButton);
+
+        // Should ONLY include the email fix, not the name fix
+        expect(onSaveBulk).toHaveBeenCalledWith([
+            {
+                original: studentWithEmailAnomaly,
+                updated: expect.objectContaining({ email: 'test@gmail.com', hasEmailAnomaly: false })
+            }
+        ]);
+    });
+
     it('does NOT play sound if muted', () => {
         const onSave = vi.fn();
         render(
