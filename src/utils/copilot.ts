@@ -328,9 +328,21 @@ export const processQuery = (query: string, context: CoPilotContext): CoPilotRes
       };
   }
 
+  // Intent: Small Groups
+  if (lowerQuery.includes('small group') || lowerQuery.includes('sort group') || lowerQuery.includes('assign group')) {
+      return {
+          type: 'text',
+          message: "I can help you sort adults into perfectly balanced small groups by size and age, while keeping families together.",
+          action: {
+              label: "Open Small Group Sorter",
+              view: "small-groups"
+          }
+      };
+  }
+
   // Default Fallback
   return {
     type: 'text',
-    message: "I'm not sure how to help with that yet. You can ask me about 'Health Score', 'Burnout Risk', 'Ghosts', 'Recruitment', 'Missing Volunteers', 'Split Households', 'Automations', 'Prayer Partners', 'Spiritual Climate', or search for a grade or person."
+    message: "I'm not sure how to help with that yet. You can ask me about 'Health Score', 'Burnout Risk', 'Ghosts', 'Recruitment', 'Missing Volunteers', 'Split Households', 'Automations', 'Prayer Partners', 'Spiritual Climate', 'Small Groups', or search for a grade or person."
   };
 };
