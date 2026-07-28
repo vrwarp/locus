@@ -124,9 +124,19 @@ describe('CoPilot Logic', () => {
         expect(response.message).toContain("couldn't find any sentiment data");
     });
 
+    it('handles small group queries', () => {
+        const result = processQuery('can you help sort small groups?', context);
+        expect(result.type).toBe('text');
+        expect(result.message).toContain('I can help you sort adults into perfectly balanced small groups');
+        expect(result.action).toBeDefined();
+        expect(result.action?.label).toBe('Open Small Group Sorter');
+        expect(result.action?.view).toBe('small-groups');
+    });
+
     it('handles unknown queries gracefully', () => {
         const result = processQuery('What is the meaning of life?', context);
         expect(result.message).toContain("I'm not sure how to help with that");
         expect(result.message).toContain("'Automations'");
+        expect(result.message).toContain("'Small Groups'");
     });
 });

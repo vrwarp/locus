@@ -12,6 +12,7 @@ Implemented the "Small Group Sorter" concept (#32) from the Idea Vault, which ut
 - **`src/components/SmallGroupSorter.tsx`**: Created a user interface allowing administrators to define the target number of groups and the algorithmic depth (number of generations). Results render elegantly into distinct cards displaying group stats alongside member profiles.
 - **Tests**: Comprehensive Vitest coverage added for utility boundaries and UI interaction, properly handling the asynchronous nature of the "Evolving Generations..." UI feedback loop.
 - **Integration**: Inserted as a primary navigation view ('small-groups') inside the Sidebar under 'Ministry Intelligence'.
+- **Pastoral Co-Pilot**: Expanded the Natural Language capabilities of the Pastoral Co-Pilot (`src/utils/copilot.ts`) to understand intents related to Small Groups and direct users to the Small Group Sorter.
 
 ## What Was Discovered
 - Maintaining the synchronous logic of the genetic algorithm in `React Testing Library` required handling testing DOM specific timeout boundaries.
