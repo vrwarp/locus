@@ -78,7 +78,7 @@ describe('RobertReport', () => {
 
   const mockStudents: Student[] = [
       {
-          id: '1', age: 10, pcoGrade: 5, name: 'Student 1', firstName: 'Student', lastName: '1', birthdate: '2014-01-01', calculatedGrade: 5, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0, isChild: true, householdId: 'h1', hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false
+          id: '1', age: 10, pcoGrade: 5, name: 'Student 1', firstName: 'Student', lastName: '1', birthdate: '2014-01-01', calculatedGrade: 5, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild: true, householdId: 'h1', hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false
       }
   ];
 

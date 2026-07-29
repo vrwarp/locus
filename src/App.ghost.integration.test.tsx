@@ -100,7 +100,11 @@ describe('Ghost Protocol Integration', () => {
         (pco.checkApiVersion as any).mockResolvedValue(true);
     });
 
-    it('removes student from ghost list if Analyze Deeply finds group membership (Ghost Rescue)', async () => {
+    // This used to assert a "Ghost Rescue": small-group membership pulled someone
+    // back off the ghost list despite a stale check-in. That signal came from PCO
+    // Groups, which this church does not use, so it is gone — Analyze Deeply now
+    // enriches the check-in count and nothing it finds can overturn the verdict.
+    it('keeps a stale-attendance student on the ghost list after Analyze Deeply', async () => {
         const ghostCandidate = {
             id: 'g1',
             type: 'Person',
@@ -151,9 +155,6 @@ describe('Ghost Protocol Integration', () => {
             if (url.includes('/api/check-ins/v2/people/g1')) {
                 return Promise.resolve({ data: { data: { attributes: { check_in_count: 5 } } } });
             }
-            if (url.includes('/api/groups/v2/people/g1/memberships')) {
-                 return Promise.resolve({ data: { meta: { total_count: 1 } } });
-            }
             // Fallback for any other calls
             if (url.includes('/people/v2/people') && !url.includes('check-ins')) {
                 return Promise.resolve({ data: { data: [ghostCandidate] } });
@@ -164,11 +165,14 @@ describe('Ghost Protocol Integration', () => {
         // Click Analyze Deeply
         fireEvent.click(screen.getByText('Analyze Deeply'));
 
-        // Wait for Analyze to complete and UI to update
+        // Attendance is the only thing it goes looking for now.
         await waitFor(() => {
-            expect(screen.getByText('Found 0 ghosts')).toBeInTheDocument();
+            expect(api.get).toHaveBeenCalledWith(
+                expect.stringContaining('/api/check-ins/v2/people/g1'), expect.anything());
         });
 
-        expect(screen.queryByText('Rescue Me')).not.toBeInTheDocument();
+        // And the verdict stands: the last check-in is still years old.
+        expect(screen.getByText('Found 1 ghosts')).toBeInTheDocument();
+        expect(screen.getByText('Rescue Me')).toBeInTheDocument();
     });
 });

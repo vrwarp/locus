@@ -12,8 +12,8 @@ vi.mock('../utils/pco', () => ({
 
 describe('VolunteerWeb', () => {
   const mockStudents: Student[] = [
-    { id: '1', name: 'Alice', firstName: 'Alice', lastName: 'A', age: 30, pcoGrade: null, birthdate: '1990-01-01', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0, isChild: false, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false },
-    { id: '2', name: 'Bob', firstName: 'Bob', lastName: 'B', age: 32, pcoGrade: null, birthdate: '1988-01-01', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0, isChild: false, householdId: '2', hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false },
+    { id: '1', name: 'Alice', firstName: 'Alice', lastName: 'A', age: 30, pcoGrade: null, birthdate: '1990-01-01', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild: false, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false },
+    { id: '2', name: 'Bob', firstName: 'Bob', lastName: 'B', age: 32, pcoGrade: null, birthdate: '1988-01-01', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild: false, householdId: '2', hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false },
   ];
 
   beforeEach(() => {

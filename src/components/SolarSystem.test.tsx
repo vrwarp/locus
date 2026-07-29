@@ -11,7 +11,7 @@ describe('SolarSystem Component', () => {
                 id: '1', name: 'John Doe', firstName: 'John', lastName: 'Doe',
                 age: 30, isChild: false, householdId: 'h1', pcoGrade: null,
                 calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0,
-                groupCount: 0, hasNameAnomaly: false
+                hasNameAnomaly: false
             }
         ];
 
@@ -26,19 +26,19 @@ describe('SolarSystem Component', () => {
                 id: '1', name: 'John Smith', firstName: 'John', lastName: 'Smith',
                 age: 40, isChild: false, householdId: 'h1', pcoGrade: null,
                 calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0,
-                groupCount: 0, hasNameAnomaly: false
+                hasNameAnomaly: false
             },
             {
                 id: '2', name: 'Jane Smith', firstName: 'Jane', lastName: 'Smith',
                 age: 38, isChild: false, householdId: 'h1', pcoGrade: null,
                 calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0,
-                groupCount: 0, hasNameAnomaly: false
+                hasNameAnomaly: false
             },
             {
                 id: '3', name: 'Timmy Smith', firstName: 'Timmy', lastName: 'Smith',
                 age: 10, isChild: true, householdId: 'h1', pcoGrade: null,
                 calculatedGrade: 4, delta: 0, lastCheckInAt: null, checkInCount: 0,
-                groupCount: 0, hasNameAnomaly: false
+                hasNameAnomaly: false
             }
         ];
 
@@ -56,13 +56,13 @@ describe('SolarSystem Component', () => {
                 id: '1', name: 'John Smith', firstName: 'John', lastName: 'Smith',
                 age: 40, isChild: false, householdId: 'h1', pcoGrade: null,
                 calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0,
-                groupCount: 0, hasNameAnomaly: false
+                hasNameAnomaly: false
             },
             {
                 id: '3', name: 'Timmy Smith', firstName: 'Timmy', lastName: 'Smith',
                 age: 10, isChild: true, householdId: 'h1', pcoGrade: null,
                 calculatedGrade: 4, delta: 0, lastCheckInAt: null, checkInCount: 0,
-                groupCount: 0, hasNameAnomaly: false
+                hasNameAnomaly: false
             }
         ];
 

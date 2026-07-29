@@ -39,7 +39,7 @@ import { SmallGroupSorter } from './components/SmallGroupSorter'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
-import { transformPerson, fetchAllPeople, archivePerson, fetchCheckInCount, fetchGroupCount, checkApiVersion } from './utils/pco'
+import { transformPerson, fetchAllPeople, archivePerson, fetchCheckInCount, checkApiVersion } from './utils/pco'
 import { isGhost } from './utils/ghost'
 import { analyzeFamilies } from './utils/family'
 import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot, loadGamificationState, saveGamificationState } from './utils/storage'
@@ -276,13 +276,9 @@ function App() {
   const handleAnalyzeGhosts = async (ghostsToAnalyze: Student[]) => {
       const auth = btoa(`${appId}:${secret}`);
 
-      // Fetch Check-in Count AND Group Count
       const updates = await Promise.all(ghostsToAnalyze.map(async (ghost) => {
-          const [checkInCount, groupCount] = await Promise.all([
-              fetchCheckInCount(ghost.id, auth),
-              fetchGroupCount(ghost.id, auth)
-          ]);
-          return { id: ghost.id, checkInCount, groupCount };
+          const checkInCount = await fetchCheckInCount(ghost.id, auth);
+          return { id: ghost.id, checkInCount };
       }));
 
       queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
@@ -292,8 +288,7 @@ function App() {
               if (update) {
                   return {
                       ...s,
-                      checkInCount: update.checkInCount ?? 0,
-                      groupCount: update.groupCount ?? 0
+                      checkInCount: update.checkInCount ?? 0
                   };
               }
               return s;

@@ -32,7 +32,6 @@ describe('GradeScatter Component', () => {
     householdId: 'h1',
     lastCheckInAt: null,
     checkInCount: 0,
-    groupCount: 0,
     hasNameAnomaly: false,
     hasEmailAnomaly: false,
     hasAddressAnomaly: false,

@@ -14,7 +14,6 @@ const createStudent = (birthdate: string | null): Student => ({
   delta: 0,
   lastCheckInAt: null,
   checkInCount: null,
-  groupCount: null,
   isChild: false,
   householdId: null,
   hasNameAnomaly: false,

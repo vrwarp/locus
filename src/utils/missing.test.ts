@@ -8,8 +8,7 @@ describe('calculateMissingVolunteers', () => {
 
     const mockStudent: Student = {
         id: '1', age: 30, pcoGrade: null, name: 'John Doe', firstName: 'John', lastName: 'Doe',
-        birthdate: '1990-01-01', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
-        isChild: false, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false
+        birthdate: '1990-01-01', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild: false, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false
     };
 
     const mockEvent: PcoEvent = {

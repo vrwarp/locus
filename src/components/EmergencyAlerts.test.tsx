@@ -7,8 +7,7 @@ import type { Student } from '../utils/pco';
 describe('EmergencyAlerts', () => {
   const createStudent = (id: string, name: string, phoneNumber?: string): Student => ({
     id, age: 30, pcoGrade: null, name, firstName: name.split(' ')[0], lastName: name.split(' ')[1] || '',
-    birthdate: '', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
-    isChild: false, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
+    birthdate: '', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild: false, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
     firstTimeGiver: false, firstGiftDate: null, phoneNumber
   });
 

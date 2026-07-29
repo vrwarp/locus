@@ -25,7 +25,6 @@ const mockStudent: Student = {
     age: 9,
     lastCheckInAt: null,
     checkInCount: 0,
-    groupCount: 0,
     isChild: true,
     householdId: 'h1',
     hasNameAnomaly: false,

@@ -23,8 +23,7 @@ describe('RecruitmentReport', () => {
             id: '1', name: 'Sarah Saint', firstName: 'Sarah', lastName: 'Saint',
             isChild: false, householdId: 'h1', email: 'sarah@example.com',
             age: 30, pcoGrade: null, calculatedGrade: 12, delta: 0, birthdate: '1990-01-01',
-            lastCheckInAt: null, checkInCount: null, groupCount: null,
-            hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false
+            lastCheckInAt: null, checkInCount: null, hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false
     };
 
     const mockStudents: Student[] = [mockStudent];

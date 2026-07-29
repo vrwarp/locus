@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import api from './api';
-import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, fetchGroupCount, checkApiVersion, prepareUpdateAttributes, toProxyPath, flattenIncluded, PEOPLE_INCLUDES } from './pco';
+import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, prepareUpdateAttributes, toProxyPath, flattenIncluded, PEOPLE_INCLUDES } from './pco';
 import type { PcoPerson, Student } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
@@ -58,7 +58,6 @@ describe('transformPerson', () => {
       delta: expectedGrade - 4,
       lastCheckInAt: null,
       checkInCount: null,
-      groupCount: null,
       avatarUrl: undefined,
       isChild: true,
       householdId: 'hh1',
@@ -318,27 +317,6 @@ describe('fetchCheckInCount', () => {
     });
 });
 
-describe('fetchGroupCount', () => {
-    it('fetches group count successfully', async () => {
-        (api.get as any).mockResolvedValue({
-            data: { meta: { total_count: 5 } }
-        });
-
-        const count = await fetchGroupCount('123', 'token');
-        expect(count).toBe(5);
-        expect(api.get).toHaveBeenCalledWith(
-            '/api/groups/v2/people/123/memberships',
-            expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Basic token' }) })
-        );
-    });
-
-    it('returns null on failure', async () => {
-        (api.get as any).mockRejectedValue(new Error('Failed'));
-        const count = await fetchGroupCount('123', 'token');
-        expect(count).toBeNull();
-    });
-});
-
 describe('fetchAllPeople', () => {
     it('fetches all pages recursively', async () => {
         const page1 = {
@@ -468,7 +446,6 @@ describe('prepareUpdateAttributes', () => {
         delta: 0,
         lastCheckInAt: null,
         checkInCount: 0,
-        groupCount: 0,
         isChild: true,
         householdId: null,
         hasNameAnomaly: false,

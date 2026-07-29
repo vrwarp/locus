@@ -15,7 +15,6 @@ const mockStudent: Student = {
     delta: 0,
     lastCheckInAt: null,
     checkInCount: null,
-    groupCount: null,
     isChild: true,
     householdId: 'h1',
     hasNameAnomaly: false,
@@ -45,18 +44,12 @@ describe('isGhost', () => {
         expect(isGhost({ ...mockStudent, lastCheckInAt: borderlineDate }, customConfig)).toBe(true);
     });
 
-    it('does not identify student with groups as ghost (even if old check-in)', () => {
+    it('judges a stale check-in on attendance alone', () => {
+        // Small-group membership used to rescue someone here. It came from PCO
+        // Groups, which this church does not use, so the count was always zero
+        // and the rescue could never fire — an old check-in is now the whole
+        // answer, with nothing left that can overturn it.
         const oldDate = format(subMonths(new Date(), 25), 'yyyy-MM-dd');
-        expect(isGhost({ ...mockStudent, lastCheckInAt: oldDate, groupCount: 1 })).toBe(false);
-    });
-
-    it('identifies student with no groups and old check-in as ghost', () => {
-        const oldDate = format(subMonths(new Date(), 25), 'yyyy-MM-dd');
-        expect(isGhost({ ...mockStudent, lastCheckInAt: oldDate, groupCount: 0 })).toBe(true);
-    });
-
-    it('identifies student with null groups and old check-in as ghost (potential)', () => {
-        const oldDate = format(subMonths(new Date(), 25), 'yyyy-MM-dd');
-        expect(isGhost({ ...mockStudent, lastCheckInAt: oldDate, groupCount: null })).toBe(true);
+        expect(isGhost({ ...mockStudent, lastCheckInAt: oldDate })).toBe(true);
     });
 });

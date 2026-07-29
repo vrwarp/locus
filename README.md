@@ -45,10 +45,12 @@ accepts a `pcm_…` key as the username or the password:
 pcomirror create-api-key --name locus --scopes 'read:*,passthrough,write'
 ```
 
-`passthrough` is what lets Locus reach the products pcomirror does not mirror —
-attendance under `/check-ins/v2` and membership under `/groups/v2` — which it
-resolves live against PCO. `write` is only needed to change records from Review
-Mode or the Ghost Protocol; leave it off for a read-only tour.
+`passthrough` is what lets Locus reach attendance under `/check-ins/v2`, which
+pcomirror does not mirror and resolves live against PCO. `write` is only needed
+to change records from Review Mode or the Ghost Protocol; leave it off for a
+read-only tour.
+
+Locus reads People and Check-Ins only. It does not use PCO Groups.
 
 Two differences from the mock API are worth knowing, because both are the real
 PCO behaviour and the mock is the one that is unusual:

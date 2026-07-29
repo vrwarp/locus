@@ -8,8 +8,7 @@ describe('getUpcomingBirthdays', () => {
 
     const createStudent = (id: string, birthdate: string): Student => ({
         id, age: 10, pcoGrade: 5, name: `Student ${id}`, firstName: 'Student', lastName: id,
-        birthdate, calculatedGrade: 5, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
-        isChild: true, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
+        birthdate, calculatedGrade: 5, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild: true, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
         firstTimeGiver: false, firstGiftDate: null
     });
 
@@ -57,8 +56,7 @@ describe('getUpcomingBirthdays', () => {
 describe('getPendingGradePromotions', () => {
     const createStudent = (id: string, birthdate: string, pcoGrade: number | null, isChild: boolean = true): Student => ({
         id, age: 10, pcoGrade, name: `Student ${id}`, firstName: 'Student', lastName: id,
-        birthdate, calculatedGrade: 5, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
-        isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false
+        birthdate, calculatedGrade: 5, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false
     });
 
     it('returns empty array if before June 1st', () => {
@@ -120,8 +118,7 @@ describe('getPendingGradePromotions', () => {
 describe('getElderlyCare', () => {
     const createStudent = (id: string, age: number, isChild: boolean): Student => ({
         id, age, pcoGrade: null, name: `Student ${id}`, firstName: 'Student', lastName: id,
-        birthdate: '', calculatedGrade: -1, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
-        isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
+        birthdate: '', calculatedGrade: -1, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
         firstTimeGiver: false, firstGiftDate: null
     });
 
@@ -165,7 +162,6 @@ describe('Background Check Automations', () => {
         delta: 0,
         lastCheckInAt: null,
         checkInCount: 0,
-        groupCount: 0,
         isChild: false,
         householdId: 'h1',
         hasNameAnomaly: false,
@@ -200,8 +196,7 @@ describe('getFirstTimeGivers', () => {
 
     const createStudent = (id: string, isChild: boolean, firstTimeGiver: boolean, firstGiftDate: string | null): Student => ({
         id, age: isChild ? 10 : 35, pcoGrade: null, name: `Person ${id}`, firstName: 'Person', lastName: id,
-        birthdate: '1990-01-01', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
-        isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
+        birthdate: '1990-01-01', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
         firstTimeGiver, firstGiftDate
     });
 
@@ -238,8 +233,7 @@ describe('getFirstTimeGivers', () => {
 describe('getCollegeSendOffs', () => {
     const createStudent = (id: string, age: number, isChild: boolean = true): Student => ({
         id, age, pcoGrade: 12, name: `Student ${id}`, firstName: 'Student', lastName: id,
-        birthdate: '2006-01-01', calculatedGrade: 12, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
-        isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false
+        birthdate: '2006-01-01', calculatedGrade: 12, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false
     });
 
     it('identifies 18 year olds marked as children during August', () => {
@@ -270,8 +264,7 @@ describe('getCollegeSendOffs', () => {
 describe('getNewBabies', () => {
     const createStudent = (id: string, age: number, isChild: boolean): Student => ({
         id, age, pcoGrade: null, name: `Student ${id}`, firstName: 'Student', lastName: id,
-        birthdate: '', calculatedGrade: -1, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0,
-        isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
+        birthdate: '', calculatedGrade: -1, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false,
         firstTimeGiver: false, firstGiftDate: null
     });
 

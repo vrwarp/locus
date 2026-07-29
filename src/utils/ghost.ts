@@ -19,10 +19,9 @@ export const isGhost = (student: Student, config: GhostConfig = DEFAULT_GHOST_CO
   const monthsSinceCheckIn = differenceInMonths(new Date(), new Date(student.lastCheckInAt));
   if (monthsSinceCheckIn <= config.checkInThresholdMonths) return false;
 
-  // If they are in a group, they are not a ghost (Active Community Member)
-  if (student.groupCount !== null && student.groupCount > 0) {
-    return false;
-  }
-
+  // Small-group membership used to rescue someone here, on the reasoning that an
+  // active community member is not a ghost. It was read from PCO Groups, which
+  // this church does not use — so the count was always zero and the rescue could
+  // never fire. Attendance is the only signal left.
   return true;
 };

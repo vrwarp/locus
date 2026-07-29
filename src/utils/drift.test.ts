@@ -30,7 +30,6 @@ const createStudent = (id: string): Student => ({
     delta: 0,
     lastCheckInAt: null,
     checkInCount: 0,
-    groupCount: 0,
     hasNameAnomaly: false,
     hasEmailAnomaly: false,
     hasAddressAnomaly: false,

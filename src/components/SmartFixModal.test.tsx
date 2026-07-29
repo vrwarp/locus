@@ -16,7 +16,6 @@ describe('SmartFixModal', () => {
     delta: 1,
     lastCheckInAt: null,
     checkInCount: 0,
-    groupCount: 0,
     isChild: true,
     householdId: 'h1',
     hasNameAnomaly: false,

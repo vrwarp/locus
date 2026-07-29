@@ -17,7 +17,6 @@ describe('Recruitment Logic', () => {
         delta: 0,
         lastCheckInAt: null,
         checkInCount: null,
-        groupCount: null,
         avatarUrl: undefined,
         isChild,
         householdId,

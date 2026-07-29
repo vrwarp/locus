@@ -46,11 +46,6 @@ export const GhostModal: React.FC<GhostModalProps> = ({ isOpen, onClose, student
                                         {s.checkInCount} check-ins
                                     </span>
                                 )}
-                                {s.groupCount !== null && (
-                                    <span className="tag tag-visitor">
-                                        {s.groupCount} groups
-                                    </span>
-                                )}
                                 <span className="details">Last Seen: {s.lastCheckInAt ? new Date(s.lastCheckInAt).toLocaleDateString() : 'Never'}</span>
                             </div>
                         </div>
