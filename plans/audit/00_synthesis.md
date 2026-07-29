@@ -137,16 +137,21 @@ Net effect so far: **−11,004 / +523 lines** across 134 files.
 
 ## What is specified but not built
 
-The per-area reports carry ordered work lists with file paths. The largest items:
+The per-area reports carry ordered work lists with file paths. Everything the
+audit ranked as blocking has now shipped; what remains is the long tail:
 
-1. **Ghost Protocol repair** — it PATCHes real records to `inactive` in a loop
-   that bypasses the undo stack, with no confirm, no per-record deselect, a list
-   truncated to 10 while archiving all, criteria text that no longer matches the
-   logic, and never-checked-in newcomers flagged as ghosts.
-2. **Grade promotion** — the highest-value thing the product could get right,
-   currently a button that fires `alert('...Mocked action')` and hides the row.
-3. **The Intelligence fold-in**, with the write-path guard as its precondition.
-4. **The remaining subtraction** — roughly fifteen more surfaces.
+1. The `useCheckIns` shared hook — thirteen components call `fetchRecentCheckIns`
+   uncached, six of them at roughly ten thousand records. Assigned to
+   pastoral-ops, unowned for three rounds before that.
+2. `fixName` still capitalises only the first letter of each space-delimited
+   token, so it mangles O'Brien, McDonald and Vega-Ruiz — a name-correction tool
+   that corrupts names.
+3. The one-click "Smart Fix All" in Review Mode, which the loop voted to cut in
+   round five: four deterministic repairs applied roster-wide with no human
+   reading anything, then written live.
+4. The durable archive ledger, blocked on whether the PCO token can write notes.
+5. Map View's k-anonymity floor and household de-duplication, if the unlinked
+   city-distribution report is kept at all.
 
 ## What could not be settled
 
