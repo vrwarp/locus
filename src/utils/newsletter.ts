@@ -17,8 +17,20 @@ export const generateNewsletter = (
     const upcomingEvents = events.slice(0, 5); // Just take a few for the newsletter
 
     // 2. Find upcoming birthdays (next 7 days)
+    //
+    // Adults only. A newsletter is a broadcast, and no household consents to a
+    // minor's name and birthday appearing in one by virtue of being in the
+    // directory. Three clauses are needed because no single one is trustworthy:
+    //   - `isChild` is PCO's manually-maintained `child` flag, not derived, so a
+    //     teenager whose record was never flagged reads as an adult.
+    //   - `age < 18` catches those, but only when the birthdate is real.
+    //   - `age > 110` catches placeholder birthdates (1900-01-01 and friends),
+    //     which are valid dates that compute an implausible adult age and would
+    //     otherwise clear the check above.
+    // A plausible-but-wrong birthdate inside the adult range still slips
+    // through; that is a data-quality problem, not one this filter can solve.
     const upcomingBirthdays = students
-        .filter(s => s.birthdate)
+        .filter(s => s.birthdate && !s.isChild && s.age >= 18 && s.age <= 110)
         .map(person => {
             const birthdate = parseISO(person.birthdate);
             const birthdayThisYear = new Date(

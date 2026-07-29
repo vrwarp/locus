@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { initialsAvatar } from '../utils/avatar';
 import { fetchRecentCheckIns } from '../utils/pco';
 import type { Student } from '../utils/pco';
 import { calculateDriftRisk } from '../utils/drift';
@@ -83,7 +84,7 @@ export const DriftReport: React.FC<DriftReportProps> = ({ students, auth }) => {
                 {candidates.map(c => (
                     <div key={c.person.id} className={`drift-card ${c.status.toLowerCase().replace(' ', '-')}`}>
                         <div className="candidate-info">
-                            <img src={c.person.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.person.name)}`} alt="Avatar" className="avatar" />
+                            <img src={c.person.avatarUrl || initialsAvatar(c.person.name)} alt="Avatar" className="avatar" />
                             <div>
                                 <h4>{c.person.name}</h4>
                                 <span className="risk-badge">{c.status}</span>

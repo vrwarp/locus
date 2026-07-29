@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { initialsAvatar } from '../utils/avatar';
 import type { Student } from '../utils/pco';
 import { sortIntoGroups, type SmallGroup } from '../utils/sorter';
 import './SmallGroupSorter.css';
@@ -87,7 +88,7 @@ export const SmallGroupSorter: React.FC<SmallGroupSorterProps> = ({ students }) 
                   group.members.map(member => (
                     <li key={member.id} className="member-item">
                       <img
-                        src={member.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}`}
+                        src={member.avatarUrl || initialsAvatar(member.name)}
                         alt={member.name}
                         className="member-avatar"
                       />

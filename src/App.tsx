@@ -473,7 +473,7 @@ function App() {
           bounties: [...(gamificationState.bounties || []), newBounty]
       };
       setGamificationState(newState);
-      saveGamificationState(newState, auth);
+      saveGamificationState(newState, appId);
   };
 
   const handleDeleteBounty = (id: string) => {
@@ -482,7 +482,7 @@ function App() {
           bounties: (gamificationState.bounties || []).filter(b => b.id !== id)
       };
       setGamificationState(newState);
-      saveGamificationState(newState, auth);
+      saveGamificationState(newState, appId);
   };
 
   const handleSaveStudentBulk = async (updates: { original: Student, updated: Student }[]) => {
@@ -507,7 +507,7 @@ function App() {
       }
 
       setGamificationState(currentState);
-      saveGamificationState(currentState, auth);
+      saveGamificationState(currentState, appId);
 
       if (allNewBadges.length > 0) {
           setLatestBadge(allNewBadges[0]); // Show the first one achieved

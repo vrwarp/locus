@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { initialsAvatar } from '../utils/avatar';
 import type { Student } from '../utils/pco';
 import { matchPrayerPartners } from '../utils/prayer';
 import type { PrayerMatch as PrayerMatchType } from '../utils/prayer';
@@ -62,7 +63,7 @@ export const PrayerMatch: React.FC<PrayerMatchProps> = ({ students }) => {
                                     <div className="partner partner-a">
                                         <div className="avatar-placeholder">
                                             {isRevealed ? (
-                                                <img src={match.personA.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(match.personA.name)}`} alt="Avatar" />
+                                                <img src={match.personA.avatarUrl || initialsAvatar(match.personA.name)} alt="Avatar" />
                                             ) : (
                                                 <span className="anonymous-icon">👤</span>
                                             )}
@@ -84,7 +85,7 @@ export const PrayerMatch: React.FC<PrayerMatchProps> = ({ students }) => {
                                             <>
                                                 <div className="avatar-placeholder">
                                                     {isRevealed ? (
-                                                        <img src={match.personB.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(match.personB.name)}`} alt="Avatar" />
+                                                        <img src={match.personB.avatarUrl || initialsAvatar(match.personB.name)} alt="Avatar" />
                                                     ) : (
                                                         <span className="anonymous-icon">👤</span>
                                                     )}

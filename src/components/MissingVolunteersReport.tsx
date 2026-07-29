@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { initialsAvatar } from '../utils/avatar';
 import { fetchRecentCheckIns, fetchEvents } from '../utils/pco';
 import type { Student, PcoCheckIn, PcoEvent } from '../utils/pco';
 import { calculateMissingVolunteers } from '../utils/missing';
@@ -78,7 +79,7 @@ export const MissingVolunteersReport: React.FC<MissingVolunteersReportProps> = (
                 {missing.map(m => (
                     <div key={m.person.id} className="missing-card">
                         <div className="missing-info">
-                            <img src={m.person.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.person.name)}`} alt="Avatar" className="avatar" />
+                            <img src={m.person.avatarUrl || initialsAvatar(m.person.name)} alt="Avatar" className="avatar" />
                             <div>
                                 <h4>{m.person.name}</h4>
                                 <span className="missing-badge">{m.missingWeeks} Weeks Missing</span>
