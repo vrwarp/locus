@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getUpcomingBirthdays, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks, getFirstTimeGivers, getNewBabies, getElderlyCare } from './automations';
+import { getUpcomingBirthdays, gradePromotionBacklog, getPendingGradePromotions, getCollegeSendOffs, getExpiringBackgroundChecks, getExpiredBackgroundChecks, getFirstTimeGivers, getNewBabies, getElderlyCare } from './automations';
 import type { Student } from './pco';
 import { addDays, subDays, parseISO, addYears, setMonth } from 'date-fns';
 
@@ -105,13 +105,43 @@ describe('getPendingGradePromotions', () => {
         expect(result[0].expectedGrade).toBe(5);
     });
 
-    it('ignores adults', () => {
+    it('promotes a student whose child flag was never set', () => {
+        // This used to assert the opposite. PCO's `child` attribute is maintained
+        // by hand and goes stale above about 8th grade, so gating promotion on it
+        // silently skipped most high-schoolers in the one season that matters.
+        // Having a grade on file is the honest test.
         const octDate = new Date('2024-10-15');
-        const students = [
-            createStudent('1', '2014-01-01', 4, false) // isChild = false
-        ];
-        const result = getPendingGradePromotions(students, octDate);
-        expect(result).toHaveLength(0);
+        const students = [createStudent('1', '2014-01-01', 4, false)];
+
+        expect(getPendingGradePromotions(students, octDate)).toHaveLength(1);
+    });
+
+    it('leaves alone anyone with no grade on file', () => {
+        const octDate = new Date('2024-10-15');
+        const students = [createStudent('1', '1980-01-01', null, false)];
+
+        expect(getPendingGradePromotions(students, octDate)).toHaveLength(0);
+    });
+
+    it('separates a two-grade gap out as needing review rather than dropping it', () => {
+        const octDate = new Date('2024-10-15');
+        const behindByTwo = createStudent('1', '2014-01-01', 3, true);
+
+        const { readyToPromote, needsReview } = gradePromotionBacklog([behindByTwo], octDate);
+
+        expect(readyToPromote).toHaveLength(0);
+        expect(needsReview).toHaveLength(1);
+        expect(needsReview[0].currentGrade).toBe(3);
+    });
+
+    it('stays shut before the configured cutoff', () => {
+        // One clock: the same cutoff the grade calculation uses, not a hardcoded
+        // June 1 that could disagree with it.
+        const students = [createStudent('1', '2014-01-01', 4, true)];
+        const julyDate = new Date('2024-07-15');
+
+        expect(getPendingGradePromotions(students, julyDate, { cutoffMonth: 8, cutoffDay: 1 })).toHaveLength(0);
+        expect(getPendingGradePromotions(students, julyDate, { cutoffMonth: 5, cutoffDay: 1 })).toHaveLength(1);
     });
 });
 

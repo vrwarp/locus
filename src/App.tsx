@@ -768,7 +768,11 @@ function App() {
 
                         {currentView === 'automations' && (
                              <div className="view-container">
-                                <AutomationsReport students={students} graderOptions={config.graderOptions} />
+                                <AutomationsReport
+                                    students={students}
+                                    graderOptions={config.graderOptions}
+                                    onPromoteGrades={handleSaveStudentBulk}
+                                />
                             </div>
                         )}
 
