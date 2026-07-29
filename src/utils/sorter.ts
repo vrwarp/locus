@@ -1,3 +1,4 @@
+import { isMinor } from './pco';
 import type { Student } from './pco';
 
 export interface HouseholdInfo {
@@ -18,7 +19,7 @@ export interface SmallGroup {
  * Maps students into households containing only adults.
  */
 export const buildHouseholds = (students: Student[]): HouseholdInfo[] => {
-  const adultStudents = students.filter(s => !s.isChild);
+  const adultStudents = students.filter(s => !isMinor(s));
 
   const householdMap = new Map<string, Student[]>();
 
@@ -114,7 +115,7 @@ export const sortIntoGroups = (
   generations: number = 500
 ): SmallGroup[] => {
   if (groupCount <= 0) return [];
-  if (students.filter(s => !s.isChild).length === 0) {
+  if (students.filter(s => !isMinor(s)).length === 0) {
     return Array.from({ length: groupCount }, (_, i) => ({ id: i, members: [], size: 0, averageAge: 0 }));
   }
 

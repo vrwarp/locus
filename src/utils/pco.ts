@@ -98,6 +98,30 @@ export interface Student {
   deathDate?: string | null;
 }
 
+/**
+ * Is this person a minor?
+ *
+ * Nowhere in Locus should ask `isChild` on its own. That field is PCO's `child`
+ * attribute, which someone in the office sets by hand and then nobody revisits,
+ * so it is wrong in both directions: the teenager who was never flagged reads as
+ * an adult, and last year's graduate is still marked as a kid. Age catches the
+ * first case — but only when the birthdate is real, and placeholder dates like
+ * 1900-01-01 are valid dates that compute an implausible adult age, so an upper
+ * bound is needed to catch a record that is telling us nothing.
+ *
+ * Treat anything uncertain as a minor. The costs are not symmetrical: leaving a
+ * child out of an adults-only list is a missing row, and putting one in is a
+ * safeguarding failure.
+ *
+ * Use this to answer "may this person be treated as an adult?" — who appears in
+ * a broadcast, who goes into an adult small group. Do *not* use it to read the
+ * role a household record claims: the family audit compares the declared
+ * `isChild` flag against age precisely to catch the disagreement, and folding
+ * the two together there would hide the anomaly it exists to find.
+ */
+export const isMinor = (person: Pick<Student, 'isChild' | 'age'>): boolean =>
+  person.isChild || person.age < 18 || person.age > 110;
+
 export interface PcoEvent {
   id: string;
   type: string;

@@ -61,8 +61,8 @@ export const NewsletterArchitect: React.FC<NewsletterArchitectProps> = ({ studen
     return (
         <div className="newsletter-architect">
             <div className="newsletter-header">
-                <h2>Newsletter Architect</h2>
-                <p>AI-assisted markdown drafts based on upcoming calendar events and student birthdays.</p>
+                <h2>Weekly Update Draft</h2>
+                <p>A markdown starting point: this week's adult birthdays, plus whatever you type in below. Nothing is sent anywhere — copy it out when you're happy with it.</p>
             </div>
 
             <div className="newsletter-content">
