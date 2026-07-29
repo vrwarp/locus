@@ -25,8 +25,6 @@ import { DuplicatesReport } from './components/DuplicatesReport'
 import { AchievementCase } from './components/AchievementCase'
 import { NewsletterArchitect } from './components/NewsletterArchitect'
 import { CampusCup } from './components/CampusCup'
-import { SermonSentiment } from './components/SermonSentiment'
-import { SermonCorrelator } from './components/SermonCorrelator'
 import { SentimentPulse } from './components/SentimentPulse'
 import { PrayerMatch } from './components/PrayerMatch'
 import { BountyBoard } from './components/BountyBoard'
@@ -880,16 +878,6 @@ function App() {
                             </div>
                         )}
 
-                        {currentView === 'sermons' && (
-                             <div className="view-container">
-                                <SermonSentiment auth={auth} students={students} />
-                            </div>
-                        )}
-                        {currentView === 'sermon-correlator' && (
-                             <div className="view-container">
-                                <SermonCorrelator auth={auth} students={students} />
-                            </div>
-                        )}
                         {currentView === 'sentiment-pulse' && (
                             <div className="view-container">
                                 <SentimentPulse students={students} />

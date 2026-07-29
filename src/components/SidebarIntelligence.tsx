@@ -139,21 +139,7 @@ export const SidebarIntelligence: React.FC<SidebarProps> = ({ currentView, onCha
           Map View
         </button>
 
-        <button
-          className={`nav-item ${currentView === 'sermons' ? 'active' : ''}`}
-          onClick={() => onChangeView('sermons')}
-        >
-          <span className="icon">📖</span>
-          Sermon Sentiment
-        </button>
 
-        <button
-          className={`nav-item ${currentView === 'sermon-correlator' ? 'active' : ''}`}
-          onClick={() => onChangeView('sermon-correlator')}
-        >
-          <span className="icon">📊</span>
-          Sermon Correlator
-        </button>
 
 
 

@@ -53,7 +53,6 @@ describe('SidebarIntelligence', () => {
     expect(screen.getByRole('button', { name: /Heatmap of Life/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Demographics/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Map View/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Sermon Correlator/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Prayer Partner Match/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Small Group Sorter/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Locus Public/i })).toBeInTheDocument();

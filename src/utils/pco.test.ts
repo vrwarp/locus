@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import api from './api';
-import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, prepareUpdateAttributes, toProxyPath, flattenIncluded, PEOPLE_INCLUDES } from './pco';
+import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, prepareUpdateAttributes, toProxyPath, flattenIncluded, isMinor, PEOPLE_INCLUDES } from './pco';
 import type { PcoPerson, Student } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
@@ -716,5 +716,39 @@ describe('updatePerson contact writes', () => {
         expect(api.patch).toHaveBeenCalledTimes(1);
         expect(api.get).not.toHaveBeenCalled();
         expect(api.post).not.toHaveBeenCalled();
+    });
+});
+
+describe('isMinor', () => {
+    // Each clause guards a case the others miss. Every consumer of this
+    // predicate — the newsletter, the small group sorter, recruitment — is
+    // deciding whether someone may be treated as an adult, so a gap here is a
+    // gap in all of them at once.
+    it('accepts an adult with a plausible birthdate', () => {
+        expect(isMinor({ isChild: false, age: 42 })).toBe(false);
+    });
+
+    it('rejects anyone PCO has flagged as a child', () => {
+        expect(isMinor({ isChild: true, age: 12 })).toBe(true);
+    });
+
+    it('rejects a minor the office never flagged', () => {
+        // The `child` attribute is maintained by hand, so this is the common case.
+        expect(isMinor({ isChild: false, age: 14 })).toBe(true);
+    });
+
+    it('rejects a placeholder birthdate that computes an implausible age', () => {
+        // 1900-01-01 and friends are valid dates that clear an age >= 18 check
+        // while telling us nothing at all about who the person is.
+        expect(isMinor({ isChild: false, age: 126 })).toBe(true);
+    });
+
+    it('rejects someone still flagged as a child after their eighteenth birthday', () => {
+        // Stale in the other direction. Over-protecting costs a missing row.
+        expect(isMinor({ isChild: true, age: 19 })).toBe(true);
+    });
+
+    it('treats the boundary birthday as adult', () => {
+        expect(isMinor({ isChild: false, age: 18 })).toBe(false);
     });
 });
