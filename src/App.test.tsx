@@ -530,6 +530,9 @@ describe('App Integration', () => {
                 birthdate: '2000-01-01',
                 grade: 10,
                 name: 'Casper',
+                // Long enough on file that the tenure floor protecting new
+                // families does not apply.
+                created_at: '2015-01-01',
                 last_checked_in_at: null // Never checked in -> Ghost
             }
         };
@@ -596,7 +599,7 @@ describe('App Integration', () => {
         ));
 
         // Wait for alert to confirm completion
-        await waitFor(() => expect(window.alert).toHaveBeenCalledWith(expect.stringMatching(/Successfully archived 1 ghosts/)));
+        await waitFor(() => expect(window.alert).toHaveBeenCalledWith(expect.stringMatching(/Archived 1 in Planning Center\. Undo is available\./)));
     });
 
     it('opens and closes the Family Audit modal', async () => {

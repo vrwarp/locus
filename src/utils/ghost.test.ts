@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { isGhost, DEFAULT_GHOST_CONFIG } from './ghost';
+import { isGhost, ghostReason, describeGhostReason, DEFAULT_GHOST_CONFIG } from './ghost';
 import type { Student } from './pco';
-import { subMonths, format } from 'date-fns';
+import { subMonths, formatISO } from 'date-fns';
 
-const mockStudent: Student = {
+const monthsAgo = (n: number) => formatISO(subMonths(new Date(), n));
+
+const person = (over: Partial<Student> = {}): Student => ({
     id: '1',
     age: 10,
     pcoGrade: 4,
@@ -16,40 +18,66 @@ const mockStudent: Student = {
     lastCheckInAt: null,
     checkInCount: null,
     isChild: true,
+    createdAt: monthsAgo(48),
     householdId: 'h1',
     hasNameAnomaly: false,
     hasEmailAnomaly: false,
     hasAddressAnomaly: false,
-        hasPhoneAnomaly: false
-};
+    hasPhoneAnomaly: false,
+    firstTimeGiver: false,
+    firstGiftDate: null,
+    ...over,
+} as Student);
 
-describe('isGhost', () => {
-    it('identifies student with no check-in as ghost', () => {
-        expect(isGhost(mockStudent)).toBe(true);
+describe('ghost detection', () => {
+    it('flags a long-standing record that has never checked in', () => {
+        const reason = ghostReason(person({ lastCheckInAt: null }));
+        expect(reason).toEqual({ kind: 'never-checked-in', tenureMonths: 48 });
     });
 
-    it('identifies student with old check-in as ghost', () => {
-        const oldDate = format(subMonths(new Date(), 25), 'yyyy-MM-dd');
-        expect(isGhost({ ...mockStudent, lastCheckInAt: oldDate })).toBe(true);
+    it('flags a record whose last check-in is past the threshold', () => {
+        const reason = ghostReason(person({ lastCheckInAt: monthsAgo(30) }));
+        expect(reason).toEqual({ kind: 'lapsed', monthsSinceCheckIn: 30 });
     });
 
-    it('does not identify student with recent check-in as ghost', () => {
-        const recentDate = format(subMonths(new Date(), 12), 'yyyy-MM-dd');
-        expect(isGhost({ ...mockStudent, lastCheckInAt: recentDate })).toBe(false);
+    it('leaves a recently seen record alone', () => {
+        expect(isGhost(person({ lastCheckInAt: monthsAgo(3) }))).toBe(false);
     });
 
-    it('respects custom config', () => {
-        const customConfig = { ...DEFAULT_GHOST_CONFIG, checkInThresholdMonths: 10 };
-        const borderlineDate = format(subMonths(new Date(), 11), 'yyyy-MM-dd'); // 11 > 10, so ghost
-        expect(isGhost({ ...mockStudent, lastCheckInAt: borderlineDate }, customConfig)).toBe(true);
+    it('respects a custom threshold', () => {
+        const lapsed = person({ lastCheckInAt: monthsAgo(7) });
+        expect(isGhost(lapsed, { ...DEFAULT_GHOST_CONFIG, checkInThresholdMonths: 6 })).toBe(true);
+        expect(isGhost(lapsed, { ...DEFAULT_GHOST_CONFIG, checkInThresholdMonths: 12 })).toBe(false);
     });
 
-    it('judges a stale check-in on attendance alone', () => {
-        // Small-group membership used to rescue someone here. It came from PCO
-        // Groups, which this church does not use, so the count was always zero
-        // and the rescue could never fire — an old check-in is now the whole
-        // answer, with nothing left that can overturn it.
-        const oldDate = format(subMonths(new Date(), 25), 'yyyy-MM-dd');
-        expect(isGhost({ ...mockStudent, lastCheckInAt: oldDate })).toBe(true);
+    describe('protecting new records', () => {
+        it('never flags a family who joined last month and has not checked in', () => {
+            // The case that mattered most: this used to catch every new family and
+            // every baby added at birth, which are the newest rows in the database.
+            expect(isGhost(person({ createdAt: monthsAgo(1), lastCheckInAt: null }))).toBe(false);
+        });
+
+        it('still protects a new record even past the check-in threshold', () => {
+            expect(isGhost(person({ createdAt: monthsAgo(2), lastCheckInAt: monthsAgo(30) }))).toBe(false);
+        });
+
+        it('flags it once the record is old enough', () => {
+            const config = { ...DEFAULT_GHOST_CONFIG, minTenureMonths: 6 };
+            expect(isGhost(person({ createdAt: monthsAgo(5) }), config)).toBe(false);
+            expect(isGhost(person({ createdAt: monthsAgo(7) }), config)).toBe(true);
+        });
+
+        it('refuses to judge a record with no creation date', () => {
+            // PCO returns created_at on every Person, so a missing one means
+            // something went wrong upstream — not grounds to deactivate anybody.
+            expect(isGhost(person({ createdAt: null, lastCheckInAt: null }))).toBe(false);
+        });
+    });
+
+    it('describes each reason in terms an admin can check', () => {
+        expect(describeGhostReason({ kind: 'never-checked-in', tenureMonths: 30 }))
+            .toBe('On file 30 months, never checked in');
+        expect(describeGhostReason({ kind: 'lapsed', monthsSinceCheckIn: 26 }))
+            .toBe('Last check-in 26 months ago');
     });
 });

@@ -60,6 +60,7 @@ describe('transformPerson', () => {
       checkInCount: null,
       avatarUrl: undefined,
       isChild: true,
+      createdAt: null,
       householdId: 'hh1',
       backgroundCheckExpiresAt: null,
       prayerTopic: null,

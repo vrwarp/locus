@@ -109,6 +109,9 @@ describe('Ghost Protocol Integration', () => {
                 birthdate: '2000-01-01',
                 grade: 10,
                 name: 'Rescue Me',
+                // On file since 2015, so the tenure floor that protects new
+                // families does not apply to this record.
+                created_at: '2015-01-01',
                 last_checked_in_at: '2020-01-01' // Old check-in (> 24 months)
             }
         };

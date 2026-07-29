@@ -82,6 +82,9 @@ export interface Student {
   checkInCount: number | null;
   avatarUrl?: string;
   isChild: boolean;
+  // When PCO first knew about this person. Needed to tell a long-lapsed member
+  // from a family who joined last Sunday and has not checked in yet.
+  createdAt: string | null;
   householdId: string | null;
   backgroundCheckExpiresAt?: string | null;
   prayerTopic?: string | null;
@@ -252,7 +255,7 @@ export const flattenIncluded = (response: PcoApiResponse): PcoPerson[] => {
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
   const { id, attributes } = person;
-  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id, background_check_expires_at, prayer_topic, first_time_giver, first_gift_date, anniversary, death_date, email_addresses, addresses, phone_numbers } = attributes;
+  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, created_at, household_id, background_check_expires_at, prayer_topic, first_time_giver, first_gift_date, anniversary, death_date, email_addresses, addresses, phone_numbers } = attributes;
 
   if (!birthdate) {
     return null;
@@ -295,6 +298,7 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     checkInCount: null, // Fetched lazily
     avatarUrl: (avatar as string) || undefined,
     isChild: !!child,
+    createdAt: (created_at as string) || null,
     householdId: household_id || null,
     backgroundCheckExpiresAt: (background_check_expires_at as string) || null,
     prayerTopic: (prayer_topic as string) || null,

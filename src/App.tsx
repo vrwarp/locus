@@ -20,7 +20,7 @@ import { SmallGroupSorter } from './components/SmallGroupSorter'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
-import { transformPerson, fetchAllPeople, archivePerson, fetchCheckInCount, checkApiVersion } from './utils/pco'
+import { transformPerson, fetchAllPeople, fetchCheckInCount, checkApiVersion } from './utils/pco'
 import { isGhost } from './utils/ghost'
 import { analyzeFamilies } from './utils/family'
 import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot, loadGamificationState, saveGamificationState } from './utils/storage'
@@ -30,6 +30,7 @@ import { calculateHealthStats } from './utils/analytics'
 import { CommandManager } from './utils/commands'
 import { UpdateStudentCommand } from './commands/UpdateStudentCommand'
 import { BatchUpdateCommand } from './commands/BatchUpdateCommand'
+import { ArchiveCommand } from './commands/ArchiveCommand'
 import type { AppConfig, GamificationState } from './utils/storage'
 import type { Student, PcoPerson } from './utils/pco'
 import type { FamilyIssue } from './utils/family'
@@ -257,28 +258,54 @@ function App() {
   };
 
   const handleArchiveGhosts = async (ghostsToArchive: Student[]) => {
+      if (ghostsToArchive.length === 0) return;
       setIsArchiving(true);
       const auth = btoa(`${appId}:${secret}`);
 
-      let successCount = 0;
-      for (const ghost of ghostsToArchive) {
-          try {
-              await archivePerson(ghost.id, auth, config.sandboxMode);
-              successCount++;
-          } catch (e) {
-              console.error(`Failed to archive ${ghost.name}`, e);
+      // Archival goes through the command stack like every other write, so Undo
+      // reaches it. It used to be a bare loop — the one action in the product
+      // that could not be taken back, and the one with the widest blast radius.
+      const command = new ArchiveCommand(
+          ghostsToArchive,
+          auth,
+          config.sandboxMode || false,
+          (student) => {
+              queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+                  if (!oldData) return oldData;
+                  return {
+                      ...oldData,
+                      students: oldData.students.filter((s: Student) => s.id !== student.id)
+                  };
+              });
           }
-      }
+      );
 
-
-      // Invalidate to refetch
-      queryClient.invalidateQueries({ queryKey: ['people', appId, secret, config] });
-      setIsArchiving(false);
-      setIsGhostModalOpen(false);
-      if (successCount > 0) {
-          alert(`Successfully archived ${successCount} ghosts.`);
-      } else {
-          alert('Failed to archive ghosts. Check console/network.');
+      try {
+          await command.execute();
+          commandManagerRef.current.execute(command);
+          setCanUndo(commandManagerRef.current.canUndo);
+          setCanRedo(commandManagerRef.current.canRedo);
+          alert(`Archived ${command.archived.length} in Planning Center. Undo is available.`);
+      } catch (e) {
+          console.error('Ghost archival stopped', e);
+          if (command.archived.length > 0) {
+              // Some landed. Keep the command so those can be reversed, and do not
+              // pretend the batch either fully succeeded or fully failed.
+              commandManagerRef.current.execute(command);
+              setCanUndo(commandManagerRef.current.canUndo);
+              setCanRedo(commandManagerRef.current.canRedo);
+              alert(
+                  `Archiving stopped after ${command.archived.length} of ${ghostsToArchive.length}. ` +
+                  `Those ${command.archived.length} are inactive in Planning Center; the rest were not touched. ` +
+                  `Undo will reverse the ones that went through.`
+              );
+          } else {
+              alert(`Nothing was archived. ${e instanceof Error ? e.message : 'Check the console.'}`);
+          }
+      } finally {
+          queryClient.invalidateQueries({ queryKey: ['people', appId, secret, config] });
+          setIsArchiving(false);
+          setIsGhostModalOpen(false);
       }
   }
 

@@ -148,18 +148,11 @@ export const loadGamificationState = async (appId: string): Promise<Gamification
           }
       }
 
-      // Migration: Ensure new fields exist
-      if (state.ghostsCleared === undefined) state.ghostsCleared = 0;
-      if (state.birthdatesFixed === undefined) state.birthdatesFixed = 0;
-      if (state.gradesFixed === undefined) state.gradesFixed = 0;
-      if (state.namesFixed === undefined) state.namesFixed = 0;
-      if (state.emailsFixed === undefined) state.emailsFixed = 0;
-      if (state.addressesFixed === undefined) state.addressesFixed = 0;
-      if (state.phonesFixed === undefined) state.phonesFixed = 0;
-      if (!state.unlockedBadges) state.unlockedBadges = [];
-      if (!state.fixHistory) state.fixHistory = {};
-
-      return state;
+      // A state saved by an older build carries streaks, badges and per-field
+      // tallies. They are not migrated, they are dropped: every one of them was a
+      // claim about correctness the product cannot make. The edit history is the
+      // only field worth keeping, and it survives as-is.
+      return { fixHistory: state.fixHistory || {} };
 
   } catch (e) {
       console.error("Failed to load gamification state", e);
