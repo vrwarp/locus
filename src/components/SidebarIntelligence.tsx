@@ -106,13 +106,6 @@ export const SidebarIntelligence: React.FC<SidebarProps> = ({ currentView, onCha
           Bus Factor
         </button>
 
-        <button
-          className={`nav-item ${currentView === 'network' ? 'active' : ''}`}
-          onClick={() => onChangeView('network')}
-        >
-          <span className="icon">🕸️</span>
-          Volunteer Web
-        </button>
 
         <button
           className={`nav-item ${currentView === 'solar-system' ? 'active' : ''}`}
@@ -197,13 +190,6 @@ export const SidebarIntelligence: React.FC<SidebarProps> = ({ currentView, onCha
           Automations
         </button>
 
-        <button
-          className={`nav-item ${currentView === 'emergency' ? 'active' : ''}`}
-          onClick={() => onChangeView('emergency')}
-        >
-          <span className="icon">🚨</span>
-          Emergency Alerts
-        </button>
 
       </nav>
 

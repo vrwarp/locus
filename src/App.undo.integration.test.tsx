@@ -61,7 +61,6 @@ vi.mock('./components/ReviewMode', () => ({ ReviewMode: () => null }));
 vi.mock('./components/ConfigModal', () => ({ ConfigModal: () => null }));
 vi.mock('./components/GhostModal', () => ({ GhostModal: () => null }));
 vi.mock('./components/FamilyModal', () => ({ FamilyModal: () => null }));
-vi.mock('./components/RobertReport', () => ({ RobertReport: () => null }));
 vi.mock('./components/GamificationWidget', () => ({ GamificationWidget: () => <div data-testid="gamification-widget" /> }));
 
 const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));

@@ -49,7 +49,6 @@ describe('SidebarIntelligence', () => {
     expect(screen.getByRole('button', { name: /Retention/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Attendance/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Check-in Velocity/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Volunteer Web/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Solar System/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Heatmap of Life/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Demographics/i })).toBeInTheDocument();
@@ -59,6 +58,5 @@ describe('SidebarIntelligence', () => {
     expect(screen.getByRole('button', { name: /Small Group Sorter/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Locus Public/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Automations/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Emergency Alerts/i })).toBeInTheDocument();
   });
 });

@@ -8,7 +8,6 @@ import { ConfigModal } from './components/ConfigModal'
 import { GhostModal } from './components/GhostModal'
 import { FamilyModal } from './components/FamilyModal'
 import { UndoToast } from './components/UndoToast'
-// import { RobertReport } from './components/RobertReport' // Deprecated in favor of direct views
 import { BurnoutReport } from './components/BurnoutReport'
 import { RecruitmentReport } from './components/RecruitmentReport'
 import { NewcomerFunnel } from './components/NewcomerFunnel'
@@ -16,7 +15,6 @@ import { AttendancePulse } from './components/AttendancePulse'
 import { BusFactorGraph } from './components/BusFactorGraph'
 import { CheckInVelocity } from './components/CheckInVelocity'
 import { LifeEventsHeatmap } from './components/LifeEventsHeatmap'
-import { VolunteerWeb } from './components/VolunteerWeb'
 import { SolarSystem } from './components/SolarSystem'
 import { MissingVolunteersReport } from './components/MissingVolunteersReport'
 import { DriftReport } from './components/DriftReport'
@@ -30,7 +28,6 @@ import { CampusCup } from './components/CampusCup'
 import { SermonSentiment } from './components/SermonSentiment'
 import { SermonCorrelator } from './components/SermonCorrelator'
 import { SentimentPulse } from './components/SentimentPulse'
-import { EmergencyAlerts } from './components/EmergencyAlerts'
 import { PrayerMatch } from './components/PrayerMatch'
 import { BountyBoard } from './components/BountyBoard'
 import { SmallGroupSorter } from './components/SmallGroupSorter'
@@ -863,13 +860,6 @@ function App() {
                             </div>
                         )}
 
-                        {currentView === 'network' && (
-                             <div className="view-container">
-                                <h2>The Volunteer Web</h2>
-                                <VolunteerWeb students={students} auth={auth} />
-                            </div>
-                        )}
-
                         {currentView === 'solar-system' && (
                              <div className="view-container" style={{height: '800px'}}>
                                 <h2>The Solar System</h2>
@@ -923,12 +913,6 @@ function App() {
                         {currentView === 'integrations' && (
                              <div className="view-container fade-in">
                                 <IntegrationsHub config={config} onSaveConfig={handleSaveConfig} />
-                            </div>
-                        )}
-
-                        {currentView === 'emergency' && (
-                             <div className="view-container fade-in">
-                                <EmergencyAlerts students={students} />
                             </div>
                         )}
 
