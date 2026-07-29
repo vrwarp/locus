@@ -6,7 +6,10 @@ import * as pco from '../utils/pco';
 import type { Student } from '../utils/pco';
 
 // Mock dependencies
-vi.mock('../utils/pco', () => ({
+// Only the network calls are mocked. Pure helpers such as `isMinor` stay real:
+// stubbing them out would let a guard that depends on them lapse silently.
+vi.mock('../utils/pco', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../utils/pco')>()),
     fetchEvents: vi.fn(),
     fetchRecentCheckIns: vi.fn(),
 }));

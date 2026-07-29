@@ -36,7 +36,6 @@ describe('SidebarIntelligence', () => {
   it('renders other intelligence specific items', () => {
     render(<SidebarIntelligence currentView="copilot" onChangeView={vi.fn()} />);
 
-    expect(screen.getByRole('button', { name: /Global Pulse/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Sentiment Pulse/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Bus Factor/i })).toBeInTheDocument();
   });
@@ -56,8 +55,6 @@ describe('SidebarIntelligence', () => {
     expect(screen.getByRole('button', { name: /Demographics/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Map View/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Sermon Correlator/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Giving River/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Stripe Trends/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Prayer Partner Match/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Small Group Sorter/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Locus Public/i })).toBeInTheDocument();

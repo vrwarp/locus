@@ -6,7 +6,10 @@ import * as pco from '../utils/pco';
 import { calculateMissingVolunteers } from '../utils/missing';
 import { waitFor } from '@testing-library/react';
 
-vi.mock('../utils/pco', () => ({
+// Only the network calls are mocked. Pure helpers such as `isMinor` stay real:
+// stubbing them out would let a guard that depends on them lapse silently.
+vi.mock('../utils/pco', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../utils/pco')>()),
     fetchEvents: vi.fn().mockResolvedValue([{ id: '1', attributes: { name: 'Test' } }]),
     fetchRecentCheckIns: vi.fn().mockResolvedValue([{ id: '1', attributes: { created_at: '2023-01-01' }, relationships: { person: { data: { id: '1' } }, event: { data: { id: '1' } } } }]),
 }));
