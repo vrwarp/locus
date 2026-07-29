@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 // @ts-ignore - Importing JS file
 import { app, resetDb } from '../../mock-api/server.js';
-import { fetchAllPeople, updatePerson } from '../utils/pco';
+import { fetchAllPeople, updatePerson, setWriteAccess } from '../utils/pco';
 import api from '../utils/api';
 import axios from 'axios';
 import http from 'http';
@@ -12,6 +12,8 @@ let server: http.Server;
 let baseUrl: string;
 
 describe('Local API Simulator', () => {
+  beforeAll(() => setWriteAccess(true));
+  afterAll(() => setWriteAccess(false));
   beforeAll(async () => {
     return new Promise((resolve) => {
       server = app.listen(0, () => {

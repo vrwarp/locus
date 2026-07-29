@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import api from './api';
-import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, prepareUpdateAttributes, toProxyPath, flattenIncluded, isMinor, PEOPLE_INCLUDES } from './pco';
+import { setWriteAccess, WriteAccessDeniedError, transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, prepareUpdateAttributes, toProxyPath, flattenIncluded, isMinor, PEOPLE_INCLUDES } from './pco';
 import type { PcoPerson, Student } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
@@ -223,6 +223,11 @@ describe('transformPerson', () => {
 // Sandbox Mode is only honoured when the service worker that intercepts the
 // write is actually controlling the page, so tests that exercise it have to say
 // which of the two worlds they are in.
+// Writes are denied until a session opens the gate, so suites exercising them
+// have to say so. The refusal path is covered separately below.
+beforeEach(() => setWriteAccess(true));
+afterEach(() => setWriteAccess(false));
+
 const withSandboxInterceptor = (present: boolean) => {
     Object.defineProperty(navigator, 'serviceWorker', {
         configurable: true,
@@ -794,5 +799,27 @@ describe('isMinor', () => {
 
     it('treats the boundary birthday as adult', () => {
         expect(isMinor({ isChild: false, age: 18 })).toBe(false);
+    });
+});
+
+describe('write access gate', () => {
+    it('refuses every write until a session grants access', async () => {
+        // Closed by default. A caller that forgets to open it gets a refusal
+        // rather than a live edit to somebody's record.
+        setWriteAccess(false);
+
+        await expect(updatePerson('1', { grade: 5 }, 'auth'))
+            .rejects.toBeInstanceOf(WriteAccessDeniedError);
+        expect(api.patch).not.toHaveBeenCalled();
+    });
+
+    it('allows writes once granted, and stops again when revoked', async () => {
+        (api.patch as any).mockResolvedValue({ data: { data: { id: '1', type: 'Person', attributes: {} } }, headers: {} });
+
+        setWriteAccess(true);
+        await expect(updatePerson('1', { grade: 5 }, 'auth')).resolves.toBeTruthy();
+
+        setWriteAccess(false);
+        await expect(updatePerson('1', { grade: 6 }, 'auth')).rejects.toBeInstanceOf(WriteAccessDeniedError);
     });
 });

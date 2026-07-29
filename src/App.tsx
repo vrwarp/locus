@@ -20,7 +20,7 @@ import { SmallGroupSorter } from './components/SmallGroupSorter'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
-import { transformPerson, fetchAllPeople, fetchCheckInCount, checkApiVersion } from './utils/pco'
+import { transformPerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, setWriteAccess } from './utils/pco'
 import { isGhost } from './utils/ghost'
 import { analyzeFamilies } from './utils/family'
 import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot, loadGamificationState, saveGamificationState } from './utils/storage'
@@ -58,6 +58,13 @@ function App() {
       setUserRole(role);
       setCurrentView(role === 'core' ? 'dashboard' : 'retention');
   };
+
+  // One gate, at the only place every write passes through. Guarding individual
+  // screens is what let a member-record editor sit on the read-only surface.
+  useEffect(() => {
+      setWriteAccess(userRole === 'core');
+      return () => setWriteAccess(false);
+  }, [userRole]);
 
   const [currentView, setCurrentView] = useState('dashboard');
 

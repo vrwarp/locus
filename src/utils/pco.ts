@@ -390,6 +390,41 @@ const writeContact = async (
   }
 };
 
+/**
+ * Whether this session may write to Planning Center at all.
+ *
+ * Defaults to denied. Locus has two surfaces — the Core workspace, which fixes
+ * records, and the Intelligence view, which reports on them — and the boundary
+ * between them was a client-side `if` around three modals. Anything that got
+ * mounted on the wrong side wrote happily: Locus Public, a member-record editor
+ * with no member authentication, lived on the surface the product documented as
+ * read-only and called the same PATCH path as everything in Core.
+ *
+ * Guarding every screen is what failed. This is the one place all writes pass
+ * through, so it is the only place worth guarding, and it starts closed so a
+ * caller that forgets to open it gets a refusal rather than a live edit.
+ *
+ * It is not a security boundary and must not be described as one — it runs in the
+ * browser, and the credentials it holds can do anything the API allows. Real
+ * separation needs per-user OAuth with a viewer scope, which Locus does not have.
+ * What this does buy is that a read-only surface cannot write by accident.
+ */
+let writeAccessGranted = false;
+
+export const setWriteAccess = (granted: boolean): void => {
+    writeAccessGranted = granted;
+};
+
+export class WriteAccessDeniedError extends Error {
+    constructor() {
+        super(
+            'This view is read-only, so nothing was sent to Planning Center. ' +
+            'Switch to the data workspace if you meant to change a record.'
+        );
+        this.name = 'WriteAccessDeniedError';
+    }
+}
+
 export class SandboxUnavailableError extends Error {
     constructor() {
         super(
@@ -422,6 +457,8 @@ const sandboxInterceptorReady = (): boolean =>
     !!navigator.serviceWorker.controller;
 
 export const updatePerson = async (id: string, attributes: PcoAttributes, auth: string, sandboxMode?: boolean): Promise<PcoPerson> => {
+    if (!writeAccessGranted) throw new WriteAccessDeniedError();
+
     const headers: Record<string, string> = {
         Authorization: `Basic ${auth}`,
         'Content-Type': 'application/json'
