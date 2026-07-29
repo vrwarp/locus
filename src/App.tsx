@@ -513,24 +513,44 @@ function App() {
          });
       };
 
-      try {
-          const command = new BatchUpdateCommand(
-              updates,
-              auth,
-              config.sandboxMode || false,
-              onStateChange
-          );
+      const command = new BatchUpdateCommand(
+          updates,
+          auth,
+          config.sandboxMode || false,
+          onStateChange
+      );
 
+      try {
           await command.execute();
           commandManagerRef.current.execute(command);
           setCanUndo(commandManagerRef.current.canUndo);
           setCanRedo(commandManagerRef.current.canRedo);
       } catch (error) {
           console.error('Failed to execute bulk update', error);
-          alert('Failed to execute bulk update. The changes have been reverted.');
-          // Revert optimistically
+
+          // The batch writes one record at a time and PCO has no transaction to
+          // roll back, so whatever landed before the failure is live. Only the
+          // records that never got written may be reverted on screen — telling
+          // the operator "the changes have been reverted" while some of them
+          // are sitting in PCO is how a half-finished batch becomes invisible.
+          const written = new Set(command.written.map(u => u.original.id));
           for (const update of updates) {
-              onStateChange(update.original);
+              if (!written.has(update.original.id)) onStateChange(update.original);
+          }
+
+          if (written.size > 0) {
+              // Keep the command on the stack: those writes are real and Undo is
+              // the only way back.
+              commandManagerRef.current.execute(command);
+              setCanUndo(commandManagerRef.current.canUndo);
+              setCanRedo(commandManagerRef.current.canRedo);
+              alert(
+                  `Bulk update stopped after ${written.size} of ${updates.length} records.\n\n` +
+                  `Those ${written.size} were saved to Planning Center and are still there. ` +
+                  `The rest were not saved. Use Undo to reverse the ones that went through.`
+              );
+          } else {
+              alert('Bulk update failed. Nothing was saved to Planning Center.');
           }
       }
   };

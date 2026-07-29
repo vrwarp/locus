@@ -97,4 +97,28 @@ describe('BatchUpdateCommand', () => {
             false
         );
     });
+
+    it('records which records reached PCO before a failure', async () => {
+        // The writes are sequential and there is no transaction, so the caller
+        // has to be able to tell the operator which half of the batch is live.
+        (prepareUpdateAttributes as any).mockReturnValue({ first_name: 'X' });
+        (updatePerson as any)
+            .mockResolvedValueOnce({})
+            .mockRejectedValueOnce(new Error('PCO said no'));
+
+        const command = new BatchUpdateCommand(
+            [
+                { original: mockChild, updated: { ...mockChild, firstName: 'X' } },
+                { original: mockParent, updated: { ...mockParent, firstName: 'X' } },
+            ],
+            'auth',
+            false,
+            onStateChange
+        );
+
+        await expect(command.execute()).rejects.toThrow('PCO said no');
+
+        expect(command.written).toHaveLength(1);
+        expect(command.written[0].original.id).toBe(mockChild.id);
+    });
 });
