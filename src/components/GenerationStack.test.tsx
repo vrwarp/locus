@@ -27,8 +27,8 @@ vi.mock('recharts', () => {
 
 describe('GenerationStack', () => {
     const mockStudents: Student[] = [
-        { id: '1', age: 10, pcoGrade: 5, name: 'Alpha Kid', firstName: 'Alpha', lastName: 'Kid', birthdate: '2015-01-01', calculatedGrade: 5, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0, isChild: true, householdId: null, hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false },
-        { id: '2', age: 30, pcoGrade: null, name: 'Millennial Parent', firstName: 'Millennial', lastName: 'Parent', birthdate: '1990-01-01', calculatedGrade: -1, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0, isChild: false, householdId: null, hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false }
+        { id: '1', age: 10, pcoGrade: 5, name: 'Alpha Kid', firstName: 'Alpha', lastName: 'Kid', birthdate: '2015-01-01', calculatedGrade: 5, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild: true, householdId: null, hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false },
+        { id: '2', age: 30, pcoGrade: null, name: 'Millennial Parent', firstName: 'Millennial', lastName: 'Parent', birthdate: '1990-01-01', calculatedGrade: -1, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild: false, householdId: null, hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false }
     ];
 
     it('renders "No demographic data available" if no valid birthdates exist', () => {

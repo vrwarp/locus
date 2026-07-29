@@ -2,7 +2,8 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 // @ts-ignore - Importing JS file
 import { app, resetDb } from '../../mock-api/server.js';
-import { fetchAllPeople } from '../utils/pco';
+import { fetchAllPeople, updatePerson } from '../utils/pco';
+import api from '../utils/api';
 import axios from 'axios';
 import http from 'http';
 import { AddressInfo } from 'net';
@@ -16,6 +17,9 @@ describe('Local API Simulator', () => {
       server = app.listen(0, () => {
         const address = server.address() as AddressInfo;
         baseUrl = `http://localhost:${address.port}`;
+        // The app builds `/api/...` paths for the Vite proxy; point them at
+        // this server, which accepts that prefix too.
+        api.defaults.baseURL = baseUrl;
         console.log(`Test simulator running at ${baseUrl}`);
         resolve(null);
       });
@@ -120,5 +124,51 @@ describe('Local API Simulator', () => {
     // Allow for anomalies like missing domain or missing @ if generator produces them (it does produce missing @domain.com sometimes)
     // But let's check basic string presence
     expect(adultWithEmail.attributes.email_addresses[0].address).toBeTruthy();
+  });
+
+  // --- contact records, the way PCO exposes them ------------------------------
+  //
+  // These endpoints exist so the app's contact edits take the same shape here as
+  // against PCO or pcomirror, where emails/phones/addresses are resources under
+  // the person rather than attributes on it.
+
+  it('serves a person\'s emails as their own collection', async () => {
+    const people = await axios.get(`${baseUrl}/people/v2/people?per_page=100`);
+    const person = people.data.data.find((p: any) => p.attributes.email_addresses?.length > 0);
+
+    const res = await axios.get(`${baseUrl}/people/v2/people/${person.id}/emails`);
+    expect(res.status).toBe(200);
+    expect(res.data.data[0].type).toBe('Email');
+    expect(res.data.data[0].id).toBeTruthy();
+    expect(res.data.data[0].attributes.address)
+      .toBe(person.attributes.email_addresses[0].address);
+  });
+
+  it('updatePerson writes a corrected email through to the record', async () => {
+    // End to end over the real request path: read the collection, PATCH the
+    // record that came back, and see the change on the person afterwards.
+    const people = await axios.get(`${baseUrl}/people/v2/people?per_page=100`);
+    const person = people.data.data.find((p: any) => p.attributes.email_addresses?.length > 0);
+
+    await updatePerson(person.id, {
+      email_addresses: [{ address: 'corrected@example.com', location: 'Home' }],
+    }, 'fake-auth');
+
+    const after = await axios.get(`${baseUrl}/people/v2/people/${person.id}`);
+    expect(after.data.data.attributes.email_addresses[0].address).toBe('corrected@example.com');
+    expect(after.data.data.attributes.email_addresses).toHaveLength(1);
+  });
+
+  it('creates a phone record for a person who has none', async () => {
+    const people = await axios.get(`${baseUrl}/people/v2/people?per_page=100`);
+    const person = people.data.data.find((p: any) => !p.attributes.phone_numbers?.length);
+    if (!person) return;
+
+    await updatePerson(person.id, {
+      phone_numbers: [{ number: '+15551234567', location: 'Mobile' }],
+    }, 'fake-auth');
+
+    const after = await axios.get(`${baseUrl}/people/v2/people/${person.id}`);
+    expect(after.data.data.attributes.phone_numbers[0].number).toBe('+15551234567');
   });
 });

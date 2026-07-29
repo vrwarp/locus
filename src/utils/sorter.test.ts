@@ -17,7 +17,6 @@ describe('Small Group Sorter', () => {
     delta: 0,
     lastCheckInAt: null,
     checkInCount: null,
-    groupCount: null,
     hasNameAnomaly: false,
     hasEmailAnomaly: false,
     hasAddressAnomaly: false,

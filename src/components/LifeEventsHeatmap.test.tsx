@@ -17,7 +17,6 @@ const mockStudent = (birthdate: string, anniversary?: string, deathDate?: string
     delta: 0,
     lastCheckInAt: null,
     checkInCount: 0,
-    groupCount: 0,
     isChild: true,
     householdId: '1',
     hasNameAnomaly: false,

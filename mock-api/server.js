@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { people, events, checkIns, groups, groupMemberships } from './data.js';
+import { people, events, checkIns } from './data.js';
 import { fileURLToPath } from 'url';
 
 export const app = express();
@@ -11,6 +11,21 @@ app.use((req, res, next) => {
 });
 
 app.use(cors());
+
+// The Vite dev proxy strips `/api` before forwarding, so the app's own paths
+// carry that prefix. Accept it here as well, so this server can stand in for the
+// proxy when something addresses it directly — a test, or curl.
+//
+// Product paths only: `/api/v2/...` below is the platform API, a real route on
+// PCO rather than a proxied one, and must not have its prefix eaten.
+const PROXY_PREFIX = /^\/api\/(people|check-ins)\//;
+app.use((req, res, next) => {
+  if (PROXY_PREFIX.test(req.url)) {
+    req.url = req.url.slice('/api'.length);
+  }
+  next();
+});
+
 // Support both standard JSON and JSON:API content type
 app.use(express.json({ type: ['application/json', 'application/vnd.api+json'] }));
 
@@ -20,8 +35,6 @@ let db = {
   people: JSON.parse(JSON.stringify(people)),
   events: JSON.parse(JSON.stringify(events)),
   checkIns: JSON.parse(JSON.stringify(checkIns)).reverse(), // Newest first
-  groups: JSON.parse(JSON.stringify(groups)),
-  groupMemberships: JSON.parse(JSON.stringify(groupMemberships))
 };
 
 export const resetDb = () => {
@@ -29,8 +42,6 @@ export const resetDb = () => {
     people: JSON.parse(JSON.stringify(people)),
     events: JSON.parse(JSON.stringify(events)),
     checkIns: JSON.parse(JSON.stringify(checkIns)),
-    groups: JSON.parse(JSON.stringify(groups)),
-    groupMemberships: JSON.parse(JSON.stringify(groupMemberships))
   };
 };
 
@@ -78,6 +89,78 @@ app.get('/people/v2/people/:id', (req, res) => {
   const person = db.people.find(p => p.id === req.params.id);
   if (!person) return res.status(404).json({ errors: [{ status: '404', title: 'Not found' }] });
   res.json({ data: person });
+});
+
+// --- A person's contact records, as PCO actually exposes them ----------------
+//
+// PCO does not keep emails, phone numbers or addresses on the Person: each is
+// its own resource under `/people/{id}/<collection>`, addressed by its own id.
+// This mock stores them inline, which is convenient and is also why the app was
+// written to PATCH them onto the Person — a write real PCO accepts and ignores.
+//
+// These routes project the inline arrays as the collections PCO serves, and
+// write back through to them, so the app's contact edits exercise the same
+// request shape here as they do against PCO or pcomirror.
+const CONTACT_COLLECTIONS = {
+  emails: { attr: 'email_addresses', type: 'Email' },
+  phone_numbers: { attr: 'phone_numbers', type: 'PhoneNumber' },
+  addresses: { attr: 'addresses', type: 'Address' },
+};
+
+// A stable synthetic id: these have no id of their own inline, but PCO's do, and
+// the app reads one back to decide between PATCH and POST.
+const contactId = (personId, collection, index) => `${personId}-${collection}-${index}`;
+
+const withContacts = (req, res, next) => {
+  const meta = CONTACT_COLLECTIONS[req.params.collection];
+  if (!meta) return res.status(404).json({ errors: [{ status: '404', title: 'Not found' }] });
+  const person = db.people.find(p => p.id === req.params.id);
+  if (!person) return res.status(404).json({ errors: [{ status: '404', title: 'Not found' }] });
+  req.contact = { meta, person };
+  next();
+};
+
+app.get('/people/v2/people/:id/:collection', withContacts, (req, res) => {
+  const { meta, person } = req.contact;
+  const records = person.attributes[meta.attr] || [];
+  res.json({
+    data: records.map((attributes, i) => ({
+      id: contactId(person.id, req.params.collection, i),
+      type: meta.type,
+      attributes,
+    })),
+    meta: { total_count: records.length, count: records.length },
+  });
+});
+
+app.post('/people/v2/people/:id/:collection', withContacts, (req, res) => {
+  const { meta, person } = req.contact;
+  const attributes = req.body?.data?.attributes;
+  if (!attributes) return res.status(400).json({ errors: [{ status: '400', title: 'Bad Request' }] });
+
+  const records = person.attributes[meta.attr] || (person.attributes[meta.attr] = []);
+  records.push(attributes);
+  res.status(201).json({
+    data: {
+      id: contactId(person.id, req.params.collection, records.length - 1),
+      type: meta.type,
+      attributes,
+    },
+  });
+});
+
+app.patch('/people/v2/people/:id/:collection/:recordId', withContacts, (req, res) => {
+  const { meta, person } = req.contact;
+  const attributes = req.body?.data?.attributes;
+  if (!attributes) return res.status(400).json({ errors: [{ status: '400', title: 'Bad Request' }] });
+
+  const records = person.attributes[meta.attr] || [];
+  const index = records.findIndex(
+    (_, i) => contactId(person.id, req.params.collection, i) === req.params.recordId);
+  if (index === -1) return res.status(404).json({ errors: [{ status: '404', title: 'Not found' }] });
+
+  records[index] = { ...records[index], ...attributes };
+  res.json({ data: { id: req.params.recordId, type: meta.type, attributes: records[index] } });
 });
 
 app.patch('/people/v2/people/:id', (req, res) => {
@@ -154,29 +237,6 @@ app.get('/check-ins/v2/events', (req, res) => {
     }
   });
 });
-
-// Groups API
-app.get('/groups/v2/people/:person_id/memberships', (req, res) => {
-  const personId = req.params.person_id;
-  // Filter memberships
-  const memberships = db.groupMemberships.filter(m =>
-    m.relationships?.person?.data?.id === personId
-  );
-
-  const { paginated, links } = paginate(req, memberships);
-
-  res.json({
-    links,
-    data: paginated,
-    meta: {
-      total_count: memberships.length,
-      count: paginated.length,
-      can_include: [],
-      parent: {}
-    }
-  });
-});
-
 // API V2 (Admin/Platform)
 app.get('/api/v2', (req, res) => {
   // Return basic root info or empty list for unsupported endpoints

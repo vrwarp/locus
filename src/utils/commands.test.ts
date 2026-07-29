@@ -27,7 +27,6 @@ const mockStudent = (id: string, grade: number): Student => ({
     delta: 0,
     lastCheckInAt: null,
     checkInCount: 0,
-    groupCount: 0,
     isChild: true,
     householdId: null,
     hasNameAnomaly: false,

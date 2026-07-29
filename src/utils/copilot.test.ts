@@ -8,7 +8,7 @@ describe('CoPilot Logic', () => {
     const mockStudent = (id: string, name: string, grade: number | null, age: number = 10, isChild: boolean = true): Student => ({
         id, name, firstName: name.split(' ')[0], lastName: name.split(' ')[1] || '',
         birthdate: '2010-01-01', age, pcoGrade: grade, calculatedGrade: grade || 0, delta: 0,
-        lastCheckInAt: null, checkInCount: 0, groupCount: 0, isChild, householdId: null,
+        lastCheckInAt: null, checkInCount: 0, isChild, householdId: null,
         hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false
     });
 

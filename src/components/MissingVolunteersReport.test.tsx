@@ -28,7 +28,6 @@ describe('MissingVolunteersReport', () => {
       pcoGrade: null,
       lastCheckInAt: null,
       checkInCount: null,
-      groupCount: null,
     }
   ];
 

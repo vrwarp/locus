@@ -15,7 +15,6 @@ describe('geospatial utilities', () => {
     delta: 0,
     lastCheckInAt: null,
     checkInCount: 0,
-    groupCount: 0,
     isChild: false,
     householdId: null,
     hasNameAnomaly: false,

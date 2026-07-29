@@ -14,7 +14,7 @@ vi.mock('../utils/export', () => ({
 }));
 
 const mockStudents: Student[] = [
-    { id: '1', name: 'John Doe', age: 30, isChild: false, householdId: null, pcoGrade: null, birthdate: '1990-01-01', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, groupCount: 0, hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false }
+    { id: '1', name: 'John Doe', age: 30, isChild: false, householdId: null, pcoGrade: null, birthdate: '1990-01-01', calculatedGrade: 0, delta: 0, lastCheckInAt: null, checkInCount: 0, hasNameAnomaly: false, hasEmailAnomaly: false, hasAddressAnomaly: false, hasPhoneAnomaly: false }
 ];
 
 describe('DriftReport', () => {

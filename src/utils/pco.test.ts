@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import api from './api';
-import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, fetchGroupCount, checkApiVersion, prepareUpdateAttributes } from './pco';
+import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, prepareUpdateAttributes, toProxyPath, flattenIncluded, PEOPLE_INCLUDES } from './pco';
 import type { PcoPerson, Student } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
@@ -11,6 +11,7 @@ vi.mock('./api', () => {
         default: {
             get: vi.fn(),
             patch: vi.fn(),
+            post: vi.fn(),
         }
     };
 });
@@ -57,7 +58,6 @@ describe('transformPerson', () => {
       delta: expectedGrade - 4,
       lastCheckInAt: null,
       checkInCount: null,
-      groupCount: null,
       avatarUrl: undefined,
       isChild: true,
       householdId: 'hh1',
@@ -317,27 +317,6 @@ describe('fetchCheckInCount', () => {
     });
 });
 
-describe('fetchGroupCount', () => {
-    it('fetches group count successfully', async () => {
-        (api.get as any).mockResolvedValue({
-            data: { meta: { total_count: 5 } }
-        });
-
-        const count = await fetchGroupCount('123', 'token');
-        expect(count).toBe(5);
-        expect(api.get).toHaveBeenCalledWith(
-            '/api/groups/v2/people/123/memberships',
-            expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'Basic token' }) })
-        );
-    });
-
-    it('returns null on failure', async () => {
-        (api.get as any).mockRejectedValue(new Error('Failed'));
-        const count = await fetchGroupCount('123', 'token');
-        expect(count).toBeNull();
-    });
-});
-
 describe('fetchAllPeople', () => {
     it('fetches all pages recursively', async () => {
         const page1 = {
@@ -360,7 +339,7 @@ describe('fetchAllPeople', () => {
         expect(result.people[1].id).toBe('2');
         expect(result.nextUrl).toBeUndefined();
         expect(api.get).toHaveBeenCalledTimes(2);
-        expect(api.get).toHaveBeenNthCalledWith(1, '/api/people/v2/people?per_page=100', expect.any(Object));
+        expect(api.get).toHaveBeenNthCalledWith(1, `/api/people/v2/people?per_page=100&include=${PEOPLE_INCLUDES}`, expect.any(Object));
         expect(api.get).toHaveBeenNthCalledWith(2, 'http://api.pco/next', expect.any(Object));
     });
 
@@ -467,7 +446,6 @@ describe('prepareUpdateAttributes', () => {
         delta: 0,
         lastCheckInAt: null,
         checkInCount: 0,
-        groupCount: 0,
         isChild: true,
         householdId: null,
         hasNameAnomaly: false,
@@ -525,5 +503,218 @@ describe('prepareUpdateAttributes', () => {
         const updated = createStudent({ phoneNumber: '456' });
         const result = prepareUpdateAttributes(original, updated);
         expect(result).toEqual({ phone_numbers: [{ number: '456', location: 'Mobile' }] });
+    });
+});
+
+// --- pcomirror compatibility -------------------------------------------------
+//
+// pcomirror is a local mirror of the PCO People API that this app can be pointed
+// at with a base-URL + credential swap. Two things about it differ from the mock
+// this app was written against, and both used to break silently.
+
+describe('toProxyPath', () => {
+    it('routes absolute PCO links through the dev proxy', () => {
+        expect(toProxyPath('https://api.planningcenteronline.com/people/v2/people?offset=100'))
+            .toBe('/api/people/v2/people?offset=100');
+    });
+
+    it('routes pcomirror relative links through the dev proxy', () => {
+        // The regression. pcomirror rewrites every PCO URL it serves to a
+        // mirror-relative path, so the old `.replace(origin, '/api')` was a
+        // no-op: the request bypassed the proxy, the dev server answered with
+        // index.html, and paging stopped after page one.
+        expect(toProxyPath('/people/v2/people?offset=100&per_page=100'))
+            .toBe('/api/people/v2/people?offset=100&per_page=100');
+        expect(toProxyPath('/check-ins/v2/check_ins?offset=100'))
+            .toBe('/api/check-ins/v2/check_ins?offset=100');
+    });
+
+    it('leaves an already-proxied path alone', () => {
+        expect(toProxyPath('/api/people/v2/people?per_page=100'))
+            .toBe('/api/people/v2/people?per_page=100');
+    });
+
+    it('leaves a non-PCO absolute URL alone', () => {
+        // The simulator test addresses the mock API directly rather than through
+        // the proxy, and must keep working.
+        expect(toProxyPath('http://localhost:3000/people/v2/people?per_page=50'))
+            .toBe('http://localhost:3000/people/v2/people?per_page=50');
+    });
+});
+
+describe('flattenIncluded', () => {
+    const response = {
+        data: [{
+            id: '1', type: 'Person',
+            attributes: { name: 'Ada Byron', birthdate: '1990-01-01' },
+            relationships: {
+                emails: { data: [{ type: 'Email', id: 'e1' }] },
+                phone_numbers: { data: [{ type: 'PhoneNumber', id: 'p1' }] },
+                addresses: { data: [{ type: 'Address', id: 'a1' }] },
+                households: { data: [{ type: 'Household', id: 'h1' }] },
+            },
+        }],
+        included: [
+            { id: 'e1', type: 'Email', attributes: { address: 'ada@example.com', location: 'Home' } },
+            { id: 'p1', type: 'PhoneNumber', attributes: { number: '555-1234', location: 'Mobile' } },
+            { id: 'a1', type: 'Address', attributes: { street: '1 Main St', city: 'Springfield', state: 'CA', zip: '90001', location: 'Home' } },
+            { id: 'h1', type: 'Household', attributes: { name: 'Byron' } },
+        ],
+        meta: { total_count: 1, count: 1 },
+    } as any;
+
+    it('folds sideloaded contact details onto the person', () => {
+        // Real PCO does not put these on the Person; the mock did. Without this
+        // every person arrived with no email, phone or address and a null
+        // household, silently disabling hygiene, duplicates and the map.
+        const [person] = flattenIncluded(response);
+        expect(person.attributes.email_addresses).toEqual([{ address: 'ada@example.com', location: 'Home' }]);
+        expect(person.attributes.phone_numbers).toEqual([{ number: '555-1234', location: 'Mobile' }]);
+        expect(person.attributes.addresses?.[0]).toMatchObject({ street: '1 Main St', zip: '90001' });
+        expect(person.attributes.household_id).toBe('h1');
+    });
+
+    it('leaves inline attributes alone when the response already has them', () => {
+        // The mock API inlines all four. It must round-trip untouched.
+        const inline = {
+            ...response,
+            data: [{
+                ...response.data[0],
+                attributes: {
+                    ...response.data[0].attributes,
+                    email_addresses: [{ address: 'inline@example.com', location: 'Work' }],
+                    household_id: 'inline-household',
+                },
+            }],
+        };
+        const [person] = flattenIncluded(inline);
+        expect(person.attributes.email_addresses).toEqual([{ address: 'inline@example.com', location: 'Work' }]);
+        expect(person.attributes.household_id).toBe('inline-household');
+    });
+
+    it('passes data straight through when there is nothing sideloaded', () => {
+        const bare = { data: [{ id: '1', type: 'Person', attributes: { name: 'A' } }], meta: { total_count: 1, count: 1 } } as any;
+        expect(flattenIncluded(bare)).toBe(bare.data);
+    });
+
+    it('survives a relationship whose sideload is missing', () => {
+        const partial = { ...response, included: [response.included[0]] };
+        const [person] = flattenIncluded(partial);
+        expect(person.attributes.email_addresses).toHaveLength(1);
+        expect(person.attributes.phone_numbers).toBeUndefined();
+    });
+
+    it('is applied by fetchAllPeople, so transformPerson sees the contact details', () => {
+        (api.get as any).mockResolvedValueOnce({ data: { ...response, links: {} } });
+        return fetchAllPeople('auth-token').then(({ people }) => {
+            expect(people[0].attributes.email_addresses).toEqual([
+                { address: 'ada@example.com', location: 'Home' },
+            ]);
+            const student = transformPerson(people[0] as any);
+            expect(student?.email).toBe('ada@example.com');
+            expect(student?.householdId).toBe('h1');
+        });
+    });
+});
+
+describe('updatePerson contact writes', () => {
+    const auth = 'auth-token';
+    const person = { id: '1', type: 'Person', attributes: {} };
+
+    beforeEach(() => {
+        (api.patch as any).mockResolvedValue({ data: { data: person } });
+        (api.post as any).mockResolvedValue({ data: { data: person } });
+        (api.get as any).mockResolvedValue({ data: { data: [] } });
+    });
+
+    it('patches the existing email record rather than the person', async () => {
+        // The regression. PCO keeps emails at /people/{id}/emails, so naming
+        // `email_addresses` on the Person was a write it accepted and ignored:
+        // ReviewMode's "Fix All" reported a corrected address and changed nothing.
+        (api.get as any).mockResolvedValue({ data: { data: [{ id: 'e1' }] } });
+
+        await updatePerson('1', { email_addresses: [{ address: 'fixed@example.com', location: 'Home' }] }, auth);
+
+        expect(api.get).toHaveBeenCalledWith('/api/people/v2/people/1/emails', expect.any(Object));
+        expect(api.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/1/emails/e1',
+            { data: { type: 'Email', id: 'e1', attributes: { address: 'fixed@example.com', location: 'Home' } } },
+            expect.any(Object),
+        );
+        // and never onto the person itself
+        expect(api.patch).not.toHaveBeenCalledWith(
+            '/api/people/v2/people/1', expect.anything(), expect.anything());
+    });
+
+    it('creates a record when the person has none', async () => {
+        (api.get as any).mockResolvedValue({ data: { data: [] } });
+
+        await updatePerson('1', { phone_numbers: [{ number: '+15551234567', location: 'Mobile' }] }, auth);
+
+        expect(api.post).toHaveBeenCalledWith(
+            '/api/people/v2/people/1/phone_numbers',
+            { data: { type: 'PhoneNumber', attributes: { number: '+15551234567', location: 'Mobile' } } },
+            expect.any(Object),
+        );
+    });
+
+    it('updates in place rather than accumulating duplicates', async () => {
+        // A cleanup tool that appends a corrected address beside the stale one is
+        // a source of the duplicates it exists to remove.
+        (api.get as any).mockResolvedValue({ data: { data: [{ id: 'a1' }] } });
+
+        await updatePerson('1', { addresses: [{ street: '1 Main St', city: 'Springfield', state: 'CA', zip: '90001', location: 'Home' }] }, auth);
+
+        expect(api.post).not.toHaveBeenCalled();
+        expect(api.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/1/addresses/a1', expect.any(Object), expect.any(Object));
+    });
+
+    it('splits a mixed edit between the person and its contact records', async () => {
+        (api.get as any).mockResolvedValue({ data: { data: [{ id: 'e1' }] } });
+
+        await updatePerson('1', {
+            first_name: 'Ada',
+            email_addresses: [{ address: 'ada@example.com', location: 'Home' }],
+        }, auth);
+
+        expect(api.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/1',
+            { data: { type: 'Person', id: '1', attributes: { first_name: 'Ada' } } },
+            expect.any(Object),
+        );
+        expect(api.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/1/emails/e1', expect.any(Object), expect.any(Object));
+    });
+
+    it('carries the sandbox header onto the contact writes too', async () => {
+        (api.get as any).mockResolvedValue({ data: { data: [{ id: 'e1' }] } });
+
+        await updatePerson('1', { email_addresses: [{ address: 'a@b.com', location: 'Home' }] }, auth, true);
+
+        expect(api.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/1/emails/e1',
+            expect.any(Object),
+            expect.objectContaining({ headers: expect.objectContaining({ 'X-Locus-Sandbox': 'true' }) }),
+        );
+    });
+
+    it('reads the person back when only contacts changed', async () => {
+        (api.get as any)
+            .mockResolvedValueOnce({ data: { data: [{ id: 'e1' }] } })
+            .mockResolvedValueOnce({ data: { data: person } });
+
+        const result = await updatePerson('1', { email_addresses: [{ address: 'a@b.com', location: 'Home' }] }, auth);
+
+        expect(result).toEqual(person);
+        expect(api.get).toHaveBeenLastCalledWith('/api/people/v2/people/1', expect.any(Object));
+    });
+
+    it('still sends a plain attribute edit as one patch on the person', async () => {
+        await updatePerson('1', { grade: 5 }, auth);
+
+        expect(api.patch).toHaveBeenCalledTimes(1);
+        expect(api.get).not.toHaveBeenCalled();
+        expect(api.post).not.toHaveBeenCalled();
     });
 });
