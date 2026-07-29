@@ -30,8 +30,6 @@ import { CampusCup } from './components/CampusCup'
 import { SermonSentiment } from './components/SermonSentiment'
 import { SermonCorrelator } from './components/SermonCorrelator'
 import { SentimentPulse } from './components/SentimentPulse'
-import { GivingRiver } from './components/GivingRiver'
-import { GivingTrends } from './components/GivingTrends'
 import { EmergencyAlerts } from './components/EmergencyAlerts'
 import { PrayerMatch } from './components/PrayerMatch'
 import { BountyBoard } from './components/BountyBoard'
@@ -66,7 +64,6 @@ import { IntelligenceLayout } from './layouts/IntelligenceLayout';
 import { Dashboard } from './components/Dashboard'
 import { AutomationsReport } from './components/AutomationsReport'
 import { IntegrationsHub } from './components/IntegrationsHub'
-import { GlobalPulse } from './components/GlobalPulse'
 import { LocusPublic } from './components/LocusPublic'
 
 function App() {
@@ -909,18 +906,6 @@ function App() {
                             </div>
                         )}
 
-                        {currentView === 'giving-river' && (
-                             <div className="view-container fade-in">
-                                <GivingRiver />
-                            </div>
-                        )}
-
-                        {currentView === 'giving-trends' && (
-                            <div className="view-container fade-in">
-                                <GivingTrends checkIns={[]} events={[]} />
-                            </div>
-                        )}
-
 
 
                         {currentView === 'prayer' && (
@@ -982,11 +967,6 @@ function App() {
                             <div className="view-container">
                                 <SmallGroupSorter students={students} />
                             </div>
-                        )}
-                        {currentView === 'global-pulse' && (
-                             <div className="view-container">
-                                 <GlobalPulse students={students} />
-                             </div>
                         )}
                         {currentView === 'newsletter' && (
                              <div className="view-container">

@@ -25,13 +25,6 @@ export const SidebarIntelligence: React.FC<SidebarProps> = ({ currentView, onCha
           Pastoral Co-Pilot
         </button>
 
-        <button
-          className={`nav-item ${currentView === 'global-pulse' ? 'active' : ''}`}
-          onClick={() => onChangeView('global-pulse')}
-        >
-          <span className="icon">🌍</span>
-          Global Pulse
-        </button>
 
         <button
           className={`nav-item ${currentView === 'sentiment-pulse' ? 'active' : ''}`}
@@ -169,21 +162,7 @@ export const SidebarIntelligence: React.FC<SidebarProps> = ({ currentView, onCha
           Sermon Correlator
         </button>
 
-        <button
-          className={`nav-item ${currentView === 'giving-river' ? 'active' : ''}`}
-          onClick={() => onChangeView('giving-river')}
-        >
-          <span className="icon">🌊</span>
-          Giving River
-        </button>
 
-        <button
-          className={`nav-item ${currentView === 'giving-trends' ? 'active' : ''}`}
-          onClick={() => onChangeView('giving-trends')}
-        >
-          <span className="icon">💳</span>
-          Stripe Trends
-        </button>
 
         <button
           className={`nav-item ${currentView === 'prayer' ? 'active' : ''}`}
