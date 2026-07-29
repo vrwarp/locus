@@ -82,4 +82,36 @@ describe('calculateNewcomerFunnel', () => {
 
         expect(funnel[0].value).toBe(1); // Only p2
     });
+
+    it('counts Guest check-ins, since a first-time visitor is the whole point', () => {
+        const recent = new Date();
+        recent.setMonth(recent.getMonth() - 1);
+
+        const checkIns = [
+            createCheckIn('1', 'p1', recent, 'Guest'),
+        ];
+
+        const funnel = calculateNewcomerFunnel(checkIns);
+
+        expect(funnel[0].value).toBe(1);
+    });
+
+    it('dates a newcomer from their first visit even if that visit was a Guest check-in', () => {
+        // The regression this guards: dropping Guest rows moved the earliest
+        // date forward, so somebody who first walked in years ago could be
+        // counted as a brand-new visitor.
+        const longAgo = new Date();
+        longAgo.setFullYear(longAgo.getFullYear() - 3);
+        const recent = new Date();
+        recent.setMonth(recent.getMonth() - 1);
+
+        const checkIns = [
+            createCheckIn('1', 'p1', longAgo, 'Guest'),
+            createCheckIn('2', 'p1', recent, 'Regular'),
+        ];
+
+        const funnel = calculateNewcomerFunnel(checkIns);
+
+        expect(funnel[0].value).toBe(0); // Not a newcomer - they arrived three years ago
+    });
 });
