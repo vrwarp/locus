@@ -31,20 +31,11 @@ export interface HealthHistoryEntry {
   totalRecords: number;
 }
 
+// One field, not thirteen. Everything else this used to hold — streaks, badges,
+// per-field tallies, a lifetime total — was a claim about correctness the
+// product cannot make. See `gamification.ts`.
 export interface GamificationState {
-  lastActiveDate: string; // YYYY-MM-DD
-  currentStreak: number;
-  dailyFixes: number;
-  totalFixes: number;
-  ghostsCleared?: number;
-  birthdatesFixed?: number;
-  gradesFixed?: number;
-  namesFixed?: number;
-  emailsFixed?: number;
-  addressesFixed?: number;
-  phonesFixed?: number;
-  unlockedBadges: { id: string, date: string }[];
-  fixHistory?: Record<string, number>; // YYYY-MM-DD -> count
+  fixHistory?: Record<string, number>; // YYYY-MM-DD -> edits recorded
 }
 
 const STORAGE_KEY = 'locus_config';
@@ -137,18 +128,6 @@ export const saveHealthSnapshot = async (stats: HealthStats, appId: string): Pro
 };
 
 const getDefaultGamificationState = (): GamificationState => ({
-  lastActiveDate: '',
-  currentStreak: 0,
-  dailyFixes: 0,
-  totalFixes: 0,
-  ghostsCleared: 0,
-  birthdatesFixed: 0,
-  gradesFixed: 0,
-  namesFixed: 0,
-  emailsFixed: 0,
-  addressesFixed: 0,
-  phonesFixed: 0,
-  unlockedBadges: [],
   fixHistory: {}
 });
 

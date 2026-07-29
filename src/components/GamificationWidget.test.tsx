@@ -1,24 +1,29 @@
 import { render, screen } from '@testing-library/react';
-import { GamificationWidget } from './GamificationWidget';
 import { describe, it, expect } from 'vitest';
+import { GamificationWidget } from './GamificationWidget';
 
 describe('GamificationWidget', () => {
-  it('renders streak and progress', () => {
-    render(<GamificationWidget streak={5} dailyFixes={10} dailyGoal={50} />);
-    expect(screen.getByText('5')).toBeInTheDocument();
-    expect(screen.getByText('Daily Goal: 10/50')).toBeInTheDocument();
+  it('reports edits made today and records still flagged', () => {
+    render(<GamificationWidget editsToday={12} flaggedRecords={340} />);
+
+    expect(screen.getByText('12')).toBeInTheDocument();
+    expect(screen.getByText(/edited today/)).toBeInTheDocument();
+    expect(screen.getByText('340')).toBeInTheDocument();
+    expect(screen.getByText(/still flagged/)).toBeInTheDocument();
   });
 
-  it('renders completed state', () => {
-     const { container } = render(<GamificationWidget streak={5} dailyFixes={55} dailyGoal={50} />);
-     const fill = container.querySelector('.progress-bar-fill');
-     expect(fill).toHaveClass('complete');
-     expect(fill).toHaveStyle('width: 100%');
+  it('says "edited", never "fixed"', () => {
+    // Locus cannot tell whether an edit made a record more correct. The label
+    // is the guarantee, so it is worth a test of its own.
+    const { container } = render(<GamificationWidget editsToday={3} flaggedRecords={9} />);
+
+    expect(container.textContent).not.toMatch(/fixed/i);
+    expect(container.textContent).not.toMatch(/streak/i);
+    expect(container.textContent).not.toMatch(/goal/i);
   });
 
-  it('renders correct progress width', () => {
-    const { container } = render(<GamificationWidget streak={0} dailyFixes={25} dailyGoal={50} />);
-    const fill = container.querySelector('.progress-bar-fill');
-    expect(fill).toHaveStyle('width: 50%');
+  it('handles a session with nothing done yet', () => {
+    render(<GamificationWidget editsToday={0} flaggedRecords={0} />);
+    expect(screen.getAllByText('0')).toHaveLength(2);
   });
 });

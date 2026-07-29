@@ -6,7 +6,6 @@ import api from './utils/api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { Student } from './utils/pco';
 import * as storage from './utils/storage';
-import * as gamification from './utils/gamification';
 import { saveToCache, loadFromCache } from './utils/cache';
 import * as pco from './utils/pco';
 
@@ -44,11 +43,10 @@ vi.mock('./utils/storage', () => ({
 }));
 
 // Mock gamification
-vi.mock('./utils/gamification', () => ({
-  updateGamificationState: vi.fn((state) => ({
-      newState: { ...state, currentStreak: state.currentStreak + 1, dailyFixes: state.dailyFixes + 1, unlockedBadges: [] },
-      newBadges: []
-  })),
+// The edit log is pure and cheap — no reason to stub it, and stubbing it would
+// hide whether App still records edits at all.
+vi.mock('./utils/gamification', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./utils/gamification')>()),
 }));
 
 // Mock cache
@@ -154,19 +152,9 @@ vi.mock('./components/ReviewMode', () => ({
 
 // Mock GamificationWidget to avoid CSS import issues in test environment if any
 vi.mock('./components/GamificationWidget', () => ({
-  GamificationWidget: ({ streak, dailyFixes }: any) => (
-    <div data-testid="gamification-widget">Streak: {streak}, Daily: {dailyFixes}</div>
+  GamificationWidget: ({ editsToday, flaggedRecords }: any) => (
+    <div data-testid="gamification-widget">Edited: {editsToday}, Flagged: {flaggedRecords}</div>
   )
-}));
-
-// Mock Confetti
-vi.mock('./components/Confetti', () => ({
-    Confetti: () => <div data-testid="confetti">Confetti!</div>
-}));
-
-// Mock BadgeToast
-vi.mock('./components/BadgeToast', () => ({
-    BadgeToast: ({ badge }: any) => <div data-testid="badge-toast">{badge.name}</div>
 }));
 
 // Mock New Components
@@ -175,9 +163,6 @@ vi.mock('./components/BurnoutReport', () => ({
 }));
 vi.mock('./components/RecruitmentReport', () => ({
     RecruitmentReport: () => <div data-testid="recruitment-report">Recruitment Report Content</div>
-}));
-vi.mock('./components/CheckInVelocity', () => ({
-    CheckInVelocity: () => <div data-testid="check-in-velocity">Check-in Velocity Content</div>
 }));
 
 const queryClient = new QueryClient({
@@ -702,33 +687,13 @@ describe('App Integration', () => {
         await loginToIntelligence();
 
         // Wait for Dashboard content
-        await waitFor(() => expect(screen.getByText('Pastoral Co-Pilot')).toBeInTheDocument(), { timeout: 5000 });
+        await waitFor(() => expect(screen.getByText('Retention')).toBeInTheDocument(), { timeout: 5000 });
 
         // Click sidebar button (first one found if dupes, or better yet be specific)
         const buttons = screen.getAllByText(/Burnout Risk/);
         fireEvent.click(buttons[0]);
 
         expect(screen.getByTestId('burnout-report')).toBeInTheDocument();
-    });
-
-    it('opens and displays Check-in Velocity', async () => {
-        (api.get as any).mockResolvedValue({
-            data: {
-                data: []
-            }
-        });
-
-        render(<Wrapper><App /></Wrapper>);
-        await loginToIntelligence();
-
-        await waitFor(() => expect(screen.getByText('Pastoral Co-Pilot')).toBeInTheDocument(), { timeout: 5000 });
-
-        const buttons = screen.getAllByText(/Check-in Velocity/i);
-        fireEvent.click(buttons[0]);
-
-        await waitFor(() => {
-            expect(screen.getByTestId('check-in-velocity')).toBeInTheDocument();
-        });
     });
 
     it('allows fixing a phone anomaly via Review Mode', async () => {
@@ -1050,10 +1015,12 @@ describe('App Integration', () => {
         fireEvent.click(screen.getByTestId('student-g1'));
         fireEvent.click(screen.getByText('Fix'));
 
-        await waitFor(() => expect(gamification.updateGamificationState).toHaveBeenCalled());
-        expect(storage.saveGamificationState).toHaveBeenCalledWith(
-            expect.objectContaining({ currentStreak: 1 }), // Mock increments by 1
-            'test-id'
-        );
+        // One edit recorded against today, and no field that claims the record
+        // is now correct — that distinction is the point of the rewrite.
+        await waitFor(() => expect(storage.saveGamificationState).toHaveBeenCalled());
+        const [saved, savedAppId] = (storage.saveGamificationState as any).mock.calls.at(-1);
+        expect(savedAppId).toBe('test-id');
+        expect(Object.keys(saved)).toEqual(['fixHistory']);
+        expect(Object.values(saved.fixHistory as Record<string, number>)).toEqual([1]);
     });
 });

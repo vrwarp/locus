@@ -1,245 +1,53 @@
-import { describe, it, expect } from 'vitest';
-import { updateGamificationState } from './gamification';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { recordEdits, editsToday } from './gamification';
 import type { GamificationState } from './storage';
 
-describe('Gamification Logic', () => {
-  const baseState: GamificationState = {
-    lastActiveDate: '2023-01-01',
-    currentStreak: 1,
-    dailyFixes: 0,
-    totalFixes: 0,
-    ghostsCleared: 0,
-    birthdatesFixed: 0,
-    gradesFixed: 0,
-    unlockedBadges: [],
-    fixHistory: {}
-  };
+describe('edit history', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-03-24T14:00:00'));
+  });
+  afterEach(() => vi.useRealTimers());
 
-  it('increments total fixes', () => {
-    const { newState } = updateGamificationState(baseState);
-    expect(newState.totalFixes).toBe(1);
+  const empty: GamificationState = { fixHistory: {} };
+
+  it('records an edit against today', () => {
+    expect(editsToday(recordEdits(empty))).toBe(1);
   });
 
-  it('increments specific action types correctly', () => {
-    const { newState: ghostState } = updateGamificationState(baseState, 'ghost', 5);
-    expect(ghostState.ghostsCleared).toBe(5);
-    expect(ghostState.totalFixes).toBe(5);
-
-    const { newState: gradeState } = updateGamificationState(ghostState, 'grade', 2);
-    expect(gradeState.gradesFixed).toBe(2);
-    expect(gradeState.totalFixes).toBe(7);
-
-    const { newState: bdayState } = updateGamificationState(gradeState, 'birthdate', 3);
-    expect(bdayState.birthdatesFixed).toBe(3);
-    expect(bdayState.totalFixes).toBe(10);
-
-    const { newState: nameState } = updateGamificationState(bdayState, 'name', 4);
-    expect(nameState.namesFixed).toBe(4);
-    expect(nameState.totalFixes).toBe(14);
-
-    const { newState: phoneState } = updateGamificationState(nameState, 'phone', 5);
-    expect(phoneState.phonesFixed).toBe(5);
-    expect(phoneState.totalFixes).toBe(19);
-
-    const { newState: emailState } = updateGamificationState(phoneState, 'email', 6);
-    expect(emailState.emailsFixed).toBe(6);
-    expect(emailState.totalFixes).toBe(25);
-
-    const { newState: addressState } = updateGamificationState(emailState, 'address', 7);
-    expect(addressState.addressesFixed).toBe(7);
-    expect(addressState.totalFixes).toBe(32);
+  it('accumulates within a day', () => {
+    let state = recordEdits(empty);
+    state = recordEdits(state);
+    state = recordEdits(state);
+    expect(editsToday(state)).toBe(3);
   });
 
-  it('awards new detailed fix badges', () => {
-      // Test The Detail Sweeper
-      const addressState = { ...baseState, addressesFixed: 99, totalFixes: 99 };
-      const { newState: res1, newBadges: badges1 } = updateGamificationState(addressState, 'address', 1);
-      expect(res1.addressesFixed).toBe(100);
-      expect(badges1.find(b => b.id === 'detail-sweeper')).toBeDefined();
-
-      // Test The Telecommunicator
-      const phoneState = { ...baseState, phonesFixed: 99, totalFixes: 99 };
-      const { newState: res2, newBadges: badges2 } = updateGamificationState(phoneState, 'phone', 1);
-      expect(res2.phonesFixed).toBe(100);
-      expect(badges2.find(b => b.id === 'telecommunicator')).toBeDefined();
-
-      // Test The Postmaster
-      const emailState = { ...baseState, emailsFixed: 99, totalFixes: 99 };
-      const { newState: res3, newBadges: badges3 } = updateGamificationState(emailState, 'email', 1);
-      expect(res3.emailsFixed).toBe(100);
-      expect(badges3.find(b => b.id === 'postmaster')).toBeDefined();
-
-      // Test The Grammarian
-      const nameState = { ...baseState, namesFixed: 99, totalFixes: 99 };
-      const { newState: res4, newBadges: badges4 } = updateGamificationState(nameState, 'name', 1);
-      expect(res4.namesFixed).toBe(100);
-      expect(badges4.find(b => b.id === 'grammarian')).toBeDefined();
+  it('records a batch as one call', () => {
+    expect(editsToday(recordEdits(empty, 17))).toBe(17);
   });
 
-  it('awards The Exorcist badge', () => {
-      const state = { ...baseState, ghostsCleared: 995, totalFixes: 995 };
-      const { newState, newBadges } = updateGamificationState(state, 'ghost', 5);
+  it('starts a fresh count on a new day and keeps the old one', () => {
+    const yesterday = recordEdits(empty, 5);
 
-      expect(newState.ghostsCleared).toBe(1000);
-      const exorcistBadge = newBadges.find(b => b.id === 'the-exorcist');
-      expect(exorcistBadge).toBeDefined();
+    vi.setSystemTime(new Date('2026-03-25T09:00:00'));
+    const today = recordEdits(yesterday, 2);
+
+    expect(editsToday(today)).toBe(2);
+    expect(today.fixHistory?.['2026-03-24']).toBe(5);
   });
 
-  it('awards The Time Lord badge', () => {
-      const state = { ...baseState, birthdatesFixed: 499, totalFixes: 499 };
-      const { newState, newBadges } = updateGamificationState(state, 'birthdate', 1);
-
-      expect(newState.birthdatesFixed).toBe(500);
-      const timeLordBadge = newBadges.find(b => b.id === 'the-time-lord');
-      expect(timeLordBadge).toBeDefined();
+  it('uses local date parts, so an evening session lands on the right day', () => {
+    // A UTC ISO string would push a 9pm edit west of Greenwich into tomorrow.
+    vi.setSystemTime(new Date('2026-03-24T21:30:00'));
+    expect(recordEdits(empty).fixHistory).toHaveProperty('2026-03-24');
   });
 
-  it('awards The Golden Record badge', () => {
-      const state = { ...baseState, totalFixes: 9999 };
-      const { newState, newBadges } = updateGamificationState(state, 'general', 1);
-
-      expect(newState.totalFixes).toBe(10000);
-      const goldenRecordBadge = newBadges.find(b => b.id === 'the-golden-record');
-      expect(goldenRecordBadge).toBeDefined();
+  it('reads zero from a state that has never recorded anything', () => {
+    expect(editsToday({})).toBe(0);
   });
 
-  it('awards First Fix badge', () => {
-    const { newState, newBadges } = updateGamificationState(baseState);
-    expect(newState.totalFixes).toBe(1);
-    expect(newBadges).toHaveLength(1);
-    expect(newBadges[0].id).toBe('first-fix');
-    expect(newState.unlockedBadges).toHaveLength(1);
-    expect(newState.unlockedBadges[0].id).toBe('first-fix');
-  });
-
-  it('does not award First Fix badge twice', () => {
-    const stateWithBadge: GamificationState = {
-        ...baseState,
-        totalFixes: 1,
-        unlockedBadges: [{ id: 'first-fix', date: '2023-01-01' }]
-    };
-    const { newState, newBadges } = updateGamificationState(stateWithBadge);
-    expect(newState.totalFixes).toBe(2);
-    expect(newBadges).toHaveLength(0);
-    expect(newState.unlockedBadges).toHaveLength(1);
-  });
-
-  it('increments streak if active yesterday', () => {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-
-    const state: GamificationState = {
-        ...baseState,
-        lastActiveDate: yesterdayStr,
-        currentStreak: 2
-    };
-
-    const { newState } = updateGamificationState(state);
-    expect(newState.currentStreak).toBe(3);
-  });
-
-  it('awards Streak Master badge', () => {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-
-    const state: GamificationState = {
-        ...baseState,
-        lastActiveDate: yesterdayStr,
-        currentStreak: 2,
-        unlockedBadges: []
-    };
-
-    const { newState, newBadges } = updateGamificationState(state);
-    expect(newState.currentStreak).toBe(3);
-
-    // Check if Streak Master is in newBadges
-    const streakBadge = newBadges.find(b => b.id === 'streak-master');
-    expect(streakBadge).toBeDefined();
-  });
-
-  it('resets streak if gap > 1 day', () => {
-     const twoDaysAgo = new Date();
-     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
-     const twoDaysAgoStr = `${twoDaysAgo.getFullYear()}-${String(twoDaysAgo.getMonth() + 1).padStart(2, '0')}-${String(twoDaysAgo.getDate()).padStart(2, '0')}`;
-
-     const state: GamificationState = {
-         ...baseState,
-         lastActiveDate: twoDaysAgoStr,
-         currentStreak: 5
-     };
-
-     const { newState } = updateGamificationState(state);
-     expect(newState.currentStreak).toBe(1);
-  });
-
-  it('processes bounties correctly', () => {
-    const stateWithBounty: GamificationState = {
-        ...baseState,
-        bounties: [
-            {
-                id: 'b1',
-                title: 'Fix 10 Phones',
-                description: 'test',
-                actionType: 'phone',
-                targetCount: 10,
-                currentCount: 8,
-                reward: 'Cookie',
-                createdAt: '2023-10-01'
-            },
-            {
-                id: 'b2',
-                title: 'General fixes',
-                description: 'test',
-                actionType: 'general',
-                targetCount: 50,
-                currentCount: 45,
-                reward: 'High Five',
-                createdAt: '2023-10-01'
-            }
-        ]
-    };
-
-    // Update with phone action
-    const { newState: state1 } = updateGamificationState(stateWithBounty, 'phone', 2);
-
-    // Check specific bounty (phone)
-    expect(state1.bounties?.[0].currentCount).toBe(10);
-    expect(state1.bounties?.[0].completedAt).toBeDefined();
-
-    // Check general bounty (it should progress regardless of actionType)
-    expect(state1.bounties?.[1].currentCount).toBe(47);
-    expect(state1.bounties?.[1].completedAt).toBeUndefined();
-
-    // Update with email action
-    const { newState: state2 } = updateGamificationState(state1, 'email', 3);
-
-    // Check specific bounty (phone) remains completed, doesn't increment past target due to logic?
-    // Wait, the logic only updates if !completedAt.
-    expect(state2.bounties?.[0].currentCount).toBe(10);
-
-    // Check general bounty progresses and completes
-    expect(state2.bounties?.[1].currentCount).toBe(50);
-    expect(state2.bounties?.[1].completedAt).toBeDefined();
-  });
-
-  it('updates fixHistory correctly', () => {
-      const now = new Date();
-      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-      const state: GamificationState = {
-          ...baseState,
-          fixHistory: {
-              '2023-01-01': 5
-          }
-      };
-
-      const { newState } = updateGamificationState(state);
-      expect(newState.fixHistory).toBeDefined();
-      expect(newState.fixHistory?.[today]).toBe(1);
-      expect(newState.fixHistory?.['2023-01-01']).toBe(5);
-
-      const { newState: state2 } = updateGamificationState(newState);
-      expect(state2.fixHistory?.[today]).toBe(2);
+  it('carries no field that claims correctness', () => {
+    const state = recordEdits(empty, 4);
+    expect(Object.keys(state)).toEqual(['fixHistory']);
   });
 });

@@ -25,7 +25,7 @@ describe('IntelligenceLayout', () => {
       expect(screen.getByText('Locus Intelligence')).toBeInTheDocument();
 
       // Clicking a link inside the layout (from the sidebar) should call onChangeView
-      fireEvent.click(screen.getByRole('button', { name: /Pastoral Co-Pilot/i }));
-      expect(onChangeViewMock).toHaveBeenCalledWith('copilot');
+      fireEvent.click(screen.getByRole('button', { name: /Retention/i }));
+      expect(onChangeViewMock).toHaveBeenCalledWith('retention');
   });
 });

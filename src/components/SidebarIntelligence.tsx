@@ -17,22 +17,8 @@ export const SidebarIntelligence: React.FC<SidebarProps> = ({ currentView, onCha
       <nav className="sidebar-nav">
         <div className="nav-section">Intelligence</div>
 
-        <button
-          className={`nav-item ${currentView === 'copilot' ? 'active' : ''}`}
-          onClick={() => onChangeView('copilot')}
-        >
-          <span className="icon">🤖</span>
-          Pastoral Co-Pilot
-        </button>
 
 
-        <button
-          className={`nav-item ${currentView === 'sentiment-pulse' ? 'active' : ''}`}
-          onClick={() => onChangeView('sentiment-pulse')}
-        >
-          <span className="icon">💭</span>
-          Sentiment Pulse
-        </button>
 
         <button
           className={`nav-item ${currentView === 'newsletter' ? 'active' : ''}`}
@@ -50,13 +36,6 @@ export const SidebarIntelligence: React.FC<SidebarProps> = ({ currentView, onCha
           Burnout Risk
         </button>
 
-        <button
-          className={`nav-item ${currentView === 'attrition' ? 'active' : ''}`}
-          onClick={() => onChangeView('attrition')}
-        >
-          <span className="icon">📉</span>
-          Attrition
-        </button>
 
         <button
           className={`nav-item ${currentView === 'missing' ? 'active' : ''}`}
@@ -90,13 +69,6 @@ export const SidebarIntelligence: React.FC<SidebarProps> = ({ currentView, onCha
           Attendance
         </button>
 
-        <button
-          className={`nav-item ${currentView === 'velocity' ? 'active' : ''}`}
-          onClick={() => onChangeView('velocity')}
-        >
-          <span className="icon">⏱️</span>
-          Check-in Velocity
-        </button>
 
         <button
           className={`nav-item ${currentView === 'bus-factor' ? 'active' : ''}`}
@@ -107,21 +79,7 @@ export const SidebarIntelligence: React.FC<SidebarProps> = ({ currentView, onCha
         </button>
 
 
-        <button
-          className={`nav-item ${currentView === 'solar-system' ? 'active' : ''}`}
-          onClick={() => onChangeView('solar-system')}
-        >
-          <span className="icon">🪐</span>
-          Solar System
-        </button>
 
-        <button
-          className={`nav-item ${currentView === 'heatmap' ? 'active' : ''}`}
-          onClick={() => onChangeView('heatmap')}
-        >
-          <span className="icon">🎂</span>
-          Heatmap of Life
-        </button>
 
         <button
           className={`nav-item ${currentView === 'demographics' ? 'active' : ''}`}
@@ -131,25 +89,11 @@ export const SidebarIntelligence: React.FC<SidebarProps> = ({ currentView, onCha
           Demographics
         </button>
 
-        <button
-          className={`nav-item ${currentView === 'map-view' ? 'active' : ''}`}
-          onClick={() => onChangeView('map-view')}
-        >
-          <span className="icon">🗺️</span>
-          Map View
-        </button>
 
 
 
 
 
-        <button
-          className={`nav-item ${currentView === 'prayer' ? 'active' : ''}`}
-          onClick={() => onChangeView('prayer')}
-        >
-          <span className="icon">🙏</span>
-          Prayer Partner Match
-        </button>
 
         <button
           className={`nav-item ${currentView === 'small-groups' ? 'active' : ''}`}
@@ -160,13 +104,6 @@ export const SidebarIntelligence: React.FC<SidebarProps> = ({ currentView, onCha
         </button>
 
         <div className="nav-section">Tools</div>
-        <button
-          className={`nav-item ${currentView === 'locus-public' ? 'active' : ''}`}
-          onClick={() => onChangeView('locus-public')}
-        >
-          <span className="icon">👤</span>
-          Locus Public
-        </button>
 
         <button
           className={`nav-item ${currentView === 'automations' ? 'active' : ''}`}
