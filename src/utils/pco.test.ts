@@ -218,6 +218,21 @@ describe('transformPerson', () => {
   });
 });
 
+
+// Sandbox Mode is only honoured when the service worker that intercepts the
+// write is actually controlling the page, so tests that exercise it have to say
+// which of the two worlds they are in.
+const withSandboxInterceptor = (present: boolean) => {
+    Object.defineProperty(navigator, 'serviceWorker', {
+        configurable: true,
+        value: present ? { controller: {} } : {},
+    });
+};
+const sandboxReply = (person: PcoPerson) => ({
+    data: { data: person },
+    headers: { 'x-locus-sandbox-response': 'true' },
+});
+
 describe('updatePerson', () => {
     it('calls api patch with correct arguments and returns data', async () => {
         const mockPerson: PcoPerson = {
@@ -257,8 +272,8 @@ describe('updatePerson', () => {
             type: 'Person',
             attributes: { grade: 5 }
         };
-        const mockResponse = { data: { data: mockPerson } };
-        (api.patch as any).mockResolvedValue(mockResponse);
+        withSandboxInterceptor(true);
+        (api.patch as any).mockResolvedValue(sandboxReply(mockPerson));
 
         await updatePerson('123', { grade: 5 }, 'auth-token', true);
 
@@ -688,6 +703,7 @@ describe('updatePerson contact writes', () => {
     });
 
     it('carries the sandbox header onto the contact writes too', async () => {
+        withSandboxInterceptor(true);
         (api.get as any).mockResolvedValue({ data: { data: [{ id: 'e1' }] } });
 
         await updatePerson('1', { email_addresses: [{ address: 'a@b.com', location: 'Home' }] }, auth, true);
@@ -697,6 +713,33 @@ describe('updatePerson contact writes', () => {
             expect.any(Object),
             expect.objectContaining({ headers: expect.objectContaining({ 'X-Locus-Sandbox': 'true' }) }),
         );
+    });
+
+    it('refuses to write at all when Sandbox Mode is on but the interceptor is not running', async () => {
+        // The dangerous case: header attached, request sent, PATCH lands in real
+        // Planning Center, banner still claims the change was simulated.
+        withSandboxInterceptor(false);
+
+        await expect(updatePerson('1', { grade: 5 }, auth, true))
+            .rejects.toThrow(/would have gone to Planning Center for real/);
+        expect(api.patch).not.toHaveBeenCalled();
+    });
+
+    it('reports it when a sandbox write reaches PCO anyway', async () => {
+        // Controller present at the start, but the reply came back without the
+        // interceptor's marker — the worker went away and the write is live.
+        withSandboxInterceptor(true);
+        (api.patch as any).mockResolvedValue({ data: { data: person }, headers: {} });
+
+        await expect(updatePerson('1', { grade: 5 }, auth, true))
+            .rejects.toThrow(/reached Planning Center/);
+    });
+
+    it('does not consult the interceptor when Sandbox Mode is off', async () => {
+        withSandboxInterceptor(false);
+        (api.patch as any).mockResolvedValue({ data: { data: person }, headers: {} });
+
+        await expect(updatePerson('1', { grade: 5 }, auth)).resolves.toBeTruthy();
     });
 
     it('reads the person back when only contacts changed', async () => {

@@ -46,16 +46,18 @@ The church operations critic put the cost plainly: a pastor or finance chair
 citing either giving number in a stewardship conversation would be repeating a
 fabricated statistic they had every reason to trust.
 
-### 2. Safety features that do nothing
+### 2. Safety features that do not protect
 
-Three separate mechanisms presented as protection while providing none. This is
-worse than their absence, because it is the careful user who reaches for them.
+Mechanisms presented as protection that do not provide it. Worse than their
+absence, because it is the careful user who reaches for them.
 
-* **Sandbox Mode is inert.** `updatePerson` sets an `X-Locus-Sandbox` header and
-  PATCHes live PCO regardless; `grep -ri sandbox mock-api/` returns nothing. It
-  is threaded into ghost archival, Smart Fix, Review Mode and batch commit, so
-  there was no safe way to trial any write feature against real records — and it
-  was cited as mitigation throughout the product.
+* **Sandbox Mode fails open.** *(Corrected — see `CORRECTION-sandbox.md`. The
+  audit originally reported this as inert, which was wrong: a service worker at
+  `public/sandbox-sw.js` really does intercept the tagged writes. Every critic
+  grepped `mock-api/` and missed it.)* Nothing checked that the interceptor was
+  in control before attaching the header and sending the write — so on a first
+  load, or after a failed registration, the PATCH reached Planning Center for
+  real while the banner still read "changes are simulated".
 * **Emergency Alerts' Twilio send** was a `setTimeout` that always reported
   success. During an actual emergency a pastor would believe a message went out.
 * **Encryption without a secret.** `storage.ts` passes `appId` — the PCO
@@ -127,9 +129,11 @@ Everything below is committed, with the full suite green.
 | Newcomer funnel counts Guest check-ins | It dropped the population it exists to count, and mis-dated long-time attenders as newcomers |
 | Partial bulk-write failure reports honestly and keeps Undo available | It told the operator everything was reverted while the written half sat in PCO |
 | Component tests mock only the network, not whole modules | A stubbed module let the minor guards pass vacuously |
-| **Deleted:** Global Pulse, Giving River, Giving Trends, Sermon Sentiment, Sermon Correlator, Emergency Alerts, Volunteer Web, Robert Report, Genealogy Graph | Fabricated data, fake sends, or dead code — all unanimous across five rounds |
+| Sandbox Mode fails closed | It attached the header and sent the write without checking the interceptor was in control; now it refuses to send, and verifies the reply came from the sandbox |
+| Scoring substrate deleted rather than gated; `GamificationState` 13 fields → 1 | No predicate over (before, after) can tell a verified correction from an accepted guess, and the one-click bulk fixer proved it |
+| **Deleted (24 surfaces):** Global Pulse, Giving River, Giving Trends, Sermon Sentiment, Sermon Correlator, Emergency Alerts, Volunteer Web, Robert Report, Genealogy Graph, Pastoral Co-Pilot, Predictive Attrition, Check-in Velocity, Solar System, Heatmap of Life, Sentiment Pulse, Prayer Partner Match, Locus Public, Integrations Hub, Map View's route, Golden Record, Bounty Board, Campus Cup, Achievement Case, Avatar + confetti + badges | Fabricated data, fake sends, fields PCO does not have, or dead code — all unanimous across five rounds |
 
-Net effect: **−3,993 / +345 lines**, non-test source from 12,936 to 10,890.
+Net effect so far: **−11,004 / +523 lines** across 134 files.
 
 ## What is specified but not built
 

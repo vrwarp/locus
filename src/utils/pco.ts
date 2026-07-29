@@ -386,6 +386,37 @@ const writeContact = async (
   }
 };
 
+export class SandboxUnavailableError extends Error {
+    constructor() {
+        super(
+            'Sandbox Mode is on, but the interceptor that makes it work is not running, ' +
+            'so this change would have gone to Planning Center for real. Nothing was sent. ' +
+            'Reload the page to start the interceptor, or turn Sandbox Mode off if you meant to save.'
+        );
+        this.name = 'SandboxUnavailableError';
+    }
+}
+
+/**
+ * Is the sandbox interceptor actually in control of this page?
+ *
+ * Sandbox Mode works by tagging writes with `X-Locus-Sandbox` and having a
+ * service worker (`public/sandbox-sw.js`) answer them with a synthetic response
+ * instead of letting them reach PCO. That mechanism is real, but it is not
+ * always there: a service worker does not control the page on the very first
+ * load before it activates, registration can fail outright (`main.tsx` only
+ * logs it), and it needs a secure context.
+ *
+ * In every one of those cases the header was still attached, the PATCH still
+ * went to Planning Center, and the banner still said "changes are simulated".
+ * A safety switch that quietly stops working is worse than none, because it is
+ * the cautious user who reaches for it. So: no controller, no write.
+ */
+const sandboxInterceptorReady = (): boolean =>
+    typeof navigator !== 'undefined' &&
+    'serviceWorker' in navigator &&
+    !!navigator.serviceWorker.controller;
+
 export const updatePerson = async (id: string, attributes: PcoAttributes, auth: string, sandboxMode?: boolean): Promise<PcoPerson> => {
     const headers: Record<string, string> = {
         Authorization: `Basic ${auth}`,
@@ -393,6 +424,7 @@ export const updatePerson = async (id: string, attributes: PcoAttributes, auth: 
     };
 
     if (sandboxMode) {
+        if (!sandboxInterceptorReady()) throw new SandboxUnavailableError();
         headers['X-Locus-Sandbox'] = 'true';
     }
 
@@ -426,6 +458,19 @@ export const updatePerson = async (id: string, attributes: PcoAttributes, auth: 
           headers
         }
       );
+
+      // Belt as well as braces. The controller check above runs before the
+      // request; this confirms afterwards that the reply really came from the
+      // interceptor and not from Planning Center. If the worker went away
+      // mid-session the write has already landed, so say so plainly rather than
+      // returning a success the banner will dress up as simulated.
+      if (sandboxMode && !response.headers?.['x-locus-sandbox-response']) {
+        throw new Error(
+          'Sandbox Mode was on, but this change reached Planning Center — the reply did not come ' +
+          'from the sandbox interceptor. Treat the record as edited and check it.'
+        );
+      }
+
       person = response.data.data;
     }
 

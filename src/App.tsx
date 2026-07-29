@@ -577,18 +577,12 @@ function App() {
     <div className="app-container" style={{display: 'flex', width: '100vw', height: '100vh', margin: 0, padding: 0}}>
        {config.sandboxMode && (
           <div style={{
-              backgroundColor: '#ff9800',
-              color: 'black',
-              padding: '10px',
-              textAlign: 'center',
-              fontWeight: 'bold',
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              zIndex: 9999
+              position: 'fixed', top: 0, left: 0, right: 0, zIndex: 3000,
+              background: '#7C5A0C', color: '#fff', textAlign: 'center',
+              padding: '0.4rem', fontSize: '0.85rem'
           }}>
-              ⚠️ SANDBOX MODE ACTIVE - Changes are simulated
+              Sandbox Mode — writes are intercepted locally and never reach Planning Center.
+              If the interceptor is not running, saving will refuse rather than write.
           </div>
       )}
 
