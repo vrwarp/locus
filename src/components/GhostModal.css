@@ -104,3 +104,48 @@
 .btn-secondary:hover {
     background-color: #6b7280;
 }
+
+.ghost-item--selectable {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.ghost-item--selectable:hover {
+  background: rgba(127, 127, 127, 0.08);
+}
+
+.ghost-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tag-minor {
+  background: #7C2D12;
+  color: #fff;
+}
+
+.ghost-confirm {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #A0202F;
+  border-left-width: 4px;
+  background: rgba(160, 32, 47, 0.06);
+}
+
+.ghost-confirm label {
+  display: block;
+  margin-top: 0.6rem;
+  font-size: 0.88rem;
+}
+
+.ghost-confirm input {
+  margin-top: 0.35rem;
+  padding: 0.4rem 0.6rem;
+  font-family: ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  width: 12rem;
+}

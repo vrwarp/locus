@@ -1,6 +1,6 @@
-import { isAfter, differenceInDays, parseISO, isSameMonth, getDate } from 'date-fns';
+import { isAfter, isBefore, differenceInDays, parseISO, isSameMonth, getDate } from 'date-fns';
 import type { Student } from './pco';
-import { calculateExpectedGrade, type GraderOptions } from './grader';
+import { calculateExpectedGrade, DEFAULT_CUTOFF_MONTH, DEFAULT_CUTOFF_DAY, type GraderOptions } from './grader';
 
 export interface BirthdayAction {
     person: Student;
@@ -60,39 +60,68 @@ export const getUpcomingBirthdays = (
 };
 
 /**
- * Identifies students who need a grade promotion.
- * E.g., it's after June 1st, and their `pcoGrade` is lower than their `expectedGrade` for the new year.
- * Only targets children (isChild = true).
+ * Who is a grade behind and should be rolled over.
+ *
+ * Three things were wrong with the previous version and all three mattered in
+ * August, the one week of the year this screen is worth opening.
+ *
+ * It ran off a hardcoded June 1, ignoring the configurable school-year cutoff
+ * that `calculateExpectedGrade` uses — so the lane could open before or after
+ * the grades it compares against had rolled over, depending on the church's
+ * setting. There is one clock now, and it is the configured one.
+ *
+ * It filtered on `isChild`, PCO's hand-maintained flag. That is unreliable
+ * above about 8th grade, which silently excluded most high-schoolers from
+ * promotion in the exact season they needed it. Having a grade on file is the
+ * honest test of whether somebody is in the school system.
+ *
+ * And it dropped anyone two or more grades behind, on the reasoning that a
+ * single-grade gap is the normal rollover. That is right about what to promote
+ * automatically and wrong about what to do with the rest: a two-grade gap is a
+ * data error somebody should look at, so `gradePromotionBacklog` returns them
+ * separately rather than letting them vanish.
  */
 export const getPendingGradePromotions = (
     students: Student[],
     today: Date = new Date(),
     options: GraderOptions = {}
-): PromotionAction[] => {
-    // Default promotion season starts June 1st
-    const promotionStartMonth = 5; // June (0-indexed)
-    const promotionStartDay = 1;
+): PromotionAction[] => gradePromotionBacklog(students, today, options).readyToPromote;
 
-    const promotionSeasonStart = new Date(today.getFullYear(), promotionStartMonth, promotionStartDay);
+export interface GradePromotionBacklog {
+    /** Exactly one grade behind: the ordinary rollover, safe to promote in bulk. */
+    readyToPromote: PromotionAction[];
+    /** Two or more behind: not a rollover, a data problem. Needs a human. */
+    needsReview: PromotionAction[];
+}
 
-    // If we haven't hit promotion season this year, there are no *new* pending promotions to suggest broadly.
-    // (We rely on standard anomaly detection for regular mismatches).
-    // But for this automation, we specifically look for people who should have been promoted recently.
-    if (!isAfter(today, promotionSeasonStart)) {
-        return [];
+export const gradePromotionBacklog = (
+    students: Student[],
+    today: Date = new Date(),
+    options: GraderOptions = {}
+): GradePromotionBacklog => {
+    const { cutoffMonth = DEFAULT_CUTOFF_MONTH, cutoffDay = DEFAULT_CUTOFF_DAY } = options;
+
+    // The same cutoff the grade calculation uses. Before it, expected grades have
+    // not rolled over yet and every comparison below would be against last year.
+    const seasonStart = new Date(today.getFullYear(), cutoffMonth, cutoffDay);
+    if (isBefore(today, seasonStart)) return { readyToPromote: [], needsReview: [] };
+
+    const readyToPromote: PromotionAction[] = [];
+    const needsReview: PromotionAction[] = [];
+
+    for (const person of students) {
+        // A grade on file is what says "this person is in the school system".
+        if (!person.birthdate || person.pcoGrade === null) continue;
+
+        const expectedGrade = calculateExpectedGrade(parseISO(person.birthdate), today, options);
+        const gap = expectedGrade - person.pcoGrade;
+        if (gap <= 0) continue;
+
+        const action = { person, currentGrade: person.pcoGrade, expectedGrade };
+        (gap === 1 ? readyToPromote : needsReview).push(action);
     }
 
-    return students
-        .filter(s => s.isChild && s.birthdate) // Only look at kids with birthdates
-        .map(person => {
-            const expectedGrade = calculateExpectedGrade(parseISO(person.birthdate), today, options);
-            return { person, currentGrade: person.pcoGrade, expectedGrade };
-        })
-        .filter(action => {
-            // They need a promotion if their current grade is less than expected
-            // We only suggest promotion if they are 1 grade behind (typical end-of-year rollover)
-            return action.currentGrade !== null && action.expectedGrade > action.currentGrade && (action.expectedGrade - action.currentGrade === 1);
-        });
+    return { readyToPromote, needsReview };
 };
 
 /**

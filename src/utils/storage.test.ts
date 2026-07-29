@@ -176,17 +176,22 @@ describe('Storage Utils', () => {
   });
 
   describe('Gamification Storage', () => {
-      it('loads gamification state with default unlockedBadges and new trackers', async () => {
-          const storedState = { lastActiveDate: '2023-01-01', currentStreak: 5, dailyFixes: 0, totalFixes: 100 };
+      it('drops the streaks, badges and tallies an older build saved', async () => {
+          // Not migrated — dropped. Every one of those fields asserted the database
+          // had got more correct, which Locus has no way to know. Only the edit
+          // history is carried across.
+          const storedState = {
+              lastActiveDate: '2023-01-01', currentStreak: 5, dailyFixes: 0, totalFixes: 100,
+              unlockedBadges: [{ id: 'the-exorcist', date: '2023-01-01' }],
+              ghostsCleared: 40, gradesFixed: 12,
+              fixHistory: { '2023-01-01': 7 },
+          };
           mockGetItem.mockReturnValue('enc-gamification');
           vi.mocked(cryptoUtils.decryptData).mockResolvedValue(storedState);
 
           const loaded = await loadGamificationState(appId);
-          expect(loaded.unlockedBadges).toEqual([]);
-          expect(loaded.currentStreak).toBe(5);
-          expect(loaded.ghostsCleared).toBe(0);
-          expect(loaded.birthdatesFixed).toBe(0);
-          expect(loaded.gradesFixed).toBe(0);
+          expect(Object.keys(loaded)).toEqual(['fixHistory']);
+          expect(loaded.fixHistory).toEqual({ '2023-01-01': 7 });
       });
 
       it('saves gamification state', async () => {

@@ -31,20 +31,11 @@ export interface HealthHistoryEntry {
   totalRecords: number;
 }
 
+// One field, not thirteen. Everything else this used to hold — streaks, badges,
+// per-field tallies, a lifetime total — was a claim about correctness the
+// product cannot make. See `gamification.ts`.
 export interface GamificationState {
-  lastActiveDate: string; // YYYY-MM-DD
-  currentStreak: number;
-  dailyFixes: number;
-  totalFixes: number;
-  ghostsCleared?: number;
-  birthdatesFixed?: number;
-  gradesFixed?: number;
-  namesFixed?: number;
-  emailsFixed?: number;
-  addressesFixed?: number;
-  phonesFixed?: number;
-  unlockedBadges: { id: string, date: string }[];
-  fixHistory?: Record<string, number>; // YYYY-MM-DD -> count
+  fixHistory?: Record<string, number>; // YYYY-MM-DD -> edits recorded
 }
 
 const STORAGE_KEY = 'locus_config';
@@ -137,18 +128,6 @@ export const saveHealthSnapshot = async (stats: HealthStats, appId: string): Pro
 };
 
 const getDefaultGamificationState = (): GamificationState => ({
-  lastActiveDate: '',
-  currentStreak: 0,
-  dailyFixes: 0,
-  totalFixes: 0,
-  ghostsCleared: 0,
-  birthdatesFixed: 0,
-  gradesFixed: 0,
-  namesFixed: 0,
-  emailsFixed: 0,
-  addressesFixed: 0,
-  phonesFixed: 0,
-  unlockedBadges: [],
   fixHistory: {}
 });
 
@@ -169,18 +148,11 @@ export const loadGamificationState = async (appId: string): Promise<Gamification
           }
       }
 
-      // Migration: Ensure new fields exist
-      if (state.ghostsCleared === undefined) state.ghostsCleared = 0;
-      if (state.birthdatesFixed === undefined) state.birthdatesFixed = 0;
-      if (state.gradesFixed === undefined) state.gradesFixed = 0;
-      if (state.namesFixed === undefined) state.namesFixed = 0;
-      if (state.emailsFixed === undefined) state.emailsFixed = 0;
-      if (state.addressesFixed === undefined) state.addressesFixed = 0;
-      if (state.phonesFixed === undefined) state.phonesFixed = 0;
-      if (!state.unlockedBadges) state.unlockedBadges = [];
-      if (!state.fixHistory) state.fixHistory = {};
-
-      return state;
+      // A state saved by an older build carries streaks, badges and per-field
+      // tallies. They are not migrated, they are dropped: every one of them was a
+      // claim about correctness the product cannot make. The edit history is the
+      // only field worth keeping, and it survives as-is.
+      return { fixHistory: state.fixHistory || {} };
 
   } catch (e) {
       console.error("Failed to load gamification state", e);

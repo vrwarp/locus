@@ -12,8 +12,15 @@ export const calculateNewcomerFunnel = (checkIns: PcoCheckIn[]): FunnelStep[] =>
   const checkInsByPerson: Record<string, Date[]> = {};
 
   checkIns.forEach(checkIn => {
-    // Only count Regular attendance, not volunteering
-    if (checkIn.attributes.kind !== 'Regular') return;
+    // Count attendance, not volunteering. Written as a blacklist of one kind
+    // rather than a whitelist of one: `kind !== 'Regular'` also dropped Guest
+    // check-ins, which is the entire population this funnel is counting. Worse
+    // than undercounting, it mis-dated anyone whose first visit was a Guest
+    // check-in and whose later ones were Regular — their earliest date became a
+    // later one, so a long-time attender could score as a newcomer. Invisible
+    // on the fixture, which has no Guest rows, and invisible to any church that
+    // renamed its visitor kind.
+    if (checkIn.attributes.kind === 'Volunteer') return;
 
     const personId = checkIn.relationships.person.data.id;
     if (!checkInsByPerson[personId]) {

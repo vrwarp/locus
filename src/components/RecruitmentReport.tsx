@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { initialsAvatar } from '../utils/avatar';
 import { fetchEvents, fetchRecentCheckIns } from '../utils/pco';
 import type { Student } from '../utils/pco';
 import { calculateRecruitmentCandidates, generateAskScript } from '../utils/recruitment';
@@ -82,7 +83,7 @@ export const RecruitmentReport: React.FC<RecruitmentReportProps> = ({ students, 
                     return (
                         <div key={c.person.id} className="candidate-card recruitment-card">
                             <div className="candidate-info">
-                                <img src={c.person.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.person.name)}`} alt="Avatar" className="avatar" />
+                                <img src={c.person.avatarUrl || initialsAvatar(c.person.name)} alt="Avatar" className="avatar" />
                                 <div>
                                     <h4>
                                         {c.person.name}

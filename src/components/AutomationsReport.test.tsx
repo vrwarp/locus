@@ -5,7 +5,7 @@ import type { Student } from '../utils/pco';
 
 describe('AutomationsReport', () => {
     const createStudent = (id: string, name: string, birthdate: string, pcoGrade: number | null, age: number, isChild: boolean = true, bgExpiry: string | null = null, firstTimeGiver = false, firstGiftDate: string | null = null): Student => ({
-        id, age, pcoGrade, name, firstName: name.split(' ')[0], lastName: name.split(' ')[1] || '',
+        id, createdAt: null, age, pcoGrade, name, firstName: name.split(' ')[0], lastName: name.split(' ')[1] || '',
         birthdate, calculatedGrade: 5, delta: 0, lastCheckInAt: null, checkInCount: 0, isChild, householdId: '1', hasNameAnomaly: false, hasEmailAnomaly: false, hasPhoneAnomaly: false, hasAddressAnomaly: false, backgroundCheckExpiresAt: bgExpiry,
         firstTimeGiver, firstGiftDate
     });

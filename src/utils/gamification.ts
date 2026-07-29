@@ -1,205 +1,42 @@
 import type { GamificationState } from './storage';
 
-export interface Badge {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  condition: (state: GamificationState) => boolean;
-}
+/**
+ * A record of edits made, per day. Not a score.
+ *
+ * Locus used to count "fixes" — a number incremented whenever a field changed
+ * shape, then displayed as though it meant a member record had become more
+ * correct. It never did. The product has no source of truth about anyone's
+ * name, phone, address or grade and never asks for one: it compares a value
+ * against a pattern and rewrites it.
+ *
+ * The feature audit spent four rounds designing a gate that would credit only
+ * genuine corrections, and concluded no such gate exists. No predicate over
+ * (before, after) can tell "someone rang the family and confirmed this" from
+ * "someone accepted the tool's guess", because nobody rang the family. Review
+ * Mode's one-click bulk fixer settled it: any rule computable from the record
+ * is a rule the fixer already satisfies without a human reading anything.
+ *
+ * So this counts edits and calls them edits. It is honest, it shows whether a
+ * cleanup session happened, and it claims nothing about whether the database
+ * is better than it was.
+ */
+export const recordEdits = (
+  state: GamificationState,
+  count: number = 1
+): GamificationState => {
+  // Local date parts, not a UTC ISO string — otherwise an evening session in a
+  // western timezone lands on tomorrow's row.
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
-export const BADGES: Badge[] = [
-  {
-    id: 'first-fix',
-    name: 'First Fix',
-    description: 'You fixed your first record!',
-    icon: '🎉',
-    condition: (state) => state.totalFixes >= 1
-  },
-  {
-    id: 'streak-master',
-    name: 'Streak Master',
-    description: 'You reached a 3-day streak!',
-    icon: '🔥',
-    condition: (state) => state.currentStreak >= 3
-  },
-  {
-    id: 'archaeologist',
-    name: 'The Archaeologist',
-    description: 'You have fixed 50 records.',
-    icon: '🏺',
-    condition: (state) => state.totalFixes >= 50
-  },
-  {
-      id: 'daily-grind',
-      name: 'Daily Grind',
-      description: 'You fixed 10 records in one day!',
-      icon: '☕',
-      condition: (state) => state.dailyFixes >= 10
-  },
-  {
-      id: 'the-exorcist',
-      name: 'The Exorcist',
-      description: 'You cleared 1,000 Ghosts!',
-      icon: '👻',
-      condition: (state) => (state.ghostsCleared || 0) >= 1000
-  },
-  {
-      id: 'the-time-lord',
-      name: 'The Time Lord',
-      description: 'You fixed 500 Birthdates!',
-      icon: '⌛',
-      condition: (state) => (state.birthdatesFixed || 0) >= 500
-  },
-  {
-      id: 'the-golden-record',
-      name: 'The Golden Record',
-      description: 'You made your 10,000th fix!',
-      icon: '📀',
-      condition: (state) => state.totalFixes >= 10000
-  },
-  {
-      id: 'detail-sweeper',
-      name: 'The Detail Sweeper',
-      description: 'You fixed 100 Addresses!',
-      icon: '🧹',
-      condition: (state) => (state.addressesFixed || 0) >= 100
-  },
-  {
-      id: 'telecommunicator',
-      name: 'The Telecommunicator',
-      description: 'You fixed 100 Phone Numbers!',
-      icon: '📞',
-      condition: (state) => (state.phonesFixed || 0) >= 100
-  },
-  {
-      id: 'postmaster',
-      name: 'The Postmaster',
-      description: 'You fixed 100 Emails!',
-      icon: '📬',
-      condition: (state) => (state.emailsFixed || 0) >= 100
-  },
-  {
-      id: 'grammarian',
-      name: 'The Grammarian',
-      description: 'You fixed 100 Names!',
-      icon: '✍️',
-      condition: (state) => (state.namesFixed || 0) >= 100
-  }
-];
+  const fixHistory = { ...(state.fixHistory || {}) };
+  fixHistory[today] = (fixHistory[today] || 0) + count;
+  return { fixHistory };
+};
 
-export type ActionType = 'general' | 'ghost' | 'birthdate' | 'grade' | 'name' | 'email' | 'phone' | 'address';
-
-export const updateGamificationState = (
-    currentState: GamificationState,
-    actionType: ActionType = 'general',
-    count: number = 1
-): { newState: GamificationState, newBadges: Badge[] } => {
-    // Use local date string instead of UTC ISO string to prevent timezone bugs
-    const now = new Date();
-    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    const lastActive = currentState.lastActiveDate;
-
-    let newStreak = currentState.currentStreak;
-    let newDailyFixes = currentState.dailyFixes;
-
-    // Reset daily fixes if it's a new day
-    if (lastActive !== today) {
-        newDailyFixes = 0;
-    }
-
-    if (lastActive === today) {
-        newDailyFixes += 1;
-        // Streak already counted for today
-    } else {
-        // Check if yesterday
-        const yesterdayDate = new Date();
-        yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-        const yesterdayStr = `${yesterdayDate.getFullYear()}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`;
-
-        if (lastActive === yesterdayStr) {
-            newStreak += 1;
-        } else {
-            // Broken streak (or first time)
-            newStreak = 1;
-        }
-        newDailyFixes = 1;
-    }
-
-    // Update fix history
-    const fixHistory = currentState.fixHistory ? { ...currentState.fixHistory } : {};
-    if (!fixHistory[today]) {
-        fixHistory[today] = 0;
-    }
-    fixHistory[today] += count;
-
-    // Optional: Prune fixHistory to keep it from growing indefinitely (e.g., last 365 days)
-    // We do a simple prune: if Object.keys > 400, keep only the most recent 365
-    if (Object.keys(fixHistory).length > 400) {
-        const sortedKeys = Object.keys(fixHistory).sort((a, b) => b.localeCompare(a));
-        const keysToKeep = sortedKeys.slice(0, 365);
-        const prunedHistory: Record<string, number> = {};
-        keysToKeep.forEach(k => { prunedHistory[k] = fixHistory[k]; });
-        // Replace with pruned
-        Object.keys(fixHistory).forEach(k => {
-            if (!prunedHistory[k]) delete fixHistory[k];
-        });
-    }
-
-    const nextState: GamificationState = {
-        ...currentState,
-        lastActiveDate: today,
-        currentStreak: newStreak,
-        dailyFixes: newDailyFixes,
-        totalFixes: currentState.totalFixes + count,
-        unlockedBadges: currentState.unlockedBadges ? [...currentState.unlockedBadges] : [],
-        fixHistory
-    };
-
-    if (actionType === 'ghost') {
-        nextState.ghostsCleared = (currentState.ghostsCleared || 0) + count;
-    } else if (actionType === 'birthdate') {
-        nextState.birthdatesFixed = (currentState.birthdatesFixed || 0) + count;
-    } else if (actionType === 'grade') {
-        nextState.gradesFixed = (currentState.gradesFixed || 0) + count;
-    } else if (actionType === 'name') {
-        nextState.namesFixed = (currentState.namesFixed || 0) + count;
-    } else if (actionType === 'phone') {
-        nextState.phonesFixed = (currentState.phonesFixed || 0) + count;
-    } else if (actionType === 'email') {
-        nextState.emailsFixed = (currentState.emailsFixed || 0) + count;
-    } else if (actionType === 'address') {
-        nextState.addressesFixed = (currentState.addressesFixed || 0) + count;
-    }
-
-    // Process Bounties
-    if (nextState.bounties) {
-        nextState.bounties = nextState.bounties.map(bounty => {
-            if (!bounty.completedAt && (bounty.actionType === 'general' || bounty.actionType === actionType)) {
-                const newCount = bounty.currentCount + count;
-                return {
-                    ...bounty,
-                    currentCount: Math.min(newCount, bounty.targetCount),
-                    completedAt: newCount >= bounty.targetCount ? new Date().toISOString() : undefined
-                };
-            }
-            return bounty;
-        });
-    }
-
-    // Check for new badges
-    const newBadges: Badge[] = [];
-    const unlockedIds = new Set(nextState.unlockedBadges.map(b => b.id));
-
-    BADGES.forEach(badge => {
-        if (!unlockedIds.has(badge.id) && badge.condition(nextState)) {
-            newBadges.push(badge);
-            nextState.unlockedBadges.push({
-                id: badge.id,
-                date: new Date().toISOString()
-            });
-        }
-    });
-
-    return { newState: nextState, newBadges };
+/** Edits recorded today. The only figure any surface is entitled to show. */
+export const editsToday = (state: GamificationState): number => {
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return state.fixHistory?.[today] || 0;
 };

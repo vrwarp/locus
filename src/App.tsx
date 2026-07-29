@@ -1,4 +1,3 @@
-import { GoldenRecordModal } from './components/GoldenRecordModal';
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { GradeScatter } from './components/GradeScatter'
@@ -8,66 +7,41 @@ import { ConfigModal } from './components/ConfigModal'
 import { GhostModal } from './components/GhostModal'
 import { FamilyModal } from './components/FamilyModal'
 import { UndoToast } from './components/UndoToast'
-// import { RobertReport } from './components/RobertReport' // Deprecated in favor of direct views
 import { BurnoutReport } from './components/BurnoutReport'
 import { RecruitmentReport } from './components/RecruitmentReport'
 import { NewcomerFunnel } from './components/NewcomerFunnel'
 import { AttendancePulse } from './components/AttendancePulse'
 import { BusFactorGraph } from './components/BusFactorGraph'
-import { CheckInVelocity } from './components/CheckInVelocity'
-import { LifeEventsHeatmap } from './components/LifeEventsHeatmap'
-import { VolunteerWeb } from './components/VolunteerWeb'
-import { SolarSystem } from './components/SolarSystem'
 import { MissingVolunteersReport } from './components/MissingVolunteersReport'
-import { DriftReport } from './components/DriftReport'
-import { CoPilot } from './components/CoPilot'
 import { GenerationStack } from './components/GenerationStack'
-import { MapView } from './components/MapView'
 import { DuplicatesReport } from './components/DuplicatesReport'
-import { AchievementCase } from './components/AchievementCase'
 import { NewsletterArchitect } from './components/NewsletterArchitect'
-import { CampusCup } from './components/CampusCup'
-import { SermonSentiment } from './components/SermonSentiment'
-import { SermonCorrelator } from './components/SermonCorrelator'
-import { SentimentPulse } from './components/SentimentPulse'
-import { GivingRiver } from './components/GivingRiver'
-import { GivingTrends } from './components/GivingTrends'
-import { EmergencyAlerts } from './components/EmergencyAlerts'
-import { PrayerMatch } from './components/PrayerMatch'
-import { BountyBoard } from './components/BountyBoard'
 import { SmallGroupSorter } from './components/SmallGroupSorter'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
-import { transformPerson, fetchAllPeople, archivePerson, fetchCheckInCount, checkApiVersion } from './utils/pco'
+import { transformPerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, setWriteAccess } from './utils/pco'
 import { isGhost } from './utils/ghost'
 import { analyzeFamilies } from './utils/family'
 import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot, loadGamificationState, saveGamificationState } from './utils/storage'
-import { updateGamificationState } from './utils/gamification'
+import { recordEdits, editsToday } from './utils/gamification'
 import { saveToCache, loadFromCache } from './utils/cache'
 import { calculateHealthStats } from './utils/analytics'
-import { Confetti } from './components/Confetti'
-import { BadgeToast } from './components/BadgeToast'
 import { CommandManager } from './utils/commands'
 import { UpdateStudentCommand } from './commands/UpdateStudentCommand'
 import { BatchUpdateCommand } from './commands/BatchUpdateCommand'
-import type { AppConfig, HealthHistoryEntry, GamificationState } from './utils/storage'
+import { ArchiveCommand } from './commands/ArchiveCommand'
+import type { AppConfig, GamificationState } from './utils/storage'
 import type { Student, PcoPerson } from './utils/pco'
 import type { FamilyIssue } from './utils/family'
-import type { Badge } from './utils/gamification'
 import './App.css'
 
 // New Components
 
-import { LandingPage } from './components/LandingPage';
-import { CoreLayout } from './layouts/CoreLayout';
-import { IntelligenceLayout } from './layouts/IntelligenceLayout';
+import { AppLayout } from './layouts/AppLayout';
 
 import { Dashboard } from './components/Dashboard'
 import { AutomationsReport } from './components/AutomationsReport'
-import { IntegrationsHub } from './components/IntegrationsHub'
-import { GlobalPulse } from './components/GlobalPulse'
-import { LocusPublic } from './components/LocusPublic'
 
 function App() {
   const [appId, setAppId] = useState('')
@@ -75,20 +49,22 @@ function App() {
   const [config, setConfig] = useState<AppConfig>({ graderOptions: {} });
 
 
-  // Role State
-  const [userRole, setUserRole] = useState<'core' | 'intelligence' | null>(null);
+  // Read-only is a mode chosen inside the app by someone who has seen it, not a
+  // workspace picked from a splash screen before logging in.
+  const [readOnly, setReadOnly] = useState(false);
 
-  const handleSelectRole = (role: 'core' | 'intelligence') => {
-      setUserRole(role);
-      setCurrentView(role === 'core' ? 'dashboard' : 'copilot');
-  };
+  // One gate, at the only place every write passes through. Guarding individual
+  // screens is what let a member-record editor sit on the read-only surface.
+  useEffect(() => {
+      setWriteAccess(!readOnly);
+      return () => setWriteAccess(false);
+  }, [readOnly]);
 
   const [currentView, setCurrentView] = useState('dashboard');
 
 
   // Modals
   const [isConfigOpen, setIsConfigOpen] = useState(false);
-  const [isGoldenRecordOpen, setIsGoldenRecordOpen] = useState(false);
   const [isGhostModalOpen, setIsGhostModalOpen] = useState(false);
   const [isFamilyModalOpen, setIsFamilyModalOpen] = useState(false);
   const [isReviewModeOpen, setIsReviewModeOpen] = useState(false);
@@ -112,20 +88,10 @@ function App() {
   const [apiError, setApiError] = useState<string | null>(null);
 
   // State for report history
-  const [healthHistory, setHealthHistory] = useState<HealthHistoryEntry[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   // State for gamification
-  const [gamificationState, setGamificationState] = useState<GamificationState>({
-      lastActiveDate: '',
-      currentStreak: 0,
-      dailyFixes: 0,
-      totalFixes: 0,
-      unlockedBadges: []
-  });
-  const [latestBadge, setLatestBadge] = useState<Badge | null>(null);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [partyClickOrigin, setPartyClickOrigin] = useState<{ x: number, y: number, id: number } | null>(null);
+  const [gamificationState, setGamificationState] = useState<GamificationState>({ fixHistory: {} });
 
   // Pending update state for UI (Toast)
   const [pendingUpdateUI, setPendingUpdateUI] = useState<{ original: Student, updated: Student } | null>(null)
@@ -148,8 +114,6 @@ function App() {
       try {
         const loadedConfig = await loadConfig(appId);
         setConfig(loadedConfig);
-        const loadedHistory = await loadHealthHistory(appId);
-        setHealthHistory(loadedHistory);
         const loadedGamification = await loadGamificationState(appId);
         setGamificationState(loadedGamification);
       } catch (e) {
@@ -259,9 +223,6 @@ function App() {
 
             if (!hasSnapshotToday) {
                 await saveHealthSnapshot(stats, appId);
-                setHealthHistory(await loadHealthHistory(appId));
-            } else {
-                setHealthHistory(currentHistory);
             }
           };
           checkSnapshot();
@@ -298,40 +259,54 @@ function App() {
   };
 
   const handleArchiveGhosts = async (ghostsToArchive: Student[]) => {
+      if (ghostsToArchive.length === 0) return;
       setIsArchiving(true);
       const auth = btoa(`${appId}:${secret}`);
 
-      let successCount = 0;
-      for (const ghost of ghostsToArchive) {
-          try {
-              await archivePerson(ghost.id, auth, config.sandboxMode);
-              successCount++;
-          } catch (e) {
-              console.error(`Failed to archive ${ghost.name}`, e);
+      // Archival goes through the command stack like every other write, so Undo
+      // reaches it. It used to be a bare loop — the one action in the product
+      // that could not be taken back, and the one with the widest blast radius.
+      const command = new ArchiveCommand(
+          ghostsToArchive,
+          auth,
+          config.sandboxMode || false,
+          (student) => {
+              queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+                  if (!oldData) return oldData;
+                  return {
+                      ...oldData,
+                      students: oldData.students.filter((s: Student) => s.id !== student.id)
+                  };
+              });
           }
-      }
+      );
 
-      // Gamification for archiving ghosts
-      if (successCount > 0) {
-          const { newState: newGamificationState, newBadges } = updateGamificationState(gamificationState, 'ghost', successCount);
-          setGamificationState(newGamificationState);
-
-          if (newBadges.length > 0) {
-              setLatestBadge(newBadges[0]);
-              setShowConfetti(true);
-              setTimeout(() => setShowConfetti(false), 3000);
+      try {
+          await command.execute();
+          commandManagerRef.current.execute(command);
+          setCanUndo(commandManagerRef.current.canUndo);
+          setCanRedo(commandManagerRef.current.canRedo);
+          alert(`Archived ${command.archived.length} in Planning Center. Undo is available.`);
+      } catch (e) {
+          console.error('Ghost archival stopped', e);
+          if (command.archived.length > 0) {
+              // Some landed. Keep the command so those can be reversed, and do not
+              // pretend the batch either fully succeeded or fully failed.
+              commandManagerRef.current.execute(command);
+              setCanUndo(commandManagerRef.current.canUndo);
+              setCanRedo(commandManagerRef.current.canRedo);
+              alert(
+                  `Archiving stopped after ${command.archived.length} of ${ghostsToArchive.length}. ` +
+                  `Those ${command.archived.length} are inactive in Planning Center; the rest were not touched. ` +
+                  `Undo will reverse the ones that went through.`
+              );
+          } else {
+              alert(`Nothing was archived. ${e instanceof Error ? e.message : 'Check the console.'}`);
           }
-          saveGamificationState(newGamificationState, appId);
-      }
-
-      // Invalidate to refetch
-      queryClient.invalidateQueries({ queryKey: ['people', appId, secret, config] });
-      setIsArchiving(false);
-      setIsGhostModalOpen(false);
-      if (successCount > 0) {
-          alert(`Successfully archived ${successCount} ghosts.`);
-      } else {
-          alert('Failed to archive ghosts. Check console/network.');
+      } finally {
+          queryClient.invalidateQueries({ queryKey: ['people', appId, secret, config] });
+          setIsArchiving(false);
+          setIsGhostModalOpen(false);
       }
   }
 
@@ -461,57 +436,15 @@ function App() {
       }
   };
 
-  const handleAddBounty = (bountyInput: Omit<Bounty, 'id' | 'currentCount' | 'createdAt'>) => {
-      const newBounty: Bounty = {
-          ...bountyInput,
-          id: `bounty_${Date.now()}`,
-          currentCount: 0,
-          createdAt: new Date().toISOString()
-      };
-      const newState = {
-          ...gamificationState,
-          bounties: [...(gamificationState.bounties || []), newBounty]
-      };
-      setGamificationState(newState);
-      saveGamificationState(newState, auth);
-  };
-
-  const handleDeleteBounty = (id: string) => {
-      const newState = {
-          ...gamificationState,
-          bounties: (gamificationState.bounties || []).filter(b => b.id !== id)
-      };
-      setGamificationState(newState);
-      saveGamificationState(newState, auth);
-  };
-
   const handleSaveStudentBulk = async (updates: { original: Student, updated: Student }[]) => {
       const auth = btoa(`${appId}:${secret}`);
 
-      let currentState = gamificationState;
-      const allNewBadges: Badge[] = [];
-
-      // Calculate gamification and optimistic UI for all
-      for (const update of updates) {
-          let actionType: 'general' | 'ghost' | 'grade' | 'birthdate' | 'name' | 'phone' | 'email' | 'address' = 'general';
-          if (update.updated.name !== update.original.name) actionType = 'name';
-          else if (update.updated.phoneNumber !== update.original.phoneNumber) actionType = 'phone';
-          else if (update.updated.email !== update.original.email) actionType = 'email';
-          else if (JSON.stringify(update.updated.address) !== JSON.stringify(update.original.address)) actionType = 'address';
-
-          const { newState: newGamificationState, newBadges } = updateGamificationState(currentState, actionType);
-          currentState = newGamificationState;
-          if (newBadges.length > 0) {
-              allNewBadges.push(...newBadges);
-          }
-      }
+      // One edit recorded per record touched. Which field changed no longer
+      // matters, because the count no longer claims anything about correctness.
+      const currentState = recordEdits(gamificationState, updates.length);
 
       setGamificationState(currentState);
-      saveGamificationState(currentState, auth);
-
-      if (allNewBadges.length > 0) {
-          setLatestBadge(allNewBadges[0]); // Show the first one achieved
-      }
+      saveGamificationState(currentState, appId);
 
       const onStateChange = (student: Student) => {
           queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
@@ -521,24 +454,44 @@ function App() {
          });
       };
 
-      try {
-          const command = new BatchUpdateCommand(
-              updates,
-              auth,
-              config.sandboxMode || false,
-              onStateChange
-          );
+      const command = new BatchUpdateCommand(
+          updates,
+          auth,
+          config.sandboxMode || false,
+          onStateChange
+      );
 
+      try {
           await command.execute();
           commandManagerRef.current.execute(command);
           setCanUndo(commandManagerRef.current.canUndo);
           setCanRedo(commandManagerRef.current.canRedo);
       } catch (error) {
           console.error('Failed to execute bulk update', error);
-          alert('Failed to execute bulk update. The changes have been reverted.');
-          // Revert optimistically
+
+          // The batch writes one record at a time and PCO has no transaction to
+          // roll back, so whatever landed before the failure is live. Only the
+          // records that never got written may be reverted on screen — telling
+          // the operator "the changes have been reverted" while some of them
+          // are sitting in PCO is how a half-finished batch becomes invisible.
+          const written = new Set(command.written.map(u => u.original.id));
           for (const update of updates) {
-              onStateChange(update.original);
+              if (!written.has(update.original.id)) onStateChange(update.original);
+          }
+
+          if (written.size > 0) {
+              // Keep the command on the stack: those writes are real and Undo is
+              // the only way back.
+              commandManagerRef.current.execute(command);
+              setCanUndo(commandManagerRef.current.canUndo);
+              setCanRedo(commandManagerRef.current.canRedo);
+              alert(
+                  `Bulk update stopped after ${written.size} of ${updates.length} records.\n\n` +
+                  `Those ${written.size} were saved to Planning Center and are still there. ` +
+                  `The rest were not saved. Use Undo to reverse the ones that went through.`
+              );
+          } else {
+              alert('Bulk update failed. Nothing was saved to Planning Center.');
           }
       }
   };
@@ -561,32 +514,11 @@ function App() {
     const originalStudent = students.find(s => s.id === updatedStudent.id);
     if (!originalStudent) return;
 
-    // Determine the type of fix
-    let actionType: 'general' | 'ghost' | 'grade' | 'birthdate' | 'name' | 'phone' | 'email' | 'address' = 'general';
-    if (updatedStudent.pcoGrade !== originalStudent.pcoGrade) {
-        actionType = 'grade';
-    } else if (updatedStudent.birthdate !== originalStudent.birthdate) {
-        actionType = 'birthdate';
-    } else if (updatedStudent.phoneNumber !== originalStudent.phoneNumber) {
-        actionType = 'phone';
-    } else if (updatedStudent.email !== originalStudent.email) {
-        actionType = 'email';
-    } else if (JSON.stringify(updatedStudent.address) !== JSON.stringify(originalStudent.address)) {
-        actionType = 'address';
-    } else if (updatedStudent.name !== originalStudent.name) {
-        actionType = 'name';
-    }
 
     // Update gamification state optimistically
     const prevGamificationState = gamificationState;
-    const { newState: newGamificationState, newBadges } = updateGamificationState(gamificationState, actionType);
+    const newGamificationState = recordEdits(gamificationState);
     setGamificationState(newGamificationState);
-
-    if (newBadges.length > 0) {
-        setLatestBadge(newBadges[0]);
-        setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
-    }
 
     // Persist gamification state (fire and forget - but if undo happens we will revert via UI state, persistence might need revert too but it's minor)
     saveGamificationState(newGamificationState, appId);
@@ -663,39 +595,27 @@ function App() {
       }
   };
 
-  const handleAppClick = (e: React.MouseEvent) => {
-      if (config.partyMode) {
-          // Use Date.now() as a simple unique ID to force re-render even if clicked in same spot
-          setPartyClickOrigin({ x: e.clientX, y: e.clientY, id: Date.now() });
-      }
-  };
-
-  if (!userRole) {
-      return <LandingPage onSelectRole={handleSelectRole} />;
-  }
-
-  const Layout = userRole === 'core' ? CoreLayout : IntelligenceLayout;
 
   return (
-    <div className="app-container" style={{display: 'flex', width: '100vw', height: '100vh', margin: 0, padding: 0}} onClick={handleAppClick}>
+    <div className="app-container" style={{display: 'flex', width: '100vw', height: '100vh', margin: 0, padding: 0}}>
        {config.sandboxMode && (
           <div style={{
-              backgroundColor: '#ff9800',
-              color: 'black',
-              padding: '10px',
-              textAlign: 'center',
-              fontWeight: 'bold',
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              zIndex: 9999
+              position: 'fixed', top: 0, left: 0, right: 0, zIndex: 3000,
+              background: '#7C5A0C', color: '#fff', textAlign: 'center',
+              padding: '0.4rem', fontSize: '0.85rem'
           }}>
-              ⚠️ SANDBOX MODE ACTIVE - Changes are simulated
+              Sandbox Mode — writes are intercepted locally and never reach Planning Center.
+              If the interceptor is not running, saving will refuse rather than write.
           </div>
       )}
 
-      <Layout currentView={currentView} onChangeView={handleNavigation} anomaliesCount={anomalies.length} totalFixes={gamificationState.totalFixes || 0}>
+      <AppLayout
+        currentView={currentView}
+        onChangeView={handleNavigation}
+        anomaliesCount={anomalies.length}
+        readOnly={readOnly}
+        onToggleReadOnly={setReadOnly}
+      >
 
 
 
@@ -742,8 +662,8 @@ function App() {
                             onRedo={handleHistoryRedo}
                         />
                         <GamificationWidget
-                            streak={gamificationState.currentStreak}
-                            dailyFixes={gamificationState.dailyFixes}
+                            editsToday={editsToday(gamificationState)}
+                            flaggedRecords={anomalies.length}
                         />
                    </div>
 
@@ -759,12 +679,6 @@ function App() {
                                 auth={auth}
                                 gamificationState={gamificationState}
                             />
-                        )}
-
-                        {currentView === 'copilot' && (
-                            <div className="view-container" style={{height: 'calc(100vh - 100px)'}}>
-                                <CoPilot students={students} auth={auth} />
-                            </div>
                         )}
 
                         {currentView === 'data-health' && (
@@ -812,12 +726,6 @@ function App() {
                             </div>
                         )}
 
-                        {currentView === 'attrition' && (
-                            <div className="view-container">
-                                <h2>Predictive Attrition</h2>
-                                <DriftReport students={students} auth={auth} />
-                            </div>
-                        )}
                         {currentView === 'missing' && (
                             <div className="view-container">
                                 <h2>Missing Volunteers</h2>
@@ -839,13 +747,6 @@ function App() {
                             </div>
                         )}
 
-                        {currentView === 'bus-factor' && (
-                             <div className="view-container">
-                                <h2>Bus Factor Analysis</h2>
-                                <BusFactorGraph students={students} auth={auth} />
-                            </div>
-                        )}
-
                         {currentView === 'attendance' && (
                              <div className="view-container">
                                 <h2>Attendance Pulse</h2>
@@ -853,30 +754,10 @@ function App() {
                             </div>
                         )}
 
-                        {currentView === 'velocity' && (
+                        {currentView === 'bus-factor' && (
                              <div className="view-container">
-                                <h2>Check-in Velocity</h2>
-                                <CheckInVelocity auth={auth} />
-                            </div>
-                        )}
-
-                        {currentView === 'heatmap' && (
-                             <div className="view-container">
-                                <LifeEventsHeatmap students={students} />
-                            </div>
-                        )}
-
-                        {currentView === 'network' && (
-                             <div className="view-container">
-                                <h2>The Volunteer Web</h2>
-                                <VolunteerWeb students={students} auth={auth} />
-                            </div>
-                        )}
-
-                        {currentView === 'solar-system' && (
-                             <div className="view-container" style={{height: '800px'}}>
-                                <h2>The Solar System</h2>
-                                <SolarSystem students={students} />
+                                <h2>Bus Factor Analysis</h2>
+                                <BusFactorGraph students={students} auth={auth} />
                             </div>
                         )}
 
@@ -887,63 +768,13 @@ function App() {
                             </div>
                         )}
 
-                        {currentView === 'map-view' && (
-                             <div className="view-container">
-                                <MapView students={students} />
-                            </div>
-                        )}
-
-                        {currentView === 'sermons' && (
-                             <div className="view-container">
-                                <SermonSentiment auth={auth} students={students} />
-                            </div>
-                        )}
-                        {currentView === 'sermon-correlator' && (
-                             <div className="view-container">
-                                <SermonCorrelator auth={auth} students={students} />
-                            </div>
-                        )}
-                        {currentView === 'sentiment-pulse' && (
-                            <div className="view-container">
-                                <SentimentPulse students={students} />
-                            </div>
-                        )}
-
-                        {currentView === 'giving-river' && (
-                             <div className="view-container fade-in">
-                                <GivingRiver />
-                            </div>
-                        )}
-
-                        {currentView === 'giving-trends' && (
-                            <div className="view-container fade-in">
-                                <GivingTrends checkIns={[]} events={[]} />
-                            </div>
-                        )}
-
-
-
-                        {currentView === 'prayer' && (
-                            <div className="view-container fade-in">
-                                <PrayerMatch students={students} />
-                            </div>
-                        )}
-
                         {currentView === 'automations' && (
                              <div className="view-container">
-                                <AutomationsReport students={students} graderOptions={config.graderOptions} />
-                            </div>
-                        )}
-
-                        {currentView === 'integrations' && (
-                             <div className="view-container fade-in">
-                                <IntegrationsHub config={config} onSaveConfig={handleSaveConfig} />
-                            </div>
-                        )}
-
-                        {currentView === 'emergency' && (
-                             <div className="view-container fade-in">
-                                <EmergencyAlerts students={students} />
+                                <AutomationsReport
+                                    students={students}
+                                    graderOptions={config.graderOptions}
+                                    onPromoteGrades={handleSaveStudentBulk}
+                                />
                             </div>
                         )}
 
@@ -954,60 +785,25 @@ function App() {
                             </div>
                         )}
 
-                        {currentView === 'achievements' && (
-                             <div className="view-container">
-                                <h2>Achievement Case</h2>
-                                <AchievementCase gamificationState={gamificationState} />
-                            </div>
-                        )}
-
-                        {currentView === 'bounties' && (
-                             <div className="view-container">
-                                <BountyBoard
-                                    gamificationState={gamificationState}
-                                    onAddBounty={handleAddBounty}
-                                    onDeleteBounty={handleDeleteBounty}
-                                />
-                            </div>
-                        )}
-                        {currentView === 'campus-cup' && (
-                            <div className="view-container">
-                                <CampusCup
-                                    gamificationState={gamificationState}
-                                    userCampus={config.campus}
-                                />
-                            </div>
-                        )}
                         {currentView === 'small-groups' && (
                             <div className="view-container">
                                 <SmallGroupSorter students={students} />
                             </div>
-                        )}
-                        {currentView === 'global-pulse' && (
-                             <div className="view-container">
-                                 <GlobalPulse students={students} />
-                             </div>
                         )}
                         {currentView === 'newsletter' && (
                              <div className="view-container">
                                  <NewsletterArchitect students={students} auth={auth} />
                              </div>
                         )}
-                        {currentView === 'locus-public' && (
-                             <div className="view-container">
-                                 <LocusPublic students={students} onSave={handleSaveStudent} />
-                             </div>
-                        )}
-
                       </>
                   )}
               </>
           )}
 
-            </Layout>
+            </AppLayout>
 
       {/* Modals & Toasts */}
-      {userRole === 'core' && (<>
+      {!readOnly && (<>
       <SmartFixModal
         isOpen={!!selectedStudent}
         student={selectedStudent}
@@ -1029,10 +825,6 @@ function App() {
         zenAudioTheme={config.zenAudioTheme}
       />
 
-      <GoldenRecordModal
-        isOpen={isGoldenRecordOpen}
-        onClose={() => setIsGoldenRecordOpen(false)}
-      />
       </>)}
 
       <ConfigModal
@@ -1057,19 +849,6 @@ function App() {
         issues={familyIssues}
         onFix={handleFamilySwap}
       />
-
-      {showConfetti && <Confetti theme={config.confettiTheme} />}
-
-      {partyClickOrigin && (
-          <Confetti key={partyClickOrigin.id} origin={{ x: partyClickOrigin.x, y: partyClickOrigin.y }} duration={500} theme={config.confettiTheme} />
-      )}
-
-      {latestBadge && (
-          <BadgeToast
-            badge={latestBadge}
-            onClose={() => setLatestBadge(null)}
-          />
-      )}
 
       {pendingUpdateUI && (
           <UndoToast

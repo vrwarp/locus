@@ -1,4 +1,5 @@
 import { isAfter, differenceInDays, parseISO, getDate, startOfDay } from 'date-fns';
+import { isMinor } from './pco';
 import type { Student, PcoEvent } from './pco';
 
 export interface NewsletterOptions {
@@ -16,9 +17,12 @@ export const generateNewsletter = (
     // Assuming events provided are active. We'll just list them if they exist.
     const upcomingEvents = events.slice(0, 5); // Just take a few for the newsletter
 
-    // 2. Find upcoming birthdays (next 7 days)
+    // 2. Find upcoming birthdays (next 7 days), adults only. A newsletter is a
+    // broadcast, and no household consents to a minor's name and birthday
+    // appearing in one by virtue of being in the directory. See `isMinor` for
+    // why the child flag alone is not enough to decide that.
     const upcomingBirthdays = students
-        .filter(s => s.birthdate)
+        .filter(s => s.birthdate && !isMinor(s))
         .map(person => {
             const birthdate = parseISO(person.birthdate);
             const birthdayThisYear = new Date(

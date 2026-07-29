@@ -1,3 +1,4 @@
+import { isMinor } from './pco';
 import type { Student, PcoCheckIn, PcoEvent } from './pco';
 import { parseISO, differenceInMonths } from 'date-fns';
 import { classifyEvent } from './burnout';
@@ -89,8 +90,10 @@ export const calculateRecruitmentCandidates = (checkIns: PcoCheckIn[], events: P
     const student = people.find(p => p.id === personId);
     if (!student) return;
 
-    // Filter: Adults only
-    if (student.isChild) return;
+    // Filter: Adults only. The child flag alone is not enough here — this list
+    // gets handed to a staff member as "people to ask about serving", and a
+    // teenager nobody remembered to flag has no business on it.
+    if (isMinor(student)) return;
 
     // Filter: High Worship (>= 4), Low Serving (<= 1)
     if (stats.worship >= 4 && stats.serving <= 1) {

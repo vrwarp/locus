@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import type { Student } from '../utils/pco';
 import {
     getUpcomingBirthdays,
-    getPendingGradePromotions,
+    gradePromotionBacklog,
     getCollegeSendOffs,
     getExpiringBackgroundChecks,
     getExpiredBackgroundChecks,
@@ -21,9 +21,15 @@ import type { GraderOptions } from '../utils/grader';
 interface AutomationsReportProps {
     students: Student[];
     graderOptions: GraderOptions;
+    /**
+     * Writes the promotions to Planning Center. Absent means the screen has no
+     * write path, in which case the Promote button is not rendered at all —
+     * a control that claims to fix data and doesn't is worse than no control.
+     */
+    onPromoteGrades?: (updates: { original: Student, updated: Student }[]) => Promise<void>;
 }
 
-export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, graderOptions }) => {
+export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, graderOptions, onPromoteGrades }) => {
     // Note: To make this testable and consistent, we normally inject the date, but for the UI we use Date.now()
     // For demo purposes and to ensure "August" logic triggers, you might want to mock the date in tests.
     const today = new Date();
@@ -36,6 +42,8 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
     const [dismissedNewBabies, setDismissedNewBabies] = useState<Set<string>>(new Set());
     const [dismissedFirstTimeGivers, setDismissedFirstTimeGivers] = useState<Set<string>>(new Set());
     const [dismissedElderlyCare, setDismissedElderlyCare] = useState<Set<string>>(new Set());
+    const [promotionConfirm, setPromotionConfirm] = useState('');
+    const [promoting, setPromoting] = useState(false);
 
     const newBabies = useMemo(() => {
         return getNewBabies(students).filter(s => !dismissedNewBabies.has(s.id));
@@ -45,9 +53,13 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
         return getUpcomingBirthdays(students, 7, today).filter(b => !dismissedBirthdays.has(b.person.id));
     }, [students, today, dismissedBirthdays]);
 
-    const promotions = useMemo(() => {
-        return getPendingGradePromotions(students, today, graderOptions).filter(p => !dismissedPromotions.has(p.person.id));
-    }, [students, today, graderOptions, dismissedPromotions]);
+    const { readyToPromote, needsReview } = useMemo(
+        () => gradePromotionBacklog(students, today, graderOptions),
+        [students, today, graderOptions]);
+
+    const promotions = useMemo(
+        () => readyToPromote.filter(p => !dismissedPromotions.has(p.person.id)),
+        [readyToPromote, dismissedPromotions]);
 
     const sendOffs = useMemo(() => {
         return getCollegeSendOffs(students, today).filter(c => !dismissedSendOffs.has(c.person.id));
@@ -84,7 +96,6 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
     const handleApprove = (id: string, action: string) => {
         alert(`Action "${action}" approved for student ${id}. (Mocked action)`);
         if (action === 'Email Parent') handleDismissBirthday(id);
-        if (action === 'Promote Grade') handleDismissPromotion(id);
         if (action === 'Move to College') handleDismissSendOff(id);
         if (action === 'Email Reminder') handleDismissExpiringCheck(id);
         if (action === 'Remove from Roster') handleDismissExpiredCheck(id);
@@ -276,22 +287,87 @@ export const AutomationsReport: React.FC<AutomationsReportProps> = ({ students, 
                     {promotions.length === 0 ? (
                         <p className="empty-state">No pending grade promotions.</p>
                     ) : (
+                        <>
+                            <p className="lane-note">
+                                One grade behind the school year, which is the ordinary August
+                                rollover. Promoting writes the new grade to Planning Center for
+                                everyone listed; Undo reverses it.
+                            </p>
+                            <ul className="action-list">
+                                {promotions.map(({ person, currentGrade, expectedGrade }) => (
+                                    <li key={person.id} className="action-item">
+                                        <div className="action-details">
+                                            <strong>{person.name}</strong>
+                                            <div className="meta">Grade {currentGrade} → <strong>{expectedGrade}</strong></div>
+                                        </div>
+                                        <div className="action-buttons">
+                                            <button className="btn-dismiss" onClick={() => handleDismissPromotion(person.id)}>Skip</button>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                            {onPromoteGrades && (
+                                <div className="lane-commit">
+                                    <label htmlFor="promote-confirm">
+                                        Type <b>PROMOTE</b> to roll over all {promotions.length}
+                                    </label>
+                                    <input
+                                        id="promote-confirm"
+                                        type="text"
+                                        value={promotionConfirm}
+                                        onChange={(e) => setPromotionConfirm(e.target.value)}
+                                        disabled={promoting}
+                                        autoComplete="off"
+                                    />
+                                    <button
+                                        className="btn-approve"
+                                        disabled={promoting || promotionConfirm.trim().toUpperCase() !== 'PROMOTE'}
+                                        onClick={async () => {
+                                            setPromoting(true);
+                                            try {
+                                                await onPromoteGrades(promotions.map(({ person, expectedGrade }) => ({
+                                                    original: person,
+                                                    updated: { ...person, pcoGrade: expectedGrade },
+                                                })));
+                                                setPromotionConfirm('');
+                                            } finally {
+                                                setPromoting(false);
+                                            }
+                                        }}
+                                    >
+                                        {promoting ? 'Writing to Planning Center…' : `Promote ${promotions.length}`}
+                                    </button>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </section>
+
+                {/* Grades that are further out than a rollover explains */}
+                {needsReview.length > 0 && (
+                    <section className="automation-lane">
+                        <h3>
+                            <span className="icon">🔎</span>
+                            Grades needing a look
+                            <span className="count">{needsReview.length}</span>
+                        </h3>
+                        <p className="lane-note">
+                            Two or more grades behind, so this is not the annual rollover — more
+                            likely a wrong birthdate or a grade that was never updated. These are
+                            not promoted in bulk; check them individually in Data Health.
+                        </p>
                         <ul className="action-list">
-                            {promotions.map(({ person, currentGrade, expectedGrade }) => (
+                            {needsReview.map(({ person, currentGrade, expectedGrade }) => (
                                 <li key={person.id} className="action-item">
                                     <div className="action-details">
                                         <strong>{person.name}</strong>
-                                        <div className="meta">Grade {currentGrade} → <strong>{expectedGrade}</strong></div>
-                                    </div>
-                                    <div className="action-buttons">
-                                        <button className="btn-approve" onClick={() => handleApprove(person.id, 'Promote Grade')}>Promote</button>
-                                        <button className="btn-dismiss" onClick={() => handleDismissPromotion(person.id)}>Dismiss</button>
+                                        <div className="meta">On file as {currentGrade}, school year suggests {expectedGrade}</div>
                                     </div>
                                 </li>
                             ))}
                         </ul>
-                    )}
-                </section>
+                    </section>
+                )}
 
                 {/* College Send-offs */}
                 <section className="automation-lane">

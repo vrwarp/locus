@@ -4,7 +4,11 @@ import { NewsletterArchitect } from './NewsletterArchitect';
 import { fetchEvents } from '../utils/pco';
 import type { Student } from '../utils/pco';
 
-vi.mock('../utils/pco', () => ({
+// Only the network call is mocked. `isMinor` is a pure predicate and the
+// newsletter's adults-only guarantee depends on it, so stubbing it out here
+// would mean these tests pass whether or not that guarantee still holds.
+vi.mock('../utils/pco', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../utils/pco')>()),
   fetchEvents: vi.fn()
 }));
 
@@ -44,7 +48,7 @@ describe('NewsletterArchitect Component', () => {
 
     // Wait for the mock to resolve to avoid act warning
     await waitFor(() => {
-        expect(screen.getByText('Newsletter Architect')).toBeInTheDocument();
+        expect(screen.getByText('Weekly Update Draft')).toBeInTheDocument();
     });
   });
 
@@ -52,7 +56,7 @@ describe('NewsletterArchitect Component', () => {
     render(<NewsletterArchitect students={mockStudents} auth="test-auth" />);
 
     await waitFor(() => {
-      expect(screen.getByText('Newsletter Architect')).toBeInTheDocument();
+      expect(screen.getByText('Weekly Update Draft')).toBeInTheDocument();
     });
 
     expect(screen.getByLabelText('Sermon Topic (Optional)')).toBeInTheDocument();
@@ -79,7 +83,7 @@ describe('NewsletterArchitect Component', () => {
     render(<NewsletterArchitect students={mockStudents} auth="test-auth" />);
 
     await waitFor(() => {
-      expect(screen.getByText('Newsletter Architect')).toBeInTheDocument();
+      expect(screen.getByText('Weekly Update Draft')).toBeInTheDocument();
     });
 
     const topicInput = screen.getByLabelText('Sermon Topic (Optional)');
@@ -97,7 +101,7 @@ describe('NewsletterArchitect Component', () => {
     render(<NewsletterArchitect students={mockStudents} auth="test-auth" />);
 
     await waitFor(() => {
-      expect(screen.getByText('Newsletter Architect')).toBeInTheDocument();
+      expect(screen.getByText('Weekly Update Draft')).toBeInTheDocument();
     });
 
     const copyButton = screen.getByText('Copy Markdown');

@@ -57,9 +57,6 @@ vi.mock('./components/ConfigModal', () => ({
 vi.mock('./components/FamilyModal', () => ({
   FamilyModal: () => null
 }));
-vi.mock('./components/RobertReport', () => ({
-  RobertReport: () => null
-}));
 vi.mock('./components/GamificationWidget', () => ({
     GamificationWidget: () => <div data-testid="gamification-widget">Widget</div>
 }));
@@ -112,6 +109,9 @@ describe('Ghost Protocol Integration', () => {
                 birthdate: '2000-01-01',
                 grade: 10,
                 name: 'Rescue Me',
+                // On file since 2015, so the tenure floor that protects new
+                // families does not apply to this record.
+                created_at: '2015-01-01',
                 last_checked_in_at: '2020-01-01' // Old check-in (> 24 months)
             }
         };
@@ -131,8 +131,6 @@ describe('Ghost Protocol Integration', () => {
         });
 
         render(<Wrapper><App /></Wrapper>);
-
-        fireEvent.click(screen.getByText('Locus Core'));
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 

@@ -175,3 +175,18 @@
   font-size: 0.75rem;
   color: var(--text-secondary);
 }
+
+.sorter-refusal {
+  margin: 1rem 0;
+  padding: 1rem 1.25rem;
+  border: 1px solid #d9534f;
+  border-left-width: 4px;
+  border-radius: 4px;
+  background: #fdf2f2;
+  color: #7a2320;
+}
+
+.sorter-refusal p {
+  margin: 0.5rem 0 0;
+  line-height: 1.5;
+}

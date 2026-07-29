@@ -82,6 +82,9 @@ export interface Student {
   checkInCount: number | null;
   avatarUrl?: string;
   isChild: boolean;
+  // When PCO first knew about this person. Needed to tell a long-lapsed member
+  // from a family who joined last Sunday and has not checked in yet.
+  createdAt: string | null;
   householdId: string | null;
   backgroundCheckExpiresAt?: string | null;
   prayerTopic?: string | null;
@@ -97,6 +100,30 @@ export interface Student {
   anniversary?: string | null;
   deathDate?: string | null;
 }
+
+/**
+ * Is this person a minor?
+ *
+ * Nowhere in Locus should ask `isChild` on its own. That field is PCO's `child`
+ * attribute, which someone in the office sets by hand and then nobody revisits,
+ * so it is wrong in both directions: the teenager who was never flagged reads as
+ * an adult, and last year's graduate is still marked as a kid. Age catches the
+ * first case — but only when the birthdate is real, and placeholder dates like
+ * 1900-01-01 are valid dates that compute an implausible adult age, so an upper
+ * bound is needed to catch a record that is telling us nothing.
+ *
+ * Treat anything uncertain as a minor. The costs are not symmetrical: leaving a
+ * child out of an adults-only list is a missing row, and putting one in is a
+ * safeguarding failure.
+ *
+ * Use this to answer "may this person be treated as an adult?" — who appears in
+ * a broadcast, who goes into an adult small group. Do *not* use it to read the
+ * role a household record claims: the family audit compares the declared
+ * `isChild` flag against age precisely to catch the disagreement, and folding
+ * the two together there would hide the anomaly it exists to find.
+ */
+export const isMinor = (person: Pick<Student, 'isChild' | 'age'>): boolean =>
+  person.isChild || person.age < 18 || person.age > 110;
 
 export interface PcoEvent {
   id: string;
@@ -228,7 +255,7 @@ export const flattenIncluded = (response: PcoApiResponse): PcoPerson[] => {
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
   const { id, attributes } = person;
-  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, household_id, background_check_expires_at, prayer_topic, first_time_giver, first_gift_date, anniversary, death_date, email_addresses, addresses, phone_numbers } = attributes;
+  const { birthdate, grade, name, first_name, last_name, last_checked_in_at, avatar, child, created_at, household_id, background_check_expires_at, prayer_topic, first_time_giver, first_gift_date, anniversary, death_date, email_addresses, addresses, phone_numbers } = attributes;
 
   if (!birthdate) {
     return null;
@@ -271,6 +298,7 @@ export const transformPerson = (person: PcoPerson, options?: GraderOptions): Stu
     checkInCount: null, // Fetched lazily
     avatarUrl: (avatar as string) || undefined,
     isChild: !!child,
+    createdAt: (created_at as string) || null,
     householdId: household_id || null,
     backgroundCheckExpiresAt: (background_check_expires_at as string) || null,
     prayerTopic: (prayer_topic as string) || null,
@@ -362,13 +390,82 @@ const writeContact = async (
   }
 };
 
+/**
+ * Whether this session may write to Planning Center at all.
+ *
+ * Defaults to denied. Locus has two surfaces — the Core workspace, which fixes
+ * records, and the Intelligence view, which reports on them — and the boundary
+ * between them was a client-side `if` around three modals. Anything that got
+ * mounted on the wrong side wrote happily: Locus Public, a member-record editor
+ * with no member authentication, lived on the surface the product documented as
+ * read-only and called the same PATCH path as everything in Core.
+ *
+ * Guarding every screen is what failed. This is the one place all writes pass
+ * through, so it is the only place worth guarding, and it starts closed so a
+ * caller that forgets to open it gets a refusal rather than a live edit.
+ *
+ * It is not a security boundary and must not be described as one — it runs in the
+ * browser, and the credentials it holds can do anything the API allows. Real
+ * separation needs per-user OAuth with a viewer scope, which Locus does not have.
+ * What this does buy is that a read-only surface cannot write by accident.
+ */
+let writeAccessGranted = false;
+
+export const setWriteAccess = (granted: boolean): void => {
+    writeAccessGranted = granted;
+};
+
+export class WriteAccessDeniedError extends Error {
+    constructor() {
+        super(
+            'This view is read-only, so nothing was sent to Planning Center. ' +
+            'Switch to the data workspace if you meant to change a record.'
+        );
+        this.name = 'WriteAccessDeniedError';
+    }
+}
+
+export class SandboxUnavailableError extends Error {
+    constructor() {
+        super(
+            'Sandbox Mode is on, but the interceptor that makes it work is not running, ' +
+            'so this change would have gone to Planning Center for real. Nothing was sent. ' +
+            'Reload the page to start the interceptor, or turn Sandbox Mode off if you meant to save.'
+        );
+        this.name = 'SandboxUnavailableError';
+    }
+}
+
+/**
+ * Is the sandbox interceptor actually in control of this page?
+ *
+ * Sandbox Mode works by tagging writes with `X-Locus-Sandbox` and having a
+ * service worker (`public/sandbox-sw.js`) answer them with a synthetic response
+ * instead of letting them reach PCO. That mechanism is real, but it is not
+ * always there: a service worker does not control the page on the very first
+ * load before it activates, registration can fail outright (`main.tsx` only
+ * logs it), and it needs a secure context.
+ *
+ * In every one of those cases the header was still attached, the PATCH still
+ * went to Planning Center, and the banner still said "changes are simulated".
+ * A safety switch that quietly stops working is worse than none, because it is
+ * the cautious user who reaches for it. So: no controller, no write.
+ */
+const sandboxInterceptorReady = (): boolean =>
+    typeof navigator !== 'undefined' &&
+    'serviceWorker' in navigator &&
+    !!navigator.serviceWorker.controller;
+
 export const updatePerson = async (id: string, attributes: PcoAttributes, auth: string, sandboxMode?: boolean): Promise<PcoPerson> => {
+    if (!writeAccessGranted) throw new WriteAccessDeniedError();
+
     const headers: Record<string, string> = {
         Authorization: `Basic ${auth}`,
         'Content-Type': 'application/json'
     };
 
     if (sandboxMode) {
+        if (!sandboxInterceptorReady()) throw new SandboxUnavailableError();
         headers['X-Locus-Sandbox'] = 'true';
     }
 
@@ -402,6 +499,19 @@ export const updatePerson = async (id: string, attributes: PcoAttributes, auth: 
           headers
         }
       );
+
+      // Belt as well as braces. The controller check above runs before the
+      // request; this confirms afterwards that the reply really came from the
+      // interceptor and not from Planning Center. If the worker went away
+      // mid-session the write has already landed, so say so plainly rather than
+      // returning a success the banner will dress up as simulated.
+      if (sandboxMode && !response.headers?.['x-locus-sandbox-response']) {
+        throw new Error(
+          'Sandbox Mode was on, but this change reached Planning Center — the reply did not come ' +
+          'from the sandbox interceptor. Treat the record as edited and check it.'
+        );
+      }
+
       person = response.data.data;
     }
 

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { initialsAvatar } from '../utils/avatar';
+import { isMinor } from '../utils/pco';
 import type { Student } from '../utils/pco';
 import { sortIntoGroups, type SmallGroup } from '../utils/sorter';
 import './SmallGroupSorter.css';
@@ -13,7 +15,15 @@ export const SmallGroupSorter: React.FC<SmallGroupSorterProps> = ({ students }) 
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [groups, setGroups] = useState<SmallGroup[] | null>(null);
 
+  // Refuse rather than filter. `sortIntoGroups` drops minors before it starts,
+  // but a tool that quietly thins its own input teaches the operator to trust an
+  // output that is not what they asked for — and this one builds adult groups
+  // from a roster that may include somebody's fourteen-year-old. Say so, name
+  // the count, and produce nothing until they hand over the right list.
+  const minorsInInput = students.filter(isMinor);
+
   const handleRunAlgorithm = () => {
+    if (minorsInInput.length > 0) return;
     setIsProcessing(true);
     // Use a short timeout to allow UI to render "Evolving..." state
     if (process.env.NODE_ENV === 'test') {
@@ -63,11 +73,23 @@ export const SmallGroupSorter: React.FC<SmallGroupSorterProps> = ({ students }) 
         <button
           className="btn-run-algorithm"
           onClick={handleRunAlgorithm}
-          disabled={isProcessing}
+          disabled={isProcessing || minorsInInput.length > 0}
         >
           {isProcessing ? 'Evolving Generations...' : 'Run Algorithm'}
         </button>
       </div>
+
+      {minorsInInput.length > 0 && (
+        <div className="sorter-refusal" role="alert">
+          <strong>This roster includes {minorsInInput.length} {minorsInInput.length === 1 ? 'person' : 'people'} under 18.</strong>
+          <p>
+            This tool builds adult small groups. It will not sort a list containing
+            minors, and it will not quietly leave them out either &mdash; grouping
+            students needs leader ratios and keep-apart rules it does not have.
+            Narrow the roster to adults and run it again.
+          </p>
+        </div>
+      )}
 
       {groups && !isProcessing && (
         <div className="sorter-results">
@@ -87,7 +109,7 @@ export const SmallGroupSorter: React.FC<SmallGroupSorterProps> = ({ students }) 
                   group.members.map(member => (
                     <li key={member.id} className="member-item">
                       <img
-                        src={member.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}`}
+                        src={member.avatarUrl || initialsAvatar(member.name)}
                         alt={member.name}
                         className="member-avatar"
                       />

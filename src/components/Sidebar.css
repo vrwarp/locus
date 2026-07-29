@@ -98,3 +98,18 @@
   padding-top: 1rem;
   border-top: 1px solid #333;
 }
+
+.readonly-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.readonly-note {
+  margin: 0.4rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  opacity: 0.65;
+}

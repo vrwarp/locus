@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import api from './api';
-import { transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, prepareUpdateAttributes, toProxyPath, flattenIncluded, PEOPLE_INCLUDES } from './pco';
+import { setWriteAccess, WriteAccessDeniedError, transformPerson, updatePerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, prepareUpdateAttributes, toProxyPath, flattenIncluded, isMinor, PEOPLE_INCLUDES } from './pco';
 import type { PcoPerson, Student } from './pco';
 import { calculateExpectedGrade } from './grader';
 import { subYears, format } from 'date-fns';
@@ -60,6 +60,7 @@ describe('transformPerson', () => {
       checkInCount: null,
       avatarUrl: undefined,
       isChild: true,
+      createdAt: null,
       householdId: 'hh1',
       backgroundCheckExpiresAt: null,
       prayerTopic: null,
@@ -218,6 +219,26 @@ describe('transformPerson', () => {
   });
 });
 
+
+// Sandbox Mode is only honoured when the service worker that intercepts the
+// write is actually controlling the page, so tests that exercise it have to say
+// which of the two worlds they are in.
+// Writes are denied until a session opens the gate, so suites exercising them
+// have to say so. The refusal path is covered separately below.
+beforeEach(() => setWriteAccess(true));
+afterEach(() => setWriteAccess(false));
+
+const withSandboxInterceptor = (present: boolean) => {
+    Object.defineProperty(navigator, 'serviceWorker', {
+        configurable: true,
+        value: present ? { controller: {} } : {},
+    });
+};
+const sandboxReply = (person: PcoPerson) => ({
+    data: { data: person },
+    headers: { 'x-locus-sandbox-response': 'true' },
+});
+
 describe('updatePerson', () => {
     it('calls api patch with correct arguments and returns data', async () => {
         const mockPerson: PcoPerson = {
@@ -257,8 +278,8 @@ describe('updatePerson', () => {
             type: 'Person',
             attributes: { grade: 5 }
         };
-        const mockResponse = { data: { data: mockPerson } };
-        (api.patch as any).mockResolvedValue(mockResponse);
+        withSandboxInterceptor(true);
+        (api.patch as any).mockResolvedValue(sandboxReply(mockPerson));
 
         await updatePerson('123', { grade: 5 }, 'auth-token', true);
 
@@ -688,6 +709,7 @@ describe('updatePerson contact writes', () => {
     });
 
     it('carries the sandbox header onto the contact writes too', async () => {
+        withSandboxInterceptor(true);
         (api.get as any).mockResolvedValue({ data: { data: [{ id: 'e1' }] } });
 
         await updatePerson('1', { email_addresses: [{ address: 'a@b.com', location: 'Home' }] }, auth, true);
@@ -697,6 +719,33 @@ describe('updatePerson contact writes', () => {
             expect.any(Object),
             expect.objectContaining({ headers: expect.objectContaining({ 'X-Locus-Sandbox': 'true' }) }),
         );
+    });
+
+    it('refuses to write at all when Sandbox Mode is on but the interceptor is not running', async () => {
+        // The dangerous case: header attached, request sent, PATCH lands in real
+        // Planning Center, banner still claims the change was simulated.
+        withSandboxInterceptor(false);
+
+        await expect(updatePerson('1', { grade: 5 }, auth, true))
+            .rejects.toThrow(/would have gone to Planning Center for real/);
+        expect(api.patch).not.toHaveBeenCalled();
+    });
+
+    it('reports it when a sandbox write reaches PCO anyway', async () => {
+        // Controller present at the start, but the reply came back without the
+        // interceptor's marker — the worker went away and the write is live.
+        withSandboxInterceptor(true);
+        (api.patch as any).mockResolvedValue({ data: { data: person }, headers: {} });
+
+        await expect(updatePerson('1', { grade: 5 }, auth, true))
+            .rejects.toThrow(/reached Planning Center/);
+    });
+
+    it('does not consult the interceptor when Sandbox Mode is off', async () => {
+        withSandboxInterceptor(false);
+        (api.patch as any).mockResolvedValue({ data: { data: person }, headers: {} });
+
+        await expect(updatePerson('1', { grade: 5 }, auth)).resolves.toBeTruthy();
     });
 
     it('reads the person back when only contacts changed', async () => {
@@ -716,5 +765,61 @@ describe('updatePerson contact writes', () => {
         expect(api.patch).toHaveBeenCalledTimes(1);
         expect(api.get).not.toHaveBeenCalled();
         expect(api.post).not.toHaveBeenCalled();
+    });
+});
+
+describe('isMinor', () => {
+    // Each clause guards a case the others miss. Every consumer of this
+    // predicate — the newsletter, the small group sorter, recruitment — is
+    // deciding whether someone may be treated as an adult, so a gap here is a
+    // gap in all of them at once.
+    it('accepts an adult with a plausible birthdate', () => {
+        expect(isMinor({ isChild: false, age: 42 })).toBe(false);
+    });
+
+    it('rejects anyone PCO has flagged as a child', () => {
+        expect(isMinor({ isChild: true, age: 12 })).toBe(true);
+    });
+
+    it('rejects a minor the office never flagged', () => {
+        // The `child` attribute is maintained by hand, so this is the common case.
+        expect(isMinor({ isChild: false, age: 14 })).toBe(true);
+    });
+
+    it('rejects a placeholder birthdate that computes an implausible age', () => {
+        // 1900-01-01 and friends are valid dates that clear an age >= 18 check
+        // while telling us nothing at all about who the person is.
+        expect(isMinor({ isChild: false, age: 126 })).toBe(true);
+    });
+
+    it('rejects someone still flagged as a child after their eighteenth birthday', () => {
+        // Stale in the other direction. Over-protecting costs a missing row.
+        expect(isMinor({ isChild: true, age: 19 })).toBe(true);
+    });
+
+    it('treats the boundary birthday as adult', () => {
+        expect(isMinor({ isChild: false, age: 18 })).toBe(false);
+    });
+});
+
+describe('write access gate', () => {
+    it('refuses every write until a session grants access', async () => {
+        // Closed by default. A caller that forgets to open it gets a refusal
+        // rather than a live edit to somebody's record.
+        setWriteAccess(false);
+
+        await expect(updatePerson('1', { grade: 5 }, 'auth'))
+            .rejects.toBeInstanceOf(WriteAccessDeniedError);
+        expect(api.patch).not.toHaveBeenCalled();
+    });
+
+    it('allows writes once granted, and stops again when revoked', async () => {
+        (api.patch as any).mockResolvedValue({ data: { data: { id: '1', type: 'Person', attributes: {} } }, headers: {} });
+
+        setWriteAccess(true);
+        await expect(updatePerson('1', { grade: 5 }, 'auth')).resolves.toBeTruthy();
+
+        setWriteAccess(false);
+        await expect(updatePerson('1', { grade: 6 }, 'auth')).rejects.toBeInstanceOf(WriteAccessDeniedError);
     });
 });

@@ -22,7 +22,6 @@ test('renders the Diagonal of Truth', async ({ page }) => {
   });
 
   await page.goto('/');
-  await page.getByText('Locus Core').click();
 
   // Login
   await page.fill('input[placeholder="Application ID"]', 'test');

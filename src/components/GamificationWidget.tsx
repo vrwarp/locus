@@ -2,34 +2,34 @@ import React from 'react';
 import './GamificationWidget.css';
 
 interface GamificationWidgetProps {
-  streak: number;
-  dailyFixes: number;
-  dailyGoal?: number;
+  editsToday: number;
+  flaggedRecords: number;
 }
 
+/**
+ * Two true sentences, and nothing else.
+ *
+ * This used to show a streak and a progress bar against a 50-a-day goal. The
+ * streak measured consecutive days the app was opened; the goal counted field
+ * rewrites as though they were verified corrections. Both were replaced with
+ * numbers the product can actually stand behind: how many records you have
+ * edited today, and how many are still flagged.
+ *
+ * Note the wording. "Edited", not "fixed" — Locus does not know whether an edit
+ * made a record more correct, and a label that says otherwise is the whole
+ * defect this widget used to embody.
+ */
 export const GamificationWidget: React.FC<GamificationWidgetProps> = ({
-  streak,
-  dailyFixes,
-  dailyGoal = 50
-}) => {
-  const progress = Math.min((dailyFixes / dailyGoal) * 100, 100);
-  const isComplete = dailyFixes >= dailyGoal;
-
-  return (
-    <div className="gamification-widget" role="status" aria-label="Gamification Stats">
-      <div className="streak-container" title={`${streak} Day Streak`}>
-        <span className="streak-icon">🔥</span>
-        <span>{streak}</span>
-      </div>
-      <div className="daily-goal-container">
-        <div className="daily-goal-label">Daily Goal: {dailyFixes}/{dailyGoal}</div>
-        <div className="progress-bar-bg">
-          <div
-            className={`progress-bar-fill ${isComplete ? 'complete' : ''}`}
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
+  editsToday,
+  flaggedRecords
+}) => (
+  <div className="session-summary" role="status" data-testid="gamification-widget">
+    <span className="session-stat">
+      <b>{editsToday}</b> edited today
+    </span>
+    <span className="session-divider" aria-hidden="true">·</span>
+    <span className="session-stat">
+      <b>{flaggedRecords}</b> still flagged
+    </span>
+  </div>
+);

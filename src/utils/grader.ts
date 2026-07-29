@@ -1,8 +1,8 @@
 import { differenceInYears, isBefore } from 'date-fns';
 
 // Config: Default to Sept 1st cutoff
-const DEFAULT_CUTOFF_MONTH = 8; // September (0-indexed in JS dates)
-const DEFAULT_CUTOFF_DAY = 1;
+export const DEFAULT_CUTOFF_MONTH = 8; // September (0-indexed in JS dates)
+export const DEFAULT_CUTOFF_DAY = 1;
 
 export interface GraderOptions {
   cutoffMonth?: number;
