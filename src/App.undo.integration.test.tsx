@@ -146,7 +146,6 @@ describe('Undo/Redo Integration', () => {
         );
 
         // Login
-        fireEvent.click(screen.getByText('Locus Core'));
         const appIdInput = screen.getByPlaceholderText('Application ID');
         const secretInput = screen.getByPlaceholderText('Secret');
         fireEvent.change(appIdInput, { target: { value: 'test-app' } });

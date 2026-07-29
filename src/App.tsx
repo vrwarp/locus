@@ -38,9 +38,7 @@ import './App.css'
 
 // New Components
 
-import { LandingPage } from './components/LandingPage';
-import { CoreLayout } from './layouts/CoreLayout';
-import { IntelligenceLayout } from './layouts/IntelligenceLayout';
+import { AppLayout } from './layouts/AppLayout';
 
 import { Dashboard } from './components/Dashboard'
 import { AutomationsReport } from './components/AutomationsReport'
@@ -51,20 +49,16 @@ function App() {
   const [config, setConfig] = useState<AppConfig>({ graderOptions: {} });
 
 
-  // Role State
-  const [userRole, setUserRole] = useState<'core' | 'intelligence' | null>(null);
-
-  const handleSelectRole = (role: 'core' | 'intelligence') => {
-      setUserRole(role);
-      setCurrentView(role === 'core' ? 'dashboard' : 'retention');
-  };
+  // Read-only is a mode chosen inside the app by someone who has seen it, not a
+  // workspace picked from a splash screen before logging in.
+  const [readOnly, setReadOnly] = useState(false);
 
   // One gate, at the only place every write passes through. Guarding individual
   // screens is what let a member-record editor sit on the read-only surface.
   useEffect(() => {
-      setWriteAccess(userRole === 'core');
+      setWriteAccess(!readOnly);
       return () => setWriteAccess(false);
-  }, [userRole]);
+  }, [readOnly]);
 
   const [currentView, setCurrentView] = useState('dashboard');
 
@@ -601,11 +595,6 @@ function App() {
       }
   };
 
-  if (!userRole) {
-      return <LandingPage onSelectRole={handleSelectRole} />;
-  }
-
-  const Layout = userRole === 'core' ? CoreLayout : IntelligenceLayout;
 
   return (
     <div className="app-container" style={{display: 'flex', width: '100vw', height: '100vh', margin: 0, padding: 0}}>
@@ -620,7 +609,13 @@ function App() {
           </div>
       )}
 
-      <Layout currentView={currentView} onChangeView={handleNavigation} anomaliesCount={anomalies.length}>
+      <AppLayout
+        currentView={currentView}
+        onChangeView={handleNavigation}
+        anomaliesCount={anomalies.length}
+        readOnly={readOnly}
+        onToggleReadOnly={setReadOnly}
+      >
 
 
 
@@ -805,10 +800,10 @@ function App() {
               </>
           )}
 
-            </Layout>
+            </AppLayout>
 
       {/* Modals & Toasts */}
-      {userRole === 'core' && (<>
+      {!readOnly && (<>
       <SmartFixModal
         isOpen={!!selectedStudent}
         student={selectedStudent}

@@ -196,7 +196,6 @@ describe('App Integration', () => {
 
 
     const loginToIntelligence = async () => {
-        fireEvent.click(screen.getByText('Locus Intelligence'));
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-app' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
                 // Wait for connection
@@ -204,7 +203,6 @@ describe('App Integration', () => {
     };
 
     const loginAndNavigateToDashboard = async () => {
-        fireEvent.click(screen.getByText('Locus Core'));
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
         // Wait for GamificationWidget to confirm login
@@ -982,8 +980,6 @@ describe('App Integration', () => {
         (pco.checkApiVersion as any).mockRejectedValue(new Error('API Version Mismatch'));
 
         render(<Wrapper><App /></Wrapper>);
-
-        fireEvent.click(screen.getByText('Locus Core'));
         fireEvent.change(screen.getByPlaceholderText('Application ID'), { target: { value: 'test-id' } });
         fireEvent.change(screen.getByPlaceholderText('Secret'), { target: { value: 'test-secret' } });
 
