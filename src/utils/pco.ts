@@ -26,10 +26,26 @@ export interface PcoAttributes {
   [key: string]: unknown;
 }
 
+/** A JSON:API resource identifier, as it appears inside `relationships`. */
+export interface PcoRef {
+  id: string;
+  type: string;
+}
+
+/** A sideloaded resource: an Email, PhoneNumber, Address or Household. */
+export interface PcoIncluded {
+  id: string;
+  type: string;
+  attributes: Record<string, unknown>;
+}
+
 export interface PcoPerson {
   id: string;
   type: string;
   attributes: PcoAttributes;
+  // Present when the request asked for `include=`; this is where PCO names the
+  // contact records that belong to the person.
+  relationships?: Record<string, { data?: PcoRef | PcoRef[] | null }>;
 }
 
 export interface PcoApiResponse {
@@ -38,6 +54,9 @@ export interface PcoApiResponse {
     self?: string;
   };
   data: PcoPerson[];
+  // JSON:API sideloads. Real PCO (and pcomirror) return a person's emails, phone
+  // numbers, addresses and households here rather than as Person attributes.
+  included?: PcoIncluded[];
   meta: {
     total_count: number;
     count: number;
@@ -102,6 +121,111 @@ export interface PcoCheckIn {
   };
 }
 
+
+// PCO's own base. Live, it is what `links.next` is absolute against; behind
+// pcomirror the links come back relative, having been rewritten to point at the
+// mirror rather than at an API the caller has no PAT for.
+const PCO_ORIGIN = 'https://api.planningcenteronline.com';
+
+// The PCO products this app reads. A page link naming one of them is a link we
+// own and must route through the dev proxy.
+const PCO_PRODUCT = /^\/(people|check-ins|groups|services|giving|calendar)\/v2\//;
+
+/**
+ * Normalise a `links.next` into a path this app can actually request.
+ *
+ * Three shapes arrive here, and only the first used to be handled:
+ *
+ *   - `https://api.planningcenteronline.com/people/v2/people?offset=100` — live PCO.
+ *   - `/people/v2/people?offset=100` — pcomirror, which rewrites every PCO URL it
+ *     serves to a mirror-relative path. Left alone this bypasses the `/api` proxy
+ *     entirely: the dev server answers with `index.html`, and paging stopped after
+ *     page one having silently dropped every record past it.
+ *   - `http://localhost:1234/people/v2/people?...` — the mock API, addressed
+ *     directly by the simulator test rather than through the proxy.
+ *
+ * Anything else is returned untouched, so a caller that already passes an
+ * `/api/...` path keeps working.
+ */
+export const toProxyPath = (url: string): string => {
+  if (url.startsWith(`${PCO_ORIGIN}/`)) {
+    return `/api${url.slice(PCO_ORIGIN.length)}`;
+  }
+  if (PCO_PRODUCT.test(url)) {
+    return `/api${url}`;
+  }
+  return url;
+};
+
+/**
+ * Fold `included[]` back onto the people that own it.
+ *
+ * PCO does not put a person's contact details on the Person: emails, phone
+ * numbers and addresses are separate resources, and households are a
+ * relationship. This app was written against a mock that inlined all four as
+ * attributes, so against a real PCO — or pcomirror, which stores PCO verbatim —
+ * every person came back with no email, no phone, no address and a null
+ * household, silently disabling the hygiene, duplicate and mapping features.
+ *
+ * Requesting `include=` and flattening the result here keeps `transformPerson`
+ * and everything downstream unchanged. Existing inline attributes win, so a
+ * response that already carries them (the mock) is left exactly as it was.
+ */
+export const flattenIncluded = (response: PcoApiResponse): PcoPerson[] => {
+  const included = response.included || [];
+  if (included.length === 0) return response.data;
+
+  const byId = new Map<string, PcoIncluded>(
+    included.map(r => [`${r.type}:${r.id}`, r]));
+
+  return response.data.map(person => {
+    const rels = person.relationships || {};
+    const pick = (relName: string, type: string): PcoIncluded[] => {
+      const data = rels[relName]?.data;
+      if (!data) return [];
+      return (Array.isArray(data) ? data : [data])
+        .map(ref => byId.get(`${type}:${ref.id}`))
+        .filter((r): r is PcoIncluded => r !== undefined);
+    };
+
+    const emails = pick('emails', 'Email');
+    const phones = pick('phone_numbers', 'PhoneNumber');
+    const addresses = pick('addresses', 'Address');
+    const households = pick('households', 'Household');
+
+    const str = (r: PcoIncluded, key: string) => r.attributes[key] as string;
+
+    const attributes: PcoAttributes = { ...person.attributes };
+    if (attributes.email_addresses === undefined && emails.length) {
+      attributes.email_addresses = emails.map(e => ({
+        address: str(e, 'address'),
+        location: str(e, 'location'),
+      }));
+    }
+    if (attributes.phone_numbers === undefined && phones.length) {
+      attributes.phone_numbers = phones.map(p => ({
+        number: str(p, 'number'),
+        location: str(p, 'location'),
+      }));
+    }
+    if (attributes.addresses === undefined && addresses.length) {
+      attributes.addresses = addresses.map(a => ({
+        street: str(a, 'street'),
+        city: str(a, 'city'),
+        state: str(a, 'state'),
+        zip: str(a, 'zip'),
+        location: str(a, 'location'),
+      }));
+    }
+    // A person can belong to more than one household; the first is the one the
+    // rest of the app means by "the" household, matching the mock's single id.
+    if (attributes.household_id === undefined && households.length) {
+      attributes.household_id = households[0].id;
+    }
+
+    return { ...person, attributes };
+  });
+};
 
 export const transformPerson = (person: PcoPerson, options?: GraderOptions): Student | null => {
   const { id, attributes } = person;
@@ -194,6 +318,52 @@ export const prepareUpdateAttributes = (original: Student, updated: Student): Pc
   return attributes;
 };
 
+/**
+ * The three attributes this app keeps on a Student that PCO keeps somewhere else.
+ *
+ * Each is its own resource under the person — `/people/{id}/emails` and friends —
+ * so a `PATCH` naming them on the Person writes attributes PCO does not have.
+ * That write returns 200 and changes nothing, which is how ReviewMode's "Fix All"
+ * could report a corrected email address and leave the record untouched.
+ */
+const CONTACT_RESOURCES = {
+  email_addresses: { endpoint: 'emails', type: 'Email' },
+  phone_numbers: { endpoint: 'phone_numbers', type: 'PhoneNumber' },
+  addresses: { endpoint: 'addresses', type: 'Address' },
+} as const;
+
+type ContactKey = keyof typeof CONTACT_RESOURCES;
+
+/**
+ * Write one contact record, updating the person's existing one where they have one.
+ *
+ * Read-before-write because PCO addresses these by their own id, which a Student
+ * does not carry. Posting unconditionally would leave the stale address in place
+ * beside the corrected one and make a cleanup tool a source of duplicates.
+ */
+const writeContact = async (
+  personId: string,
+  key: ContactKey,
+  attributes: Record<string, unknown>,
+  headers: Record<string, string>,
+): Promise<void> => {
+  const { endpoint, type } = CONTACT_RESOURCES[key];
+  const collection = `/api/people/v2/people/${personId}/${endpoint}`;
+
+  const existing = await api.get<{ data: { id: string }[] }>(collection, {
+    headers,
+    cache: false,
+  });
+  const current = existing.data.data?.[0];
+
+  if (current) {
+    await api.patch(`${collection}/${current.id}`,
+      { data: { type, id: current.id, attributes } }, { headers });
+  } else {
+    await api.post(collection, { data: { type, attributes } }, { headers });
+  }
+};
+
 export const updatePerson = async (id: string, attributes: PcoAttributes, auth: string, sandboxMode?: boolean): Promise<PcoPerson> => {
     const headers: Record<string, string> = {
         Authorization: `Basic ${auth}`,
@@ -204,20 +374,50 @@ export const updatePerson = async (id: string, attributes: PcoAttributes, auth: 
         headers['X-Locus-Sandbox'] = 'true';
     }
 
-    const response = await api.patch<PcoSingleResponse>(
-      `/api/people/v2/people/${id}`,
-      {
-        data: {
-          type: 'Person',
-          id,
-          attributes
-        }
-      },
-      {
-        headers
+    // Split the payload by where PCO actually stores each part.
+    const personAttributes: PcoAttributes = {};
+    const contacts: [ContactKey, Record<string, unknown>][] = [];
+    for (const [key, value] of Object.entries(attributes)) {
+      const record = Array.isArray(value) ? value[0] : undefined;
+      if (key in CONTACT_RESOURCES && record) {
+        contacts.push([key as ContactKey, record as Record<string, unknown>]);
+      } else {
+        personAttributes[key] = value;
       }
-    );
-    return response.data.data;
+    }
+
+    // Sequential, and the person first: these are edits to one record, and PCO
+    // rate-limits per organization. A batch fix that fanned them out would spend
+    // the whole budget in a burst and start colliding with its own 429 backoff.
+    let person: PcoPerson | undefined;
+    if (Object.keys(personAttributes).length > 0 || contacts.length === 0) {
+      const response = await api.patch<PcoSingleResponse>(
+        `/api/people/v2/people/${id}`,
+        {
+          data: {
+            type: 'Person',
+            id,
+            attributes: personAttributes
+          }
+        },
+        {
+          headers
+        }
+      );
+      person = response.data.data;
+    }
+
+    for (const [key, record] of contacts) {
+      await writeContact(id, key, record, headers);
+    }
+
+    if (person) return person;
+
+    // Contact-only edit: nothing PATCHed the person, so read back the record the
+    // caller is owed rather than inventing one.
+    const fresh = await api.get<PcoSingleResponse>(`/api/people/v2/people/${id}`,
+      { headers, cache: false });
+    return fresh.data.data;
   };
 
 export const archivePerson = async (id: string, auth: string, sandboxMode?: boolean): Promise<PcoPerson> => {
@@ -260,14 +460,19 @@ export const fetchGroupCount = async (id: string, auth: string): Promise<number 
     }
 };
 
-export const fetchAllPeople = async (auth: string, url: string = '/api/people/v2/people?per_page=100', maxPages: number = Infinity): Promise<{ people: PcoPerson[], nextUrl: string | undefined }> => {
+// Asked for on the first page only; PCO echoes `include` into `links.next`, so
+// every page after it carries the sideloads without our having to re-add them.
+export const PEOPLE_INCLUDES = 'emails,phone_numbers,addresses,households';
+
+export const fetchAllPeople = async (auth: string, url: string = `/api/people/v2/people?per_page=100&include=${PEOPLE_INCLUDES}`, maxPages: number = Infinity): Promise<{ people: PcoPerson[], nextUrl: string | undefined }> => {
   let allPeople: PcoPerson[] = [];
   let nextUrl: string | undefined = url;
   let pageCount = 0;
 
   while (nextUrl && pageCount < maxPages) {
-    // Ensure we use the proxy for absolute URLs returned by PCO
-    const proxyUrl: string = nextUrl.replace('https://api.planningcenteronline.com', '/api');
+    // Route the link through the dev proxy, whether PCO returned it absolute or
+    // pcomirror returned it relative.
+    const proxyUrl: string = toProxyPath(nextUrl);
 
     const response: { data: PcoApiResponse } = await api.get<PcoApiResponse>(proxyUrl, {
       headers: {
@@ -275,7 +480,7 @@ export const fetchAllPeople = async (auth: string, url: string = '/api/people/v2
       }
     });
 
-    allPeople = [...allPeople, ...response.data.data];
+    allPeople = [...allPeople, ...flattenIncluded(response.data)];
     nextUrl = response.data.links?.next;
     pageCount++;
   }
@@ -327,8 +532,7 @@ export const fetchRecentCheckIns = async (auth: string, maxPages: number = 100):
 
     while (nextUrl && pageCount < maxPages) {
         try {
-            // Ensure we use the proxy for absolute URLs returned by PCO
-            const proxyUrl = nextUrl.replace('https://api.planningcenteronline.com', '/api');
+            const proxyUrl = toProxyPath(nextUrl);
 
             const response = await api.get<{ data: PcoCheckIn[], links?: { next?: string } }>(
                 proxyUrl,

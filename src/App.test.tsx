@@ -740,20 +740,30 @@ describe('App Integration', () => {
     });
 
     it('allows fixing a phone anomaly via Review Mode', async () => {
-        // Mock data with phone anomaly
-        (api.get as any).mockResolvedValue({
-            data: {
-                data: [{
-                    id: 'p1',
-                    type: 'Person',
-                    attributes: {
-                        birthdate: '2000-01-01',
-                        grade: 10,
-                        name: 'Phone Kid',
-                        phone_numbers: [{ number: '555-1234', location: 'Mobile' }]
-                    }
-                }]
+        // Mock data with phone anomaly.
+        //
+        // A phone number is its own resource under the person at PCO, so the fix
+        // reads `/people/p1/phone_numbers` and writes the record it finds there.
+        // Answering by URL rather than with one blanket response keeps those two
+        // reads distinguishable.
+        (api.get as any).mockImplementation((url: string) => {
+            if (url.endsWith('/phone_numbers')) {
+                return Promise.resolve({ data: { data: [{ id: 'ph1' }] } });
             }
+            return Promise.resolve({
+                data: {
+                    data: [{
+                        id: 'p1',
+                        type: 'Person',
+                        attributes: {
+                            birthdate: '2000-01-01',
+                            grade: 10,
+                            name: 'Phone Kid',
+                            phone_numbers: [{ number: '555-1234', location: 'Mobile' }]
+                        }
+                    }]
+                }
+            });
         });
         (api.patch as any).mockResolvedValue({ data: { data: {} } });
 
@@ -779,18 +789,22 @@ describe('App Integration', () => {
             vi.advanceTimersByTime(5000);
         });
 
-        // Verify API called with phone number
-        expect(api.patch).toHaveBeenCalledWith(
-            '/api/people/v2/people/p1',
+        // The write is a chain of requests now — read the collection, then patch
+        // the record — so let the real clock flush it before asserting.
+        vi.useRealTimers();
+
+        // Verify the corrected number reached the phone record itself. Sending it
+        // as a Person attribute is what PCO accepts and silently discards.
+        await waitFor(() => expect(api.patch).toHaveBeenCalledWith(
+            '/api/people/v2/people/p1/phone_numbers/ph1',
             expect.objectContaining({
                 data: expect.objectContaining({
-                    attributes: {
-                        phone_numbers: [{ number: '+15551234567', location: 'Mobile' }]
-                    }
+                    type: 'PhoneNumber',
+                    attributes: { number: '+15551234567', location: 'Mobile' }
                 })
             }),
             expect.any(Object)
-        );
+        ));
     });
 
     it('shows Review Mode button only when anomalies exist and allows fixing', async () => {
