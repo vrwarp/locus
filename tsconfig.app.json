@@ -24,5 +24,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  // The app project is what `npm run build` type-checks, and it should cover the
+  // code that ships. Specs are not that: vite never bundles them, and sweeping
+  // them in here is what left `tsc -b` failing on 92 errors in test fixtures
+  // while the app itself was clean. Vitest type-checks them when it runs them.
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/test"]
 }

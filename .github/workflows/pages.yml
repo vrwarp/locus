@@ -1,0 +1,67 @@
+name: Deploy to GitHub Pages
+
+# Locus is a browser-only app: the build is a folder of static files, and every
+# request it makes goes straight from the browser to whichever API the operator
+# points it at. So Pages can host it as-is — there is no server half to deploy.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Pages deployments need to write an artifact and mint an ID token.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and let a newer push wait rather than cancelling it —
+# cancelling mid-deploy can leave the site on a half-published version.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build
+        # `base_path` is `/<repo>` for a project site and empty for a custom
+        # domain or a `<user>.github.io` repo; vite.config.ts normalises both.
+        # VITE_API_BASE_URL is optional: set it as a repository variable to bake
+        # in one backend, leave it unset and the login screen asks for one.
+        env:
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

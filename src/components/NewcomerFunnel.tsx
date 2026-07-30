@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { FunnelChart, Funnel, Tooltip, LabelList, ResponsiveContainer, Cell } from 'recharts';
+import { FunnelChart, Funnel, Tooltip, LabelList, ResponsiveContainer } from 'recharts';
 import { calculateNewcomerFunnel, type FunnelStep } from '../utils/retention';
-import { fetchRecentCheckIns, type PcoCheckIn } from '../utils/pco';
+import { fetchRecentCheckIns } from '../utils/pco';
 
 interface NewcomerFunnelProps {
   auth: string;

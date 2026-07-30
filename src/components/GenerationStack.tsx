@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { Student } from '../utils/pco';
-import { calculateDemographics, GENERATIONS } from '../utils/demographics';
+import { calculateDemographics } from '../utils/demographics';
 
 interface GenerationStackProps {
   students: Student[];

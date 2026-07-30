@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { initialsAvatar } from '../utils/avatar';
 import { fetchRecentCheckIns, fetchEvents } from '../utils/pco';
-import type { Student, PcoCheckIn, PcoEvent } from '../utils/pco';
+import type { Student } from '../utils/pco';
 import { calculateMissingVolunteers } from '../utils/missing';
 import type { MissingVolunteer } from '../utils/missing';
 import { downloadCSV } from '../utils/export';

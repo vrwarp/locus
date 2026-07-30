@@ -62,3 +62,32 @@ PCO behaviour and the mock is the one that is unusual:
 * **Page links are relative.** pcomirror rewrites every PCO URL it serves to a
   mirror-relative path, since a caller holding a pcomirror key cannot follow an
   absolute `api.planningcenteronline.com` URL.
+
+## Deploying to GitHub Pages
+
+Locus is a browser-only app: `npm run build` produces a folder of static files,
+and every request goes straight from the browser to whichever API you point it
+at. There is no server half, so a static host can serve the whole thing.
+
+`.github/workflows/pages.yml` builds and deploys on every push to `main`. Before
+the first run, set **Settings → Pages → Build and deployment → Source** to
+*GitHub Actions*; nothing publishes until you do.
+
+Two things a static host cannot do for you, and how the build handles them:
+
+* **There is no `/api` proxy.** In development the Vite dev server proxies `/api`
+  onto `VITE_API_TARGET`. Nothing does that on Pages, so the deployed app asks
+  for an **API address** on the login screen and remembers it in
+  `localStorage`. Set the `VITE_API_BASE_URL` repository variable to pre-fill one
+  backend and skip the question. Either way the target must return CORS headers
+  allowing your Pages origin — Planning Center's own API does not, so point this
+  at a [pcomirror](https://github.com/vrwarp/pcomirror) you control, not at
+  `api.planningcenteronline.com`.
+* **A project site is served from `/<repo>/`, not `/`.** The workflow passes the
+  prefix through `VITE_BASE_PATH` so asset and service-worker URLs carry it. A
+  custom domain or a `<user>.github.io` repo resolves to `/` and needs nothing.
+
+Credentials are never part of the build. They stay in the browser of whoever
+opens the page, exactly as they do locally — but note that publishing the app
+publishes the *client*, so anyone who finds the URL can point it at their own
+mirror and type their own key. It grants no access to yours.

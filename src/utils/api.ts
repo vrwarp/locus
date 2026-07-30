@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
 import { setupCache, buildStorage } from 'axios-cache-interceptor';
 import localforage from 'localforage';
+import { resolveApiUrl } from './apiBase';
 
 // Extend the config to track retry count
 interface RetryConfig extends InternalAxiosRequestConfig {
@@ -35,22 +36,29 @@ const cacheConfig = storage ? { storage, ttl: 1000 * 60 * 60 } : { ttl: 0, metho
 const api = setupCache(instance, cacheConfig as any);
 
 let globalBackoffPromise: Promise<void> | null = null;
-let nextAllowedRequestTime = 0;
-// We removed MIN_REQUEST_INTERVAL delay to prevent Playwright Ghost Protocol from timing out
-// because Ghost Protocol makes O(N) requests (70 ghosts * 2 reqs each = 140).
-// 140 * 200ms = 28 seconds, timing out a 10000ms Playwright expectation.
-// Planning Center rate limit is 100 requests per 20 seconds. We'll handle 429 backoff gracefully instead.
-const MIN_REQUEST_INTERVAL = 0;
+// There is deliberately no minimum interval between requests. Spacing them out
+// made Ghost Protocol time out: it issues O(N) requests (70 ghosts * 2 each), and
+// at 200ms apart that is 28 seconds against a 10s Playwright expectation.
+// Planning Center allows 100 requests per 20 seconds; the 429 backoff below is
+// what handles going over, rather than pre-emptive throttling.
 
 export const __resetApiStateForTesting = () => {
     globalBackoffPromise = null;
-    nextAllowedRequestTime = 0;
 };
 
 // @ts-ignore
 api.interceptors.request.use(async (config: any) => {
     if (globalBackoffPromise) {
         await globalBackoffPromise;
+    }
+
+    // Every call site writes `/api/...` and lets the dev proxy strip the prefix.
+    // A static build has no proxy, so the same paths are re-pointed at the
+    // configured API origin here — one place, rather than at each of the dozen
+    // callers. With no origin configured this is a no-op and the dev proxy still
+    // sees exactly what it always did.
+    if (typeof config.url === 'string') {
+        config.url = resolveApiUrl(config.url);
     }
 
     return config;
