@@ -82,7 +82,12 @@ Two things a static host cannot do for you, and how the build handles them:
   backend and skip the question. Either way the target must return CORS headers
   allowing your Pages origin — Planning Center's own API does not, so point this
   at a [pcomirror](https://github.com/vrwarp/pcomirror) you control, not at
-  `api.planningcenteronline.com`.
+  `api.planningcenteronline.com`. On pcomirror that is its `/admin/cors` page (or
+  `PCOMIRROR_CORS_ORIGINS`), naming the origin exactly as the browser sends it —
+  `https://<user>.github.io`, no path and no trailing slash. Give the API key
+  `passthrough` alongside its read scopes as well: the attendance screens read
+  `/check-ins/v2/…`, which pcomirror does not mirror and serves by spending its own
+  Planning Center credential, so a key without that scope gets a `403` on them.
 * **A project site is served from `/<repo>/`, not `/`.** The workflow passes the
   prefix through `VITE_BASE_PATH` so asset and service-worker URLs carry it. A
   custom domain or a `<user>.github.io` repo resolves to `/` and needs nothing.
