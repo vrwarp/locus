@@ -6,7 +6,11 @@ import App from './App.tsx'
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sandbox-sw.js').then(registration => {
+    // Base-relative: on a project GitHub Pages site the app lives under
+    // `/<repo>/`, and an absolute `/sandbox-sw.js` would 404 with the page's own
+    // index.html — which the browser rejects as a worker.
+    const swUrl = `${import.meta.env.BASE_URL}sandbox-sw.js`.replace(/\/{2,}/g, '/');
+    navigator.serviceWorker.register(swUrl).then(registration => {
       console.log('Sandbox SW registered: ', registration);
     }).catch(registrationError => {
       console.log('Sandbox SW registration failed: ', registrationError);

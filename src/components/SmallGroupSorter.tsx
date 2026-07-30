@@ -26,7 +26,10 @@ export const SmallGroupSorter: React.FC<SmallGroupSorterProps> = ({ students }) 
     if (minorsInInput.length > 0) return;
     setIsProcessing(true);
     // Use a short timeout to allow UI to render "Evolving..." state
-    if (process.env.NODE_ENV === 'test') {
+    // `import.meta.env`, not `process.env`: this runs in a browser, where there is
+    // no `process`. Vitest sets MODE to 'test', so the synchronous path still
+    // holds for the specs that assert on the result without a timer.
+    if (import.meta.env.MODE === 'test') {
       const result = sortIntoGroups(students, groupCount, generations);
       setGroups(result);
       setIsProcessing(false);

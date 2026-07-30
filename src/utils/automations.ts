@@ -1,4 +1,4 @@
-import { isAfter, isBefore, differenceInDays, parseISO, isSameMonth, getDate } from 'date-fns';
+import { isAfter, isBefore, differenceInDays, parseISO, getDate } from 'date-fns';
 import type { Student } from './pco';
 import { calculateExpectedGrade, DEFAULT_CUTOFF_MONTH, DEFAULT_CUTOFF_DAY, type GraderOptions } from './grader';
 

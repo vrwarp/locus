@@ -24,6 +24,7 @@ import { transformPerson, fetchAllPeople, fetchCheckInCount, checkApiVersion, se
 import { isGhost } from './utils/ghost'
 import { analyzeFamilies } from './utils/family'
 import { loadConfig, saveConfig, loadHealthHistory, saveHealthSnapshot, loadGamificationState, saveGamificationState } from './utils/storage'
+import { getApiBase, setApiBase } from './utils/apiBase'
 import { recordEdits, editsToday } from './utils/gamification'
 import { saveToCache, loadFromCache } from './utils/cache'
 import { calculateHealthStats } from './utils/analytics'
@@ -47,6 +48,13 @@ function App() {
   const [appId, setAppId] = useState('')
   const [secret, setSecret] = useState('')
   const [config, setConfig] = useState<AppConfig>({ graderOptions: {} });
+
+  // Which API this copy of Locus talks to. Behind the dev server that is the
+  // `/api` proxy and this stays empty; on a static host there is no proxy, so the
+  // origin has to come from whoever opened the page. Kept next to the credentials
+  // because it is asked for at the same moment and for the same reason.
+  const [apiBase, setApiBaseState] = useState(() => getApiBase());
+  const needsApiBase = import.meta.env.PROD && !apiBase;
 
 
   // Read-only is a mode chosen inside the app by someone who has seen it, not a
@@ -77,6 +85,14 @@ function App() {
     if (appId && secret) return btoa(`${appId}:${secret}`);
     return '';
   }, [appId, secret]);
+
+  // One definition, because every optimistic update writes through it. This used
+  // to be spelled out at each of the eleven call sites, so the query and the
+  // writes agreed only by coincidence: adding a field to the query's copy left
+  // `setQueryData` addressing a cache entry nobody read.
+  const peopleQueryKey = useMemo(
+    () => ['people', appId, secret, apiBase, config],
+    [appId, secret, apiBase, config]);
 
   // Command Manager state
   const commandManagerRef = useRef<CommandManager>(new CommandManager());
@@ -146,7 +162,7 @@ function App() {
 
   // Check API version/credentials
   useEffect(() => {
-    if (appId && secret) {
+    if (appId && secret && !needsApiBase) {
       const check = async () => {
         setApiStatus('checking');
         setApiError(null);
@@ -168,10 +184,10 @@ function App() {
         setApiStatus('idle');
         setApiError(null);
     }
-  }, [appId, secret]);
+  }, [appId, secret, apiBase, needsApiBase]);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['people', appId, secret, config],
+    queryKey: peopleQueryKey,
     queryFn: async () => {
       if (!appId || !secret) return { students: [], nextUrl: undefined, raw: [] };
 
@@ -242,7 +258,7 @@ function App() {
           return { id: ghost.id, checkInCount };
       }));
 
-      queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+      queryClient.setQueryData(peopleQueryKey, (oldData: any) => {
           if (!oldData) return oldData;
           const newStudents = oldData.students.map((s: Student) => {
               const update = updates.find(u => u.id === s.id);
@@ -271,7 +287,7 @@ function App() {
           auth,
           config.sandboxMode || false,
           (student) => {
-              queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+              queryClient.setQueryData(peopleQueryKey, (oldData: any) => {
                   if (!oldData) return oldData;
                   return {
                       ...oldData,
@@ -304,7 +320,7 @@ function App() {
               alert(`Nothing was archived. ${e instanceof Error ? e.message : 'Check the console.'}`);
           }
       } finally {
-          queryClient.invalidateQueries({ queryKey: ['people', appId, secret, config] });
+          queryClient.invalidateQueries({ queryKey: peopleQueryKey });
           setIsArchiving(false);
           setIsGhostModalOpen(false);
       }
@@ -317,7 +333,7 @@ function App() {
            console.log(`Committing change for ${update.updated.name} to PCO...`);
 
            const onStateChange = (student: Student) => {
-               queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+               queryClient.setQueryData(peopleQueryKey, (oldData: any) => {
                   if (!oldData) return oldData;
                   const newStudents = oldData.students.map((s: Student) => s.id === student.id ? student : s);
                   return { ...oldData, students: newStudents };
@@ -344,7 +360,7 @@ function App() {
       } catch (error) {
           console.error('Failed to save to PCO', error);
           // Revert on error
-           queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+           queryClient.setQueryData(peopleQueryKey, (oldData: any) => {
               if (!oldData) return oldData;
               const newStudents = oldData.students.map((s: Student) => s.id === update.original.id ? update.original : s);
               return { ...oldData, students: newStudents };
@@ -364,7 +380,7 @@ function App() {
           const res = await fetchAllPeople(auth, nextUrl, 5);
 
           // Update Cache (React Query + IDB)
-          queryClient.setQueryData(['people', appId, secret, config], (old: any) => {
+          queryClient.setQueryData(peopleQueryKey, (old: any) => {
              if (!old) return old;
              // Merge
              const newRaw = [...old.raw, ...res.people];
@@ -416,7 +432,7 @@ function App() {
           auth,
           config.sandboxMode || false,
           (updatedStudent) => {
-               queryClient.setQueryData(['people', appId, secret, config], (oldData: { students: Student[], nextUrl: string | undefined, raw: PcoPerson[] } | undefined) => {
+               queryClient.setQueryData(peopleQueryKey, (oldData: { students: Student[], nextUrl: string | undefined, raw: PcoPerson[] } | undefined) => {
                   if (!oldData) return oldData;
                   const newStudents = oldData.students.map((s: Student) => s.id === updatedStudent.id ? updatedStudent : s);
                   return { ...oldData, students: newStudents };
@@ -447,7 +463,7 @@ function App() {
       saveGamificationState(currentState, appId);
 
       const onStateChange = (student: Student) => {
-          queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+          queryClient.setQueryData(peopleQueryKey, (oldData: any) => {
              if (!oldData) return oldData;
              const newStudents = oldData.students.map((s: Student) => s.id === student.id ? student : s);
              return { ...oldData, students: newStudents };
@@ -524,7 +540,7 @@ function App() {
     saveGamificationState(newGamificationState, appId);
 
     // Optimistically update the cache
-    queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+    queryClient.setQueryData(peopleQueryKey, (oldData: any) => {
         if (!oldData) return oldData
         const newStudents = oldData.students.map((s: Student) => s.id === updatedStudent.id ? updatedStudent : s)
         return { ...oldData, students: newStudents };
@@ -552,7 +568,7 @@ function App() {
 
       console.log('Undoing change...');
       // Revert cache
-      queryClient.setQueryData(['people', appId, secret, config], (oldData: any) => {
+      queryClient.setQueryData(peopleQueryKey, (oldData: any) => {
         if (!oldData) return oldData;
         const newStudents = oldData.students.map((s: Student) => s.id === current.original.id ? current.original : s);
         return { ...oldData, students: newStudents };
@@ -621,7 +637,7 @@ function App() {
 
 
           {/* Auth Screen (Overlay if not authed) */}
-          {!appId || !secret || apiStatus === 'idle' || apiStatus === 'error' ? (
+          {needsApiBase || !appId || !secret || apiStatus === 'idle' || apiStatus === 'error' ? (
               <div className="auth-overlay" style={{
                   position: 'fixed',
                   top: 0, left: 0, right: 0, bottom: 0,
@@ -634,6 +650,25 @@ function App() {
               }}>
                   <h1>Locus</h1>
                   <p>Ministry Intelligence Platform</p>
+                  {import.meta.env.PROD && (
+                    <div className="auth-section" style={{display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '2rem', width: 'min(30rem, 80vw)'}}>
+                      <label htmlFor="api-base">API address</label>
+                      <input
+                          id="api-base"
+                          type="url"
+                          placeholder="https://pcomirror.example.org"
+                          value={apiBase}
+                          onChange={(e) => {
+                              setApiBaseState(e.target.value);
+                              setApiBase(e.target.value);
+                          }}
+                      />
+                      <small style={{opacity: 0.7}}>
+                          Your pcomirror, or any host serving Planning Center's API. It has to
+                          allow this page's origin via CORS.
+                      </small>
+                    </div>
+                  )}
                    <div className="auth-section" style={{display: 'flex', gap: '1rem', marginTop: '2rem'}}>
                     <input
                         type="text"
@@ -648,6 +683,7 @@ function App() {
                         onChange={(e) => setSecret(e.target.value)}
                     />
                   </div>
+                  {needsApiBase && <p>Enter the address of the API to connect to.</p>}
                   {apiStatus === 'checking' && <p>Connecting...</p>}
                   {apiStatus === 'error' && <p style={{color: 'red'}}>{apiError}</p>}
               </div>

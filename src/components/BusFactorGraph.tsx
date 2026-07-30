@@ -93,7 +93,7 @@ export const BusFactorGraph: React.FC<BusFactorGraphProps> = ({ auth, students }
                 }}
             />
             <Bar dataKey="score" fill="#ff6b6b" radius={[0, 4, 4, 0]} barSize={30}>
-                {chartData.map((entry, index) => (
+                {chartData.map((_entry, index) => (
                     <Cell key={`cell-${index}`} fill={index === 0 ? '#d32f2f' : '#ff6b6b'} />
                 ))}
             </Bar>

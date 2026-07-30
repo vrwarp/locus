@@ -8,12 +8,7 @@ import {
     getExpiredBackgroundChecks,
     getFirstTimeGivers,
     getNewBabies,
-    getElderlyCare,
-    type BirthdayAction,
-    type PromotionAction,
-    type CollegeSendOffAction,
-    type BackgroundCheckAction,
-    type FirstTimeGiverAction
+    getElderlyCare
 } from '../utils/automations';
 import './AutomationsReport.css';
 import type { GraderOptions } from '../utils/grader';

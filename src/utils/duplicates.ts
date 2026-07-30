@@ -74,7 +74,7 @@ export const detectDuplicates = (students: Student[]): DuplicateGroup[] => {
   const groupedSets = new Set<string>();
 
   const addGroup = (map: Map<string, Student[]>, criteriaName: string) => {
-    for (const [key, matchingStudents] of map.entries()) {
+    for (const matchingStudents of map.values()) {
       if (matchingStudents.length > 1) {
         // Sort by ID to create a stable unique key for this exact group of students
         const idKey = matchingStudents.map(s => s.id).sort().join(',');
@@ -113,7 +113,7 @@ export const detectDuplicates = (students: Student[]): DuplicateGroup[] => {
   }
 
   // Iterate through address groups and look for similar names
-  for (const [addressKey, peopleAtAddress] of addressMap.entries()) {
+  for (const peopleAtAddress of addressMap.values()) {
     if (peopleAtAddress.length > 1) {
         // Compare each person to others at the same address
         for (let i = 0; i < peopleAtAddress.length; i++) {
