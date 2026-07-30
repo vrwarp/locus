@@ -1,4 +1,21 @@
 
+## Session (Drift Report)
+- **Implemented:**
+    - **Predictive Attrition (Drift Report) (Locus Intelligence):**
+        - Created `src/utils/drift.ts` to identify individuals whose check-in frequency over the last 90 days has dropped by 50% or more compared to their baseline in the previous 91-180 days.
+        - Built `src/components/DriftReport.tsx` to visualize these "drifting" members in a boardroom-ready list UI, complete with an "Export to CSV" button.
+        - Integrated the view into `App.tsx` and added it to the sidebar navigation under "Reports".
+- **Test Coverage:**
+    - Added comprehensive unit tests in `src/utils/drift.test.ts` covering dropping check-in scenarios, constant activity, and threshold gating.
+    - Added UI tests in `src/components/DriftReport.test.tsx` using `vi.mock` for the fetch and drift calculation utilities, verifying loading states, empty states, and data export. All tests passing.
+- **Status:** Drift Report fully implemented and verified.
+- **Discoveries:**
+    - Testing exported UI actions like `downloadCSV` within Vitest requires the `@testing-library/user-event` package to properly simulate interaction, and `vi.mock` on the utility itself to capture the data array passed.
+- **Future Ideas:**
+    - Expand the drift algorithm to encompass giving or small group participation beyond just check-in events.
+    - Add a toggle in the UI to modify the evaluation timeframes (e.g. comparing year-over-year instead of 90-day chunks).
+
+
 ## Session (Levenshtein Email Heuristics)
 - **Implemented:**
     - Refactored `fixEmail` in `src/utils/hygiene.ts` to use `fastest-levenshtein` to dynamically calculate the string distance between provided email domains and a curated list of valid MX domains.

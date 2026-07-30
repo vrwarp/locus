@@ -45,6 +45,7 @@ const WORKSPACE: NavItem[] = [
 ];
 
 const REPORTS: NavItem[] = [
+  { view: 'drift', label: 'Drift Report', icon: '📉' },
   { view: 'retention', label: 'Retention', icon: '🕳️' },
   { view: 'attendance', label: 'Attendance', icon: '📈' },
   { view: 'burnout', label: 'Burnout Risk', icon: '🔥' },

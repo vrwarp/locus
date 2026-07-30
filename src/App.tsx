@@ -12,6 +12,7 @@ import { RecruitmentReport } from './components/RecruitmentReport'
 import { NewcomerFunnel } from './components/NewcomerFunnel'
 import { AttendancePulse } from './components/AttendancePulse'
 import { BusFactorGraph } from './components/BusFactorGraph'
+import { DriftReport } from './components/DriftReport'
 import { MissingVolunteersReport } from './components/MissingVolunteersReport'
 import { GenerationStack } from './components/GenerationStack'
 import { DuplicatesReport } from './components/DuplicatesReport'
@@ -755,6 +756,12 @@ function App() {
                             </div>
                         )}
 
+
+                        {currentView === 'drift' && (
+                            <div className="view-container">
+                                <DriftReport students={students} auth={auth} />
+                            </div>
+                        )}
                         {currentView === 'burnout' && (
                             <div className="view-container">
                                 <h2>Burnout Risk Analysis</h2>
