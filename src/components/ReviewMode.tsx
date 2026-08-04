@@ -136,7 +136,7 @@ export const ReviewMode: React.FC<ReviewModeProps> = ({ isOpen, onClose, student
               changed = true;
           }
           if (student.hasEmailAnomaly && student.email) {
-              const fixedEmail = fixEmail(student.email);
+              const fixedEmail = fixEmail(student.email, false);
               if (validateEmail(fixedEmail)) {
                   updatedStudent.email = fixedEmail;
                   updatedStudent.hasEmailAnomaly = false;

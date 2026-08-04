@@ -646,3 +646,16 @@
 - **Test Coverage:**
     - Updated `src/components/CampusCup.test.tsx` to utilize `vi.useFakeTimers()` to accurately assert state progression caused by the background simulated intervals.
 - **Status:** Campus Cup real-time animation enhancement implemented and verified.
+
+## Session (Name & Email Hygiene Fixes)
+- **Implemented:**
+    - **`fixName` repair:** Updated `src/utils/hygiene.ts` to properly split names on spaces, hyphens, and apostrophes while preserving those delimiters in the resulting string (e.g., correctly formatting "Vega-Ruiz" instead of "Vega-ruiz", and "O'Brien" instead of "O'brien").
+    - Implemented special-case capitalization for the `Mc` and `Mac` prefixes (e.g., "McDonald", "MacArthur").
+    - Retained uppercase formatting for common Roman numeral (II, III, IV) and professional (MD, PHD, DDS) suffixes.
+    - **Fuzzy Email Matching Gate:** Added an `allowFuzzy` flag to `fixEmail` in `src/utils/hygiene.ts`, defaulting to `true`.
+    - Updated `handleFixAll` in `src/components/ReviewMode.tsx` to pass `false` for `allowFuzzy`, ensuring that aggressive domain rewriting (via Levenshtein distance) is disabled during bulk 'Smart Fix All' operations.
+- **Test Coverage:**
+    - Expanded `src/utils/hygiene.test.ts` to include explicit unit tests verifying hyphenation, apostrophe preservation, Mc/Mac prefixes, and Roman numeral suffixes in `fixName`.
+    - Added unit test to verify that `fixEmail` correctly bypasses fuzzy correction when `allowFuzzy` is false.
+    - Updated `src/components/ReviewMode.test.tsx` to assert that `Smart Fix All` no longer applies fuzzy typo corrections to emails.
+- **Status:** Hygiene utility repairs implemented and verified, completing step 2 of the core-hygiene audit ordered work list.
