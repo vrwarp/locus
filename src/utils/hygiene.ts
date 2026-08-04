@@ -18,11 +18,36 @@ export const detectNameAnomaly = (name: string): boolean => {
 export const fixName = (name: string): string => {
   if (!name) return '';
 
+  const upperCaseSuffixes = ['II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'MD', 'DDS', 'PHD'];
+  const mixedCaseSuffixes = ['Jr', 'Sr', 'Jr.', 'Sr.'];
+
+  // Split by space, hyphen, or apostrophe, preserving the delimiters
   return name
     .toLowerCase()
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .split(/([\s\-'])/)
+    .map(token => {
+      if (/^[\s\-']$/.test(token)) return token; // Delimiter
+
+      const upperToken = token.toUpperCase();
+      if (upperCaseSuffixes.includes(upperToken)) {
+        return upperToken;
+      }
+
+      const mixedIdx = mixedCaseSuffixes.findIndex(s => s.toLowerCase() === token);
+      if (mixedIdx !== -1) {
+        return mixedCaseSuffixes[mixedIdx];
+      }
+
+      if (token.startsWith('mc') && token.length > 2) {
+        return 'Mc' + token.charAt(2).toUpperCase() + token.slice(3);
+      }
+      if (token.startsWith('mac') && token.length > 3) {
+        return 'Mac' + token.charAt(3).toUpperCase() + token.slice(4);
+      }
+
+      return token.charAt(0).toUpperCase() + token.slice(1);
+    })
+    .join('');
 };
 
 export interface Address {
@@ -46,7 +71,7 @@ export const detectEmailAnomaly = (email: string): boolean => {
     return !validateEmail(email);
 }
 
-export const fixEmail = (email: string): string => {
+export const fixEmail = (email: string, allowFuzzy: boolean = true): string => {
     if (!email) return '';
 
     // Strip whitespaces and convert to lowercase
@@ -72,7 +97,7 @@ export const fixEmail = (email: string): string => {
         }
 
         // Fuzzy matching for domain typos if domain > 4 chars (to prevent aol.com false positives)
-        if (domain.length > 4) {
+        if (allowFuzzy && domain.length > 4) {
             let bestMatch = domain;
             let minDistance = Infinity;
 

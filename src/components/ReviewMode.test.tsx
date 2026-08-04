@@ -174,7 +174,7 @@ describe('ReviewMode', () => {
             },
             {
                 original: studentWithEmailAnomaly,
-                updated: expect.objectContaining({ email: 'test@gmail.com', hasEmailAnomaly: false })
+                updated: expect.objectContaining({ email: 'test@gmial.com', hasEmailAnomaly: false })
             }
         ]);
     });

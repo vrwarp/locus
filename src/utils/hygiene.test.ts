@@ -39,6 +39,33 @@ describe('fixName', () => {
   it('should handle multiple names', () => {
     expect(fixName('JOHN ROBERT DOE')).toBe('John Robert Doe');
   });
+
+  it('should preserve hyphens and apostrophes', () => {
+    expect(fixName('vega-ruiz')).toBe('Vega-Ruiz');
+    expect(fixName('mary-jane')).toBe('Mary-Jane');
+    expect(fixName("o'brien")).toBe("O'Brien");
+    expect(fixName("d'angelo")).toBe("D'Angelo");
+  });
+
+  it('should special-case Mc and Mac prefixes', () => {
+    expect(fixName('mcdonald')).toBe('McDonald');
+    expect(fixName('macarthur')).toBe('MacArthur');
+    expect(fixName('mccarthy')).toBe('McCarthy');
+    expect(fixName('mackenzie')).toBe('MacKenzie');
+  });
+
+  it('should maintain uppercase for common Roman numeral and professional suffixes', () => {
+    expect(fixName('john doe ii')).toBe('John Doe II');
+    expect(fixName('john doe iii')).toBe('John Doe III');
+    expect(fixName('john doe iv')).toBe('John Doe IV');
+    expect(fixName('john doe md')).toBe('John Doe MD');
+    expect(fixName('john doe phd')).toBe('John Doe PHD');
+  });
+
+  it('should maintain mixed case for Jr and Sr suffixes', () => {
+    expect(fixName('john doe jr')).toBe('John Doe Jr');
+    expect(fixName('john doe sr.')).toBe('John Doe Sr.');
+  });
 });
 
 describe('Email Validation', () => {
@@ -110,6 +137,15 @@ describe('fixEmail', () => {
     it('should not alter valid emails', () => {
         expect(fixEmail('user@example.com')).toBe('user@example.com');
         expect(fixEmail('john.doe+test@gmail.com')).toBe('john.doe+test@gmail.com');
+    });
+
+    it('should not apply fuzzy typo correction when allowFuzzy is false', () => {
+        expect(fixEmail('user@gmial.com', false)).toBe('user@gmial.com');
+        expect(fixEmail('user@yaho.com', false)).toBe('user@yaho.com');
+        expect(fixEmail('user@hotmial.com', false)).toBe('user@hotmial.com');
+
+        // Basic dot-com additions should still work
+        expect(fixEmail('user@gmailcom', false)).toBe('user@gmail.com');
     });
 });
 
