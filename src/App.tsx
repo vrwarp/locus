@@ -17,6 +17,7 @@ import { GenerationStack } from './components/GenerationStack'
 import { DuplicatesReport } from './components/DuplicatesReport'
 import { NewsletterArchitect } from './components/NewsletterArchitect'
 import { SmallGroupSorter } from './components/SmallGroupSorter'
+import { DriftReport } from './components/DriftReport'
 
 import { GamificationWidget } from './components/GamificationWidget'
 import { UndoRedoControls } from './components/UndoRedoControls'
@@ -759,6 +760,12 @@ function App() {
                             <div className="view-container">
                                 <h2>Burnout Risk Analysis</h2>
                                 <BurnoutReport students={students} auth={auth} />
+                            </div>
+                        )}
+
+                        {currentView === 'drift' && (
+                            <div className="view-container">
+                                <DriftReport students={students} auth={auth} />
                             </div>
                         )}
 

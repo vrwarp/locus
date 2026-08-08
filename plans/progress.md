@@ -1,3 +1,14 @@
+## Session (Predictive Attrition / Drift Report)
+- **Implemented:**
+    - Created `calculateDrift` logic in `src/utils/drift.ts` to identify attendance drop-offs by comparing the most recent 90 days of check-ins against the prior 91-180 days for a given individual.
+    - Built the `DriftReport` UI component (`src/components/DriftReport.tsx`) with a data grid visualizing prior and recent check-ins alongside a calculated "Dropoff" percentage, only displaying those with >=50% drop.
+    - Integrated "Export to CSV" functionality for downloading the predictive attrition report.
+    - Registered the Drift Report in the global routing context (`src/App.tsx`) and added it to the Executive Dashboard sidebar navigation (`src/components/Sidebar.tsx`) under "Reports".
+- **Test Coverage:**
+    - Wrote extensive unit tests in `src/utils/drift.test.ts` for logic handling drop calculation, lack of prior attendance, and complete drop-offs.
+    - Added UI component and integration tests in `src/components/DriftReport.test.tsx` checking loading states, CSV export format, calculation accuracy, and API error handling.
+- **Status:** Drift Report feature complete, bridging the gap for the Locus Intelligence pillar.
+
 
 ## Session (Levenshtein Email Heuristics)
 - **Implemented:**
